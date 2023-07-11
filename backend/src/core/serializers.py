@@ -6,8 +6,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
         if user.is_superuser:
+            token['is_admin'] = True
             token['is_operational_manager'] = False
         else:
+            token['is_admin'] = False
             token['manager_id'] = user.manager.id
             token['is_operational_manager'] = user.manager.is_operational_manager
 
