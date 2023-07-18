@@ -11,6 +11,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         }
         if user.is_superuser:
             token['user_data']['is_admin'] = True
+            token['user_data']['manager_id'] = None
             token['user_data']['is_operational_manager'] = False
         else:
             token['user_data']['is_admin'] = False
