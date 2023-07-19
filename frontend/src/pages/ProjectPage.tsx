@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import {useNavigate, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
 import ProjectForm from "../components/ProjectForm";
 import ProjectsService from "../services/ProjectsService";
 import Header from "../components/Header/Header";
-import {useNavigation} from "react-router-dom";
 
 
 // @ts-ignore
@@ -14,9 +13,10 @@ const ProjectPage = () => {
         // @ts-ignore
         ProjectsService.fetchCurrentProjects(id).then(res => setProjectName(res.data.name))
     },[])
+    const [visible, setVisible] = useState(false)
     return (
         <>
-        <Header name={null} children={undefined}/>
+        <Header name={'Добавить проект'} setVisible={setVisible}/>
 
         <div className="container mx-auto pb-[15rem] pt-10">
             <button className="hover:bg-gray-300" >Вернуться назад</button>

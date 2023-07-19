@@ -8,6 +8,7 @@ import {Context} from "../index";
 import {observer} from "mobx-react-lite";
 import {IndeterminateCheckbox} from "../utils/checkBox";
 import DropdownMenu from "../components/ui/DropDownMenu";
+import Owner from "../components/Table/Owner";
 
 interface Project {
     id: number
@@ -22,9 +23,8 @@ interface Project {
         last_name: string,
         first_name: string,
         middle_name: string,
-        // is_operational_manager: boolean,
-        // operational_manager: number
-    }
+    },
+    date_of_create: string
 }
 
 const ProjectsPage = () => {
@@ -34,7 +34,6 @@ const ProjectsPage = () => {
             id: 'select',
             header: '',
             cell: ({row}) => (
-                <div className="px-1">
                     <IndeterminateCheckbox key={row.id}
                         {...{
                             checked: row.getIsSelected(),
@@ -43,29 +42,30 @@ const ProjectsPage = () => {
                             onChange: row.getToggleSelectedHandler(),
                         }}
                     />
-                </div>
             ),
-            minSize: 50,
-            maxSize: 5,
-        },
-        {
-            accessorKey: 'id',
-            header: 'id',
-            cell: info => info.getValue(),
-            minSize: 20,
-            maxSize: 20,
-            enableSorting: false
+            size: 10,
+            enableGlobalFilter:false
         },
         {
             accessorKey: 'name',
             header: 'Название проекта',
-            cell: info => info.getValue()
+            cell: info => info.getValue(),
+
         },
         {
-            accessorKey: 'owner.user.username',
+            accessorKey: 'owner',
             header: 'Владелец',
+            cell: info => <Owner manager={info.getValue()}/>,
+            enableSorting: false,
+
+        },
+        {
+            accessorKey: 'date_of_create',
+            header: 'Дата создания',
             cell: info => info.getValue(),
-            enableSorting: false
+            size:100,
+            enableGlobalFilter: false
+
         },
         {
             accessorKey: 'id',
@@ -75,7 +75,8 @@ const ProjectsPage = () => {
             cell:info =>
                 <DropdownMenu id={info.getValue()}/>
             ,
-            enableSorting: false
+            enableSorting: false,
+            enableGlobalFilter:false
         }
 
     ], [])
@@ -89,10 +90,11 @@ const ProjectsPage = () => {
         // @ts-ignore
         setData(store.projects)
     },[store.projects])
-
+    const [visible, setVisible] = useState(false)
     return (
         <>
-            <Header name="Добавить проект" children={<AddProject/>}></Header>
+            <Header name="Добавить проект" setVisible={setVisible}></Header>
+            {visible && <AddProject setVisible={setVisible}/>}
             <ProjectTable data={data} columns={columns}/>
         </>
     )

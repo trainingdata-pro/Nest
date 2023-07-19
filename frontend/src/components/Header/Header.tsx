@@ -4,11 +4,11 @@ import {Context} from "../../index";
 import DropdownMenu from "./Profile";
 import {observer} from "mobx-react-lite";
 import { RxPlus } from "react-icons/rx";
+import AddProject from "../AddProject";
 
 
 // @ts-ignore
-const Header = ({name, children}) => {
-    const {store} = useContext(Context)
+const Header = ({name, setVisible}) => {
     return (
         <header className="sticky h-20 border-b border-gray-200 bg-white">
             <div className="container mx-auto h-full pr-8 pl-8">
@@ -28,16 +28,11 @@ const Header = ({name, children}) => {
                                 </li>
                             </ul>
                         </div>
-                        <div className="absolute left-0 top-full flex justify-center"></div>
-
                     </nav>
-                    <div onClick={() => {
-                        store.setHiddenAddAssessor(true)
-                    }
-                    } className="justify-center bg-black cursor-pointer hover:bg-black/80 text-white rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-primary text-primary-foreground hover:bg-primary/90 h-10 py-2 px-4 flex items-center gap-x-2">
+                    <div onClick={()=> setVisible(true)} className="justify-center bg-black cursor-pointer hover:bg-black/80 text-white rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-primary text-primary-foreground hover:bg-primary/90 h-10 py-2 px-4 flex items-center gap-x-2">
                         <RxPlus/> {name}
                     </div>
-                    {store.hiddenAddAssessor && children}
+
                     <DropdownMenu/>
 
                 </div>
@@ -46,4 +41,4 @@ const Header = ({name, children}) => {
     )
 }
 
-export default observer(Header);
+export default Header;

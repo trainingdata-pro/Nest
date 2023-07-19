@@ -3,7 +3,7 @@ import {Context} from "../../index";
 import {observer} from "mobx-react-lite";
 
 // @ts-ignore
-function Confirm({id, confirm}) {
+function ConfirmWindowAssessors({id, confirm}) {
     const {store} = useContext(Context)
     return(
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
@@ -18,17 +18,17 @@ function Confirm({id, confirm}) {
                     <button type="button" onClick={()=> confirm(false)}
                             className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background border border-input hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4 mt-2 sm:mt-0">Отменить
                     </button>
-                        <button type="button" onClick={()=> {
-                            // @ts-ignore
-                            store.deleteProject(id)
-                            confirm(false)
-                        }}
-                                className="inline-flex bg-black text-white items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-primary text-primary-foreground hover:bg-primary/90 h-10 py-2 px-4">Продолжить
-                        </button>
+                    <button type="button" onClick={()=> {
+                        // @ts-ignore
+                        store.deleteAssessors(id)
+                        confirm(false)
+                    }}
+                            className="inline-flex bg-black text-white items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-primary text-primary-foreground hover:bg-primary/90 h-10 py-2 px-4">Продолжить
+                    </button>
                 </div>
             </div>
         </div>
     )
 }
 
-export default observer(Confirm);
+export default observer(ConfirmWindowAssessors);

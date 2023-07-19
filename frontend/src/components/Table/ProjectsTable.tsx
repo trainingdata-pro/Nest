@@ -1,5 +1,5 @@
 import {observer} from "mobx-react-lite";
-import React, {Fragment, useContext, useEffect, useMemo, useState} from "react";
+import React, {Fragment, useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {
     useReactTable,
     getCoreRowModel,
@@ -8,7 +8,7 @@ import {
     getSortedRowModel,
     SortingState,
     flexRender,
-    getFilteredRowModel
+    getFilteredRowModel, ColumnFiltersState
 } from "@tanstack/react-table";
 import ActionMenu from "../ui/ActionMenu";
 import Icon from '@mdi/react';
@@ -18,7 +18,35 @@ import {Context} from "../../index";
 import {IndeterminateCheckbox} from "../../utils/checkBox";
 import Confirm from "../ui/ConfirmWindow";
 import DropdownMenu from "../ui/DropDownMenu";
+import SelectManagerProjectFilter from "./SelectManagerProjectFilter";
+function DebouncedInput({
+                            value: initialValue,
+                            onChange,
+                            debounce = 500,
+                            ...props
+                        }: {
+    value: string | number
+    onChange: (value: string | number) => void
+    debounce?: number
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'>) {
+    const [value, setValue] = React.useState(initialValue)
 
+    React.useEffect(() => {
+        setValue(initialValue)
+    }, [initialValue])
+
+    React.useEffect(() => {
+        const timeout = setTimeout(() => {
+            onChange(value)
+        }, debounce)
+
+        return () => clearTimeout(timeout)
+    }, [value])
+
+    return (
+        <input {...props} value={value} onChange={e => setValue(e.target.value)} />
+    )
+}
 type Project = {
     id: number
     name: string
@@ -41,61 +69,93 @@ function ProjectTable({data, columns}) {
     const {store} = useContext(Context)
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [rowSelection, setRowSelection] = React.useState({})
+    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+        []
+    )
+    const [globalFilter, setGlobalFilter] = React.useState('')
     const table = useReactTable({
         data,
-        // @ts-ignore
         columns,
         // Pipeline
         getCoreRowModel: getCoreRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
+        globalFilterFn: "includesString",
         state: {
             rowSelection,
-            sorting
+            sorting,
+            columnFilters,
+            globalFilter,
         },
+        onColumnFiltersChange: setColumnFilters,
+        onGlobalFilterChange: setGlobalFilter,
+        getFilteredRowModel: getFilteredRowModel(),
         enableRowSelection: true,
         onRowSelectionChange: setRowSelection,
         debugTable: true,
     })
+    function reset(){
+        table.resetRowSelection()
+    }
+    useEffect(() =>{
+        try {
+            store.setSelectedRow([...Object.keys(rowSelection).map(key => table.getRow(key)._valuesCache['id'])])
+
+        } catch (e) {
+            console.log(e)
+        }
+    }, [store.projects,rowSelection])
     return (
         <div className="container mx-auto pb-[15rem] pt-10">
-            {store.showConfirm && <Confirm id={store.selectedRow} />}
+            <div className="pb-3">
+                <DebouncedInput
+                    value={globalFilter ?? ''}
+                    onChange={value => setGlobalFilter(String(value))}
+                    className="flex h-10 rounded-md border border-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full max-w-[30rem] bg-white"
+                    placeholder="Искать по названию"
+                />
+            </div>
+            {/*<SelectManagerProjectFilter/>*/}
+            {store.showConfirm && <Confirm
+                id={[...Object.keys(rowSelection).map(key => table.getRow(key)._valuesCache['id'])]} confirm={reset} />}
             <div className="rounded-md border border-b-gray-400 bg-white">
                 <>
-                    {Object.keys(rowSelection).length !== 0 && <ActionMenu/>}
+                    {Object.keys(rowSelection).length !== 0 && <ActionMenu reset={reset} />}
                 </>
+
                 <table className="w-full">
                     <thead>
                     {table.getHeaderGroups().map(headerGroup => (
                         <tr key={headerGroup.id} className="border-b transition-colors data-[state=selected]:bg-muted">
                             {headerGroup.headers.map(header => {
                                 return (
-                                    <th key={header.id} colSpan={header.colSpan}
-                                        className="h-12 px-4 align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">
+                                    <th key={header.id} style={{
+                                        width:
+                                            header.getSize(),
+                                    }}
+                                        className="items-center py-2 text-[#64748b] text-sm">
                                         {header.isPlaceholder ? null : (
-                                            <div {...{
-                                                className: header.column.getCanSort() ? 'cursor-pointer select-none' : '',
-                                                onClick: header.column.getToggleSortingHandler(),
-                                            }}>
-                                                <div className="flex justify-center text-left">{flexRender(
+                                            // <div >
+                                                <div{...{
+                                                    className: header.column.getCanSort() ? 'flex justify-center items-center align-middle cursor-pointer select-none' : 'flex justify-center',
+                                                    onClick: header.column.getToggleSortingHandler(),
+                                                }}>{flexRender(
                                                     header.column.columnDef.header,
                                                     header.getContext()
                                                 )}
                                                     {header.column.getCanSort() ? <span>
                                                 {{
                                                         asc: <Icon className="pl-0.5" path={mdiSortAscending} size={1}
-                                                                   color={'grey'}/>,
+                                                                   color={'#64748b'}/>,
                                                         desc: <Icon className="pl-0.5" path={mdiSortDescending} size={1}
-                                                                    color={'grey'}/>,
+                                                                    color={'#64748b'}/>,
                                                     }
                                                         [header.column.getIsSorted() as string] ??
-                                                    <Icon className="pl-0.5" path={mdiSort} size={1} color={'grey'}/>
+                                                    <Icon className="pl-0.5" path={mdiSort} size={1} color={'#64748b'}/>
                                                 }
                                                 </span> : null}
                                                 </div>
-                                            </div>
                                         )}
                                     </th>
                                 )
@@ -104,21 +164,24 @@ function ProjectTable({data, columns}) {
                     ))}
                     </thead>
 
-                    <tbody>
+                    {data.length !== 0?<tbody>
                     {table.getRowModel().rows.map(row => (
                         <tr key={row.id}
-                            className="border-b transition-colors data-[state=selected]:bg-muted hover:bg-gray-100">
+                            className={row.getIsSelected() ? "border-b transition-colors bg-gray-300" :
+                                "border-b transition-colors hover:bg-gray-100"}>
                             {row.getVisibleCells().map(cell => {
                                 return (
-                                    <td key={cell.id}
-                                        className="p-4 text-center align-middle [&:has([role=checkbox])]:pr-0">
-                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    <td key={cell.id} colSpan={1}>
+                                        <div className="flex justify-center items-center align-middle py-2">
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </div>
                                     </td>
                                 )
                             })}
                         </tr>
                     ))}
-                    </tbody>
+                    </tbody>: <tbody><tr><td className="p-4 border-b align-middle [&amp;:has([role=checkbox])]:pr-0 h-24 text-center"
+                                             colSpan={9}>Нет результатов</td></tr></tbody>}
                 </table>
                 <div className="px-2 py-3">
                     <div className="flex items-center justify-between px-2">
@@ -147,7 +210,7 @@ function ProjectTable({data, columns}) {
                                              <span className="flex items-center gap-1">
                                                  <div>Страница</div>
                                                  <strong>
-                                                     {table.getState().pagination.pageIndex + 1} из {' '}
+                                                     {table.getPageCount() !== 0?table.getState().pagination.pageIndex + 1: 0} из {' '}
                                                      {table.getPageCount()}
                                                  </strong>
                                              </span>

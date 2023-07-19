@@ -6,6 +6,8 @@ import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom";
 import TeamPage from "./pages/TeamPage";
 import ProjectsPage from "./pages/ProjectsPage";
 import ProjectPage from "./pages/ProjectPage";
+import AssessorPage from "./pages/AssessorPage";
+import AddAssessorToProject from "./components/AddAssessorToProject";
 
 function App() {
     const {store} = useContext(Context)
@@ -13,7 +15,6 @@ function App() {
     useMemo(()=>{
         if (localStorage.getItem('token')) {
             store.checkAuth()
-
         }
     },[])
 
@@ -26,16 +27,16 @@ function App() {
         return <SignInPage/>
     }
 
-
-
     return (
         <div className="min-w-screen relative min-h-screen bg-gray-50">
             <BrowserRouter>
                 <Routes>
                     <Route path={'/dashboard/team'} element={<TeamPage/>}/>
+                    <Route path={'/dashboard/assessor/:id'} element={<AssessorPage/>}/>
+                    <Route path={'/dashboard/assessor/add_project'} element={<AddAssessorToProject/>}/>
                     <Route path={'/dashboard/projects/'} element={<ProjectsPage/>}/>
                     <Route path={'/dashboard/projects/:id'} element={<ProjectPage/>}/>
-                    <Route path="*" element={<Navigate to="/dashboard/team" replace/>}/>
+                    <Route path="*" element={<Navigate to="/dashboard/team" replace/>}/> // TODO: redirect 404
                 </Routes>
             </BrowserRouter>
         </div>

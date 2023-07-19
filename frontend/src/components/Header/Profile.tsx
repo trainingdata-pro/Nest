@@ -24,7 +24,7 @@ const DropdownMenu = () => {
                             <span
                                 className="relative flex shrink-0 overflow-hidden rounded-full h-14 border border-gray-400 w-14 bg-amber-50">
                                 <span
-                                    className="flex h-full w-full items-center justify-center rounded-full bg-muted"></span>
+                                    className="flex h-full w-full items-center justify-center rounded-full bg-muted">{store.manager.first_name.charAt(0)}{store.manager.last_name.charAt(0)}</span>
                             </span>
                     </div>
                 </div>
@@ -49,7 +49,7 @@ const DropdownMenu = () => {
                                     'font-bold block px-4 py-2 text-sm border-b-gray-100 border-b-2'
                                 )}
                             >
-                                {/*{store.manager.last_name} {store.manager.first_name} {store.manager.middle_name}*/}
+                                {store.manager.last_name} {store.manager.first_name} {store.manager.middle_name}
                             </div>
                         )}
                     </Menu.Item>

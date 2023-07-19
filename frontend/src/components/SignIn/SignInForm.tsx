@@ -18,6 +18,7 @@ const SignInForm = () => {
         setIsLoading(true)
         const values = getValues()
         try {
+            // await store.login(values.username, values.password)
             await store.login(values.username, values.password)
             redirect('/dashboard/team') // TODO: redirect to main page
 

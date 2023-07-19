@@ -5,16 +5,17 @@ import Store from "./store/store";
 import {createContext} from "react";
 import "./index.css"
 import React from 'react';
+import RootStore from "./store/store";
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
 );
 
 interface State {
-    store: Store
+    store: RootStore
 }
 
-const store = new Store()
+const store = new RootStore()
 export const Context = createContext<State>({store});
 root.render(
 

@@ -19,5 +19,8 @@ export default class ManagerService{
     static fetch_manager(id: number): Promise<AxiosResponse<IManager>> {
         return $api.get<IManager>(`/api/users/${id}`)
     }
+    static fetch_managers(): any {
+        return $api.get<IManager[]>(`/api/users/`)
+    }
 
 }
