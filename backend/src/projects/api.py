@@ -18,7 +18,9 @@ from . import serializers
 @method_decorator(name='partial_update', decorator=project_schema.partial_update())
 @method_decorator(name='destroy', decorator=project_schema.destroy())
 class ProjectAPIViewSet(BaseAPIViewSet):
-    queryset = Project.objects.all().select_related('owner__user')
+    queryset = (Project.objects
+                .select_related('owner__user')
+                .order_by('owner__last_name', 'name', '-date_of_create'))
     permission_classes = {
         'create': (IsAuthenticated,),
         'partial_update': (IsAuthenticated, ProjectOwner),
