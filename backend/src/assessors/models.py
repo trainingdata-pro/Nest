@@ -28,12 +28,29 @@ class Assessor(models.Model):
     manager = models.ForeignKey(
         Manager,
         on_delete=models.PROTECT,
-        verbose_name='менеджер'
+        verbose_name='менеджер',
+        related_name='assessor'
+    )
+    is_free_resource = models.BooleanField(
+        default=False,
+        verbose_name='св. ресурс'
+    )
+    second_manager = models.ManyToManyField(
+        Manager,
+        blank=True,
+        related_name='extra',
+        verbose_name='Доп. менеджеры'
+    )
+    max_count_of_second_managers = models.IntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Макс. к-во доп. менеджеров'
     )
     projects = models.ManyToManyField(
         Project,
         blank=True,
-        verbose_name='проекты'
+        verbose_name='проекты',
+        related_name='assessors'
     )
     is_busy = models.BooleanField(
         default=False,

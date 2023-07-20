@@ -11,6 +11,7 @@ class AssessorAdmin(admin.ModelAdmin):
         'first_name',
         'middle_name',
         'manager',
+        'is_free_resource',
         'is_busy'
     )
     list_display_links = ('username',)
