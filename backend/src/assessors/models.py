@@ -29,7 +29,9 @@ class Assessor(models.Model):
         Manager,
         on_delete=models.PROTECT,
         verbose_name='менеджер',
-        related_name='assessor'
+        related_name='assessor',
+        null=True,
+        blank=True
     )
     is_free_resource = models.BooleanField(
         default=False,
@@ -55,6 +57,10 @@ class Assessor(models.Model):
     is_busy = models.BooleanField(
         default=False,
         verbose_name='занят'
+    )
+    blacklist = models.BooleanField(
+        default=False,
+        verbose_name='черный список'
     )
     date_of_registration = models.DateField(
         auto_now_add=True,

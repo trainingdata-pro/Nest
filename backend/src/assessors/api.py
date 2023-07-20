@@ -36,7 +36,8 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         'create': serializers.CreateAssessorSerializer,
         'partial_update': serializers.CreateAssessorSerializer,
         'retrieve': serializers.AssessorSerializer,
-        'list': serializers.AssessorSerializer
+        'list': serializers.AssessorSerializer,
+        'destroy': serializers.RemoveAssessorSerializer
     }
     http_method_names = ['get', 'post', 'patch', 'delete']
     filterset_class = AssessorFilter
@@ -77,6 +78,14 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         response = serializers.AssessorSerializer(assessor)
 
         return Response(response.data, status=status.HTTP_200_OK)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @method_decorator(name='get', decorator=check_assessor_schema.get())
@@ -158,7 +167,8 @@ class FreeResourcesAPIViewSet(GetSerializerClassMixin,
         'check_as_free': serializers.CheckAsFreeResourceSerializer,
         'uncheck_as_free': serializers.UncheckAsFreeResourceSerializer,
         'take': serializers.TakeFreeResourceSerializer,
-        'cancel': serializers.PutAwayFreeResourceSerializer
+        'cancel': serializers.CancelFreeResourceSerializer,
+        'add_to_team': serializers.AddToTeamSerializer
     }
     permission_classes = (IsAuthenticated,)
     http_method_names = ['get', 'patch']
@@ -222,4 +232,9 @@ class FreeResourcesAPIViewSet(GetSerializerClassMixin,
     @fr_schema.cancel()
     @action(detail=True, methods=['patch'])
     def cancel(self, request, **kwargs):
+        return self.update(request, **kwargs)
+
+    @fr_schema.add_to_team()
+    @action(detail=True, methods=['patch'])
+    def add_to_team(self, request, **kwargs):
         return self.update(request, **kwargs)

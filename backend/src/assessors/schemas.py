@@ -122,7 +122,8 @@ class AssessorSchema(BaseAPISchema):
                     description='Unique assessor ID'
                 )
             ],
-            responses={**self.get_responses(204, 401, 403, 404)}
+            request_body=serializers.RemoveAssessorSerializer(),
+            responses={**self.get_responses(204, 400, 401, 403, 404)}
         )
 
 
@@ -238,6 +239,17 @@ class FreeResourcesSchema(BaseAPISchema):
         return self.swagger_auto_schema(
             operation_summary='Cancel free resource',
             operation_description='Cancel free resource',
+            request_body=None,
+            responses={
+                200: serializers.AssessorSerializer(),
+                **self.get_responses(400, 401, 404)
+            }
+        )
+
+    def add_to_team(self):
+        return self.swagger_auto_schema(
+            operation_summary='Add assessor to a team',
+            operation_description='Add assessor to a team',
             request_body=None,
             responses={
                 200: serializers.AssessorSerializer(),
