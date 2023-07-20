@@ -33,8 +33,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # apps
     'assessors.apps.AssessorsConfig',
-    'users.apps.UsersConfig',
+    'blacklist.apps.BlacklistConfig',
     'projects.apps.ProjectsConfig',
+    'users.apps.UsersConfig',
     # other
     'rest_framework',
     'drf_yasg',
