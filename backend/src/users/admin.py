@@ -17,16 +17,23 @@ class CustomUserAdmin(UserAdmin):
 
 
 class ManagerAdmin(admin.ModelAdmin):
+    search_fields = (
+        'user__username',
+        'last_name',
+        'first_name',
+        'middle_name'
+    )
+    search_help_text = 'Введите username или ФИО менеджера'
     list_display = (
         'pk',
+        'user',
         'last_name',
         'first_name',
         'middle_name',
-        'is_operational_manager',
-        'user'
+        'is_operational_manager'
     )
-    list_display_links = ('last_name',)
-    ordering = ['pk']
+    list_display_links = ('user',)
+    ordering = ('last_name',)
 
 
 class CodeAdmin(admin.ModelAdmin):
