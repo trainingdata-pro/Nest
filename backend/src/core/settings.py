@@ -156,15 +156,15 @@ REST_FRAMEWORK = {
 
 VALID_EMAIL_DOMAINS = ['trainingdata.pro']
 
-if DEBUG:
-    EMAIL_HOST = 'mail_server'
-    EMAIL_PORT = 1025
-else:
-    EMAIL_USE_TLS = True
-    EMAIL_PORT = 587
-    EMAIL_HOST = config('EMAIL_HOST')
-    EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+# if DEBUG:
+#     EMAIL_HOST = 'mail_server'
+#     EMAIL_PORT = 1025
+# else:
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
