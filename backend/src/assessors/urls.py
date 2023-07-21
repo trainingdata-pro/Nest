@@ -1,13 +1,17 @@
 from django.urls import path, include
 from rest_framework import routers
 
-from .api import AssessorAPIViewSet, AssessorProjectsAPIViewSet, AssessorCheckAPIView
+from . import api
 
 router = routers.DefaultRouter()
-router.register('', AssessorAPIViewSet, basename='assessor')
-router.register('', AssessorProjectsAPIViewSet, basename='assessor-project')
+router.register('', api.AssessorAPIViewSet, basename='assessor')
+router.register('', api.AssessorProjectsAPIViewSet, basename='assessor-project')
+
+fr_router = routers.DefaultRouter()
+fr_router.register('', api.FreeResourcesAPIViewSet, basename='free-resources')
 
 urlpatterns = [
-    path('assessors/check/', AssessorCheckAPIView.as_view()),
-    path('assessors/', include(router.urls))
+    path('assessors/check/', api.AssessorCheckAPIView.as_view()),
+    path('assessors/', include(router.urls)),
+    path('free_resources/', include(fr_router.urls))
 ]

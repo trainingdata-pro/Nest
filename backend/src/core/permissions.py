@@ -11,6 +11,12 @@ class AssessorOwner(BasePermission):
         return request.user.manager.pk == obj.manager.pk
 
 
+class OwnerOrSecondManager(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return request.user.manager.pk == obj.manager.pk or \
+            obj.second_manager.filter(pk=request.user.manager.pk).exists()
+
+
 class IsCurrentManager(BasePermission):
     def has_object_permission(self, request, view, obj):
         return request.user.manager.pk == obj.pk
