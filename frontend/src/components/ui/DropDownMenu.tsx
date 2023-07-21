@@ -5,6 +5,7 @@ import {NavLink} from "react-router-dom";
 import {observer} from "mobx-react-lite";
 import ConfirmWindow from "./ConfirmWindow";
 import {BsThreeDots} from "react-icons/bs";
+import Confirm from "./ConfirmWindow";
 
 function classNames(...classes: any[]) {
     return classes.filter(Boolean).join(' ')
@@ -13,9 +14,22 @@ function classNames(...classes: any[]) {
 function DropdownMenu({id}){
     const {store} = useContext(Context)
     const [confirm, setConfirm] = useState(false)
+    const handleDeleteRows = () => {
+        setConfirm(true);
+    };
+    const handleCancelDelete = () => {
+        setConfirm(false);
+    };
+    const handleDeleteOneProject = () => {
+        store.deleteProject([id])
+        setConfirm(false);
+    }
     return (
+        <>
+        {confirm && (
+            <Confirm cancel={handleCancelDelete} confirm={handleDeleteOneProject}/>
+        )}
         <Menu as="div" className="inline-block">
-            {confirm && <ConfirmWindow id={[id]} confirm={setConfirm}/>}
             <Menu.Button className="">
                 <span className="flex h-full w-full items-center justify-center rounded-full bg-muted"><BsThreeDots/></span>
             </Menu.Button>
@@ -61,7 +75,6 @@ function DropdownMenu({id}){
                         <Menu.Item>
                             {({active}) => (
                                 <div onClick={()=> {
-                                    store.setSelectedRow([id])
                                     setConfirm(true)
                                 }}
                                      className={classNames(
@@ -78,6 +91,7 @@ function DropdownMenu({id}){
                 </Menu.Items>
             </Transition>
         </Menu>
+        </>
     )
 }
 

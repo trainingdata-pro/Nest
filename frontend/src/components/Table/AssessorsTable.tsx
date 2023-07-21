@@ -1,5 +1,5 @@
 import {observer} from "mobx-react-lite";
-import React, {useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useMemo, useState} from "react";
 import {
     useReactTable,
     getCoreRowModel,
@@ -15,6 +15,10 @@ import Confirm from "../ui/ConfirmWindow";
 import ActionMenu from "../ui/ActionMenu";
 import {Context} from "../../index";
 import ActionMenuAssessors from "../ui/ActionMenuAssessors";
+import AddAssessorToProject from "../AddAssessorToProject";
+import {IAssessor} from "../../models/AssessorResponse";
+import {IndeterminateCheckbox} from "../../utils/checkBox";
+import DropdownMenuAssessors from "../ui/DropDownMenuAssessors";
 
 type Person = {
     id: number
@@ -56,8 +60,97 @@ function DebouncedInput({
 
 
 // @ts-ignore
-function AssessorTable({data, columns}){
+function AssessorTable({data}){
     const {store} = useContext(Context)
+    const columns = useMemo<ColumnDef<IAssessor>[]>(() => [
+        {
+            id: 'select',
+            header: '',
+            cell: ({row}) => (
+                <IndeterminateCheckbox key={row.id}
+                                       {...{
+                                           checked: row.getIsSelected(),
+                                           disabled: !row.getCanSelect(),
+                                           indeterminate: row.getIsSomeSelected(),
+                                           onChange: row.getToggleSelectedHandler(),
+                                       }}
+                />
+            ),
+            size: 10,
+            enableGlobalFilter: false
+        },
+        {
+            accessorKey: 'id',
+            header: 'id',
+            cell: info => info.getValue(),
+            size: 100,
+            enableSorting: false,
+            enableGlobalFilter: false
+        },
+        {
+            accessorKey: 'last_name',
+            header: 'Фамилия',
+            cell: info => info.getValue(),
+            size: 400,
+
+        },
+        {
+            accessorKey: 'first_name',
+            header: 'Имя',
+            cell: info => info.getValue(),
+            enableSorting: false,
+            enableGlobalFilter: false
+        },
+        {
+            accessorKey: 'middle_name',
+            header: 'Отчество',
+            cell: info => info.getValue(),
+            enableSorting: false,
+            enableGlobalFilter: false
+        },
+        {
+            accessorKey: 'username',
+            header: 'Телеграм',
+            cell: info => info.getValue(),
+            enableSorting: true,
+            enableGlobalFilter: false
+        },
+        {
+            accessorKey: 'projects',
+            header: 'Проекты',
+            cell: (cell) => {
+                // @ts-ignore
+                return (<ul>{cell.getValue().map((project: any, index: any) => (
+                        <li key={index}>{project.name}</li>
+                    ))}
+                    </ul>
+                )
+            },
+            enableSorting: true,
+            enableGlobalFilter: false
+        },
+        {
+            accessorKey: 'is_busy',
+            header: 'Статус',
+            cell: info => info.getValue() ? 'Занят' : 'Свободен',
+            enableSorting: true,
+            enableGlobalFilter: false
+        },
+        {
+            accessorKey: 'id',
+            id: "check",
+            header: '',
+            // @ts-ignore
+            cell: ({row}) =>
+                <DropdownMenuAssessors id={row.getValue('id')}/>
+
+            ,
+            enableSorting: false,
+            enableGlobalFilter: false
+        }
+
+    ],[])
+
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -85,18 +178,17 @@ function AssessorTable({data, columns}){
         enableRowSelection: true,
         onRowSelectionChange: setRowSelection,
         debugTable: true,})
-    const [confirm, setConfirm] = useState(false)
     function reset(){
         table.resetRowSelection()
     }
     useEffect(() =>{
-        try {
-            store.setSelectedRowAssessors([...Object.keys(rowSelection).map(key => table.getRow(key)._valuesCache['id'])])
-
-        } catch (e) {
-            console.log(e)
-        }
-    }, [store.assessors,rowSelection])
+        // try {
+        //     store.setSelectedRowAssessors([...Object.keys(rowSelection).map(key => table.getRow(key)._valuesCache['id'])])
+        //
+        // } catch (e) {
+        //     console.log(e)
+        // }
+    }, [store.assessors,rowSelection, store.isLoading])
     return (
         <div className="container mx-auto pb-[15rem] pt-10">
             <div className="pb-3">
@@ -108,8 +200,8 @@ function AssessorTable({data, columns}){
                 />
             </div>
             {/*<SelectManagerProjectFilter/>*/}
-            {store.showConfirm && <Confirm
-                id={[...Object.keys(rowSelection).map(key => table.getRow(key)._valuesCache['id'])]} confirm={reset} />}
+            {/*{store.showConfirm && <Confirm*/}
+            {/*    id={[...Object.keys(rowSelection).map(key => table.getRow(key)._valuesCache['id'])]} confirm={reset} />}*/}
             <div className="rounded-md border border-b-gray-400 bg-white">
                 <>
                     {Object.keys(rowSelection).length !== 0 && <ActionMenuAssessors reset={reset} />}

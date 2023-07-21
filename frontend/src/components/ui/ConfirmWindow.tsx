@@ -1,10 +1,6 @@
-import {useContext} from "react";
-import {Context} from "../../index";
-import {observer} from "mobx-react-lite";
 
 // @ts-ignore
-function Confirm({id, confirm}) {
-    const {store} = useContext(Context)
+function Confirm({cancel, confirm}) {
     return(
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
             <div className="animate-in fade-in fixed inset-0 z-50 bg-background/80 backdrop-blur-sm transition-opacity"></div>
@@ -15,14 +11,10 @@ function Confirm({id, confirm}) {
                     удалите проект, у вас не будет возможности его восстановить, кроме как добавить его заново.</p>
                 </div>
                 <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-                    <button type="button" onClick={()=> confirm(false)}
+                    <button type="button" onClick={cancel}
                             className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background border border-input hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4 mt-2 sm:mt-0">Отменить
                     </button>
-                        <button type="button" onClick={()=> {
-                            // @ts-ignore
-                            store.deleteProject(id)
-                            confirm(false)
-                        }}
+                        <button type="button" onClick={confirm}
                                 className="inline-flex bg-black text-white items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-primary text-primary-foreground hover:bg-primary/90 h-10 py-2 px-4">Продолжить
                         </button>
                 </div>
@@ -31,4 +23,4 @@ function Confirm({id, confirm}) {
     )
 }
 
-export default observer(Confirm);
+export default Confirm;

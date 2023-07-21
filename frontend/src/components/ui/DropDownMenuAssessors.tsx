@@ -6,6 +6,7 @@ import {observer} from "mobx-react-lite";
 import ConfirmWindow from "./ConfirmWindow";
 import {BsThreeDots} from "react-icons/bs";
 import ConfirmWindowAssessors from "./ConfirmWindowAssessors";
+import AddAssessorToProject from "../AddAssessorToProject";
 
 function classNames(...classes: any[]) {
     return classes.filter(Boolean).join(' ')
@@ -14,9 +15,11 @@ function classNames(...classes: any[]) {
 function DropdownMenuAssessors({id}){
     const {store} = useContext(Context)
     const [confirm, setConfirm] = useState(false)
+    const [addToProject, setAddToProject] = useState(false)
     return (
         <Menu as="div" className="inline-block">
             {confirm && <ConfirmWindowAssessors id={[id]} confirm={setConfirm}/>}
+            {addToProject && <AddAssessorToProject id={id} close={setAddToProject}/>}
             <Menu.Button className="">
                 <span className="flex h-full w-full items-center justify-center rounded-full bg-muted"><BsThreeDots/></span>
             </Menu.Button>
@@ -61,15 +64,15 @@ function DropdownMenuAssessors({id}){
                         </Menu.Item>
                         <Menu.Item>
                             {({active}) => (
-                                <NavLink
-                                    to={`/dashboard/assessor/add_project`}
+                                <button
+                                    onClick={() => setAddToProject(true)}
                                     className={classNames(
                                         active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
                                         'block full px-4 py-2 text-sm'
                                     )}
                                 >
                                     Добавить в проект
-                                </NavLink>
+                                </button>
                             )}
                         </Menu.Item>
                         <Menu.Item>

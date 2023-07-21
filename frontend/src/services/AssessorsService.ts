@@ -50,7 +50,9 @@ export default class AssessorsService {
         return $api.get(`/api/assessors/${id}/`)
     }
     static updateCurrentAssessors(id: number, data: any): Promise<AxiosResponse> {
+        try{
         return $api.patch(`/api/assessors/${id}/`, data)
+        } catch (e:any) {return e}
     }
     static addAssessors(data: addAssessor): Promise<AxiosResponse<addAssessor>>{
         try{
@@ -63,7 +65,7 @@ export default class AssessorsService {
         } catch (e:any) {return e}
     }
     static addAssessorToProject(id: number, projects: any){
-        return $api.post(`/api/assessors/${id}/`, {"projects": projects})
+        return $api.patch(`/api/assessors/${id}/add_project/`, {"projects": projects})
     }
 
 }

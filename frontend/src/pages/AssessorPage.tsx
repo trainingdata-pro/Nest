@@ -21,9 +21,10 @@ export interface addAssessor {
 const AssessorPage = () => {
     const id = useParams()["id"]
     const [assessor, setAssessor] = useState("")
+    const [error, setError] = useState('')
     useEffect(()=>{
         // @ts-ignore
-        AssessorsService.fetchCurrentAssessors(id).then(res => setAssessor(res.data))
+        AssessorsService.fetchCurrentAssessors(id).then(res => setAssessor(res.data)).catch((e)=>setError(e.response.data.name))
     },[])
     const [visible, setVisible] = useState(false)
     return (

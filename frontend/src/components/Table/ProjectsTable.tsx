@@ -1,5 +1,5 @@
 import {observer} from "mobx-react-lite";
-import React, {Fragment, useCallback, useContext, useEffect, useMemo, useState} from "react";
+import React, {useContext, useEffect, useMemo, useState} from "react";
 import {
     useReactTable,
     getCoreRowModel,
@@ -18,7 +18,10 @@ import {Context} from "../../index";
 import {IndeterminateCheckbox} from "../../utils/checkBox";
 import Confirm from "../ui/ConfirmWindow";
 import DropdownMenu from "../ui/DropDownMenu";
-import SelectManagerProjectFilter from "./SelectManagerProjectFilter";
+import ManagerService from "../../services/ManagerService";
+import {IManager} from "../../models/ManagerResponse";
+import Owner from "./Owner";
+import { Project } from "../../models/ProjectResponse";
 function DebouncedInput({
                             value: initialValue,
                             onChange,
@@ -47,31 +50,105 @@ function DebouncedInput({
         <input {...props} value={value} onChange={e => setValue(e.target.value)} />
     )
 }
-type Project = {
-    id: number
-    name: string
-    owner: {
-        id: number,
-        user: {
-            id: number,
-            username: string,
-            email: string
-        },
-        last_name: string,
-        first_name: string,
-        middle_name: string,
-    }
-}
+
 
 
 // @ts-ignore
-function ProjectTable({data, columns}) {
+function ProjectTable() {
+
     const {store} = useContext(Context)
+    const [data, setData] = useState([])
+    const [managers, setManagers] = useState<IManager[]>([])
+    const [filterManager, setFilterManager] = useState<number>(store.manager.manager_id)
+
+    useMemo(()=>{
+        store.fetchProjects(store.manager.manager_id)
+        setFilterManager(store.managerData.id)
+        // @ts-ignore
+        ManagerService.fetch_managers().then(res => setManagers(res.data.results))
+    },[])
+
+    useEffect(()=>{
+        if (filterManager === 0){
+            // @ts-ignore
+            ProjectsService.fetchProjects().then(res => setData(res.data.results))
+        }else{
+            // @ts-ignore
+            ProjectsService.fetchManagerProjects(filterManager).then(res => setData(res.data.results))
+        }
+
+    },[store.projects,filterManager])
+    const columns = useMemo<ColumnDef<Project>[]>(() => [
+        {
+            id: 'select',
+            header:({ table }) => (
+                <IndeterminateCheckbox
+                    {...{
+                        checked: table.getIsAllRowsSelected(),
+                        disabled: store.manager.manager_id !== filterManager,
+                        indeterminate: table.getIsSomeRowsSelected(),
+                        onChange: table.getToggleAllRowsSelectedHandler(),
+                    }}
+                />
+            ),
+            cell: ({row}) => (
+                <IndeterminateCheckbox key={row.id}
+                                       {...{
+                                           checked: row.getIsSelected(),
+                                           // @ts-ignore
+                                           disabled: store.manager.manager_id !== row.getValue('owner').id,
+                                           indeterminate: row.getIsSomeSelected(),
+                                           onChange: row.getToggleSelectedHandler(),
+                                       }}
+                />
+            ),
+            size: 10,
+            enableGlobalFilter:false
+        },
+        {
+            accessorKey: 'name',
+            header: 'Название проекта',
+            cell: info => info.getValue(),
+            size:300,
+        },
+        {
+            accessorKey: 'owner',
+            header: 'Владелец',
+            cell: info => <Owner manager={info.getValue()}/>,
+            enableSorting: true,
+
+        },
+        {
+            accessorKey: 'assessors_count',
+            header: 'Количество исполнителей',
+            cell: info => info.getValue(),
+            size:30,
+            enableGlobalFilter: false
+
+        },
+        {
+            accessorKey: 'date_of_create',
+            header: 'Дата создания',
+            cell: info => info.getValue(),
+            size:100,
+            enableGlobalFilter: false
+
+        },
+        {
+            accessorKey: 'id',
+            id:"id",
+            header: '',
+            // @ts-ignore
+            cell:({row}) =>store.manager.manager_id === row.getValue('owner').id ? <DropdownMenu id={row.getValue("id")}/> : '',
+            enableSorting: false,
+            enableGlobalFilter:false
+        }
+
+    ], [filterManager])
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [rowSelection, setRowSelection] = React.useState({})
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-        []
-    )
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [globalFilter, setGlobalFilter] = React.useState('')
     const table = useReactTable({
         data,
@@ -95,17 +172,28 @@ function ProjectTable({data, columns}) {
         onRowSelectionChange: setRowSelection,
         debugTable: true,
     })
-    function reset(){
-        table.resetRowSelection()
+    const handleDeleteRows = () => {
+        setShowConfirmation(true);
+    };
+    const handleCancelDelete = () => {
+        setShowConfirmation(false);
+    };
+    const handleDeleteOneProject = (id:number) => {
+        store.deleteProject([id])
+        setShowConfirmation(false);
     }
-    useEffect(() =>{
-        try {
-            store.setSelectedRow([...Object.keys(rowSelection).map(key => table.getRow(key)._valuesCache['id'])])
+    const handleConfirmDelete = () => {
+        const selectedProjects = Object.keys(rowSelection).map(key => table.getRow(key)._valuesCache['id']);
+        // @ts-ignore
+        store.deleteProject(selectedProjects)
+        table.resetRowSelection();
+        setShowConfirmation(false);
+    };
 
-        } catch (e) {
-            console.log(e)
-        }
-    }, [store.projects,rowSelection])
+    useEffect(() =>{
+
+    }, [])
+    // @ts-ignore
     return (
         <div className="container mx-auto pb-[15rem] pt-10">
             <div className="pb-3">
@@ -116,12 +204,19 @@ function ProjectTable({data, columns}) {
                     placeholder="Искать по названию"
                 />
             </div>
-            {/*<SelectManagerProjectFilter/>*/}
-            {store.showConfirm && <Confirm
-                id={[...Object.keys(rowSelection).map(key => table.getRow(key)._valuesCache['id'])]} confirm={reset} />}
+            {showConfirmation && (
+                <Confirm cancel={handleCancelDelete} confirm={handleConfirmDelete}/>
+            )}
+            <select value={filterManager} onChange={(event) => {
+                // @ts-ignore
+                setFilterManager(Number(event.target.value));
+            }} className="flex h-10 rounded-md border border-input mb-2 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full max-w-[30rem] bg-white"
+            >  {<option value={0} >Все менеджеры</option>}
+                {managers.map(manager => <option key={manager.id} value={manager.id} >{manager.last_name} {manager.first_name}</option>)}
+            </select>
             <div className="rounded-md border border-b-gray-400 bg-white">
                 <>
-                    {Object.keys(rowSelection).length !== 0 && <ActionMenu reset={reset} />}
+                    {Object.keys(rowSelection).length !== 0 && <ActionMenu handleDeleteRows={handleDeleteRows} />}
                 </>
 
                 <table className="w-full">
@@ -178,16 +273,34 @@ function ProjectTable({data, columns}) {
                                     </td>
                                 )
                             })}
+
                         </tr>
                     ))}
                     </tbody>: <tbody><tr><td className="p-4 border-b align-middle [&amp;:has([role=checkbox])]:pr-0 h-24 text-center"
                                              colSpan={9}>Нет результатов</td></tr></tbody>}
+                    <tfoot>
+                    <tr>
+
+                        <td className="flex justify-center items-center align-middle py-2">
+                        <IndeterminateCheckbox
+                            {...{
+                                checked: table.getIsAllPageRowsSelected(),
+                                disabled: store.manager.manager_id !== filterManager,
+                                indeterminate: table.getIsSomePageRowsSelected(),
+                                onChange: table.getToggleAllPageRowsSelectedHandler(),
+                            }}
+                        />
+                        </td>
+                        <td colSpan={20}>Всего строк на странице: {table.getRowModel().rows.length}</td>
+
+                    </tr>
+                    </tfoot>
                 </table>
                 <div className="px-2 py-3">
                     <div className="flex items-center justify-between px-2">
                         <div className="flex-1 text-sm text-muted-foreground text-gray-400">
                             Выделено {Object.keys(rowSelection).length} из{' '}
-                            {data.length} Total Rows Selected
+                            {data.length} строк
                         </div>
                         <div className="flex items-center space-x-6 lg:space-x-8">
                             <div className="flex items-center space-x-2">

@@ -8,17 +8,20 @@ interface addProject {
 
 }
 export default class ProjectsService {
-    static addProjects(data: Project){
+    static addProjects(data:any){
         try{
             return $api.post('/api/projects/', data)
         } catch (e:any) {return e}
 
     }
-    static fetchProjects(): any{
-        return $api.get('/api/projects/')
+    static getProjectsAssessorsCount(project: any){
+        return $api.get(`/api/assessors/?project=${project}`)
     }
     static fetchManagerProjects(managerId: number): any{
         return $api.get(`/api/projects/?owner=${managerId}`)
+    }
+    static fetchProjects(): any{
+        return $api.get(`/api/projects/`)
     }
     static updateProjects(id: number,data: Project): Promise<AxiosResponse<Project>>{
         return $api.patch(`/api/projects/${id}/`, data)

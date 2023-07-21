@@ -26,13 +26,13 @@ const AssessorForm = ({id, assessor}) => {
     const [status, setStatus] = useState<string>('')
     const onSubmit = async () => {
         const values = getValues()
-        console.log(values)
         await AssessorsService.updateCurrentAssessors(id, values)
             .then(res => {
                 setStatus('Информация и разметчике успешно обновлена')
                 navigate('/dashboard/team/')
             })
-            .catch((e) => setStatus(e.response.data.name[0]))
+            .catch((e) => setStatus(e.response.data.username[0]))
+
 
 
     }
@@ -47,7 +47,7 @@ const AssessorForm = ({id, assessor}) => {
                            placeholder="Разметка фотографий дорожных знаков"
                     />
                 </div>
-                {/*<p className="text-sm h-5 text-red-500 text-muted-foreground">{status && status}</p>*/}
+                <p className="text-sm h-5 text-red-500 text-muted-foreground">{status && status}</p>
                 <section className="grid grid-cols-3 gap-x-4">
                     <div className="space-y-2 col-span-1">
                         <label

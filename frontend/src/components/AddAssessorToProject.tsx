@@ -1,4 +1,4 @@
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import {
     ColumnDef,
     ColumnFiltersState, flexRender,
@@ -16,6 +16,8 @@ import Icon from "@mdi/react";
 import {mdiSort, mdiSortAscending, mdiSortDescending} from "@mdi/js";
 import ProjectsService from "../services/ProjectsService";
 import {Context} from "../index";
+import AssessorsService from "../services/AssessorsService";
+import {observer} from "mobx-react-lite";
 type Project = {
     id: number
     name: string
@@ -60,7 +62,8 @@ function DebouncedInput({
         <input {...props} value={value} onChange={e => setValue(e.target.value)} />
     )
 }
-const AddAssessorToProject = () => {
+// @ts-ignore
+const AddAssessorToProject = ({id, close}) => {
     const columns = useMemo<ColumnDef<Project>[]>(() => [
         {
             id: 'select',
@@ -110,8 +113,9 @@ const AddAssessorToProject = () => {
     )
     useMemo(() => {
         // @ts-ignore
-        ProjectsService.fetchManagerProjects(store.manager.id).then(res => setData(res.data.results))
+        ProjectsService.fetchManagerProjects(store.manager.manager_id).then(res => setData(res.data.results))
     },[])
+
     const [data, setData] = useState([])
 
     const [globalFilter, setGlobalFilter] = React.useState('')
@@ -137,9 +141,10 @@ const AddAssessorToProject = () => {
         onRowSelectionChange: setRowSelection,
         debugTable: true,
     })
+    // @ts-ignore
     return (
-        <div className="fixed inset-0 z-50 flex items-start justify-center sm:items-center">
-
+        <div className="fixed inset-0 z-100 flex items-end justify-center sm:items-center">
+            <div className="animate-in fade-in fixed inset-0 z-50 bg-white backdrop-blur- transition-opacity"></div>
             <div className="animate-in data-[state=open]:fade-in-90 data-[state=open]:slide-in-from-bottom-10 sm:zoom-in-90 data-[state=open]:sm:slide-in-from-bottom-0 fixed z-50 grid w-full gap-4 rounded-b-lg border bg-background p-6 shadow-lg sm:rounded-lg sm:max-w-[calc(100%-5rem)]">
                 <div className="flex flex-col space-y-1.5 text-center sm:text-left"><h2 id="radix-:r3n:"
                                                                                         className="text-lg font-semibold leading-none tracking-tight">Добавить
@@ -282,7 +287,14 @@ const AddAssessorToProject = () => {
 
                 </div>
                 <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-                    <button
+                    <button onClick={()=> {
+                        store.setIsLoading(true)
+                        // @ts-ignore
+                        const projectIds = Object.keys(rowSelection).map(key => data.filter(row => table.getRow(key)._valuesCache['id'] === row.id)).map(k => k.map(k1 => k1.id))
+                        AssessorsService.addAssessorToProject(id, projectIds[0])
+                        close(false)
+                        store.setIsLoading(false)
+                    }}
                         className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-primary text-primary-foreground hover:bg-primary/90 h-10 py-2 px-4"
                     >Продолжить
                     </button>
@@ -292,4 +304,4 @@ const AddAssessorToProject = () => {
     );
 };
 
-export default AddAssessorToProject;
+export default observer(AddAssessorToProject);
