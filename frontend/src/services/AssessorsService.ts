@@ -1,5 +1,6 @@
 import $api from "../http";
 import {AxiosResponse} from "axios";
+import {Project} from "../store/store";
 
 interface IProject {
     id: number,
@@ -45,9 +46,26 @@ export default class AssessorsService {
     static fetchAssessors(): Promise<AxiosResponse> {
         return $api.get('/api/assessors/')
     }
-
+    static fetchCurrentAssessors(id: number): Promise<AxiosResponse> {
+        return $api.get(`/api/assessors/${id}/`)
+    }
+    static updateCurrentAssessors(id: number, data: any): Promise<AxiosResponse> {
+        try{
+        return $api.patch(`/api/assessors/${id}/`, data)
+        } catch (e:any) {return e}
+    }
     static addAssessors(data: addAssessor): Promise<AxiosResponse<addAssessor>>{
-        return $api.post('/api/assessors/', data)
+        try{
+            return $api.post('/api/assessors/', data)
+        } catch (e:any) {return e}
+    }
+    static deleteAssessors(id: any): any{
+        try{
+            return $api.delete(`/api/assessors/${id}/`)
+        } catch (e:any) {return e}
+    }
+    static addAssessorToProject(id: number, projects: any){
+        return $api.patch(`/api/assessors/${id}/add_project/`, {"projects": projects})
     }
 
 }

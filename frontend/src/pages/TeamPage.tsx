@@ -1,19 +1,28 @@
 import Header from "../components/Header/Header";
-import {useEffect} from "react";
+import React, {useContext, useEffect, useMemo, useState} from "react";
 import AssessorTable from "../components/Table/AssessorsTable";
-import AssessorsService from "../services/AssessorsService";
 import AddAssessor from "../components/AddAssessor";
 import {observer} from "mobx-react-lite";
 
+import {Context} from "../index";
+
+
 
 const TeamPage = () => {
-
-    useEffect(() => {
-        AssessorsService.fetchAssessors()
+    const {store} = useContext(Context)
+    const [data, setData] = useState([])
+    useMemo(() => {
+        store.fetchAssessors()
     },[])
+    useEffect(()=>{
+        // @ts-ignore
+        setData(store.assessors)
+    },[store.assessors])
+    const [visible, setVisible] = useState(false)
     return (<>
-            <Header name="Добавить исполнителя" children={<AddAssessor/>}></Header>
-            <AssessorTable/>
+            <Header name="Добавить исполнителя" setVisible={setVisible}></Header>
+            {visible && <AddAssessor setVisible={setVisible}/>}
+            <AssessorTable data={data}/>
 
         </>
     )

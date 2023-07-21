@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = 'http://192.168.1.9:8000'
+export const API_URL = 'http://192.168.1.83:8000'
 const $api = axios.create({
     withCredentials: true,
     baseURL: API_URL,
@@ -23,7 +23,7 @@ $api.interceptors.response.use((response) => {
             const cookieValue = document.cookie
                 .split('; ')
                 .find((row) => row.startsWith('refresh='))?.split('=')[1];
-            const response = await axios.post(`http://192,168.1.9:8000/api/token/refresh/`, {'refresh': cookieValue})
+            const response = await $api.post(`${API_URL}/api/token/refresh/`, {'refresh': cookieValue})
             localStorage.setItem('token', response.data.access)
             document.cookie = `refresh=${response.data.refresh}`
             return $api.request(originalRequest)

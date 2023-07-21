@@ -4,10 +4,20 @@ import axios from "axios";
 import jwtDecode from "jwt-decode";
 import {IManager} from "../models/ManagerResponse";
 import ProjectsService from "../services/ProjectsService";
-interface ManagerInfo {
+import ManagerService from "../services/ManagerService";
+import {IAssessor} from "../models/AssessorResponse";
+import AssessorsService from "../services/AssessorsService";
+import {API_URL} from "../http";
+
+interface UserData{
+    is_active: boolean,
+    is_admin: boolean,
+    is_operational_manager: boolean,
     manager_id: number,
-    username: string,
-    id_admin: boolean
+    username: string
+}
+interface Token{
+    user_data: UserData
 }
 export type Project = {
     id?: number
@@ -22,74 +32,116 @@ export type Project = {
         last_name: string,
         first_name: string,
         middle_name: string,
-        // is_operational_manager: boolean,
-        // operational_manager: number
     }
+}
+interface ManagerData {
+    id: number,
+    user: {
+        id: number,
+        username: string,
+        email: string
+    },
+    last_name: string,
+    first_name: string,
+    middle_name: string,
+    is_operational_manager: boolean,
+    operational_manager: number
 }
 export default class Store {
     isAuth = false
-    errors = []
-    manager = {} as IManager
-    managerInfo = {} as ManagerInfo
+    manager = {} as UserData
+    managerData = {} as ManagerData
+
+
+    assessors = [] as IAssessor[]
     isLoading = false
-    hiddenAddAssessor = false
     projects = [] as Project[]
-    showConfirm = false
     selectedRow = null
+    selectedRowAssessors = null
+    currentProjectManager = {} as IManager
+
     constructor() {
         makeAutoObservable(this)
     }
-    setSelectedRows(selectedRow:any){
+
+    setSelectedRow(selectedRow: any) {
         this.selectedRow = selectedRow
     }
-    setIsLoading(bool: boolean){
+    setSelectedRowAssessors(selectedRow: any) {
+        this.selectedRowAssessors = selectedRow
+    }
+
+    setIsLoading(bool: boolean) {
         this.isLoading = bool
     }
-    setError(errors:[]){
-        this.errors = errors
+
+    setCurrentProjectManager(manager:IManager){
+        this.currentProjectManager = manager
     }
-    setShowConfirm(bool:boolean){
-        this.showConfirm = bool
-    }
-    setHiddenAddAssessor(bool: boolean){
-        this.hiddenAddAssessor = bool
-    }
-    setProjects(projects:any){
-        this.projects = projects
-    }
-    fetchProjects(){
-        // @ts-ignore
-        ProjectsService.fetchProjects().then(res => this.setProjects(res.data.results))
-    }
-    addProject(values:any) {
-        ProjectsService.addProjects(values).then(res => {
-            this.setProjects([...this.projects, res.data])
-            this.setHiddenAddAssessor(false)
-        }).catch((e) => {
-            this.setError(e.response.data.name)
+    setCurrentProjectManager1(id: number) {
+        ManagerService.fetch_manager(id).then(res => {
+            this.setCurrentProjectManager(res.data)
+            console.log(this.currentProjectManager)
         })
     }
-    deleteProject(id:any){
-        ProjectsService.deleteProjects(id).then(res => this.setProjects([...this.projects.filter(res => res.id !== id)]))
+
+    setProjects(projects: any) {
+        this.projects = projects
     }
+    setAssessors(assessors:any){
+        this.assessors = assessors
+    }
+
+    fetchProjects(managerId: number) {
+        // @ts-ignore
+        ProjectsService.fetchManagerProjects(managerId).then(res => this.setProjects(res.data.results))
+    }
+    fetchAssessors() {
+        // @ts-ignore
+        AssessorsService.fetchAssessors().then(res => this.setAssessors(res.data.results))
+    }
+
+    async addProject(values: any) {
+        return await ProjectsService.addProjects(values)
+    }
+    async addAssessor(values: any) {
+        return await AssessorsService.addAssessors(values)
+    }
+
+    async deleteProject(ids: number[]) {
+        // @ts-ignore
+        ids.map(k => {
+            ProjectsService.deleteProjects(k).then(() => this.setProjects([...this.projects.filter(res => res.id !== k)]))
+        })
+    }
+    async deleteAssessors() {
+        // @ts-ignore
+        this.selectedRowAssessors.map(k => {
+            AssessorsService.deleteAssessors(k).then(() => this.setAssessors([...this.assessors.filter(res => res.id !== k)]))
+        })
+    }
+
     setAuth(bool: boolean) {
         this.isAuth = bool
     }
-    setManagerInfo(managerInfo: ManagerInfo) {
-        this.managerInfo = managerInfo
-    }
-    setManager(manager: IManager) {
+
+    setManager(manager: UserData) {
         this.manager = manager
+    }
+    setManagerData(manager: ManagerData) {
+        this.managerData = manager
+    }
+    getProjectCount(id:number){
+        return ProjectsService.getProjectsAssessorsCount(id).then(res => res.data.count)
     }
     async login(username: string, password: string) {
         this.setIsLoading(true)
         const response = await AuthService.login(username, password)
         localStorage.setItem('token', response.data.access)
-        const decodeJwt: ManagerInfo = jwtDecode(response.data.access)
-        console.log(jwtDecode(response.data.access))
-        this.setManagerInfo(decodeJwt)
+        const decodeJwt: Token = jwtDecode(response.data.access)
+        this.setManager(decodeJwt.user_data)
         document.cookie = `refresh=${response.data.refresh}`
-        // ManagerService.fetch_manager(decodeJwt.manager_id).then(res => this.setManager(res.data))
+        await ManagerService.fetch_manager(decodeJwt.user_data.manager_id).then(res => this.setManagerData(res.data))
         this.setAuth(true)
         this.setIsLoading(false)
     }
@@ -100,11 +152,11 @@ export default class Store {
             const cookieValue = document.cookie
                 .split('; ')
                 .find((row) => row.startsWith('refresh='))?.split('=')[1];
-            const response = await axios.post(`http://192.168.1.9:8000/api/token/refresh/`, {'refresh': cookieValue})
+            const response = await axios.post(`${API_URL}/api/token/refresh/`, {'refresh': cookieValue})
             localStorage.setItem('token', response.data.access)
-            const decodeJwt: ManagerInfo = jwtDecode(response.data.access)
-            this.setManagerInfo(decodeJwt)
-            // await ManagerService.fetch_manager(decodeJwt.manager_id).then(res => this.setManager(res.data))
+            const decodeJwt: Token = jwtDecode(response.data.access)
+            this.setManager(decodeJwt.user_data)
+            await ManagerService.fetch_manager(decodeJwt.user_data.manager_id).then(res => this.setManagerData(res.data))
             this.setAuth(true)
         } catch (e: any) {
             this.setAuth(false)

@@ -5,31 +5,21 @@ import {NavLink} from "react-router-dom";
 import {observer} from "mobx-react-lite";
 import ConfirmWindow from "./ConfirmWindow";
 import {BsThreeDots} from "react-icons/bs";
-import Confirm from "./ConfirmWindow";
+import ConfirmWindowAssessors from "./ConfirmWindowAssessors";
+import AddAssessorToProject from "../AddAssessorToProject";
 
 function classNames(...classes: any[]) {
     return classes.filter(Boolean).join(' ')
 }
 // @ts-ignore
-function DropdownMenu({id}){
+function DropdownMenuAssessors({id}){
     const {store} = useContext(Context)
     const [confirm, setConfirm] = useState(false)
-    const handleDeleteRows = () => {
-        setConfirm(true);
-    };
-    const handleCancelDelete = () => {
-        setConfirm(false);
-    };
-    const handleDeleteOneProject = () => {
-        store.deleteProject([id])
-        setConfirm(false);
-    }
+    const [addToProject, setAddToProject] = useState(false)
     return (
-        <>
-        {confirm && (
-            <Confirm cancel={handleCancelDelete} confirm={handleDeleteOneProject}/>
-        )}
         <Menu as="div" className="inline-block">
+            {confirm && <ConfirmWindowAssessors id={[id]} confirm={setConfirm}/>}
+            {addToProject && <AddAssessorToProject id={id} close={setAddToProject}/>}
             <Menu.Button className="">
                 <span className="flex h-full w-full items-center justify-center rounded-full bg-muted"><BsThreeDots/></span>
             </Menu.Button>
@@ -62,7 +52,7 @@ function DropdownMenu({id}){
                         <Menu.Item>
                             {({active}) => (
                                 <NavLink
-                                    to={`/dashboard/projects/${id}`}
+                                    to={`/dashboard/assessor/${id['id']}`}
                                     className={classNames(
                                         active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
                                         'block full px-4 py-2 text-sm'
@@ -74,7 +64,48 @@ function DropdownMenu({id}){
                         </Menu.Item>
                         <Menu.Item>
                             {({active}) => (
+                                <button
+                                    onClick={() => setAddToProject(true)}
+                                    className={classNames(
+                                        active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                                        'block full px-4 py-2 text-sm'
+                                    )}
+                                >
+                                    Добавить в проект
+                                </button>
+                            )}
+                        </Menu.Item>
+                        <Menu.Item>
+                            {({active}) => (
+                                <NavLink
+                                    to={`https://t.me/${id['username']}`}
+                                    target="_blank"
+                                    className={classNames(
+                                        active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                                        'block full px-4 py-2 text-sm'
+                                    )}
+                                >
+                                    Написать в telegram
+                                </NavLink>
+                            )}
+                        </Menu.Item>
+                        <Menu.Item>
+                            {({active}) => (
+                                <NavLink
+                                    to={`/dashboard/projects/${id}`}
+                                    className={classNames(
+                                        active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                                        'block full px-4 py-2 text-sm'
+                                    )}
+                                >
+                                    Освободить от проектов
+                                </NavLink>
+                            )}
+                        </Menu.Item>
+                        <Menu.Item>
+                            {({active}) => (
                                 <div onClick={()=> {
+                                    store.setSelectedRowAssessors([id['id']])
                                     setConfirm(true)
                                 }}
                                      className={classNames(
@@ -91,8 +122,7 @@ function DropdownMenu({id}){
                 </Menu.Items>
             </Transition>
         </Menu>
-        </>
     )
 }
 
-export default observer(DropdownMenu)
+export default observer(DropdownMenuAssessors)

@@ -1,7 +1,7 @@
 
 import {useForm} from "react-hook-form";
 import {useState} from "react";
-import {redirect} from "react-router-dom";
+import {redirect, useLocation, useNavigate} from "react-router-dom";
 import {useContext} from "react";
 import {Context} from "../../index";
 import {observer} from "mobx-react-lite";
@@ -10,6 +10,7 @@ interface ISignIn {
     password: string
 }
 const SignInForm = () => {
+    const navigate = useNavigate();
     const {register, getValues, handleSubmit} = useForm<ISignIn>()
     const [isLoading, setIsLoading] = useState(false)
     const [serverError, setServerError] = useState<string | null>(null)
@@ -19,7 +20,7 @@ const SignInForm = () => {
         const values = getValues()
         try {
             await store.login(values.username, values.password)
-            redirect('/dashboard/team') // TODO: redirect to main page
+            navigate("/dashboard/team") // TODO: redirect to main page
 
         } catch (err) {
             // TODO: maybe improve error handling
