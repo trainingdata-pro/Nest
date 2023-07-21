@@ -1,11 +1,10 @@
 from django.utils.decorators import method_decorator
 from rest_framework import status, generics
-from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from core import permissions
-from core.utils import BaseAPIViewSet
+from core.utils.common import BaseAPIViewSet
+from core.utils.permissions import IsCurrentManager
 from .filters import ManagerFilter
 from .models import Manager
 from .schemas import users_schema, user_activate_schema
@@ -16,21 +15,22 @@ from . import serializers
 @method_decorator(name='retrieve', decorator=users_schema.retrieve())
 @method_decorator(name='list', decorator=users_schema.list())
 @method_decorator(name='create', decorator=users_schema.create())
+@method_decorator(name='partial_update', decorator=users_schema.partial_update())
 class ManagerAPIViewSet(BaseAPIViewSet):
     queryset = Manager.objects.all().select_related('user')
     serializer_class = {
         'create': serializers.CreateManagerSerializer,
         'retrieve': serializers.ManagerSerializer,
         'list': serializers.ManagerSerializer,
-        # 'team': serializers.ManagerSerializer
+        'partial_update': serializers.UpdateManagerSerializer
     }
     permission_classes = {
         'create': (AllowAny,),
         'retrieve': (IsAuthenticated,),
         'list': (IsAuthenticated,),
-        # 'team': (IsAuthenticated, permissions.IsOperationalManagerOrAdmin)
+        'partial_update': (IsAuthenticated, IsCurrentManager)
     }
-    http_method_names = ['get', 'post']
+    http_method_names = ['get', 'post', 'patch']
     filterset_class = ManagerFilter
 
     def create(self, request, *args, **kwargs):
@@ -41,15 +41,6 @@ class ManagerAPIViewSet(BaseAPIViewSet):
         response = serializers.ManagerSerializer(manager)
 
         return Response(response.data, status=status.HTTP_201_CREATED)
-
-    # @users_schema.team()
-    # @action(detail=True, methods=['get'])
-    # def team(self, request, **kwargs):
-    #     manager = self.get_object()
-    #     response = self.get_serializer(data=manager.team, many=True)
-    #     queryset = self.paginate_queryset(response.data)
-    #
-    #     return self.get_paginated_response(queryset)
 
 
 @method_decorator(name='post', decorator=user_activate_schema.post())

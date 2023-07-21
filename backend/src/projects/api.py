@@ -4,8 +4,8 @@ from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from core.permissions import ProjectOwner
-from core.utils import BaseAPIViewSet
+from core.utils.permissions import ProjectOwner
+from core.utils.common import BaseAPIViewSet
 from .filters import ProjectFilter
 from .models import Project
 from .schemas import project_schema

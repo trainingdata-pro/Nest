@@ -22,9 +22,9 @@ schema_view = get_schema_view(
 )
 
 _api = [
-    path('', include('assessors.urls')),
+    # path('', include('assessors.urls')),
     path('', include('users.urls')),
-    path('', include('projects.urls')),
+    # path('', include('projects.urls')),
 ]
 
 _token = [
