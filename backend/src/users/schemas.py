@@ -1,6 +1,6 @@
 from drf_yasg import openapi
 
-from core.schemas import BaseAPISchema
+from core.utils.schemas import BaseAPISchema
 from . import serializers
 
 
@@ -45,12 +45,6 @@ class UserSchema(BaseAPISchema):
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_INTEGER,
                     description='Filtering by operational manager ID.'
-                ),
-                openapi.Parameter(
-                    name='is_active',
-                    in_=openapi.IN_QUERY,
-                    type=openapi.TYPE_BOOLEAN,
-                    description='Filtering by active managers.'
                 )
             ],
             responses={
@@ -69,11 +63,10 @@ class UserSchema(BaseAPISchema):
             }
         )
 
-    def team(self):
+    def partial_update(self):
         return self.swagger_auto_schema(
-            method='get',
-            operation_summary='Get team',
-            operation_description='Get operations manager team',
+            operation_summary='Update manager',
+            operation_description='Update a specific manager',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
@@ -83,8 +76,8 @@ class UserSchema(BaseAPISchema):
                 )
             ],
             responses={
-                200: serializers.ManagerSerializer(many=True),
-                **self.get_responses(401, 403, 404)
+                200: serializers.ManagerSerializer(),
+                **self.get_responses(400, 401, 403, 404)
             }
         )
 

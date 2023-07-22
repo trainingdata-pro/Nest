@@ -3,26 +3,29 @@ from django.db import models
 
 
 class Manager(models.Model):
-    last_name = models.CharField(
-        max_length=255,
-        verbose_name='фамилия'
-    )
-    first_name = models.CharField(
-        max_length=255,
-        verbose_name='имя'
-    )
-    middle_name = models.CharField(
-        max_length=255,
-        verbose_name='отчество'
-    )
-    is_operational_manager = models.BooleanField(
-        default=False,
-        verbose_name='операционный менеджер'
-    )
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
         related_name='manager'
+    )
+    last_name = models.CharField(
+        max_length=255,
+        verbose_name='фамилия',
+        blank=True
+    )
+    first_name = models.CharField(
+        max_length=255,
+        verbose_name='имя',
+        blank=True
+    )
+    middle_name = models.CharField(
+        max_length=255,
+        verbose_name='отчество',
+        blank=True
+    )
+    is_operational_manager = models.BooleanField(
+        default=False,
+        verbose_name='операционный менеджер'
     )
     operational_manager = models.ForeignKey(
         'self',
@@ -43,10 +46,6 @@ class Manager(models.Model):
     @property
     def full_name(self):
         return f'{self.last_name} {self.first_name} {self.middle_name}'
-
-    # @property
-    # def team(self):
-    #     return Manager.objects.filter(operational_manager=self)
 
 
 class Code(models.Model):

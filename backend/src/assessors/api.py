@@ -6,8 +6,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 
-from core.permissions import AssessorOwner, OwnerOrSecondManager
-from core.utils import BaseAPIViewSet, GetSerializerClassMixin
+from core.utils.permissions import AssessorOwner, OwnerOrSecondManager
+from core.utils.common import BaseAPIViewSet, GetSerializerClassMixin
 from rest_framework.response import Response
 
 from .filters import AssessorFilter

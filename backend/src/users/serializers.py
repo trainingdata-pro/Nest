@@ -1,3 +1,4 @@
+from django.contrib.auth import password_validation
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -12,17 +13,6 @@ class CreateManagerSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
     email = serializers.EmailField()
     password = serializers.CharField(min_length=8)
-
-    last_name = serializers.CharField(max_length=255)
-    first_name = serializers.CharField(max_length=255)
-    middle_name = serializers.CharField(max_length=255)
-    is_operational_manager = serializers.BooleanField(default=False)
-    operational_manager = serializers.PrimaryKeyRelatedField(
-        queryset=Manager.objects.filter(is_operational_manager=True),
-        allow_null=True,
-        allow_empty=True,
-        required=False
-    )
 
     def validate_username(self, username: str) -> str:
         if User.objects.filter(username=username).exists():
@@ -47,21 +37,10 @@ class CreateManagerSerializer(serializers.Serializer):
         return email
 
     def validate_password(self, password: str) -> str:
-        if len(password) < 8:
-            raise ValidationError(
-                'Пароль не должен быть короче 8 символов.'
-            )
+        user = User(username=self.initial_data.get('username'))
+        password_validation.validate_password(password, user)
 
         return password
-
-    # def validate_is_operational_manager(self, is_operational_manager: bool) -> bool:
-    #     operational_manager = self.initial_data.get('operational_manager')
-    #     if not is_operational_manager and not operational_manager:
-    #         raise ValidationError(
-    #             'Вы должны выбрать операционного менеджера.'
-    #         )
-    #
-    #     return is_operational_manager
 
     def create(self, validated_data) -> Manager:
         username = validated_data.get('username')
@@ -73,19 +52,10 @@ class CreateManagerSerializer(serializers.Serializer):
             password=password,
             is_active=False
         )
-
-        last_name = validated_data.get('last_name')
-        first_name = validated_data.get('first_name')
-        middle_name = validated_data.get('middle_name')
         manager = Manager.objects.create(
-            last_name=last_name,
-            first_name=first_name,
-            middle_name=middle_name,
-            is_operational_manager=False,
-            operational_manager=None,
             user=user,
+            is_operational_manager=False
         )
-
         code = create_code()
         Code.objects.create(
             code=code,
@@ -93,6 +63,17 @@ class CreateManagerSerializer(serializers.Serializer):
         )
 
         return manager
+
+
+class UpdateManagerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Manager
+        fields = (
+            'first_name',
+            'last_name',
+            'middle_name',
+            'operational_manager'
+        )
 
 
 class UserSerializer(serializers.ModelSerializer):
