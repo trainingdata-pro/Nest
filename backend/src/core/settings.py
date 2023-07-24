@@ -32,9 +32,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # apps
-    # 'assessors.apps.AssessorsConfig',
+    'assessors.apps.AssessorsConfig',
     # 'blacklist.apps.BlacklistConfig',
-    # 'projects.apps.ProjectsConfig',
+    'projects.apps.ProjectsConfig',
     'users.apps.UsersConfig',
     # other
     'rest_framework',
