@@ -75,6 +75,23 @@ class UpdateManagerSerializer(serializers.ModelSerializer):
             'operational_manager'
         )
 
+    @staticmethod
+    def check_team_lead(manager):
+        if not manager.is_operational_manager:
+            raise ValidationError(
+                {'operational_manager': 'Руководитель должен быть операционным менеджером.'}
+            )
+        return manager
+
+    def update(self, instance, validated_data):
+        operational_manager = validated_data.get('operational_manager')
+        if not instance.operational_manager and not operational_manager:
+            raise ValidationError(
+                {'operational_manager': 'Укажите вашего руководителя.'}
+            )
+        self.check_team_lead(operational_manager)
+        return super().update(instance, validated_data)
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
