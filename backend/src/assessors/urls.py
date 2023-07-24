@@ -11,7 +11,7 @@ fr_router = routers.DefaultRouter()
 fr_router.register('', api.FreeResourcesAPIViewSet, basename='free-resources')
 
 urlpatterns = [
-    path('assessors/check/', api.AssessorCheckAPIView.as_view()),
-    path('assessors/', include(router.urls)),
-    path('free_resources/', include(fr_router.urls))
+    # path('assessors/check/', api.AssessorCheckAPIView.as_view()),
+    # path('assessors/', include(router.urls)),
+    # path('free_resources/', include(fr_router.urls))
 ]
