@@ -33,21 +33,21 @@ class Assessor(models.Model):
         null=True,
         blank=True
     )
-    is_free_resource = models.BooleanField(
-        default=False,
-        verbose_name='св. ресурс'
-    )
-    second_manager = models.ManyToManyField(
-        Manager,
-        blank=True,
-        related_name='extra',
-        verbose_name='Доп. менеджеры'
-    )
-    max_count_of_second_managers = models.IntegerField(
-        null=True,
-        blank=True,
-        verbose_name='Макс. к-во доп. менеджеров'
-    )
+    # is_free_resource = models.BooleanField(
+    #     default=False,
+    #     verbose_name='св. ресурс'
+    # )
+    # second_manager = models.ManyToManyField(
+    #     Manager,
+    #     blank=True,
+    #     related_name='extra',
+    #     verbose_name='Доп. менеджеры'
+    # )
+    # max_count_of_second_managers = models.IntegerField(
+    #     null=True,
+    #     blank=True,
+    #     verbose_name='Макс. к-во доп. менеджеров'
+    # )
     projects = models.ManyToManyField(
         Project,
         blank=True,
@@ -58,10 +58,10 @@ class Assessor(models.Model):
         default=False,
         verbose_name='занят'
     )
-    blacklist = models.BooleanField(
-        default=False,
-        verbose_name='черный список'
-    )
+    # blacklist = models.BooleanField(
+    #     default=False,
+    #     verbose_name='черный список'
+    # )
     date_of_registration = models.DateField(
         auto_now_add=True,
         verbose_name='дата регистрации'
