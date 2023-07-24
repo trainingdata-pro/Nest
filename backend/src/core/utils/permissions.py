@@ -1,9 +1,10 @@
 from rest_framework.permissions import BasePermission
 
 
-class ProjectOwner(BasePermission):
+class ProjectOwnerOrTeamLead(BasePermission):
     def has_object_permission(self, request, view, obj):
-        return request.user.manager.pk == obj.owner.pk
+        return request.user.manager.pk == obj.manager.pk or \
+            obj.owner.operational_manager.pk == request.user.manager.pk
 
 
 class AssessorOwner(BasePermission):
