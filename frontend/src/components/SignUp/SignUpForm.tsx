@@ -1,6 +1,7 @@
 import React, {useEffect} from 'react';
 import {useForm} from "react-hook-form";
 import AuthService from "../../services/AuthService";
+import {NavLink} from "react-router-dom";
 
 interface ISignUp {
     email: string,
@@ -79,6 +80,13 @@ const SignUpForm = () => {
                         ></input>
                         <p className='h-6 text-red-500 text-sm'>{watch('password') !== watch('password2') ? 'Пароли не совпадают': ''}</p>
                     </div>
+                    <section className="flex items-center justify-between mb-3">
+                        <div className="space-y-2">
+                            <div className="text-sm text-gray-500">Уже зарегистрированы?<NavLink
+                                className="cursor-pointer pl-1 text-black text-primary hover:underline" to="/login">Авторизация</NavLink>
+                            </div>
+                        </div>
+                    </section>
                     <div>
                         <input className="w-full h-10 bg-black text-white rounded-md" type="submit" value="Регистрация"/>
                     </div>
