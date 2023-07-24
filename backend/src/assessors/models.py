@@ -1,7 +1,33 @@
 from django.db import models
 
+from core.utils.validators import not_negative_value_validator
 from projects.models import Project
 from users.models import Manager
+
+
+class AssessorStatus(models.TextChoices):
+    FULL = ('full', 'Полная загрузка')
+    PARTIAL = ('partial', 'Частичная загрузка')
+    FREE = ('free', 'Свободен')
+
+
+class Skill(models.Model):
+    title = models.CharField(
+        verbose_name='название',
+        unique=True,
+        max_length=150
+    )
+
+    class Meta:
+        db_table = 'skills'
+        verbose_name = 'навык'
+        verbose_name_plural = 'навыки'
+
+    def __str__(self):
+        if len(str(self.title)) > 30:
+            return f'{str(self.title)[:27]}...'
+
+        return self.title
 
 
 class Assessor(models.Model):
@@ -33,10 +59,32 @@ class Assessor(models.Model):
         null=True,
         blank=True
     )
-    # is_free_resource = models.BooleanField(
-    #     default=False,
-    #     verbose_name='св. ресурс'
-    # )
+    projects = models.ManyToManyField(
+        Project,
+        blank=True,
+        verbose_name='проекты',
+        related_name='assessors'
+    )
+    status = models.CharField(
+        verbose_name='статус',
+        max_length=10,
+        choices=AssessorStatus.choices,
+        default=AssessorStatus.FREE
+    )
+    capacity = models.FloatField(
+        verbose_name='загруженность',
+        validators=[not_negative_value_validator],
+        default=0.0
+    )
+    skills = models.ManyToManyField(
+        to=Skill,
+        verbose_name='навыки',
+        blank=True
+    )
+    is_free_resource = models.BooleanField(
+        default=False,
+        verbose_name='св. ресурс'
+    )
     # second_manager = models.ManyToManyField(
     #     Manager,
     #     blank=True,
@@ -48,16 +96,7 @@ class Assessor(models.Model):
     #     blank=True,
     #     verbose_name='Макс. к-во доп. менеджеров'
     # )
-    projects = models.ManyToManyField(
-        Project,
-        blank=True,
-        verbose_name='проекты',
-        related_name='assessors'
-    )
-    is_busy = models.BooleanField(
-        default=False,
-        verbose_name='занят'
-    )
+
     # blacklist = models.BooleanField(
     #     default=False,
     #     verbose_name='черный список'
@@ -78,3 +117,56 @@ class Assessor(models.Model):
     @property
     def full_name(self):
         return f'{self.last_name} {self.first_name} {self.middle_name}'
+
+
+class WorkingHours(models.Model):
+    assessor = models.OneToOneField(
+        to=Assessor,
+        on_delete=models.PROTECT,
+        verbose_name='рабочие часы'
+    )
+    monday = models.IntegerField(
+        validators=[not_negative_value_validator],
+        verbose_name='понедельник',
+        default=0
+    )
+    tuesday = models.IntegerField(
+        validators=[not_negative_value_validator],
+        verbose_name='вторник',
+        default=0
+    )
+    wednesday = models.IntegerField(
+        validators=[not_negative_value_validator],
+        verbose_name='среда',
+        default=0
+    )
+    thursday = models.IntegerField(
+        validators=[not_negative_value_validator],
+        verbose_name='четверг',
+        default=0
+    )
+    friday = models.IntegerField(
+        validators=[not_negative_value_validator],
+        verbose_name='пятница',
+        default=0
+    )
+    saturday = models.IntegerField(
+        validators=[not_negative_value_validator],
+        verbose_name='суббота',
+        default=0
+    )
+    sunday = models.IntegerField(
+        validators=[not_negative_value_validator],
+        verbose_name='воскресенье',
+        default=0
+    )
+
+    class Meta:
+        db_table = 'working_hours'
+        verbose_name = 'рабочие часы'
+        verbose_name_plural = 'рабочие часы'
+
+    @property
+    def total(self):
+        return (self.monday + self.tuesday + self.wednesday +
+                self.thursday + self.friday + self.saturday + self.sunday)
