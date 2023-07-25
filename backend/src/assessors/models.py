@@ -85,22 +85,22 @@ class Assessor(models.Model):
         default=False,
         verbose_name='св. ресурс'
     )
-    # second_manager = models.ManyToManyField(
-    #     Manager,
-    #     blank=True,
-    #     related_name='extra',
-    #     verbose_name='Доп. менеджеры'
-    # )
+    second_manager = models.ManyToManyField(
+        Manager,
+        blank=True,
+        related_name='extra',
+        verbose_name='Доп. менеджеры'
+    )
     # max_count_of_second_managers = models.IntegerField(
     #     null=True,
     #     blank=True,
     #     verbose_name='Макс. к-во доп. менеджеров'
     # )
 
-    # blacklist = models.BooleanField(
-    #     default=False,
-    #     verbose_name='черный список'
-    # )
+    blacklist = models.BooleanField(
+        default=False,
+        verbose_name='черный список'
+    )
     date_of_registration = models.DateField(
         auto_now_add=True,
         verbose_name='дата регистрации'
@@ -117,6 +117,12 @@ class Assessor(models.Model):
     @property
     def full_name(self):
         return f'{self.last_name} {self.first_name} {self.middle_name}'
+
+    @property
+    def all_projects(self):
+        if self.projects.exists():
+            return '; '.join([pr.name for pr in self.current_project.all()])
+        return '-'
 
 
 class WorkingHours(models.Model):

@@ -11,7 +11,12 @@ from .models import Assessor
 class CreateAssessorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assessor
-        exclude = ('manager', 'is_busy', 'date_of_registration', 'projects')
+        exclude = (
+            'manager',
+            'is_busy',
+            'date_of_registration',
+            'projects'
+        )
 
     def create(self, validated_data):
         manager = self.context.get('request').user.manager
