@@ -35,17 +35,30 @@ class ProjectSchema(BaseAPISchema):
                     description='Case-independent filtering by project name.'
                 ),
                 openapi.Parameter(
-                    name='owner',
+                    name='manager',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_INTEGER,
-                    description='Filtering by owner ID.'
+                    description='Filtering by manager ID.'
+                ),
+                openapi.Parameter(
+                    name='assessors_count',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_INTEGER,
+                    description='Filtering by assessors count.'
+                ),
+                openapi.Parameter(
+                    name='status',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by status.'
                 ),
                 openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results. '
-                                'Available fields: name, owner, date_of_create'
+                                'Available fields: name, manager, assessors_count, '
+                                'status, date_of_creation'
                 )
             ],
             responses={
@@ -57,7 +70,9 @@ class ProjectSchema(BaseAPISchema):
     def create(self):
         return self.swagger_auto_schema(
             operation_summary='Create project',
-            operation_description='Create new project',
+            operation_description='The "manager" field is required if the user who '
+                                  'creates the project is an operational manager.\n\n'
+                                  'Statuses: active, pause.',
             responses={
                 201: serializers.ProjectSerializer(),
                 **self.get_responses(400, 401)
@@ -94,7 +109,7 @@ class ProjectSchema(BaseAPISchema):
                     description='Unique project ID'
                 )
             ],
-            responses={**self.get_responses(204, 401, 403, 404)}
+            responses={**self.get_responses(204, 400, 401, 403, 404)}
         )
 
 

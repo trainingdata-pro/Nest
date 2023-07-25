@@ -9,12 +9,13 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
         'name',
-        'owner',
-        'date_of_create'
+        'manager',
+        'status',
+        'date_of_creation'
     )
     list_display_links = ('name',)
-    list_filter = ('owner',)
-    ordering = ('owner', 'name')
+    list_filter = ('manager', 'status')
+    ordering = ('manager', 'name')
 
 
 admin.site.register(Project, ProjectAdmin)

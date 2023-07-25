@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 
 from users.serializers import ManagerSerializer
 
-from blacklist.models import BlackListItem
+# from blacklist.models import BlackListItem
 from projects.serializers import SimpleProjectSerializer
 from .models import Assessor
 
@@ -239,37 +239,39 @@ class RemoveAssessorSerializer(serializers.Serializer):
 
     @staticmethod
     def create_blacklist_item(instance, reason):
-        item_exists = BlackListItem.objects.filter(assessor=instance)
-        if item_exists:
-            item_exists.delete()
-
-        last_project = ', '.join(instance.projects.all().values_list('name', flat=True))
-        item = BlackListItem(
-            assessor=instance,
-            last_manager=instance.manager.full_name,
-            last_project=last_project,
-            reason=reason
-        )
-        item.save()
-
-        return item
+        pass
+        # item_exists = BlackListItem.objects.filter(assessor=instance)
+        # if item_exists:
+        #     item_exists.delete()
+        #
+        # last_project = ', '.join(instance.projects.all().values_list('name', flat=True))
+        # item = BlackListItem(
+        #     assessor=instance,
+        #     last_manager=instance.manager.full_name,
+        #     last_project=last_project,
+        #     reason=reason
+        # )
+        # item.save()
+        #
+        # return item
 
     def add_to_black_list(self, instance, reason):
-        if reason is None:
-            raise ValidationError(
-                {'reason': ['Укажите причину добавления в черный список.']}
-            )
-
-        self.create_blacklist_item(instance, reason)
-        instance.blacklist = True
-        instance.manager = None
-        instance.is_free_resource = False
-        instance.max_count_of_second_managers = None
-        instance.second_manager.clear()
-        instance.projects.clear()
-        instance.is_busy = False
-
-        return instance
+        pass
+        # if reason is None:
+        #     raise ValidationError(
+        #         {'reason': ['Укажите причину добавления в черный список.']}
+        #     )
+        #
+        # self.create_blacklist_item(instance, reason)
+        # instance.blacklist = True
+        # instance.manager = None
+        # instance.is_free_resource = False
+        # instance.max_count_of_second_managers = None
+        # instance.second_manager.clear()
+        # instance.projects.clear()
+        # instance.is_busy = False
+        #
+        # return instance
 
     @staticmethod
     def remove_from_team(instance):
@@ -283,15 +285,16 @@ class RemoveAssessorSerializer(serializers.Serializer):
         return instance
 
     def update(self, instance, validated_data):
-        instance = self.check_before_removing(instance)
-        blacklist = validated_data.get('blacklist')
-        if blacklist is not None:
-            instance = self.add_to_black_list(
-                instance,
-                reason=validated_data.get('reason')
-            )
-        else:
-            instance = self.remove_from_team(instance)
-
-        instance.save()
-        return instance
+        pass
+        # instance = self.check_before_removing(instance)
+        # blacklist = validated_data.get('blacklist')
+        # if blacklist is not None:
+        #     instance = self.add_to_black_list(
+        #         instance,
+        #         reason=validated_data.get('reason')
+        #     )
+        # else:
+        #     instance = self.remove_from_team(instance)
+        #
+        # instance.save()
+        # return instance

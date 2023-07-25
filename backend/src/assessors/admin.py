@@ -18,14 +18,14 @@ class AssessorAdmin(admin.ModelAdmin):
         'first_name',
         'middle_name',
         'manager',
-        'is_free_resource',
+        # 'is_free_resource',
         'is_busy',
-        'blacklist'
+        # 'blacklist'
     )
     list_filter = (
         'manager',
         'projects',
-        'blacklist'
+        # 'blacklist'
     )
     list_display_links = ('username',)
     ordering = ('manager__last_name', 'last_name')
