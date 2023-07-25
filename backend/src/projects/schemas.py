@@ -57,7 +57,7 @@ class ProjectSchema(BaseAPISchema):
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results. '
-                                'Available fields: name, manager, assessors_count, '
+                                'Available fields: pk, name, manager, assessors_count, '
                                 'status, date_of_creation'
                 )
             ],
@@ -72,7 +72,7 @@ class ProjectSchema(BaseAPISchema):
             operation_summary='Create project',
             operation_description='The "manager" field is required if the user who '
                                   'creates the project is an operational manager.\n\n'
-                                  'Statuses: active, pause.',
+                                  'Statuses: active, pause, completed.',
             responses={
                 201: serializers.ProjectSerializer(),
                 **self.get_responses(400, 401)

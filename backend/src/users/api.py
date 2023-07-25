@@ -32,6 +32,7 @@ class ManagerAPIViewSet(BaseAPIViewSet):
     }
     http_method_names = ['get', 'post', 'patch']
     filterset_class = ManagerFilter
+    ordering_fields = ['pk', 'user__username', 'last_name']
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

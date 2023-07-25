@@ -45,6 +45,13 @@ class UserSchema(BaseAPISchema):
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_INTEGER,
                     description='Filtering by operational manager ID.'
+                ),
+                openapi.Parameter(
+                    name='ordering',
+                    type=openapi.TYPE_STRING,
+                    in_=openapi.IN_QUERY,
+                    description='Which field to use when ordering the results. '
+                                'Available fields: pk, last_name, user__username.'
                 )
             ],
             responses={

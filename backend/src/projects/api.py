@@ -36,7 +36,8 @@ class ProjectAPIViewSet(BaseAPIViewSet):
     }
     http_method_names = ['get', 'post', 'patch', 'delete']
     filterset_class = ProjectFilter
-    ordering_fields = ['name', 'manager', 'assessors_count', 'status', 'date_of_creation']
+    ordering_fields = ['pk', 'name', 'manager', 'assessors_count',
+                       'status', 'date_of_creation']
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
