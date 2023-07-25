@@ -23,7 +23,7 @@ from . import serializers
 @method_decorator(name='list', decorator=assessor_schema.list())
 @method_decorator(name='create', decorator=assessor_schema.create())
 @method_decorator(name='partial_update', decorator=assessor_schema.partial_update())
-@method_decorator(name='destroy', decorator=assessor_schema.destroy())
+# @method_decorator(name='destroy', decorator=assessor_schema.destroy())
 class AssessorAPIViewSet(BaseAPIViewSet):
     permission_classes = {
         'create': (IsAuthenticated,),
@@ -39,7 +39,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         'list': serializers.AssessorSerializer,
         'destroy': serializers.RemoveAssessorSerializer
     }
-    http_method_names = ['get', 'post', 'patch', 'delete']
+    http_method_names = ['get', 'post', 'patch']  # TODO 'delete'
     filterset_class = AssessorFilter
     ordering_fields = [
         'username',
@@ -79,13 +79,13 @@ class AssessorAPIViewSet(BaseAPIViewSet):
 
         return Response(response.data, status=status.HTTP_200_OK)
 
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    # def destroy(self, request, *args, **kwargs):
+    #     instance = self.get_object()
+    #     serializer = self.get_serializer(instance, data=request.data, partial=True)
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+    #
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @method_decorator(name='get', decorator=check_assessor_schema.get())
