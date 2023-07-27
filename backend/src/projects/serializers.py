@@ -31,17 +31,22 @@ class CreateProjectSerializer(serializers.ModelSerializer):
         return super().validate(attrs)
 
     def create(self, validated_data) -> Project:
-        manager = self.get_manager()
-        if manager.is_operational_manager:
+        current_manager = self.get_manager()
+        if current_manager.is_operational_manager:
+            project_manager = validated_data.pop('manager', None)
             project = Project.objects.create(**validated_data)
-        else:
-            project = Project.objects.create(manager=manager, **validated_data)
+            project.manager.set(project_manager)
 
+        else:
+            project = Project.objects.create(**validated_data)
+            project.manager.set([current_manager])
+
+        project.save()
         return project
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    manager = ManagerSerializer(read_only=True)
+    manager = ManagerSerializer(read_only=True, many=True)
     assessors_count = serializers.SerializerMethodField(read_only=True)
     backlog = serializers.SerializerMethodField(read_only=True)
 

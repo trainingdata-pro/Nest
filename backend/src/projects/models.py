@@ -55,10 +55,16 @@ class Project(models.Model):
         verbose_name='дата старта'
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         db_table = 'projects'
         verbose_name = 'проект'
         verbose_name_plural = 'проекты'
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def managers(self):
+        if self.manager.exists():
+            return ', '.join([man.full_name for man in self.manager.all()])
+        return '-'

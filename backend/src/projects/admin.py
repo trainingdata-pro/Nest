@@ -9,13 +9,16 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
         'name',
-        'manager',
+        'managers',
         'status',
         'date_of_creation'
     )
     list_display_links = ('name',)
     list_filter = ('manager', 'status')
-    ordering = ('manager', 'name')
+    ordering = ('manager__last_name', 'name')
+
+    def get_queryset(self, request):
+        return Project.objects.all().prefetch_related('manager')
 
 
 admin.site.register(Project, ProjectAdmin)

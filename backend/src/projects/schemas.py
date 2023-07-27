@@ -37,7 +37,10 @@ class ProjectSchema(BaseAPISchema):
                 openapi.Parameter(
                     name='manager',
                     in_=openapi.IN_QUERY,
-                    type=openapi.TYPE_INTEGER,
+                    type=openapi.TYPE_ARRAY,
+                    items=openapi.Schema(
+                        type=openapi.TYPE_INTEGER
+                    ),
                     description='Filtering by manager ID.'
                 ),
                 openapi.Parameter(
@@ -53,18 +56,21 @@ class ProjectSchema(BaseAPISchema):
                     description='Filtering by status.'
                 ),
                 openapi.Parameter(
+                    name='is_free_resource',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_BOOLEAN,
+                    description='Filtering by free resources.'
+                ),
+                openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results. '
-                                'Available fields: pk, name, manager, assessors_count, '
-                                'status, date_of_creation'
+                                'Available fields: pk, name, manager__last_name, '
+                                'assessors_count, status, date_of_creation.'
                 )
             ],
-            responses={
-                200: serializers.ProjectSerializer(),
-                **self.get_responses(401)
-            }
+            responses={**self.get_responses(401)}
         )
 
     def create(self):
