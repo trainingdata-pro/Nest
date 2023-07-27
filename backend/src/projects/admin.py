@@ -15,7 +15,7 @@ class ProjectAdmin(admin.ModelAdmin):
     )
     list_display_links = ('name',)
     list_filter = ('manager', 'status')
-    ordering = ('manager__last_name', 'name')
+    ordering = ('name',)
 
     def get_queryset(self, request):
         return Project.objects.all().prefetch_related('manager')
