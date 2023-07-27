@@ -20,7 +20,7 @@ import AddProject from "./AddProject";
 
 interface Project {
     id: number,
-    manager: ManagerData,
+    manager: ManagerData[],
     assessors_count: number,
     backlog: string,
     name: string,
@@ -36,63 +36,71 @@ interface Project {
 
 const PersonalAccountTable = () => {
     const {store} = useContext(Context)
-    const columns = useMemo<ColumnDef<Project>[]>(() => [
-        {
-            accessorKey: 'name',
-            header: 'Название проекта',
-            cell: info => info.getValue(),
-            size: 300,
-            enableSorting: false
-        },
-        {
-            accessorKey: 'manager.last_name',
-            header: 'Владелец',
-            cell: info => info.getValue(),
-            enableSorting: false,
+    // @ts-ignore
+    const columns = useMemo<ColumnDef<Project>[]>(() => {
+        return [
+            {
+                accessorKey: 'name',
+                header: 'Название проекта',
+                cell: info => info.getValue(),
+                size: 300,
+                enableSorting: false
+            },
+            {
+                accessorKey: 'manager',
+                header: 'Владелец',
+                cell: (info) => {
+                    const managers = info.getValue()
+                    // @ts-ignore
+                    return <div>{managers.map(manager => {return <div key={manager.id}>{manager.last_name} {manager.first_name}</div>})}</div>
+                },
+                enableSorting: false,
 
-        },
-        {
-            accessorKey: 'assessors_count',
-            header: 'Количество исполнителей',
-            cell: info => info.getValue(),
-            size: 30,
-            enableGlobalFilter: false,
+            },
+            {
+                accessorKey: 'assessors_count',
+                header: 'Количество исполнителей',
+                cell: info => info.getValue(),
+                size: 30,
+                enableGlobalFilter: false,
 
-        },
-        {
-            accessorKey: 'backlog',
-            header: 'Беклог проекта',
-            cell: info => info.getValue(),
-            size: 30,
-            enableGlobalFilter: false
+            },
+            {
+                accessorKey: 'backlog',
+                header: 'Беклог проекта',
+                cell: info => info.getValue(),
+                size: 30,
+                enableGlobalFilter: false
 
-        },
-        {
-            accessorKey: 'status',
-            header: 'Статус проекта',
-            cell: info => info.getValue(),
-            size: 100,
-            enableGlobalFilter: false
+            },
+            {
+                accessorKey: 'status',
+                header: 'Статус проекта',
+                cell: info => info.getValue(),
+                size: 100,
+                enableGlobalFilter: false
 
-        }
-        // {
-        //     accessorKey: 'id',
-        //     id:"id",
-        //     header: '',
-        //     // @ts-ignore
-        //     cell:({row}) =>store.manager.manager_id === row.getValue('owner').id ? <DropdownMenu id={row.getValue("id")}/> : '',
-        //     enableSorting: false,
-        //     enableGlobalFilter:false
-        // }
+            }
+            // {
+            //     accessorKey: 'id',
+            //     id:"id",
+            //     header: '',
+            //     // @ts-ignore
+            //     cell:({row}) =>store.manager.manager_id === row.getValue('owner').id ? <DropdownMenu id={row.getValue("id")}/> : '',
+            //     enableSorting: false,
+            //     enableGlobalFilter:false
+            // }
 
-    ], [])
+        ];
+    }, [])
     useMemo(() => {
+
+        // @ts-ignore
         ProjectService.fetchProjects(store.managerData.id).then(res => setData(res.data.results)).catch(e=> console.log(e))
     }, [])
     const [data, setData] = useState<Project[]>([])
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [rowSelection, setRowSelection] = React.useState({})
-    const [showConfirmation, setShowConfirmation] = useState(false);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [globalFilter, setGlobalFilter] = React.useState('')
     const [showAddProject, setShowAddProject] = useState(false)
@@ -122,8 +130,10 @@ const PersonalAccountTable = () => {
     return (
         <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
             <div className="h-full w-full">
-                <button onClick={() => setShowAddProject(true)}>Добавить проект</button>
-                {showAddProject && <AddProject/>}
+                <div className="flex justify-end my-2">
+                    <button className="bg-black rounded-md text-white px-4 py-2" onClick={() => setShowAddProject(true)}>Добавить проект</button>
+                </div>
+                {showAddProject && <AddProject close={setShowAddProject}/>}
                 <div className="rounded-md border border-b-gray-400 bg-white">
                     {/*<>*/}
                     {/*    {Object.keys(rowSelection).length !== 0 && <ActionMenu handleDeleteRows={handleDeleteRows} />}*/}

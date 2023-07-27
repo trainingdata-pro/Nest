@@ -19,7 +19,7 @@ export default class ManagerService{
         return $api.get<IManager>(`/api/users/${id}`)
     }
     static fetch_managers(): any {
-        return $api.get<IManager[]>(`/api/users/`)
+        return $api.get<IManager[]>(`/api/users/?is_operational_manager=false`)
     }
 
     static patchManager(managerId:number, data:any) {
