@@ -1,6 +1,6 @@
 from django.db import models
 
-from core.utils.validators import not_negative_value_validator
+from core.utils.validators import not_negative_value_validator, day_hours_validator
 from projects.models import Project
 from users.models import Manager
 
@@ -121,37 +121,37 @@ class WorkingHours(models.Model):
         verbose_name='исполнитель'
     )
     monday = models.IntegerField(
-        validators=[not_negative_value_validator],
+        validators=[not_negative_value_validator, day_hours_validator],
         verbose_name='понедельник',
         default=0
     )
     tuesday = models.IntegerField(
-        validators=[not_negative_value_validator],
+        validators=[not_negative_value_validator, day_hours_validator],
         verbose_name='вторник',
         default=0
     )
     wednesday = models.IntegerField(
-        validators=[not_negative_value_validator],
+        validators=[not_negative_value_validator, day_hours_validator],
         verbose_name='среда',
         default=0
     )
     thursday = models.IntegerField(
-        validators=[not_negative_value_validator],
+        validators=[not_negative_value_validator, day_hours_validator],
         verbose_name='четверг',
         default=0
     )
     friday = models.IntegerField(
-        validators=[not_negative_value_validator],
+        validators=[not_negative_value_validator, day_hours_validator],
         verbose_name='пятница',
         default=0
     )
     saturday = models.IntegerField(
-        validators=[not_negative_value_validator],
+        validators=[not_negative_value_validator, day_hours_validator],
         verbose_name='суббота',
         default=0
     )
     sunday = models.IntegerField(
-        validators=[not_negative_value_validator],
+        validators=[not_negative_value_validator, day_hours_validator],
         verbose_name='воскресенье',
         default=0
     )

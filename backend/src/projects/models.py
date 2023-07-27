@@ -1,5 +1,6 @@
 from django.db import models
 
+from core.utils.common import current_date
 from core.utils.validators import not_negative_value_validator
 from users.models import Manager
 
@@ -51,7 +52,7 @@ class Project(models.Model):
         max_length=10
     )
     date_of_creation = models.DateField(
-        auto_now_add=True,
+        default=current_date,
         verbose_name='дата старта'
     )
 

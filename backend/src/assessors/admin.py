@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Assessor, Skill, WorkingHours
+from .models import Assessor, Skill, WorkingHours, FreeResourceSchedule
 
 
 class AssessorAdmin(admin.ModelAdmin):
@@ -34,6 +34,7 @@ class AssessorAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return (Assessor.objects.all()
+                .select_related('manager')
                 .prefetch_related('projects')
                 .order_by('manager__last_name', 'last_name'))
 
@@ -59,6 +60,16 @@ class WorkingHoursAdmin(admin.ModelAdmin):
     )
 
 
+class FreeResourceScheduleAdmin(admin.ModelAdmin):
+    list_display = (
+        'pk',
+        'assessor',
+        'weekday_hours',
+        'day_off_hours'
+    )
+
+
 admin.site.register(Assessor, AssessorAdmin)
 admin.site.register(Skill, SkillAdmin)
 admin.site.register(WorkingHours, WorkingHoursAdmin)
+admin.site.register(FreeResourceSchedule, FreeResourceScheduleAdmin)
