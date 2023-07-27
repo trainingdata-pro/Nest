@@ -54,10 +54,7 @@ class UserSchema(BaseAPISchema):
                                 'Available fields: pk, last_name, user__username.'
                 )
             ],
-            responses={
-                200: serializers.ManagerSerializer(many=True),
-                **self.get_responses(401)
-            }
+            responses={**self.get_responses(401)}
         )
 
     def create(self):
