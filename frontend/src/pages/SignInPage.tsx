@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import React from 'react'
-import SignInForm from "./SignInForm";
+import SignInForm from "../components/SignIn/SignInForm";
+
 
 const SignInPage = () => {
     return (
@@ -16,4 +17,4 @@ const SignInPage = () => {
     )
 }
 
-export default observer(SignInPage);
+export default SignInPage;
