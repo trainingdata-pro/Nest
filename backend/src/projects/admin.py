@@ -8,14 +8,18 @@ class ProjectAdmin(admin.ModelAdmin):
     search_help_text = 'Введите название проекта'
     list_display = (
         'pk',
+        'asana_id',
         'name',
-        'manager',
+        'managers',
         'status',
         'date_of_creation'
     )
     list_display_links = ('name',)
     list_filter = ('manager', 'status')
-    ordering = ('manager', 'name')
+    ordering = ('name',)
+
+    def get_queryset(self, request):
+        return Project.objects.all().prefetch_related('manager')
 
 
 admin.site.register(Project, ProjectAdmin)

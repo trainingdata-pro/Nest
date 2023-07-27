@@ -1,3 +1,5 @@
+import datetime
+
 from rest_framework import viewsets
 from rest_framework.exceptions import MethodNotAllowed
 
@@ -19,3 +21,7 @@ class BaseAPIViewSet(GetSerializerClassMixin,
                      GetPermissionMixin,
                      viewsets.ModelViewSet):
     pass
+
+
+def current_date():
+    return datetime.datetime.now().date()

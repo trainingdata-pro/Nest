@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from core.utils.permissions import ProjectOwnerOrTeamLead
+from core.utils.permissions import IsManager, ProjectPermission
 from core.utils.common import BaseAPIViewSet
 from users.models import Manager
 from .filters import ProjectFilter
@@ -23,9 +23,9 @@ class ProjectAPIViewSet(BaseAPIViewSet):
     permission_classes = {
         'retrieve': (IsAuthenticated,),
         'list': (IsAuthenticated,),
-        'create': (IsAuthenticated,),
-        'partial_update': (IsAuthenticated, ProjectOwnerOrTeamLead),
-        'destroy': (IsAuthenticated, ProjectOwnerOrTeamLead)
+        'create': (IsAuthenticated, IsManager),
+        'partial_update': (IsAuthenticated, IsManager, ProjectPermission),
+        'destroy': (IsAuthenticated, IsManager, ProjectPermission)
     }
     serializer_class = {
         'retrieve': serializers.ProjectSerializer,
@@ -36,7 +36,8 @@ class ProjectAPIViewSet(BaseAPIViewSet):
     }
     http_method_names = ['get', 'post', 'patch', 'delete']
     filterset_class = ProjectFilter
-    ordering_fields = ['name', 'manager', 'assessors_count', 'status', 'date_of_creation']
+    ordering_fields = ['pk', 'name', 'manager__last_name', 'assessors_count',
+                       'status', 'date_of_creation']
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -78,7 +79,7 @@ class ProjectAPIViewSet(BaseAPIViewSet):
         if user.is_superuser:
             return (Project.objects.all()
                     .annotate(assessors_count=Count('assessors'))
-                    .select_related('manager__user')
+                    .prefetch_related('manager__user')
                     .order_by('manager__last_name', 'name', '-date_of_creation'))
         else:
             manager = user.manager
@@ -87,11 +88,11 @@ class ProjectAPIViewSet(BaseAPIViewSet):
                 return (Project.objects
                         .filter(manager__in=team)
                         .annotate(assessors_count=Count('assessors'))
-                        .select_related('manager__user')
+                        .prefetch_related('manager__user')
                         .order_by('manager__last_name', 'name', '-date_of_creation'))
 
             return (Project.objects
                     .filter(manager=manager)
                     .annotate(assessors_count=Count('assessors'))
-                    .select_related('manager__user')
+                    .prefetch_related('manager__user')
                     .order_by('manager__last_name', 'name', '-date_of_creation'))

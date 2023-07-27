@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from core.utils.common import current_date
 from users.serializers import ManagerSerializer
 from .models import Project
 
@@ -28,20 +29,32 @@ class CreateProjectSerializer(serializers.ModelSerializer):
                         {'manager': [f'Менеджер {owner.full_name} не в вашей команде.']}
                     )
 
+        date_of_creation = attrs.get('date_of_creation')
+
+        if date_of_creation and current_date() < date_of_creation:
+            raise ValidationError(
+                {'date_of_creation': 'Дата старта не может быть больше текущей даты.'}
+            )
+
         return super().validate(attrs)
 
     def create(self, validated_data) -> Project:
-        manager = self.get_manager()
-        if manager.is_operational_manager:
+        current_manager = self.get_manager()
+        project_manager = validated_data.pop('manager', None)
+        if current_manager.is_operational_manager:
             project = Project.objects.create(**validated_data)
-        else:
-            project = Project.objects.create(manager=manager, **validated_data)
+            project.manager.set(project_manager)
 
+        else:
+            project = Project.objects.create(**validated_data)
+            project.manager.set([current_manager])
+
+        project.save()
         return project
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    manager = ManagerSerializer(read_only=True)
+    manager = ManagerSerializer(read_only=True, many=True)
     assessors_count = serializers.SerializerMethodField(read_only=True)
     backlog = serializers.SerializerMethodField(read_only=True)
 

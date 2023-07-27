@@ -1,5 +1,6 @@
 from django.db import models
 
+from core.utils.common import current_date
 from core.utils.validators import not_negative_value_validator
 from users.models import Manager
 
@@ -11,6 +12,10 @@ class ProjectStatuses(models.TextChoices):
 
 
 class Project(models.Model):
+    asana_id = models.BigIntegerField(
+        verbose_name='asana ID',
+        unique=True
+    )
     name = models.CharField(
         max_length=255,
         unique=True,
@@ -20,10 +25,9 @@ class Project(models.Model):
         verbose_name='название'
 
     )
-    manager = models.ForeignKey(
+    manager = models.ManyToManyField(
         Manager,
-        on_delete=models.PROTECT,
-        verbose_name='владелец'
+        verbose_name='менеджеры'
     )
     speed_per_hour = models.IntegerField(
         verbose_name='Скорость в час',
@@ -52,14 +56,20 @@ class Project(models.Model):
         max_length=10
     )
     date_of_creation = models.DateField(
-        auto_now_add=True,
+        default=current_date,
         verbose_name='дата старта'
     )
-
-    def __str__(self):
-        return self.name
 
     class Meta:
         db_table = 'projects'
         verbose_name = 'проект'
         verbose_name_plural = 'проекты'
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def managers(self):
+        if self.manager.exists():
+            return ', '.join([man.full_name for man in self.manager.all()])
+        return '-'

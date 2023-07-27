@@ -6,7 +6,7 @@ from .models import Project
 
 class ProjectFilter(filters.FilterSet):
     name = filters.CharFilter(lookup_expr='iexact')
-    manager = filters.NumberFilter()
+    manager = filters.NumberFilter(method='filter_manager')
     assessors_count = filters.NumberFilter(method='filter_assessors_count')
     status = filters.CharFilter(lookup_expr='icontains')
 
@@ -19,5 +19,13 @@ class ProjectFilter(filters.FilterSet):
             'status'
         )
 
+    def filter_manager(self, queryset, name, value):
+        managers = self.get_filtered_values(value)
+        return queryset.filter(manager__in=managers).distinct()
+
     def filter_assessors_count(self, queryset, name, value):
         return queryset.annotate(assessors_count=Count('assessors')).filter(assessors_count=value)
+
+    @staticmethod
+    def get_filtered_values(value):
+        return value.split(',')
