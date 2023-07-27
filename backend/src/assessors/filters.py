@@ -52,4 +52,4 @@ class AssessorFilter(filters.FilterSet):
 
     @staticmethod
     def get_filtered_values(value):
-        return value.split(',')
+        return [int(val) for val in value.split(',') if val.isdigit()]

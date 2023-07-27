@@ -37,11 +37,8 @@ class ProjectSchema(BaseAPISchema):
                 openapi.Parameter(
                     name='manager',
                     in_=openapi.IN_QUERY,
-                    type=openapi.TYPE_ARRAY,
-                    items=openapi.Schema(
-                        type=openapi.TYPE_INTEGER
-                    ),
-                    description='Filtering by manager ID.'
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by manager ID. Example: host.com/?manager=1,2'
                 ),
                 openapi.Parameter(
                     name='assessors_count',

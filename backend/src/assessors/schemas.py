@@ -106,11 +106,8 @@ class AssessorSchema(BaseAPISchema):
                 openapi.Parameter(
                     name='projects',
                     in_=openapi.IN_QUERY,
-                    type=openapi.TYPE_ARRAY,
-                    items=openapi.Schema(
-                        type=openapi.TYPE_INTEGER
-                    ),
-                    description='Filtering by project ID'
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by project ID. Example: host.com/?projects=1,2'
                 ),
                 openapi.Parameter(
                     name='status',
@@ -121,11 +118,8 @@ class AssessorSchema(BaseAPISchema):
                 openapi.Parameter(
                     name='skills',
                     in_=openapi.IN_QUERY,
-                    type=openapi.TYPE_ARRAY,
-                    items=openapi.Schema(
-                        type=openapi.TYPE_INTEGER
-                    ),
-                    description='Filtering by skill ID'
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by skill ID. Example: host.com/?skills=1,2'
                 ),
                 openapi.Parameter(
                     name='is_free_resource',
@@ -136,11 +130,8 @@ class AssessorSchema(BaseAPISchema):
                 openapi.Parameter(
                     name='second_manager',
                     in_=openapi.IN_QUERY,
-                    type=openapi.TYPE_ARRAY,
-                    items=openapi.Schema(
-                        type=openapi.TYPE_INTEGER
-                    ),
-                    description='Filtering by second manager ID'
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by second manager ID. Example: host.com/?second_manager=1,2'
                 ),
                 openapi.Parameter(
                     name='ordering',

@@ -6,7 +6,7 @@ from .models import Project
 
 class ProjectFilter(filters.FilterSet):
     name = filters.CharFilter(lookup_expr='iexact')
-    manager = filters.NumberFilter(method='filter_manager')
+    manager = filters.CharFilter(method='filter_manager')
     assessors_count = filters.NumberFilter(method='filter_assessors_count')
     status = filters.CharFilter(lookup_expr='icontains')
 
@@ -28,4 +28,4 @@ class ProjectFilter(filters.FilterSet):
 
     @staticmethod
     def get_filtered_values(value):
-        return value.split(',')
+        return [int(val) for val in value.split(',') if val.isdigit()]
