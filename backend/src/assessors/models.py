@@ -71,11 +71,6 @@ class Assessor(models.Model):
         choices=AssessorStatus.choices,
         default=AssessorStatus.FREE
     )
-    capacity = models.FloatField(
-        verbose_name='загруженность',
-        validators=[not_negative_value_validator],
-        default=0.0
-    )
     skills = models.ManyToManyField(
         to=Skill,
         verbose_name='навыки',
@@ -91,12 +86,6 @@ class Assessor(models.Model):
         related_name='extra',
         verbose_name='Доп. менеджеры'
     )
-    # max_count_of_second_managers = models.IntegerField(
-    #     null=True,
-    #     blank=True,
-    #     verbose_name='Макс. к-во доп. менеджеров'
-    # )
-
     blacklist = models.BooleanField(
         default=False,
         verbose_name='черный список'
@@ -121,7 +110,7 @@ class Assessor(models.Model):
     @property
     def all_projects(self):
         if self.projects.exists():
-            return '; '.join([pr.name for pr in self.current_project.all()])
+            return '; '.join([pr.name for pr in self.projects.all()])
         return '-'
 
 
@@ -129,7 +118,7 @@ class WorkingHours(models.Model):
     assessor = models.OneToOneField(
         to=Assessor,
         on_delete=models.PROTECT,
-        verbose_name='рабочие часы'
+        verbose_name='исполнитель'
     )
     monday = models.IntegerField(
         validators=[not_negative_value_validator],
@@ -176,3 +165,28 @@ class WorkingHours(models.Model):
     def total(self):
         return (self.monday + self.tuesday + self.wednesday +
                 self.thursday + self.friday + self.saturday + self.sunday)
+
+
+class FreeResourceSchedule(models.Model):
+    assessor = models.OneToOneField(
+        to=Assessor,
+        verbose_name='исполнитель',
+        on_delete=models.PROTECT,
+        related_name='fr_schedule'
+    )
+    weekday_hours = models.CharField(
+        max_length=5,
+        verbose_name='рабочие дни'
+    )
+    day_off_hours = models.CharField(
+        max_length=5,
+        verbose_name='выходные дни'
+    )
+
+    class Meta:
+        db_table = 'free_resources_schedule'
+        verbose_name = 'время работы в СР'
+        verbose_name_plural = 'время работы в СР'
+
+    def __str__(self):
+        return f'{self.assessor.full_name}'

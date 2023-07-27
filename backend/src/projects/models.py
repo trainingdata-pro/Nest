@@ -20,10 +20,9 @@ class Project(models.Model):
         verbose_name='название'
 
     )
-    manager = models.ForeignKey(
+    manager = models.ManyToManyField(
         Manager,
-        on_delete=models.PROTECT,
-        verbose_name='владелец'
+        verbose_name='менеджеры'
     )
     speed_per_hour = models.IntegerField(
         verbose_name='Скорость в час',
