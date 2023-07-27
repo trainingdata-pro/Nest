@@ -8,6 +8,7 @@ class ProjectAdmin(admin.ModelAdmin):
     search_help_text = 'Введите название проекта'
     list_display = (
         'pk',
+        'asana_id',
         'name',
         'managers',
         'status',
