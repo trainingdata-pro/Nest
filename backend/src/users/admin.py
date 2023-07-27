@@ -33,6 +33,7 @@ class ManagerAdmin(admin.ModelAdmin):
         'is_operational_manager'
     )
     list_display_links = ('user',)
+    list_filter = ('is_operational_manager',)
     ordering = ('last_name',)
 
 

@@ -3,15 +3,24 @@ from rest_framework import routers
 
 from . import api
 
-router = routers.DefaultRouter()
-router.register('', api.AssessorAPIViewSet, basename='assessor')
-router.register('', api.AssessorProjectsAPIViewSet, basename='assessor-project')
 
-fr_router = routers.DefaultRouter()
-fr_router.register('', api.FreeResourcesAPIViewSet, basename='free-resources')
+skills_router = routers.DefaultRouter()
+skills_router.register('', api.SkillsAPIViewSet, basename='skills')
+
+assessors_router = routers.DefaultRouter()
+assessors_router.register('', api.AssessorAPIViewSet, basename='assessor')
+assessors_router.register('', api.AssessorProjectsAPIViewSet, basename='assessor-project')
+
+wh_router = routers.DefaultRouter()
+wh_router.register('', api.WorkingHoursAPIViewSet, basename='working-hours')
+
+# fr_router = routers.DefaultRouter()
+# fr_router.register('', api.FreeResourcesAPIViewSet, basename='free-resources')
 
 urlpatterns = [
     path('assessors/check/', api.AssessorCheckAPIView.as_view()),
-    path('assessors/', include(router.urls)),
-    path('free_resources/', include(fr_router.urls))
+    path('skills/', include(skills_router.urls)),
+    path('assessors/', include(assessors_router.urls)),
+    path('working_hours/', include(wh_router.urls))
+    # path('free_resources/', include(fr_router.urls))
 ]

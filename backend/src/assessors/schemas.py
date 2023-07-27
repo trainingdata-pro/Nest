@@ -4,6 +4,51 @@ from core.utils.schemas import BaseAPISchema
 from . import serializers
 
 
+class SkillsSchema(BaseAPISchema):
+    def retrieve(self):
+        return self.swagger_auto_schema(
+            operation_summary='Get skill',
+            operation_description='Get a specific skill',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique skill ID'
+                )
+            ],
+            responses={
+                200: serializers.SkillSerializer(),
+                **self.get_responses(401, 404)
+            }
+        )
+
+    def list(self):
+        return self.swagger_auto_schema(
+            operation_summary='List skills',
+            operation_description='Get list of skills',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='title',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Case-independent filtering by skill title.'
+                ),
+                openapi.Parameter(
+                    name='ordering',
+                    type=openapi.TYPE_STRING,
+                    in_=openapi.IN_QUERY,
+                    description='Which field to use when ordering the results. '
+                                'Available fields: pk, title.'
+                )
+            ],
+            responses={
+                200: serializers.SkillSerializer(many=True),
+                **self.get_responses(401)
+            }
+        )
+
+
 class AssessorSchema(BaseAPISchema):
     def retrieve(self):
         return self.swagger_auto_schema(
@@ -53,31 +98,51 @@ class AssessorSchema(BaseAPISchema):
                     description='Case-independent filtering by assessor middle_name.'
                 ),
                 openapi.Parameter(
-                    name='projects',
+                    name='manager',
                     in_=openapi.IN_QUERY,
-                    type=openapi.TYPE_ARRAY,
-                    items=openapi.Schema(
-                        type=openapi.TYPE_INTEGER
-                    ),
-                    description='Filtering by project ID'
+                    type=openapi.TYPE_INTEGER,
+                    description='Filtering by manager ID'
                 ),
                 openapi.Parameter(
-                    name='is_busy',
+                    name='projects',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by project ID. Example: host.com/?projects=1,2'
+                ),
+                openapi.Parameter(
+                    name='status',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by status.'
+                ),
+                openapi.Parameter(
+                    name='skills',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by skill ID. Example: host.com/?skills=1,2'
+                ),
+                openapi.Parameter(
+                    name='is_free_resource',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_BOOLEAN,
-                    description='Filtering by status.'
+                    description='Filtering free resources.'
+                ),
+                openapi.Parameter(
+                    name='second_manager',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by second manager ID. Example: host.com/?second_manager=1,2'
                 ),
                 openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results. '
-                                'Available fields: username, last_name, first_name, '
-                                'middle_name, manager, is_busy'
+                                'Available fields: pk, username, last_name, manager__last_name, status.'
                 )
             ],
             responses={
-                200: serializers.AssessorSerializer(),
+                200: serializers.AssessorSerializer(many=True),
                 **self.get_responses(401)
             }
         )
@@ -85,9 +150,11 @@ class AssessorSchema(BaseAPISchema):
     def create(self):
         return self.swagger_auto_schema(
             operation_summary='Create assessor',
-            operation_description='Create new assessor',
+            operation_description='The "manager" field is required if the user who '
+                                  'creates the project is an operational manager.\n\n'
+                                  'Statuses: full, partial, free.',
             responses={
-                201: serializers.CreateAssessorSerializer(),
+                201: serializers.CreateUpdateAssessorSerializer(),
                 **self.get_responses(400, 401)
             }
         )
@@ -218,10 +285,7 @@ class FreeResourcesSchema(BaseAPISchema):
         return self.swagger_auto_schema(
             operation_summary='List free resources',
             operation_description='Get list of free resources',
-            responses={
-                200: serializers.AssessorSerializer(),
-                **self.get_responses(401)
-            }
+            responses={**self.get_responses(401)}
         )
 
     def take(self):
@@ -258,7 +322,64 @@ class FreeResourcesSchema(BaseAPISchema):
         )
 
 
+class WorkingHoursSchema(BaseAPISchema):
+    def retrieve(self):
+        return self.swagger_auto_schema(
+            operation_summary='Get working hours',
+            operation_description='Get specific working hours',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique working hours ID'
+                )
+            ],
+            responses={
+                200: serializers.WorkingHoursSerializer(),
+                **self.get_responses(401, 404)
+            }
+        )
+
+    def list(self):
+        return self.swagger_auto_schema(
+            operation_summary='List working hours',
+            operation_description='Get list of working hours',
+            responses={**self.get_responses(401)}
+        )
+
+    def create(self):
+        return self.swagger_auto_schema(
+            operation_summary='Create working hours',
+            operation_description='Create working hours',
+            responses={
+                201: serializers.WorkingHoursSerializer(),
+                **self.get_responses(400, 401, 403)
+            }
+        )
+
+    def partial_update(self):
+        return self.swagger_auto_schema(
+            operation_summary='Update working hours',
+            operation_description='Update working hours',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique working hours ID'
+                )
+            ],
+            responses={
+                200: serializers.WorkingHoursSerializer(),
+                **self.get_responses(400, 401, 403, 404)
+            }
+        )
+
+
 assessor_schema = AssessorSchema(tags=['assessors'])
 check_assessor_schema = CheckAssessorSchema(tags=['assessors'])
-projects_schema = AssessorProjectsSchema(tags=['assessors'])
 fr_schema = FreeResourcesSchema(tags=['free resources'])
+projects_schema = AssessorProjectsSchema(tags=['assessors'])
+skills_schema = SkillsSchema(tags=['assessors'])
+wh_schema = WorkingHoursSchema(tags=['assessors'])
