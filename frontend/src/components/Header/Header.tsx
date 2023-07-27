@@ -4,10 +4,6 @@ import {Context} from "../../index";
 import Profile from "../Profile";
 import {observer} from "mobx-react-lite";
 
-
-
-
-// @ts-ignore
 const Header = () => {
     const navigate = useNavigate()
     const {store} = useContext(Context)

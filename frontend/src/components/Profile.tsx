@@ -1,28 +1,47 @@
-import React, {useContext, useMemo} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import {Context} from "../index";
 import {observer} from "mobx-react-lite";
 import {useForm} from "react-hook-form";
 import ManagerService from "../services/ManagerService";
+import {ManagerData} from "../store/store";
+import {useNavigate} from "react-router-dom";
 
 const Profile = () => {
     const {store} = useContext(Context)
-    const {register, getValues, handleSubmit} = useForm({
-        defaultValues: useMemo(() => {
-            return {
-                'id': store.managerData.id,
-                'last_name': store.managerData.last_name,
-                'first_name': store.managerData.first_name,
-                'middle_name': store.managerData.middle_name,
-                'username': store.managerData.user.username,
-                'operational_manager': store.managerData.operational_manager,
-            };
-        }, [])
-    })
+    useEffect(() => {
+        ManagerService.fetchOperationsManagers().then((res) => setOperationsManagers(res.data.results));
+        ManagerService.fetch_manager(store.managerData.id).then((res) => {
+            setManager(res.data);
+        });
+    }, []);
+    const navigate = useNavigate()
+    const [manager, setManager] = useState<ManagerData>()
+    const [operationsManagers, setOperationsManagers] = useState<ManagerData[]>([])
+    const [selectedOperationsManager, setSelectedOperationsManager] = useState(store.managerData.operational_manager)
+    const {register, getValues,reset, setValue, handleSubmit} = useForm(
+        )
+    useEffect(() => {
+        setValue('id', manager?.id || '');
+        setValue('last_name', manager?.last_name || '');
+        setValue('first_name', manager?.first_name || '');
+        setValue('middle_name', manager?.middle_name || '');
+        setValue('username', manager?.user.username || '');
+        setValue('operational_manager', manager?.operational_manager || '');
+    }, [manager, setValue]);
+    useEffect(() => {
 
+        reset();
+    }, [reset]);
     function onSubmit(data: any) {
-        ManagerService.patchManager(data.id, data).then(() => store.setShowProfile(false))
-    }
+        ManagerService.patchManager(data.id, data).then((res) => {
+            store.setShowProfile(false)
 
+        })
+    }
+    const handleSelectChange = (event:any) => {
+        setSelectedOperationsManager(event.target.value);
+    };
+    // @ts-ignore
     return (
         <div className="fixed inset-0 z-50 flex h-screen w-screen items-end justify-center sm:items-center">
             <div className="animate-in fade-in fixed inset-0 z-50 bg-white backdrop-blur-sm transition-opacity"></div>
@@ -55,23 +74,33 @@ const Profile = () => {
                     </div>
                     <div>
                         <label>Ответственный TeamLead</label>
-                        <input
-                            className="h-8 rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full"/>
+                        <select {...register('operational_manager')} value={selectedOperationsManager} onChange={handleSelectChange}
+                                className="flex h-10 rounded-md border border-input mb-2 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full max-w-[30rem] bg-white"
+                        >
+                            <option value="" disabled>Выберите своего начальника</option>
+                            {operationsManagers.map(manager => <option key={manager.id}
+                                                                       value={manager.id}>{manager.last_name} {manager.first_name}</option>)}
+                        </select>
                     </div>
                     <div>
                         <label>ID Менеджера</label>
-                        <input disabled {...register('id')}
+                        <input disabled {...register('id')} value={store.managerData.id}
                                className="h-8 rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full"/>
                     </div>
                 </form>
                 <div className="mt-5 flex justify-between">
                     <button
                         className="bg-black text-white rounded-md text-sm font-medium disabled:opacity-50 transition-colors hover:bg-primary/90 h-10 py-2 px-4"
-                        onClick={() => store.setShowProfile(false)}>Закрыть страницу
+                        onClick={() => {
+                            store.setShowProfile(false)
+                        }}>Закрыть страницу
                     </button>
                     <button
                         className="bg-black text-white rounded-md text-sm font-medium disabled:opacity-50 transition-colors hover:bg-primary/90 h-10 py-2 px-4"
-                        onClick={() => onSubmit(getValues())}>Сохранить
+                        onClick={() => {
+                            onSubmit(getValues())
+                            store.setShowProfile(false)
+                        }}>Сохранить
                     </button>
                 </div>
             </div>

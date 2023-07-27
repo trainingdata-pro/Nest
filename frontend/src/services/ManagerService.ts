@@ -30,5 +30,8 @@ export default class ManagerService{
             "operational_manager": Number(data.operational_manager)
         })
     }
+    static fetchOperationsManagers() {
+        return $api.get('/api/users/?is_operational_manager=true')
+    }
 
 }

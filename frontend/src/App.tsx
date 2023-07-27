@@ -6,6 +6,7 @@ import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import ConfirmationSignUp from "./components/SignUp/ConfirmationSignUp";
 import MainPage from './pages/MainPage';
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
     const {store} = useContext(Context)
@@ -34,6 +35,7 @@ function App() {
                 </Routes>:
                  <Routes>
                      <Route path={'/dashboard/main'} element={<MainPage/>}/>
+                     {/*<Route path={'/profile'} element={<ProfilePage/>}/>*/}
                      {/*<Route path={'/dashboard/assessor/:id'} element={<AssessorPage/>}/>*/}
                      {/*<Route path={'/dashboard/assessor/add_project'} element={<AddAssessorToProject id={undefined}/>}/>*!/*/}
                      {/*<Route path={'/dashboard/projects/'} element={<ProjectsPage/>}/>*/}
