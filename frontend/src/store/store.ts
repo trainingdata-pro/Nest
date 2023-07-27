@@ -3,17 +3,20 @@ import AuthService from "../services/AuthService";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 import {API_URL} from "../http";
+import ManagerService from "../services/ManagerService";
 
-interface UserData{
+interface UserData {
     is_active: boolean,
     is_admin: boolean,
     is_operational_manager: boolean,
     manager_id: number,
     username: string
 }
-interface Token{
+
+interface Token {
     user_data: UserData
 }
+
 export type Project = {
     id?: number
     name: string
@@ -29,7 +32,8 @@ export type Project = {
         middle_name: string,
     }
 }
-interface ManagerData {
+
+export interface ManagerData {
     id: number,
     user: {
         id: number,
@@ -40,17 +44,21 @@ interface ManagerData {
     first_name: string,
     middle_name: string,
     is_operational_manager: boolean,
-    operational_manager: number
+    operational_manager: number | null
 }
+
 export default class Store {
     isAuth = false
-    manager = {} as UserData
     managerData = {} as ManagerData
     isLoading = false
-
+    showProfile = false
 
     constructor() {
         makeAutoObservable(this)
+    }
+
+    setShowProfile(bool: boolean) {
+        this.showProfile = bool
     }
 
     setIsLoading(bool: boolean) {
@@ -58,14 +66,10 @@ export default class Store {
     }
 
 
-
     setAuth(bool: boolean) {
         this.isAuth = bool
     }
 
-    setManager(manager: UserData) {
-        this.manager = manager
-    }
     setManagerData(manager: ManagerData) {
         this.managerData = manager
     }
@@ -75,7 +79,14 @@ export default class Store {
         const response = await AuthService.login(username, password)
         localStorage.setItem('token', response.data.access)
         const decodeJwt: Token = jwtDecode(response.data.access)
-        this.setManager(decodeJwt.user_data)
+        const managerId = decodeJwt.user_data.manager_id
+        await ManagerService.fetch_manager(managerId).then(res => {
+            this.setManagerData(res.data)
+            const manager = res.data
+            if (manager.first_name === '' || manager.last_name === '' || manager.middle_name === '' || !manager.is_operational_manager && manager.operational_manager === null){
+                this.setShowProfile(true)
+            }
+        })
         document.cookie = `refresh=${response.data.refresh}`
         this.setAuth(true)
         this.setIsLoading(false)
@@ -90,7 +101,14 @@ export default class Store {
             const response = await axios.post(`${API_URL}/api/token/refresh/`, {'refresh': cookieValue})
             localStorage.setItem('token', response.data.access)
             const decodeJwt: Token = jwtDecode(response.data.access)
-            this.setManager(decodeJwt.user_data)
+            const managerId = decodeJwt.user_data.manager_id
+            await ManagerService.fetch_manager(managerId).then(res => {
+                this.setManagerData(res.data)
+                const manager = res.data
+                if (manager.first_name === '' || manager.last_name === '' || manager.middle_name === '' || !manager.is_operational_manager && manager.operational_manager === null){
+                    this.setShowProfile(true)
+                }
+            })
             this.setAuth(true)
         } catch (e: any) {
             this.setAuth(false)

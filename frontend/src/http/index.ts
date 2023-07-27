@@ -23,7 +23,7 @@ $api.interceptors.response.use((response) => {
             const cookieValue = document.cookie
                 .split('; ')
                 .find((row) => row.startsWith('refresh='))?.split('=')[1];
-            const response = await $api.post(`/api/token/refresh/`, {'refresh': cookieValue})
+            const response = await axios.post(`${API_URL}/api/token/refresh/`, {'refresh': cookieValue})
             localStorage.setItem('token', response.data.access)
             document.cookie = `refresh=${response.data.refresh}`
             return $api.request(originalRequest)

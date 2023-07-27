@@ -1,9 +1,12 @@
 import React from 'react';
+import Header from "../components/Header/Header";
+import PersonalAccountTable from "../components/PersonalAccountTable";
 
 const MainPage = () => {
     return (
         <div>
-            gkjdfhgkdfhgkdhfg
+            <Header/>
+            <PersonalAccountTable/>
         </div>
     );
 };

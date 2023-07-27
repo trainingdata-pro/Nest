@@ -26,12 +26,12 @@ function App() {
     return (
         <div className="min-w-screen relative min-h-screen bg-gray-50">
             <BrowserRouter>
-                {!store.isAuth && <Routes>
+                {!store.isAuth ? <Routes>
                         <Route path={'/login'} element={<SignInPage/>}/>
                         <Route path={'/register'} element={<SignUpPage/>}/>
                         <Route path={'/signup/confirmation/:id'} element={<ConfirmationSignUp/>}/>
                         <Route path="*" element={<Navigate to="/login" replace/>}/>
-                </Routes>}
+                </Routes>:
                  <Routes>
                      <Route path={'/dashboard/main'} element={<MainPage/>}/>
                      {/*<Route path={'/dashboard/assessor/:id'} element={<AssessorPage/>}/>*/}
@@ -39,7 +39,7 @@ function App() {
                      {/*<Route path={'/dashboard/projects/'} element={<ProjectsPage/>}/>*/}
                      {/*<Route path={'/dashboard/projects/:id'} element={<ProjectPage/>}/>*/}
                      <Route path="*" element={<Navigate to="/dashboard/main" replace/>}/> // TODO: redirect 404
-                 </Routes>
+                 </Routes>}
              </BrowserRouter>
         </div>
     );

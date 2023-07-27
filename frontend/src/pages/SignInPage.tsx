@@ -17,4 +17,4 @@ const SignInPage = () => {
     )
 }
 
-export default observer(SignInPage);
+export default SignInPage;

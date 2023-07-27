@@ -10,7 +10,7 @@ interface ISignIn {
     password: string
 }
 const SignInForm = () => {
-    const navigate = useNavigate();
+    const navigate = useNavigate()
     const {register,formState:{errors},  getValues, handleSubmit} = useForm<ISignIn>()
     const [serverError, setServerError] = useState<string>('')
     const [isLoading, setIsLoading] = useState(false)
@@ -21,10 +21,10 @@ const SignInForm = () => {
     const onSubmit = async () => {
         setIsLoading(true)
         const values = getValues()
-            await store.login(values.username, values.password).
-            then(() => {
-                navigate('/dashboard/main')
-            }).catch(err => setServerError(err.response.data.detail)).finally(() => setIsLoading(false))
+        await store.login(values.username, values.password).
+        then(() => {
+            navigate('/dashboard/main/')
+        }).catch(err => setServerError(err.response.data.detail)).finally(() => setIsLoading(false))
     }
     return (
         <form className="w-[30rem]"
