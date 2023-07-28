@@ -14,7 +14,9 @@ class ProjectStatuses(models.TextChoices):
 class Project(models.Model):
     asana_id = models.BigIntegerField(
         verbose_name='asana ID',
-        unique=True
+        unique=True,
+        blank=True,  # TODO
+        null=True
     )
     name = models.CharField(
         max_length=255,
@@ -31,23 +33,33 @@ class Project(models.Model):
     )
     speed_per_hour = models.IntegerField(
         verbose_name='Скорость в час',
-        validators=[not_negative_value_validator]
+        validators=[not_negative_value_validator],
+        blank=True,
+        null=True
     )
     price_for_assessor = models.FloatField(
         verbose_name='Цена за единицу для ассессора',
-        validators=[not_negative_value_validator]
+        validators=[not_negative_value_validator],
+        blank=True,
+        null=True
     )
     price_for_costumer = models.FloatField(
         verbose_name='Цена за единицу для заказчика',
-        validators=[not_negative_value_validator]
+        validators=[not_negative_value_validator],
+        blank=True,
+        null=True
     )
     unloading_value = models.IntegerField(
         verbose_name='Объем выгрузок',
-        validators=[not_negative_value_validator]
+        validators=[not_negative_value_validator],
+        blank=True,
+        null=True
     )
     unloading_regularity = models.IntegerField(
         verbose_name='Регулярность выгрузок',
-        validators=[not_negative_value_validator]
+        validators=[not_negative_value_validator],
+        blank=True,
+        null=True
     )
     status = models.CharField(
         verbose_name='статус проекта',
