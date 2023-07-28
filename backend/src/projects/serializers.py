@@ -18,16 +18,23 @@ class CreateProjectSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         manager = self.get_manager()
         if manager.is_operational_manager:
-            owner = attrs.get('manager')
-            if owner is None:
+            owners = attrs.get('manager')
+            if not owners:
                 raise ValidationError(
                     {'manager': ['Укажите менеджера проекта.']}
                 )
             else:
-                if owner.operational_manager.pk != manager.pk:
-                    raise ValidationError(
-                        {'manager': [f'Менеджер {owner.full_name} не в вашей команде.']}
-                    )
+                for owner in owners:
+                    if owner.is_operational_manager:
+                        raise ValidationError(
+                            {'manager': [f'Нельзя назначить операционного менеджера '
+                                         f'{owner.full_name} на проект.']}
+                        )
+
+                    elif owner.operational_manager and owner.operational_manager.pk != manager.pk:
+                        raise ValidationError(
+                            {'manager': [f'Менеджер {owner.full_name} не в вашей команде.']}
+                        )
 
         date_of_creation = attrs.get('date_of_creation')
 
