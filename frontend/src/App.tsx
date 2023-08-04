@@ -7,6 +7,10 @@ import SignUpPage from "./pages/SignUpPage";
 import ConfirmationSignUp from "./components/SignUp/ConfirmationSignUp";
 import MainPage from './pages/MainPage';
 import ProfilePage from "./pages/ProfilePage";
+import ProjectForm from "./components/ProjectForm";
+import AddProjectPage from "./pages/AddProjectPage";
+import ProjectPage from "./pages/ProjectPage";
+import Loader from './components/UI/Loader';
 
 function App() {
     const {store} = useContext(Context)
@@ -18,9 +22,7 @@ function App() {
     },[])
 
     if (store.isLoading) {
-        return (<div className="flex items-center justify-center h-screen">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
-        </div>)
+        return (<Loader width={16}/>)
     }
 
 
@@ -34,13 +36,15 @@ function App() {
                         <Route path="*" element={<Navigate to="/login" replace/>}/>
                 </Routes>:
                  <Routes>
-                     <Route path={'/dashboard/main'} element={<MainPage/>}/>
-                     {/*<Route path={'/profile'} element={<ProfilePage/>}/>*/}
+                     <Route path={'/dashboard/projects'} element={<MainPage/>}/>
+                     <Route path={'/profile'} element={<ProfilePage/>}/>
+                     <Route path={'/dashboard/projects/add_project'} element={<AddProjectPage/>}/>
+                     <Route path={'/dashboard/projects/:id'} element={<ProjectPage/>}/>
                      {/*<Route path={'/dashboard/assessor/:id'} element={<AssessorPage/>}/>*/}
                      {/*<Route path={'/dashboard/assessor/add_project'} element={<AddAssessorToProject id={undefined}/>}/>*!/*/}
                      {/*<Route path={'/dashboard/projects/'} element={<ProjectsPage/>}/>*/}
                      {/*<Route path={'/dashboard/projects/:id'} element={<ProjectPage/>}/>*/}
-                     <Route path="*" element={<Navigate to="/dashboard/main" replace/>}/> // TODO: redirect 404
+                     <Route path="*" element={<Navigate to="/dashboard/projects" replace/>}/> // TODO: redirect 404
                  </Routes>}
              </BrowserRouter>
         </div>

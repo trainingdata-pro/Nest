@@ -16,33 +16,29 @@ import {IndeterminateCheckbox} from '../utils/CheckBox'
 import {Context} from '../index';
 import {ManagerData} from "../store/store";
 import ProjectService from '../services/ProjectService';
-import AddProject from "./AddProject";
-
-interface Project {
-    id: number,
-    manager: ManagerData[],
-    assessors_count: number,
-    backlog: string,
-    name: string,
-    speed_per_hour: number,
-    price_for_assessor: number,
-    price_for_customer: number,
-    unloading_value: number,
-    unloading_regularity: number,
-    status: [],
-    date_of_creation: string
-
-}
+import AddProject from "./ProjectForm";
+import {useNavigate} from "react-router-dom";
+import {Project} from "../models/ProjectResponse";
 
 const PersonalAccountTable = () => {
     const {store} = useContext(Context)
-    // @ts-ignore
+    const navigation = useNavigate()
+    const statusObject = {
+        "active": "Активный",
+        "pause": "На паузе",
+        "completed": "Завершенный"
+    }
+
     const columns = useMemo<ColumnDef<Project>[]>(() => {
+        // @ts-ignore
         return [
             {
                 accessorKey: 'name',
                 header: 'Название проекта',
-                cell: info => info.getValue(),
+                cell: info => {
+                    return <div
+                        onClick={() => navigation(`/dashboard/projects/${info.row.original.id}`)}>{info.row.original.name}</div>
+                },
                 size: 300,
                 enableSorting: false
             },
@@ -52,7 +48,9 @@ const PersonalAccountTable = () => {
                 cell: (info) => {
                     const managers = info.getValue()
                     // @ts-ignore
-                    return <div>{managers.map(manager => {return <div key={manager.id}>{manager.last_name} {manager.first_name}</div>})}</div>
+                    return <div>{managers.map(manager => {
+                        return <div key={manager.id}>{manager.last_name} {manager.first_name}</div>
+                    })}</div>
                 },
                 enableSorting: false,
 
@@ -76,7 +74,8 @@ const PersonalAccountTable = () => {
             {
                 accessorKey: 'status',
                 header: 'Статус проекта',
-                cell: info => info.getValue(),
+                // @ts-ignore
+                cell: info => statusObject[info.getValue()],
                 size: 100,
                 enableGlobalFilter: false
 
@@ -94,9 +93,9 @@ const PersonalAccountTable = () => {
         ];
     }, [])
     useMemo(() => {
-
-        // @ts-ignore
-        ProjectService.fetchProjects(store.managerData.id).then(res => setData(res.data.results)).catch(e=> console.log(e))
+        ProjectService.fetchProjects(store.managerData.id)
+            .then(res => setData(res.data.results))
+            .catch(e => console.log(e))
     }, [])
     const [data, setData] = useState<Project[]>([])
     const [sorting, setSorting] = React.useState<SortingState>([])
@@ -124,16 +123,18 @@ const PersonalAccountTable = () => {
         getFilteredRowModel: getFilteredRowModel(),
         enableRowSelection: true,
         onRowSelectionChange: setRowSelection,
-        debugTable: true,
+        debugTable: false,
     })
 
     return (
         <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
             <div className="h-full w-full">
                 <div className="flex justify-end my-2">
-                    <button className="bg-black rounded-md text-white px-4 py-2" onClick={() => setShowAddProject(true)}>Добавить проект</button>
+                    <button className="bg-black rounded-md text-white px-4 py-2"
+                            onClick={() => navigation('/dashboard/projects/add_project')}>Добавить проект
+                    </button>
                 </div>
-                {showAddProject && <AddProject close={setShowAddProject}/>}
+                {/*{showAddProject && <AddProject close={setShowAddProject}/>}*/}
                 <div className="rounded-md border border-b-gray-400 bg-white">
                     {/*<>*/}
                     {/*    {Object.keys(rowSelection).length !== 0 && <ActionMenu handleDeleteRows={handleDeleteRows} />}*/}

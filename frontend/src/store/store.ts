@@ -17,22 +17,6 @@ interface Token {
     user_data: UserData
 }
 
-export type Project = {
-    id?: number
-    name: string
-    owner?: {
-        id: number,
-        user: {
-            id: number,
-            username: string,
-            email: string
-        },
-        last_name: string,
-        first_name: string,
-        middle_name: string,
-    }
-}
-
 export interface ManagerData {
     id: number,
     user: {
@@ -104,7 +88,6 @@ export default class Store {
             const managerId = decodeJwt.user_data.manager_id
             await ManagerService.fetch_manager(managerId).then(res => {
                 this.setManagerData(res.data)
-                console.log(res.data)
                 const manager = res.data
                 if (manager.first_name === '' || manager.last_name === '' || manager.middle_name === '' || !manager.is_operational_manager && manager.operational_manager === null){
                     this.setShowProfile(true)

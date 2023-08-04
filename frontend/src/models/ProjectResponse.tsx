@@ -1,24 +1,17 @@
-export interface IProject {
-    id: number,
-    name: string,
-    date_of_create: string
-}
-
+import {IManager} from "./ManagerResponse";
 
 export interface Project {
     id: number
     name: string
-    owner: {
-        id: number,
-        user: {
-            id: number,
-            username: string,
-            email: string
-        },
-        last_name: string,
-        first_name: string,
-        middle_name: string,
-    },
+    manager: IManager[],
     assessors_count: number,
-    date_of_create: string
+    backlog: string,
+    asana_id: number,
+    speed_per_hour: number,
+    price_for_assessor: number,
+    price_for_costumer: number,
+    unloading_value: number,
+    unloading_regularity: number,
+    status: string,
+    date_of_creation: string
 }
