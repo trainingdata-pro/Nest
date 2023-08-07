@@ -19,6 +19,7 @@ import ProjectService from '../services/ProjectService';
 import AddProject from "./ProjectForm";
 import {useNavigate} from "react-router-dom";
 import {Project} from "../models/ProjectResponse";
+import {Sidebar} from "primereact/sidebar";
 
 const PersonalAccountTable = () => {
     const {store} = useContext(Context)
@@ -39,7 +40,7 @@ const PersonalAccountTable = () => {
                     return <div
                         onClick={() => navigation(`/dashboard/projects/${info.row.original.id}`)}>{info.row.original.name}</div>
                 },
-                size: 300,
+                size: 200,
                 enableSorting: false
             },
             {
@@ -58,7 +59,10 @@ const PersonalAccountTable = () => {
             {
                 accessorKey: 'assessors_count',
                 header: 'Количество исполнителей',
-                cell: info => info.getValue(),
+                cell: info =>
+                    // @ts-ignore
+                    <div onClick={() => navigation(`/dashboard/projects/${info.row.original.id}/assessors`)}>{info.getValue()}</div>
+                ,
                 size: 30,
                 enableGlobalFilter: false,
 
@@ -125,16 +129,27 @@ const PersonalAccountTable = () => {
         onRowSelectionChange: setRowSelection,
         debugTable: false,
     })
-
+    const [visibleAddProject, setVisibleAddProject] = useState(false)
     return (
         <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
             <div className="h-full w-full">
                 <div className="flex justify-end my-2">
+                    {/*<button className="bg-black rounded-md text-white px-4 py-2"*/}
+                    {/*        onClick={() => navigation('/dashboard/projects/add_project')}>Добавить проект*/}
+                    {/*</button>*/}
                     <button className="bg-black rounded-md text-white px-4 py-2"
-                            onClick={() => navigation('/dashboard/projects/add_project')}>Добавить проект
+                            onClick={() => setVisibleAddProject(true)}>Добавить проект
                     </button>
+                    <div className="card flex justify-center">
+                        <Sidebar visible={visibleAddProject} onHide={() => setVisibleAddProject(false)}>
+                            <h2>Sidebar</h2>
+                            <p>
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                            </p>
+                        </Sidebar>
+                    </div>
                 </div>
-                {/*{showAddProject && <AddProject close={setShowAddProject}/>}*/}
                 <div className="rounded-md border border-b-gray-400 bg-white">
                     {/*<>*/}
                     {/*    {Object.keys(rowSelection).length !== 0 && <ActionMenu handleDeleteRows={handleDeleteRows} />}*/}

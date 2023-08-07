@@ -8,7 +8,8 @@ import Select from "react-select";
 import {useNavigate, useParams} from "react-router-dom";
 import {Project} from "../models/ProjectResponse";
 import MyInput from "./UI/MyInput";
-
+import { format } from 'date-fns';
+import { Calendar } from 'primereact/calendar';
 export interface AddProjectProps {
     manager: number[],
     backlog: string,
@@ -103,7 +104,7 @@ const ProjectForm = ({projectData}) => {
 
                             }}
                             isMulti
-                            required
+
                         />
 
 
@@ -172,7 +173,7 @@ const ProjectForm = ({projectData}) => {
                             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             htmlFor="name">Дата старта проекта</label>
                         <MyInput
-                            value={project.date_of_creation ? project.date_of_creation : 0}
+                            value={project.date_of_creation ? project.date_of_creation : format(new Date(), 'yyyy-MM-dd')}
                             onChange={(e: any) => {
                                 console.log(e.target.value)
                                 setProject({...project, date_of_creation: e.target.value})

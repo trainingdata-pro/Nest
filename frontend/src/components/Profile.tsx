@@ -92,14 +92,15 @@ const Profile = () => {
                     <button
                         className="bg-black text-white rounded-md text-sm font-medium disabled:opacity-50 transition-colors hover:bg-primary/90 h-10 py-2 px-4"
                         onClick={() => {
-                            store.setShowProfile(false)
+                            // store.setShowProfile(false)
+                            navigate(-1)
                         }}>Закрыть страницу
                     </button>
                     <button
                         className="bg-black text-white rounded-md text-sm font-medium disabled:opacity-50 transition-colors hover:bg-primary/90 h-10 py-2 px-4"
                         onClick={() => {
                             onSubmit(getValues())
-                            store.setShowProfile(false)
+                            navigate(-1)
                         }}>Сохранить
                     </button>
                 </div>

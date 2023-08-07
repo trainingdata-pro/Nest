@@ -11,6 +11,7 @@ import ProjectForm from "./components/ProjectForm";
 import AddProjectPage from "./pages/AddProjectPage";
 import ProjectPage from "./pages/ProjectPage";
 import Loader from './components/UI/Loader';
+import ProjectAssessors from "./components/ProjectAssessors";
 
 function App() {
     const {store} = useContext(Context)
@@ -40,6 +41,7 @@ function App() {
                      <Route path={'/profile'} element={<ProfilePage/>}/>
                      <Route path={'/dashboard/projects/add_project'} element={<AddProjectPage/>}/>
                      <Route path={'/dashboard/projects/:id'} element={<ProjectPage/>}/>
+                     <Route path={'/dashboard/projects/:id/assessors'} element={<ProjectAssessors/>}/>
                      {/*<Route path={'/dashboard/assessor/:id'} element={<AssessorPage/>}/>*/}
                      {/*<Route path={'/dashboard/assessor/add_project'} element={<AddAssessorToProject id={undefined}/>}/>*!/*/}
                      {/*<Route path={'/dashboard/projects/'} element={<ProjectsPage/>}/>*/}
