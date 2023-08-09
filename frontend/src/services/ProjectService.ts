@@ -3,12 +3,13 @@ import $api from "../http";
 import {Project} from "../models/ProjectResponse";
 
 interface ProjectResponse {
+    count: number,
     results: Project[]
 }
 
 export default class ProjectService {
-    static fetchProjects(id:any): Promise<AxiosResponse<ProjectResponse>> {
-        return $api.get<ProjectResponse>(`/api/projects/?manager=${id}`)
+    static fetchProjects(managerID:string): Promise<AxiosResponse<ProjectResponse>> {
+        return $api.get<ProjectResponse>(`/api/projects/?&manager=${managerID}`)
     }
     static fetchProject(projectId: any): Promise<AxiosResponse<Project>>{
         return $api.get<Project>(`/api/projects/${projectId}/`)

@@ -5,26 +5,51 @@ import {NavLink, redirect, useLocation, useNavigate} from "react-router-dom";
 import {useContext} from "react";
 import {Context} from "../../index";
 import {observer} from "mobx-react-lite";
+import Cookies from "universal-cookie";
+import AuthService from "../../services/AuthService";
+import {Token} from "../../store/store";
+import jwtDecode from "jwt-decode";
+import ManagerService from "../../services/ManagerService";
+
 interface ISignIn {
     username: string,
     password: string
 }
 const SignInForm = () => {
-    const navigate = useNavigate()
+    const cookies = new Cookies()
     const {register,formState:{errors},  getValues, handleSubmit} = useForm<ISignIn>()
     const [serverError, setServerError] = useState<string>('')
     const [isLoading, setIsLoading] = useState(false)
     const {store} = useContext(Context)
-    useEffect(()=> {
-
-    }, [serverError, isLoading])
-    const onSubmit = async () => {
-        setIsLoading(true)
+    const onSubmit = () => {
         const values = getValues()
-        await store.login(values.username, values.password).
-        then(() => {
-            navigate('/dashboard/main/')
-        }).catch(err => setServerError(err.response.data.detail)).finally(() => setIsLoading(false))
+        setIsLoading(true)
+        AuthService.login(values.username, values.password)
+            .then(res => {
+                localStorage.setItem('token', res.data.access)
+                const decodeJwt: Token = jwtDecode(res.data.access)
+                cookies.set('refresh', `${res.data.refresh}`, { path: '/' });
+
+                const managerId = decodeJwt.user_data.manager_id
+                ManagerService.fetch_manager(managerId).then(res => {
+                    store.setManagerData(res.data)
+                    const manager = res.data
+                    if (manager.first_name === '' || manager.last_name === '' || manager.middle_name === '' || !manager.is_operational_manager && manager.operational_manager === null){
+                        store.setShowProfile(true)
+                    }
+                })
+                store.setAuth(true)
+                setIsLoading(false)
+
+            })
+            .catch(e => {
+                const errJson = JSON.parse(e.request.response)
+                setServerError(errJson['detail'])
+                setIsLoading(false)
+            })
+
+
+
     }
     return (
         <form className="w-[30rem]"
@@ -71,4 +96,4 @@ const SignInForm = () => {
     );
 };
 
-export default observer(SignInForm);
+export default SignInForm;

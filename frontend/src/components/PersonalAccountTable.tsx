@@ -1,4 +1,4 @@
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import Icon from '@mdi/react';
 import {mdiSortAscending, mdiSort, mdiSortDescending} from '@mdi/js';
 import {
@@ -19,7 +19,7 @@ import ProjectService from '../services/ProjectService';
 import AddProject from "./ProjectForm";
 import {useNavigate} from "react-router-dom";
 import {Project} from "../models/ProjectResponse";
-import {Sidebar} from "primereact/sidebar";
+import {observer} from "mobx-react-lite";
 
 const PersonalAccountTable = () => {
     const {store} = useContext(Context)
@@ -84,23 +84,16 @@ const PersonalAccountTable = () => {
                 enableGlobalFilter: false
 
             }
-            // {
-            //     accessorKey: 'id',
-            //     id:"id",
-            //     header: '',
-            //     // @ts-ignore
-            //     cell:({row}) =>store.manager.manager_id === row.getValue('owner').id ? <DropdownMenu id={row.getValue("id")}/> : '',
-            //     enableSorting: false,
-            //     enableGlobalFilter:false
-            // }
-
         ];
     }, [])
-    useMemo(() => {
-        ProjectService.fetchProjects(store.managerData.id)
-            .then(res => setData(res.data.results))
-            .catch(e => console.log(e))
-    }, [])
+    useEffect(() => {
+        if(store.managerData.id){
+            ProjectService.fetchProjects(store.managerData.id.toString())
+                .then(res => setData(res.data.results))
+                .catch(e => console.log(e))
+        }
+
+    }, [store.managerData])
     const [data, setData] = useState<Project[]>([])
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [rowSelection, setRowSelection] = React.useState({})
@@ -129,32 +122,17 @@ const PersonalAccountTable = () => {
         onRowSelectionChange: setRowSelection,
         debugTable: false,
     })
-    const [visibleAddProject, setVisibleAddProject] = useState(false)
+
     return (
         <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
             <div className="h-full w-full">
                 <div className="flex justify-end my-2">
-                    {/*<button className="bg-black rounded-md text-white px-4 py-2"*/}
-                    {/*        onClick={() => navigation('/dashboard/projects/add_project')}>Добавить проект*/}
-                    {/*</button>*/}
                     <button className="bg-black rounded-md text-white px-4 py-2"
-                            onClick={() => setVisibleAddProject(true)}>Добавить проект
+                            onClick={() => navigation('/dashboard/projects/add_project')}>Добавить проект
                     </button>
-                    <div className="card flex justify-center">
-                        <Sidebar visible={visibleAddProject} onHide={() => setVisibleAddProject(false)}>
-                            <h2>Sidebar</h2>
-                            <p>
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                            </p>
-                        </Sidebar>
-                    </div>
+
                 </div>
                 <div className="rounded-md border border-b-gray-400 bg-white">
-                    {/*<>*/}
-                    {/*    {Object.keys(rowSelection).length !== 0 && <ActionMenu handleDeleteRows={handleDeleteRows} />}*/}
-                    {/*</>*/}
-
                     <table className="w-full">
                         <thead>
                         {table.getHeaderGroups().map(headerGroup => (
@@ -309,4 +287,4 @@ const PersonalAccountTable = () => {
     );
 };
 
-export default PersonalAccountTable;
+export default observer(PersonalAccountTable);

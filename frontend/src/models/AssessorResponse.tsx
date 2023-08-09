@@ -22,6 +22,7 @@ export interface Assessor {
     blacklist: boolean,
     date_of_registration: string,
 
+
 }
 
 interface AssessorWorkingTime {

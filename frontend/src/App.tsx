@@ -12,6 +12,7 @@ import AddProjectPage from "./pages/AddProjectPage";
 import ProjectPage from "./pages/ProjectPage";
 import Loader from './components/UI/Loader';
 import ProjectAssessors from "./components/ProjectAssessors";
+import PersonalAccountTable from "./components/PersonalAccountTable";
 
 function App() {
     const {store} = useContext(Context)

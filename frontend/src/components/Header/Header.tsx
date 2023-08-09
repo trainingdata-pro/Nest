@@ -3,14 +3,16 @@ import React, {useContext} from "react";
 import {Context} from "../../index";
 import Profile from "../Profile";
 import {observer} from "mobx-react-lite";
+import Cookies from "universal-cookie";
 
 const Header = () => {
     const navigate = useNavigate()
     const {store} = useContext(Context)
+    const cookies = new Cookies()
     const logout = () => {
         store.setAuth(false)
         localStorage.removeItem('token')
-        document.cookie = 'refresh='
+        cookies.remove('refresh')
         navigate('/login')
     }
     return (

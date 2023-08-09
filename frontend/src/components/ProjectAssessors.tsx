@@ -1,7 +1,7 @@
 import React, {useMemo, useState} from 'react';
 import {NavLink, useParams} from "react-router-dom";
 import {
-    ColumnDef, ColumnFiltersState,
+    ColumnDef, ColumnFiltersState, createColumnHelper,
     flexRender,
     getCoreRowModel, getFilteredRowModel,
     getPaginationRowModel,
@@ -16,85 +16,48 @@ import ProjectService from "../services/ProjectService";
 import AssessorService from "../services/AssessorService";
 
 const ProjectAssessors = () => {
-    const columns = useMemo<ColumnDef<Assessor>[]>(() => {
-        // @ts-ignore
-        return [
-            {
-                header: 'ФИО',
-                cell: info =>
-                    <div>{info.row.original.last_name} {info.row.original.first_name} {info.row.original.middle_name}</div>,
-            },
-            {
-                accessorKey: 'username',
-                header: 'Ник в ТГ',
-                cell: info => info.getValue(),
-            },
+    const columnHelper = createColumnHelper<Assessor>()
+    const columns:ColumnDef<Assessor>[] = [
+        columnHelper.group({
+            id: 'fio',
+            header: () => 'ФИО',
+            columns: [
+                columnHelper.accessor('last_name', {
+                    cell: info => info.getValue(),
+                }),
+                columnHelper.accessor('first_name', {
+                    cell: info => info.getValue(),
+                }),
+                columnHelper.accessor('middle_name', {
+                    cell: info => info.getValue(),
+                }),
+            ],
+        }),
+        columnHelper.group({
+            id: 'username',
+            header: "Ник в ТГ",
+            cell: info => info.getValue()
+        })
+        ,
+        columnHelper.group({
+            id: 'Количество рабочих часов',
+            header: "Ник в ТГ",
+            cell: info => info.getValue()
+        })
+        ,
+        columnHelper.group({
+            id: 'username',
+            header: "Ник в ТГ",
+            cell: info => info.getValue()
+        })
+        ,
+        columnHelper.group({
+            id: 'username',
+            header: "Ник в ТГ",
+            cell: info => info.getValue()
+        })
+    ]
 
-            {
-                header: "ПН",
-                size: 10
-            },
-            {
-                header: "ВТ",
-                size: 10
-            },
-            {
-                header: "СР",
-                size: 10
-            },
-            {
-                header: "ЧТ",
-                size: 10
-            },
-            {
-                header: "ПТ",
-                size: 10
-            },
-            {
-                header: "СБ",
-                size: 10
-            },
-            {
-                header: "ВС",
-                size: 10
-            }
-
-
-            ,
-            {
-                accessorKey: 'backlog',
-                header: 'Всего',
-                cell: info => info.getValue(),
-                size: 30,
-                enableGlobalFilter: false
-
-            },
-            {
-                accessorKey: 'status',
-                header: 'Статус',
-                cell: info => info.getValue(),
-                enableGlobalFilter: false
-
-            },
-            {
-                accessorKey: 'skills',
-                header: "Skills",
-                // @ts-ignore
-                cell: info => info.getValue('skills').map(skill => <div>skill.title</div>),
-                enableGlobalFilter: false
-            }
-            // {
-            //     accessorKey: 'id',
-            //     id:"id",
-            //     header: '',
-            //     // @ts-ignore
-            //     cell:({row}) =>store.manager.manager_id === row.getValue('owner').id ? <DropdownMenu id={row.getValue("id")}/> : '',
-            //     enableSorting: false,
-            //     enableGlobalFilter:false
-            // }
-
-        ];
-    }, [])
     const id = useParams()["id"]
     useMemo(() => {
         AssessorService.fetchAssessors(id)
