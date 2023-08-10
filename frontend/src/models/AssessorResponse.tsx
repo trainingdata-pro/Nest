@@ -7,7 +7,6 @@ interface Skill {
 }
 
 export interface Assessor {
-
     id: number,
     manager: IManager,
     projects: Project[],

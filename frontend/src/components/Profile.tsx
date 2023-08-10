@@ -5,6 +5,7 @@ import {useForm} from "react-hook-form";
 import ManagerService from "../services/ManagerService";
 import {ManagerData} from "../store/store";
 import {useNavigate} from "react-router-dom";
+import Header from "./Header/Header";
 
 const Profile = () => {
     const {store} = useContext(Context)
@@ -44,8 +45,12 @@ const Profile = () => {
     // @ts-ignore
     return (
         <div className="fixed inset-0 z-50 flex h-screen w-screen items-end justify-center sm:items-center">
-            <div className="animate-in fade-in fixed inset-0 z-50 bg-white backdrop-blur-sm transition-opacity"></div>
+
+            <div className="animate-in fade-in fixed inset-0 z-50 bg-white backdrop-blur-sm transition-opacity">
+            </div>
+
             <div className="bg-white fixed z-50 w-full max-w-max border bg-background p-6 opacity-100">
+
                 <form className="w-[40rem] space-y-4" onSubmit={handleSubmit(onSubmit)}>
                     <section className="grid grid-cols-3 gap-x-3">
                         <div className="col-span-1">
@@ -69,12 +74,12 @@ const Profile = () => {
                     </section>
                     <div>
                         <label>Ник в телеграмм</label>
-                        <input disabled {...register('username')}
+                        <input {...register('username')}
                                className="h-8 rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full"/>
                     </div>
                     <div>
                         <label>Ответственный TeamLead</label>
-                        <select {...register('operational_manager')} value={selectedOperationsManager} onChange={handleSelectChange}
+                        <select disabled={!!manager?.operational_manager}{...register('operational_manager')} value={selectedOperationsManager} onChange={handleSelectChange}
                                 className="flex h-10 rounded-md border border-input mb-2 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full max-w-[30rem] bg-white"
                         >
                             <option value="" disabled>Выберите своего начальника</option>

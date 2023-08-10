@@ -3,9 +3,13 @@ import React from 'react';
 // @ts-ignore
 const Loader = ({width}) => {
     return (
-        <div className="flex items-center justify-center h-screen">
-            <div className={`animate-spin rounded-full h-${width} w-${width} border-t-2 border-b-2 border-gray-900`}></div>
-        </div>
+        <div className={"flex h-screen justify-center items-center"}><div
+            className={`inline-block h-${width} w-${width} animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]`}
+            role="status">
+    <span
+        className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+    >Loading...</span>
+        </div></div>
     );
 };
 
