@@ -60,6 +60,57 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
         return assessor
 
 
+class SimpleAssessorSerializer(serializers.ModelSerializer):
+    manager = ManagerSerializer(read_only=True)
+
+    class Meta:
+        model = Assessor
+        exclude = ('projects', 'skills', 'second_manager')
+
+
+class WorkingHoursSerializer(serializers.ModelSerializer):
+    assessor = SimpleAssessorSerializer(read_only=True)
+    total = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = WorkingHours
+        fields = '__all__'
+
+    def get_total(self, obj) -> int:
+        return obj.total
+
+
+class SimpleWorkingHoursSerializer(serializers.ModelSerializer):
+    total = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = WorkingHours
+        exclude = ['assessor']
+
+    def get_total(self, obj) -> int:
+        return obj.total
+
+
+class AssessorSerializer(serializers.ModelSerializer):
+    manager = ManagerSerializer(read_only=True)
+    projects = SimpleProjectSerializer(read_only=True, many=True)
+    skills = SkillSerializer(read_only=True, many=True)
+    second_manager = ManagerSerializer(read_only=True, many=True)
+    working_hours = SimpleWorkingHoursSerializer(read_only=True, source='workinghours')
+
+    class Meta:
+        model = Assessor
+        fields = '__all__'
+
+
+class CheckAssessorSerializer(serializers.ModelSerializer):
+    manager = ManagerSerializer(read_only=True)
+
+    class Meta:
+        model = Assessor
+        fields = ('pk', 'username', 'manager')
+
+
 class AddAssessorProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assessor
@@ -115,33 +166,6 @@ class RemoveAssessorProjectSerializer(serializers.ModelSerializer):
         return instance
 
 
-class AssessorSerializer(serializers.ModelSerializer):
-    manager = ManagerSerializer(read_only=True)
-    projects = SimpleProjectSerializer(read_only=True, many=True)
-    skills = SkillSerializer(read_only=True, many=True)
-    second_manager = ManagerSerializer(read_only=True, many=True)
-
-    class Meta:
-        model = Assessor
-        fields = '__all__'
-
-
-class SimpleAssessorSerializer(serializers.ModelSerializer):
-    manager = ManagerSerializer(read_only=True)
-
-    class Meta:
-        model = Assessor
-        exclude = ('projects', 'skills', 'second_manager')
-
-
-class CheckAssessorSerializer(serializers.ModelSerializer):
-    manager = ManagerSerializer(read_only=True)
-
-    class Meta:
-        model = Assessor
-        fields = ('pk', 'username', 'manager')
-
-
 class CreateUpdateWorkingHoursSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkingHours
@@ -153,14 +177,6 @@ class CreateUpdateWorkingHoursSerializer(serializers.ModelSerializer):
             raise ValidationError('Вы не можете выбрать данного исполнителя.')
 
         return assessor
-
-
-class WorkingHoursSerializer(serializers.ModelSerializer):
-    assessor = SimpleAssessorSerializer(read_only=True)
-
-    class Meta:
-        model = WorkingHours
-        fields = '__all__'
 
 
 # class CheckAsFreeResourceSerializer(serializers.Serializer):
