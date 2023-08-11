@@ -1,20 +1,20 @@
 import React, {useState} from 'react';
 // @ts-ignore
-const Sidebar = (props, {children}) => {
+const Sidebar = ({showSidebar,setShowSidebar, children}) => {
 
     return (
-        <>
-        {props.showSidebar && (
+        < >
+        {showSidebar && (
             <button
-                className="flex text-4xl text-white items-center cursor-pointer fixed right-10 top-6 z-50"
-                onClick={() => props.setShowSidebar(!props.showSidebar)}
+                className="flex text-md text-black items-center cursor-pointer fixed right-10 top-4 z-50"
+                onClick={() => setShowSidebar(false)}
             >
                 x
             </button>
         )}
-
-    <div className={`right-0 z-10 top-0 w-[35vw] bg-blue-600 fixed p-10 pl-20 text-white h-full ease-in-out duration-300 ${
-        props.showSidebar ? "translate-x-0 " : "translate-x-full"
+        {showSidebar && <div onClick={() => setShowSidebar(false)} className="animate-in fade-in fixed inset-0 z-0 backdrop-blur-sm transition-opacity"></div>}
+    <div className={`right-0 z-10 top-0 w-[35vw] backdrop-blur-md bg-white fixed p-10 pl-20 text-black h-full ease-in-out duration-300 ${
+        showSidebar ? "translate-x-0 " : "translate-x-full"
     }`}>
         {children}
     </div>

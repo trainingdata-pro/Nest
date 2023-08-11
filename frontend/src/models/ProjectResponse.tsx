@@ -15,3 +15,6 @@ export interface Project {
     status: string,
     date_of_creation: string
 }
+type Status = {
+    status: "paused" | "active" | "completed"
+}

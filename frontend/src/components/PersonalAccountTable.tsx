@@ -23,6 +23,8 @@ import {observer} from "mobx-react-lite";
 import Loader from "./UI/Loader";
 import AddProjectButton from "./Projects/AddProjectButton";
 import Table from "./UI/Table";
+import Sidebar from "./UI/Sidebar";
+import ProjectForm from "./ProjectForm";
 
 const PersonalAccountTable = () => {
     const {store} = useContext(Context)
@@ -32,7 +34,7 @@ const PersonalAccountTable = () => {
         "pause": "На паузе",
         "completed": "Завершенный"
     }
-
+    const [projectsId, setProjectId] = useState(0)
     const columns = useMemo<ColumnDef<Project>[]>(() => {
         // @ts-ignore
         return [
@@ -41,7 +43,15 @@ const PersonalAccountTable = () => {
                 header: 'Название проекта',
                 cell: info => {
                     return <div
-                        onClick={() => navigation(`/dashboard/projects/${info.row.original.id}`)}>{info.row.original.name}</div>
+                        onClick={() => {
+                            setProjectId(info.row.original.id)
+                            setShowSidebar(true)
+    // return (<Sidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar}>
+    //                             <ProjectForm projectId={info.row.original.id}
+    //                         setNewData={setData}
+    //                         closeSidebar={setShowSidebar}/>
+    //                     </Sidebar>)
+                        }}>{info.row.original.name}</div>
                 },
                 size: 200,
             },
@@ -88,12 +98,13 @@ const PersonalAccountTable = () => {
     }, [])
 
     const [isLoading, setIsLoading] = useState(false)
-    useMemo( async () => {
-        if(store.managerData.id) {
+    const [showSidebar, setShowSidebar] = useState(false)
+    useMemo(async () => {
+        if (store.managerData.id) {
             setIsLoading(true)
             await ProjectService.fetchProjects(store.managerData.id.toString())
                 .then(res => {
-                    setData(res.data.results)
+                    setData(res.data.results.filter(project => project.status !== 'completed'))
 
                 })
                 .catch(e => console.log(e))
@@ -102,20 +113,33 @@ const PersonalAccountTable = () => {
 
     }, [store.managerData])
     const [data, setData] = useState<Project[]>([])
-    if (isLoading){
-        return     <Loader width={"16"}/>
+    if (isLoading) {
+        return <Loader width={"16"}/>
     }
     return (
-        <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
-            <div className="h-full w-full">
-                <div className="flex justify-end my-2">
-                    <AddProjectButton/>
-                </div>
-                <div className="rounded-md border border-b-gray-400 bg-white">
-                    <Table data={data} columns={columns}/>
+        <>
+            <Sidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar}>
+                <ProjectForm projectId={projectsId}
+                             setNewData={setData}
+                             closeSidebar={setShowSidebar}/>
+            </Sidebar>
+            <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
+                <div className="h-full w-full">
+                    <div className="flex justify-end my-2">
+                        {/*<AddProjectButton/>*/}
+                        <button className="bg-black rounded-md text-white px-4 py-2"
+                                onClick={() => {
+                                    setProjectId(0)
+                                    setShowSidebar(true)
+                                }}>Добавить проект
+                        </button>
+                    </div>
+                    <div className="rounded-md border border-b-gray-400 bg-white">
+                        <Table data={data} columns={columns}/>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

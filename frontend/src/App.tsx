@@ -8,8 +8,6 @@ import ConfirmationSignUp from "./components/SignUp/ConfirmationSignUp";
 import MainPage from './pages/MainPage';
 import ProfilePage from "./pages/ProfilePage";
 import ProjectForm from "./components/ProjectForm";
-import AddProjectPage from "./pages/AddProjectPage";
-import ProjectPage from "./components/Projects/ProjectPage";
 import Loader from './components/UI/Loader';
 import ProjectAssessors from "./components/ProjectAssessors";
 import PersonalAccountTable from "./components/PersonalAccountTable";
@@ -41,8 +39,8 @@ function App() {
                  <Routes>
                      <Route path={'/dashboard/projects'} element={<MainPage/>}/>
                      <Route path={'/profile'} element={<ProfilePage/>}/>
-                     <Route path={'/dashboard/projects/add_project'} element={<AddProjectPage/>}/>
-                     <Route path={'/dashboard/projects/:id'} element={<ProjectPage/>}/>
+                     {/*<Route path={'/dashboard/projects/add_project'} element={<AddProjectPage/>}/>*/}
+                     {/*<Route path={'/dashboard/projects/:id'} element={<ProjectPage/>}/>*/}
                      <Route path={'/dashboard/projects/:id/assessors'} element={<ProjectAssessors/>}/>
                      <Route path={'/dashboard/assessors'} element={<AssessorsPage/>}/>
                      {/*<Route path={'/dashboard/assessor/add_project'} element={<AddAssessorToProject id={undefined}/>}/>*!/*/}

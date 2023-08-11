@@ -8,28 +8,34 @@ import Select from "react-select";
 import {useNavigate, useParams} from "react-router-dom";
 import {Project} from "../models/ProjectResponse";
 import MyInput from "./UI/MyInput";
-import { format } from 'date-fns';
-import { Calendar } from 'primereact/calendar';
-export interface AddProjectProps {
-    manager: number[],
-    backlog: string,
-    name: string,
-    speed_per_hour: number,
-    price_for_assessor: number,
-    price_for_costumer: number,
-    unloading_value: number,
-    unloading_regularity: number,
-    status: string,
-    date_of_creation: string,
-    asana_id: number
-}
+import {format} from 'date-fns';
+import {Calendar} from 'primereact/calendar';
+import {Simulate} from "react-dom/test-utils";
+import reset = Simulate.reset;
+import {IManager} from "../models/ManagerResponse";
+import {observer} from "mobx-react-lite";
 
 
 // @ts-ignore
-const ProjectForm = ({projectData}) => {
+const ProjectForm = ({projectId, setNewData, closeSidebar}) => {
     const {store} = useContext(Context)
 
-    const [project, setProject] = useState<Project>({...projectData})
+    const [project, setProject] = useState<Project>({
+            id: 0,
+            name: '',
+            manager: [],
+            assessors_count: 0,
+            backlog: '',
+            asana_id: 0,
+            speed_per_hour: 0,
+            price_for_assessor: 0,
+            price_for_costumer: 0,
+            unloading_value: 0,
+            unloading_regularity: 0,
+            status: '',
+            date_of_creation: ''
+        }
+    )
     const [managers, setManagers] = useState<any[]>([])
     const statusList = [
         {"value": 'active', "label": 'Активный'},
@@ -38,33 +44,53 @@ const ProjectForm = ({projectData}) => {
     ]
     useEffect(() => {
         ManagerService.fetch_managers().then((res: any) => {
-            console.log(res.data.results)
             setManagers(res.data.results)
         })
-        setProject(projectData)
-    }, [])
+        console.log(projectId)
+        if(projectId!==0){
+            ProjectService.fetchProject(projectId).then(res => setProject(res.data))
+        } else{
+            setProject({
+                id: 0,
+                name: '',
+                manager: [],
+                assessors_count: 0,
+                backlog: '',
+                asana_id: 0,
+                speed_per_hour: 0,
+                price_for_assessor: 0,
+                price_for_costumer: 0,
+                unloading_value: 0,
+                unloading_regularity: 0,
+                status: '',
+                date_of_creation: ''
+            })
+        }
+    }, [projectId])
 
-    function onSubmit(e: any) {
-        const projectData:any = {...project, manager: project.manager.map(manager => manager.id)}
+    async function onSubmit(e: any) {
+        const projectData: any = {...project, manager: project.manager.map(manager => manager.id)}
         e.preventDefault()
         if (project.id === 0) {
-            console.log(projectData)
-            ProjectService.addProject(projectData).then(() => {
-                navigation(-1)
+            await ProjectService.addProject(projectData).then(() => {
+                closeSidebar(false)
+            })
+            await ProjectService.fetchProjects(store.managerData.id.toString()).then(res => {
+                setNewData(res.data.results.filter(project => project.status !== 'completed'))
             })
         } else {
-            ProjectService.patchProject(project.id, projectData).then(() => {
-                navigation(-1)
+            await ProjectService.patchProject(project.id, projectData).then(() => {
+                closeSidebar(false)
+            })
+            await ProjectService.fetchProjects(store.managerData.id.toString()).then(res => {
+                setNewData(res.data.results.filter(project => project.status !== 'completed'))
             })
         }
     }
 
-    const navigation = useNavigate()
-    // @ts-ignore
     return (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-            <div className="animate-in fade-in fixed inset-0 z-50 bg-white backdrop-blur-sm transition-opacity"></div>
-            <div className="bg-white fixed z-50 w-full max-w-lg border bg-background p-6 opacity-100">
+            <div className={"w-[90%]"}>
                 <form className="grid columns-1">
                     <div className="mb-2">
                         <label
@@ -94,20 +120,21 @@ const ProjectForm = ({projectData}) => {
                                 "value": manager.id,
                                 "label": `${manager.last_name} ${manager.first_name}`
                             }))}
-                            value={project.manager.map((manager)=>({
+                            value={project.manager.map((manager) => ({
                                 "value": manager.id,
                                 "label": `${manager.last_name} ${manager.first_name}`
                             }))}
                             onChange={(e: any) => {
-                                const managersIds = e.map((v:any) => v.value)
-                                setProject({...project, manager: managers.filter((manager) => managersIds.includes(manager.id))})
+                                const managersIds = e.map((v: any) => v.value)
+                                setProject({
+                                    ...project,
+                                    manager: managers.filter((manager) => managersIds.includes(manager.id))
+                                })
 
                             }}
                             isMulti
 
                         />
-
-
                     </div>
                     <div className="mb-2">
                         <label
@@ -165,7 +192,7 @@ const ProjectForm = ({projectData}) => {
                                 // @ts-ignore
                                 setProject({...project, status: e.value})
                             }}
-                            defaultValue={statusList.filter(status => status.value === project.status)}
+                            value={statusList.filter(status => status.value === project.status)}
                         />
                     </div>
                     <div className="mb-2">
@@ -175,21 +202,13 @@ const ProjectForm = ({projectData}) => {
                         <MyInput
                             value={project.date_of_creation ? project.date_of_creation : format(new Date(), 'yyyy-MM-dd')}
                             onChange={(e: any) => {
-                                console.log(e.target.value)
                                 setProject({...project, date_of_creation: e.target.value})
                             }}
                         />
                     </div>
-                    <div className="flex justify-between">
-                        <button type="button" onClick={(event) => {
-                            event.preventDefault()
-                            navigation(-1)
-                        }} className="bg-black text-white rounded-md px-2 py-2">Назад
-                        </button>
-                        <button type="submit" onClick={onSubmit}
-                                className="bg-black text-white rounded-md px-2 py-2">{project.id === 0 ? 'Добавить' : 'Сохранить'}
-                        </button>
-                    </div>
+                    <button type="submit" onClick={onSubmit}
+                            className="bg-black text-white rounded-md px-2 py-2">{project.id === 0 ? 'Добавить' : 'Сохранить'}
+                    </button>
 
                 </form>
             </div>
@@ -197,4 +216,4 @@ const ProjectForm = ({projectData}) => {
         </div>
     );
 }
-export default ProjectForm;
+export default observer(ProjectForm);
