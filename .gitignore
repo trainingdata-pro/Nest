@@ -153,5 +153,3 @@ cython_debug/
 trash
 *.png
 tmp
-*.json
-managers.json
