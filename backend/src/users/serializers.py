@@ -68,12 +68,12 @@ class CreateManagerSerializer(serializers.Serializer):
 class UpdateManagerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Manager
-        fields = (
+        fields = [
             'first_name',
             'last_name',
             'middle_name',
             'operational_manager'
-        )
+        ]
 
     @staticmethod
     def check_team_lead(manager):
@@ -96,7 +96,7 @@ class UpdateManagerSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'email')
+        fields = ['id', 'username', 'email']
 
 
 class ManagerSerializer(serializers.ModelSerializer):
