@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from .models import Project
+from .models import ProjectTag, Project
+
+
+class ProjectTagAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'name')
+    list_display_links = ('name',)
+    ordering = ('name',)
 
 
 class ProjectAdmin(admin.ModelAdmin):
@@ -22,4 +28,5 @@ class ProjectAdmin(admin.ModelAdmin):
         return Project.objects.all().prefetch_related('manager')
 
 
+admin.site.register(ProjectTag, ProjectTagAdmin)
 admin.site.register(Project, ProjectAdmin)

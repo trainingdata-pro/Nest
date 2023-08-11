@@ -1,13 +1,14 @@
+from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from rest_framework import status, generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from core.utils.common import BaseAPIViewSet
-from core.utils.permissions import IsCurrentManager
+from core.utils.permissions import BaseUserPermission, IsCurrentManager
 from .filters import ManagerFilter
 from .models import Manager
-from .schemas import users_schema, user_activate_schema
+from .schemas import users_schema, user_activate_schema, base_user_schema
 from .utils import send_code
 from . import serializers
 
@@ -56,3 +57,11 @@ class UserActivateAPIView(generics.CreateAPIView):
         response = serializers.ManagerSerializer(active_user)
 
         return Response(response.data, status=200)
+
+
+@method_decorator(name='patch', decorator=base_user_schema.patch())
+class UpdateUsernameAPIView(generics.UpdateAPIView):
+    queryset = User
+    permission_classes = (IsAuthenticated, BaseUserPermission)
+    serializer_class = serializers.UserSerializer
+    http_method_names = ['patch']

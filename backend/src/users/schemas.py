@@ -98,5 +98,26 @@ class UserActivateSchema(BaseAPISchema):
         )
 
 
+class BaseUserSchema(BaseAPISchema):
+    def patch(self):
+        return self.swagger_auto_schema(
+            operation_summary='Update base user',
+            operation_description='Update base user',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique base user ID'
+                )
+            ],
+            responses={
+                200: serializers.UserSerializer(),
+                **self.get_responses(400, 401, 403, 404)
+            }
+        )
+
+
 users_schema = UserSchema(tags=['users'])
 user_activate_schema = UserActivateSchema(tags=['users'])
+base_user_schema = BaseUserSchema(tags=['users'])

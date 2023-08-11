@@ -3,7 +3,13 @@ from rest_framework.exceptions import ValidationError
 
 from core.utils.common import current_date
 from users.serializers import ManagerSerializer
-from .models import Project
+from .models import ProjectTag, Project
+
+
+class ProjectTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectTag
+        fields = '__all__'
 
 
 class CreateProjectSerializer(serializers.ModelSerializer):
@@ -64,6 +70,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     manager = ManagerSerializer(read_only=True, many=True)
     assessors_count = serializers.SerializerMethodField(read_only=True)
     backlog = serializers.SerializerMethodField(read_only=True)
+    tag = ProjectTagSerializer(read_only=True, many=True)
 
     class Meta:
         model = Project

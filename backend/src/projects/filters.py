@@ -5,7 +5,7 @@ from .models import Project
 
 
 class ProjectFilter(filters.FilterSet):
-    name = filters.CharFilter(lookup_expr='iexact')
+    name = filters.CharFilter(lookup_expr='icontains')
     manager = filters.CharFilter(method='filter_manager')
     assessors_count = filters.NumberFilter(method='filter_assessors_count')
     status = filters.CharFilter(lookup_expr='icontains')
