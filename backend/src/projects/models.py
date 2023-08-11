@@ -5,6 +5,18 @@ from core.utils.validators import not_negative_value_validator
 from users.models import Manager
 
 
+class ProjectTag(models.Model):
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        db_table = 'project_tags'
+        verbose_name = 'тег'
+        verbose_name_plural = 'теги'
+
+    def __str__(self):
+        return self.name
+
+
 class ProjectStatuses(models.TextChoices):
     ACTIVE = ('active', 'Активный')
     PAUSE = ('pause', 'На паузе')
@@ -66,6 +78,10 @@ class Project(models.Model):
         choices=ProjectStatuses.choices,
         default=ProjectStatuses.ACTIVE,
         max_length=10
+    )
+    tag = models.ManyToManyField(
+        ProjectTag,
+        verbose_name='тег'
     )
     date_of_creation = models.DateField(
         default=current_date,
