@@ -85,6 +85,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 class SimpleProjectSerializer(serializers.ModelSerializer):
     assessors_count = serializers.SerializerMethodField(read_only=True)
+    tag = ProjectTagSerializer(read_only=True, many=True)
 
     class Meta:
         model = Project
