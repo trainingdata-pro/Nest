@@ -9,7 +9,6 @@ skills_router.register('', api.SkillsAPIViewSet, basename='skills')
 
 assessors_router = routers.DefaultRouter()
 assessors_router.register('', api.AssessorAPIViewSet, basename='assessor')
-assessors_router.register('', api.AssessorProjectsAPIViewSet, basename='assessor-project')
 
 wh_router = routers.DefaultRouter()
 wh_router.register('', api.WorkingHoursAPIViewSet, basename='working-hours')
