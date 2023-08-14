@@ -116,4 +116,29 @@ class ProjectSchema(BaseAPISchema):
         )
 
 
+class AssessorsForProjectSchema(BaseAPISchema):
+    def get(self):
+        return self.swagger_auto_schema(
+            operation_summary='Get all assessors for a project',
+            operation_description='Get all assessors for a specific project',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique project ID'
+                ),
+                openapi.Parameter(
+                    name='ordering',
+                    type=openapi.TYPE_STRING,
+                    in_=openapi.IN_QUERY,
+                    description='Which field to use when ordering the results. '
+                                'Available fields: pk, username, last_name, manager__last_name, status.'
+                )
+            ],
+            responses={**self.get_responses(401)}
+        )
+
+
 project_schema = ProjectSchema(tags=['projects'])
+project_schema2 = AssessorsForProjectSchema(tags=['projects'])
