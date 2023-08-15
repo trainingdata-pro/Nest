@@ -17,6 +17,7 @@ class AssessorAdmin(admin.ModelAdmin):
         'last_name',
         'first_name',
         'middle_name',
+        'country',
         'manager',
         'is_free_resource',
         'status',

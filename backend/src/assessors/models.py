@@ -51,6 +51,14 @@ class Assessor(models.Model):
         max_length=255,
         verbose_name='отчество'
     )
+    email = models.EmailField(
+        verbose_name='эл. почта',
+        unique=True
+    )
+    country = models.CharField(
+        max_length=255,
+        verbose_name='страна'
+    )
     manager = models.ForeignKey(
         Manager,
         on_delete=models.PROTECT,
