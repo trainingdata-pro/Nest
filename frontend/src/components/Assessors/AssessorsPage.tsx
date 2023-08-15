@@ -38,7 +38,8 @@ const AssessorsPage = () => {
                 header: 'Количество исполнителей',
                 cell: info =>
                     // @ts-ignore
-                    <div onClick={() => navigation(`/dashboard/projects/${info.row.original.id}/assessors`)}>{info.getValue()}</div>
+                    <div
+                        onClick={() => navigation(`/dashboard/projects/${info.row.original.id}/assessors`)}>{info.row.original.id}</div>
                 ,
                 size: 30,
                 enableGlobalFilter: false,
@@ -66,7 +67,13 @@ const AssessorsPage = () => {
     return (
         <div>
             <Header/>
-            <Table data={[]} columns={columns}/>
+            <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
+                <div className="h-full w-full">
+                    <div className="rounded-md border border-b-gray-400 bg-white">
+                        <Table data={[]} columns={columns}/>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

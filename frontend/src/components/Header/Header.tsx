@@ -18,7 +18,7 @@ const Header = () => {
     return (
         <>
             {store.showProfile && <Profile/>}
-            <header className="sticky h-20 border-b border-gray-200 bg-white">
+            <header className="fixed h-20 w-screen border-b border-gray-200 bg-white">
                 <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
                     <div className="flex h-full w-full items-center justify-between gap-x-6">
                         <div

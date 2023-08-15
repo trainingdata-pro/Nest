@@ -63,7 +63,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar}) => {
                 unloading_value: 0,
                 unloading_regularity: 0,
                 status: '',
-                date_of_creation: ''
+                date_of_creation: format(new Date(), 'yyyy-MM-dd')
             })
         }
     }, [projectId])
@@ -200,7 +200,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar}) => {
                             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             htmlFor="name">Дата старта проекта</label>
                         <MyInput
-                            value={project.date_of_creation ? project.date_of_creation : format(new Date(), 'yyyy-MM-dd')}
+                            value={project.date_of_creation}
                             onChange={(e: any) => {
                                 setProject({...project, date_of_creation: e.target.value})
                             }}

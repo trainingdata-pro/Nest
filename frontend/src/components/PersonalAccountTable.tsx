@@ -36,7 +36,6 @@ const PersonalAccountTable = () => {
     }
     const [projectsId, setProjectId] = useState(0)
     const columns = useMemo<ColumnDef<Project>[]>(() => {
-        // @ts-ignore
         return [
             {
                 accessorKey: 'name',
@@ -46,11 +45,6 @@ const PersonalAccountTable = () => {
                         onClick={() => {
                             setProjectId(info.row.original.id)
                             setShowSidebar(true)
-    // return (<Sidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar}>
-    //                             <ProjectForm projectId={info.row.original.id}
-    //                         setNewData={setData}
-    //                         closeSidebar={setShowSidebar}/>
-    //                     </Sidebar>)
                         }}>{info.row.original.name}</div>
                 },
                 size: 200,
@@ -123,10 +117,9 @@ const PersonalAccountTable = () => {
                              setNewData={setData}
                              closeSidebar={setShowSidebar}/>
             </Sidebar>
-            <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
+            <div className="flex container pt-20 h-full pr-8 pl-8 items-center">
                 <div className="h-full w-full">
                     <div className="flex justify-end my-2">
-                        {/*<AddProjectButton/>*/}
                         <button className="bg-black rounded-md text-white px-4 py-2"
                                 onClick={() => {
                                     setProjectId(0)

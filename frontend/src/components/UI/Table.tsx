@@ -54,6 +54,7 @@ const Table = ({data, columns}) => {
                                     width:
                                         header.getSize(),
                                 }}
+                                    colSpan={header.colSpan}
                                     className="items-center py-2 text-[#64748b] text-sm">
                                     {header.isPlaceholder ? null : (
                                         // <div >
@@ -104,7 +105,7 @@ const Table = ({data, columns}) => {
                 </tbody> : <tbody>
                 <tr>
                     <td className="p-4 border-b align-middle [&amp;:has([role=checkbox])]:pr-0 h-24 text-center"
-                        colSpan={9}>Нет результатов
+                        colSpan={20}>Нет результатов
                     </td>
                 </tr>
                 </tbody>}

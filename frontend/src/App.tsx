@@ -23,7 +23,7 @@ function App() {
     },[])
 
     if (store.isLoading) {
-        return (<Loader width={16}/>)
+        return (<Loader width={"16"}/>)
     }
 
 
@@ -39,8 +39,6 @@ function App() {
                  <Routes>
                      <Route path={'/dashboard/projects'} element={<MainPage/>}/>
                      <Route path={'/profile'} element={<ProfilePage/>}/>
-                     {/*<Route path={'/dashboard/projects/add_project'} element={<AddProjectPage/>}/>*/}
-                     {/*<Route path={'/dashboard/projects/:id'} element={<ProjectPage/>}/>*/}
                      <Route path={'/dashboard/projects/:id/assessors'} element={<ProjectAssessors/>}/>
                      <Route path={'/dashboard/assessors'} element={<AssessorsPage/>}/>
                      {/*<Route path={'/dashboard/assessor/add_project'} element={<AddAssessorToProject id={undefined}/>}/>*!/*/}
