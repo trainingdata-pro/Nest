@@ -152,38 +152,6 @@ class AssessorCheckAPIView(generics.ListAPIView):
         )
 
 
-class AssessorProjectsAPIViewSet(GetSerializerClassMixin, viewsets.ModelViewSet):
-    queryset = Assessor.objects.all()
-    permission_classes = (IsAuthenticated, AssessorProjectPermission)
-    serializer_class = {
-        'add_project': serializers.AddAssessorProjectSerializer,
-        'delete_project': serializers.RemoveAssessorProjectSerializer
-    }
-    http_method_names = ['patch']
-
-    @projects_schema.add_project()
-    @action(detail=True, methods=['patch'])
-    def add_project(self, request, **kwargs):
-        assessor = self.get_object()
-        serializer = self.get_serializer(assessor, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        updated_assessor = serializer.save()
-        response = serializers.AssessorSerializer(updated_assessor)
-
-        return Response(response.data, status=status.HTTP_200_OK)
-
-    @projects_schema.delete_project()
-    @action(detail=True, methods=['patch'])
-    def delete_project(self, request, **kwargs):
-        assessor = self.get_object()
-        serializer = self.get_serializer(assessor, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        updated_assessor = serializer.save()
-        response = serializers.AssessorSerializer(updated_assessor)
-
-        return Response(response.data, status=status.HTTP_200_OK)
-
-
 @method_decorator(name='retrieve', decorator=wh_schema.retrieve())
 @method_decorator(name='list', decorator=wh_schema.list())
 @method_decorator(name='create', decorator=wh_schema.create())

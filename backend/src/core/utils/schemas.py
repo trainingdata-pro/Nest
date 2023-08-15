@@ -32,6 +32,9 @@ class BaseAPISchema:
     def destroy(self):
         pass
 
+    def get(self):
+        pass
+
     def post(self):
         pass
 

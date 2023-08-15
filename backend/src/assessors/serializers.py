@@ -6,6 +6,7 @@ from users.serializers import ManagerSerializer
 # from blacklist.models import BlackListItem
 from projects.serializers import SimpleProjectSerializer
 from .models import AssessorStatus, Assessor, Skill, WorkingHours
+from .utils import check_project_permission
 
 
 class SkillSerializer(serializers.ModelSerializer):
@@ -18,7 +19,6 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assessor
         exclude = (
-            'projects',
             'is_free_resource',
             'second_manager',
             'date_of_registration',
@@ -31,17 +31,22 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         current_manager = self.get_manager()
+
         if current_manager.is_operational_manager:
             manager = attrs.get('manager')
-            if manager is None:
+            if manager is None and self.instance is None:
                 raise ValidationError(
                     {'manager': ['Выберите ответственного менеджера.']}
                 )
-            else:
-                if manager.operational_manager.pk != current_manager.pk:
-                    raise ValidationError(
-                        {'manager': [f'Менеджер {manager.full_name} не в вашей команде.']}
-                    )
+
+            if manager and manager.operational_manager.pk != current_manager.pk:
+                raise ValidationError(
+                    {'manager': [f'Менеджер {manager.full_name} не в вашей команде.']}
+                )
+
+        projects = attrs.get('projects')
+        if projects:
+            check_project_permission(projects, current_manager)
 
         return super().validate(attrs)
 
@@ -109,61 +114,6 @@ class CheckAssessorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assessor
         fields = ('pk', 'username', 'manager')
-
-
-class AddAssessorProjectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Assessor
-        fields = ('projects',)
-
-    def validate_projects(self, projects):
-        manager_pk = self.context.get('request').user.manager.pk
-        for pr in projects:
-            if pr.manager.pk != manager_pk:
-                raise ValidationError(
-                    f'У вас нет прав, чтобы выбрать проект "{pr.name}". '
-                    f'Проект создан другим менеджером.'
-                )
-
-        return projects
-
-    def update(self, instance, validated_data):
-        projects = validated_data.get('projects')
-        if projects:
-            instance.projects.add(*projects)
-            # instance.is_busy = True
-            instance.save()
-
-        return instance
-
-
-class RemoveAssessorProjectSerializer(serializers.ModelSerializer):
-    all = serializers.BooleanField(default=False)
-
-    class Meta:
-        model = Assessor
-        fields = ('all', 'projects')
-
-    def get_projects_to_remove(self, projects):
-        manager = self.context.get('request').user.manager
-        return [pr for pr in projects if pr.manager == manager]
-
-    def update(self, instance, validated_data):
-        remove_all = validated_data.get('all')
-        manager = self.context.get('request').user.manager
-        if remove_all:
-            projects = instance.projects.filter(owner=manager)
-            instance.projects.remove(*projects)
-        else:
-            projects = validated_data.get('projects')
-            to_remove = self.get_projects_to_remove(projects)
-            instance.projects.remove(*to_remove)
-
-        if not instance.projects.exists():
-            instance.status = AssessorStatus.FREE
-
-        instance.save()
-        return instance
 
 
 class CreateUpdateWorkingHoursSerializer(serializers.ModelSerializer):

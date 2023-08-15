@@ -1,16 +1,18 @@
 from django.db.models import Count
 from django.utils.decorators import method_decorator
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from assessors.models import Assessor
+from assessors.serializers import AssessorSerializer
 from core.utils.permissions import IsManager, ProjectPermission
 from core.utils.common import BaseAPIViewSet
 from users.models import Manager
 from .filters import ProjectFilter
 from .models import Project
-from .schemas import project_schema
+from .schemas import project_schema, project_schema2
 from . import serializers
 
 
@@ -96,3 +98,25 @@ class ProjectAPIViewSet(BaseAPIViewSet):
                     .annotate(assessors_count=Count('assessors'))
                     .prefetch_related('manager__user')
                     .order_by('manager__last_name', 'name', '-date_of_creation'))
+
+
+@method_decorator(name='get', decorator=project_schema2.get())
+class GetAllAssessorForProject(generics.ListAPIView):
+    queryset = Assessor.objects.all()
+    serializer_class = AssessorSerializer
+    permission_classes = (IsAuthenticated,)
+    ordering_fields = [
+        'pk',
+        'username',
+        'last_name',
+        'manager__last_name',
+        'status'
+    ]
+
+    def get_queryset(self):
+        project_pk = self.kwargs.get('pk')
+        return (Assessor.objects
+                .filter(projects__in=[project_pk])
+                .select_related('manager__user')
+                .prefetch_related('projects__manager', 'second_manager')
+                .order_by('last_name'))
