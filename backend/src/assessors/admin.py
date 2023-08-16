@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Assessor, Skill, WorkingHours, FreeResourceSchedule
+from .models import Assessor, Skill, WorkingHours
 
 
 class AssessorAdmin(admin.ModelAdmin):
@@ -73,4 +73,3 @@ class FreeResourceScheduleAdmin(admin.ModelAdmin):
 admin.site.register(Assessor, AssessorAdmin)
 admin.site.register(Skill, SkillAdmin)
 admin.site.register(WorkingHours, WorkingHoursAdmin)
-admin.site.register(FreeResourceSchedule, FreeResourceScheduleAdmin)
