@@ -12,6 +12,7 @@ import Loader from './components/UI/Loader';
 import ProjectAssessors from "./components/ProjectAssessors";
 import PersonalAccountTable from "./components/PersonalAccountTable";
 import AssessorsPage from "./components/Assessors/AssessorsPage";
+import AssessorPage from './components/Assessors/AssessorPage';
 
 function App() {
     const {store} = useContext(Context)
@@ -41,6 +42,7 @@ function App() {
                      <Route path={'/profile'} element={<ProfilePage/>}/>
                      <Route path={'/dashboard/projects/:id/assessors'} element={<ProjectAssessors/>}/>
                      <Route path={'/dashboard/assessors'} element={<AssessorsPage/>}/>
+                     <Route path={'/assessor/:id'} element={<AssessorPage/>}/>
                      {/*<Route path={'/dashboard/assessor/add_project'} element={<AddAssessorToProject id={undefined}/>}/>*!/*/}
                      {/*<Route path={'/dashboard/projects/'} element={<ProjectsPage/>}/>*/}
                      {/*<Route path={'/dashboard/projects/:id'} element={<ProjectPage/>}/>*/}

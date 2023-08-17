@@ -33,6 +33,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar}) => {
             unloading_value: 0,
             unloading_regularity: 0,
             status: '',
+            tag: [],
             date_of_creation: ''
         }
     )
@@ -46,7 +47,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar}) => {
         ManagerService.fetch_managers().then((res: any) => {
             setManagers(res.data.results)
         })
-        console.log(projectId)
+        if (projectId){
         if(projectId!==0){
             ProjectService.fetchProject(projectId).then(res => setProject(res.data))
         } else{
@@ -63,9 +64,10 @@ const ProjectForm = ({projectId, setNewData, closeSidebar}) => {
                 unloading_value: 0,
                 unloading_regularity: 0,
                 status: '',
+                tag: [],
                 date_of_creation: format(new Date(), 'yyyy-MM-dd')
             })
-        }
+        }}
     }, [projectId])
 
     async function onSubmit(e: any) {
@@ -151,6 +153,15 @@ const ProjectForm = ({projectId, setNewData, closeSidebar}) => {
                             htmlFor="name">Цена за единицу для ассесора</label>
                         <MyInput
                             value={project.price_for_assessor ? project.price_for_assessor : 0}
+                            onChange={(e: any) => setProject({...project, price_for_assessor: e.target.value})}
+                        />
+                    </div>
+                    <div className="mb-2">
+                        <label
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            htmlFor="name">Тег</label>
+                        <MyInput
+                            value={project.tag ? project.tag : ''}
                             onChange={(e: any) => setProject({...project, price_for_assessor: e.target.value})}
                         />
                     </div>

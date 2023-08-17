@@ -13,7 +13,12 @@ export interface Project {
     unloading_value: number,
     unloading_regularity: number,
     status: string,
+    tag: Tag[],
     date_of_creation: string
+}
+interface Tag {
+    id: number,
+    title: string
 }
 type Status = {
     status: "paused" | "active" | "completed"

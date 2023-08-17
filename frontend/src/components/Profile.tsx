@@ -42,12 +42,8 @@ const Profile = () => {
     const handleSelectChange = (event:any) => {
         setSelectedOperationsManager(event.target.value);
     };
-    // @ts-ignore
     return (
-        <div className="fixed inset-0 z-50 flex h-screen w-screen items-end justify-center sm:items-center">
-
-            <div className="animate-in fade-in fixed inset-0 z-50 bg-white backdrop-blur-sm transition-opacity">
-            </div>
+        <div className="flex h-screen w-screen items-end justify-center sm:items-center">
 
             <div className="bg-white fixed z-50 w-full max-w-max border bg-background p-6 opacity-100">
 

@@ -1,6 +1,7 @@
 import {AxiosResponse} from "axios";
 import $api from "../http";
 import {Project} from "../models/ProjectResponse";
+import {Assessor, AssessorResponse} from "../models/AssessorResponse";
 
 interface ProjectResponse {
     count: number,
@@ -20,6 +21,10 @@ export default class ProjectService {
     }
     static patchProject(id:any,data: any): Promise<AxiosResponse<Project>> {
         return $api.patch<Project>(`/api/projects/${id}/`, data)
+
+    }
+    static fetchProjectAssessors(id:any): Promise<AxiosResponse<AssessorResponse>> {
+        return $api.get<AssessorResponse>(`/api/projects/${id}/assessors/`,)
 
     }
 }
