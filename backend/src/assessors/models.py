@@ -11,6 +11,13 @@ class AssessorStatus(models.TextChoices):
     FREE = ('free', 'Свободен')
 
 
+class FreeResourceHours(models.TextChoices):
+    NULL = ('0', '0')
+    TWO_FOUR = ('2-4', '2-4')
+    FOUR_SIX = ('4-6', '4-6')
+    SIX_EIGHT = ('6-8', '6-8')
+
+
 class Skill(models.Model):
     title = models.CharField(
         verbose_name='название',
@@ -51,6 +58,14 @@ class Assessor(models.Model):
         max_length=255,
         verbose_name='отчество'
     )
+    email = models.EmailField(
+        verbose_name='эл. почта',
+        unique=True
+    )
+    country = models.CharField(
+        max_length=255,
+        verbose_name='страна'
+    )
     manager = models.ForeignKey(
         Manager,
         on_delete=models.PROTECT,
@@ -79,6 +94,20 @@ class Assessor(models.Model):
     is_free_resource = models.BooleanField(
         default=False,
         verbose_name='св. ресурс'
+    )
+    free_resource_weekday_hours = models.CharField(
+        max_length=5,
+        verbose_name='ресурс работы в рабочие дни, ч',
+        choices=FreeResourceHours.choices,
+        null=True,
+        blank=True
+    )
+    free_resource_day_off_hours = models.CharField(
+        max_length=5,
+        verbose_name='ресурс работы в выходные дни, ч',
+        choices=FreeResourceHours.choices,
+        null=True,
+        blank=True
     )
     second_manager = models.ManyToManyField(
         Manager,
@@ -165,28 +194,3 @@ class WorkingHours(models.Model):
     def total(self):
         return (self.monday + self.tuesday + self.wednesday +
                 self.thursday + self.friday + self.saturday + self.sunday)
-
-
-class FreeResourceSchedule(models.Model):
-    assessor = models.OneToOneField(
-        to=Assessor,
-        verbose_name='исполнитель',
-        on_delete=models.PROTECT,
-        related_name='fr_schedule'
-    )
-    weekday_hours = models.CharField(
-        max_length=5,
-        verbose_name='рабочие дни'
-    )
-    day_off_hours = models.CharField(
-        max_length=5,
-        verbose_name='выходные дни'
-    )
-
-    class Meta:
-        db_table = 'free_resources_schedule'
-        verbose_name = 'время работы в СР'
-        verbose_name_plural = 'время работы в СР'
-
-    def __str__(self):
-        return f'{self.assessor.full_name}'

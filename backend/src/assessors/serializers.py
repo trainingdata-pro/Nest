@@ -5,7 +5,9 @@ from users.serializers import ManagerSerializer
 
 # from blacklist.models import BlackListItem
 from projects.serializers import SimpleProjectSerializer
-from .models import AssessorStatus, Assessor, Skill, WorkingHours
+from .models import (Assessor,
+                     Skill,
+                     WorkingHours)
 from .utils import check_project_permission
 
 
@@ -19,7 +21,6 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assessor
         exclude = (
-            'is_free_resource',
             'second_manager',
             'date_of_registration',
             'blacklist'
@@ -48,10 +49,37 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
         if projects:
             check_project_permission(projects, current_manager)
 
+        is_free_resource = attrs.get('is_free_resource')
+        if is_free_resource is True:
+            free_resource_weekday_hours = attrs.get('free_resource_weekday_hours')
+            if free_resource_weekday_hours is None:
+                raise ValidationError(
+                    {'free_resource_weekday_hours': ['Укажите время работы в рабочие дни.']}
+                )
+            free_resource_day_off_hours = attrs.get('free_resource_day_off_hours')
+            if free_resource_day_off_hours is None:
+                raise ValidationError(
+                    {'free_resource_day_off_hours': ['Укажите время работы в выходные дни.']}
+                )
+
         return super().validate(attrs)
+
+    @staticmethod
+    def _update_if_free_resource(validated_data, instance=None):
+        if validated_data.get('is_free_resource') is False:
+            if instance is not None and instance.second_manager.exists():
+                raise ValidationError(
+                    {'is_free_resource': ['Нельзя удалить исполнителя из свободных ресурсов, '
+                                          'т.к. он работает у других менеджеров.']}
+                )
+            validated_data['free_resource_weekday_hours'] = None
+            validated_data['free_resource_day_off_hours'] = None
+
+        return validated_data
 
     def create(self, validated_data):
         manager = self.get_manager()
+        validated_data = self._update_if_free_resource(validated_data)
         skills = validated_data.pop('skills', None)
         if manager.is_operational_manager:
             assessor = Assessor.objects.create(**validated_data)
@@ -63,6 +91,10 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
             assessor.save()
 
         return assessor
+
+    def update(self, instance, validated_data):
+        validated_data = self._update_if_free_resource(validated_data, instance)
+        return super().update(instance, validated_data)
 
 
 class SimpleAssessorSerializer(serializers.ModelSerializer):
@@ -96,12 +128,52 @@ class SimpleWorkingHoursSerializer(serializers.ModelSerializer):
         return obj.total
 
 
+# class CreateUpdateFreeResourceSerializer(serializers.ModelSerializer):
+#     def get_manager(self):
+#         return self.context.get('request').user.manager
+#
+#     class Meta:
+#         model = FreeResourceSchedule
+#         fields = '__all__'
+#
+#     def validate_assessor(self, assessor: Assessor):
+#         manager = self.get_manager()
+#         if assessor.manager != manager and assessor.manager.operational_manager != manager:
+#             raise ValidationError('Вы не можете выбрать данного исполнителя.')
+#
+#         return assessor
+#
+#     def create(self, validated_data):
+#         assessor = validated_data.get('assessor')
+#         if assessor.is_free_resource:
+#             raise ValidationError('Данный исполнитель уже находится в свободных ресурсах.')
+#
+#         obj = super().create(validated_data)
+#         assessor.is_free_resource = True
+#         assessor.save()
+#
+#         return obj
+
+
+# class FreeResourceScheduleSimpleSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = FreeResourceSchedule
+#         exclude = ['assessor']
+#
+#
+# class FreeResourceScheduleSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = FreeResourceSchedule
+#         fields = '__all__'
+
+
 class AssessorSerializer(serializers.ModelSerializer):
     manager = ManagerSerializer(read_only=True)
     projects = SimpleProjectSerializer(read_only=True, many=True)
     skills = SkillSerializer(read_only=True, many=True)
     second_manager = ManagerSerializer(read_only=True, many=True)
     working_hours = SimpleWorkingHoursSerializer(read_only=True, source='workinghours')
+    # free_resource_schedule = FreeResourceScheduleSimpleSerializer(read_only=True, source='freeresourceschedule')
 
     class Meta:
         model = Assessor
@@ -127,58 +199,6 @@ class CreateUpdateWorkingHoursSerializer(serializers.ModelSerializer):
             raise ValidationError('Вы не можете выбрать данного исполнителя.')
 
         return assessor
-
-
-# class CheckAsFreeResourceSerializer(serializers.Serializer):
-#     annotators = serializers.ListSerializer(child=serializers.IntegerField(), min_length=1)
-#     max_count_of_second_managers = serializers.IntegerField(min_value=1)
-#
-#     def save(self, **kwargs):
-#         manager = self.context.get('request').user.manager
-#         pk = self.validated_data.get('annotators')
-#         assessors = Assessor.objects.filter(pk__in=pk, manager=manager)
-#         if not assessors:
-#             raise ValidationError(
-#                 {'assessors': 'Передайте список ваших исполнителей.'}
-#             )
-#
-#         max_count_of_second_managers = self.validated_data.get('max_count_of_second_managers')
-#         assessors.update(is_free_resource=True,
-#                          max_count_of_second_managers=max_count_of_second_managers)
-#
-#         return assessors
-
-
-# class UncheckAsFreeResourceSerializer(serializers.Serializer):
-#     annotators = serializers.ListSerializer(child=serializers.IntegerField(), min_length=1)
-#
-#     @staticmethod
-#     def check_projects(assessors):
-#         for user in assessors:
-#             if user.second_manager.exists():
-#                 raise ValidationError(
-#                     {'assessors': f'Исполнитель {user.full_name} на текущий момент '
-#                                   f'работает над проектами других менеджеров.'}
-#                 )
-#
-#     def save(self, **kwargs):
-#         manager = self.context.get('request').user.manager
-#         pk = self.validated_data.get('annotators')
-#         assessors = Assessor.objects.filter(
-#             pk__in=pk,
-#             manager=manager,
-#             is_free_resource=True
-#         )
-#         if not assessors:
-#             raise ValidationError(
-#                 {'assessors': 'Передайте список ваших исполнителей, '
-#                               'которые являются свободными ресурсами.'}
-#             )
-#         self.check_projects(assessors)
-#         to_response = [obj.pk for obj in assessors]
-#         assessors.update(is_free_resource=False, max_count_of_second_managers=None)
-#
-#         return Assessor.objects.filter(pk__in=to_response)
 
 
 # class TakeFreeResourceSerializer(serializers.Serializer):

@@ -1,21 +1,18 @@
-from django.db.models import Count, F, Q
+from django.db.models import Q
 from django.utils.decorators import method_decorator
 from rest_framework import status, viewsets, generics
-from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from core.utils.permissions import IsManager, AssessorPermission, AssessorProjectPermission
-from core.utils.common import BaseAPIViewSet, GetSerializerClassMixin
+from core.utils.common import BaseAPIViewSet
+from core.utils import permissions
 from users.models import Manager
 from .filters import AssessorFilter, SkillsFilter
 from .models import Assessor, Skill, WorkingHours
 from .schemas import (assessor_schema,
                       check_assessor_schema,
                       fr_schema,
-                      projects_schema,
                       skills_schema,
                       wh_schema)
 from . import serializers
@@ -41,8 +38,8 @@ class AssessorAPIViewSet(BaseAPIViewSet):
     permission_classes = {
         'retrieve': (IsAuthenticated,),
         'list': (IsAuthenticated,),
-        'create': (IsAuthenticated, IsManager),
-        'partial_update': (IsAuthenticated, IsManager, AssessorPermission),
+        'create': (IsAuthenticated, permissions.IsManager),
+        'partial_update': (IsAuthenticated, permissions.IsManager, permissions.AssessorPermission),
         # 'destroy': (IsAuthenticated, AssessorOwner),
     }
     serializer_class = {
@@ -161,9 +158,9 @@ class WorkingHoursAPIViewSet(BaseAPIViewSet):
     permission_classes = {
         'retrieve': (IsAuthenticated,),
         'list': (IsAuthenticated,),
-        'create': (IsAuthenticated, IsManager),
-        'partial_update': (IsAuthenticated, IsManager),
-        'destroy': (IsAuthenticated, IsManager)
+        'create': (IsAuthenticated, permissions.IsManager),
+        'partial_update': (IsAuthenticated, permissions.IsManager),
+        'destroy': (IsAuthenticated, permissions.IsManager)
     }
     serializer_class = {
         'retrieve': serializers.WorkingHoursSerializer,
@@ -193,6 +190,33 @@ class WorkingHoursAPIViewSet(BaseAPIViewSet):
         response = serializers.WorkingHoursSerializer(wh)
 
         return Response(response.data, status=status.HTTP_200_OK)
+
+
+@method_decorator(name='retrieve', decorator=fr_schema.retrieve())
+@method_decorator(name='list', decorator=fr_schema.list())
+class FreeResourcesAPIViewSet(BaseAPIViewSet):
+    permission_classes = {
+        'retrieve': (IsAuthenticated,),
+        'list': (IsAuthenticated,)
+    }
+    serializer_class = {
+        'retrieve': serializers.AssessorSerializer,
+        'list': serializers.AssessorSerializer
+    }
+    http_method_names = ['get']
+
+    def get_queryset(self):
+        queryset = (Assessor.objects
+                    .filter(is_free_resource=True)
+                    .select_related('manager')
+                    .prefetch_related('projects')
+                    .order_by('manager__last_name'))
+
+        if hasattr(self.request.user, 'manager'):
+            queryset = queryset.exclude(second_manager__in=[self.request.user.manager])
+
+        return queryset
+
 
 # @method_decorator(name='list', decorator=fr_schema.list())
 # class FreeResourcesAPIViewSet(GetSerializerClassMixin,

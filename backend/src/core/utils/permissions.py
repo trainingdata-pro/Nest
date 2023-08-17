@@ -19,13 +19,13 @@ class ProjectPermission(BasePermission):
 
 class AssessorPermission(BasePermission):
     def has_object_permission(self, request, view, obj):
-        return request.user.manager.pk == obj.manager.pk or \
+        return request.user.manager == obj.manager or \
             obj.manager.operational_manager == request.user.manager
 
 
 class AssessorProjectPermission(BasePermission):
     def has_object_permission(self, request, view, obj):
-        return request.user.manager.pk == obj.manager.pk or \
+        return request.user.manager == obj.manager or \
             obj.manager.operational_manager == request.user.manager or \
             obj.second_manager.filter(pk=request.user.manager.pk).exists()
 

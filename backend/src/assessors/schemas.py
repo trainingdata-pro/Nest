@@ -226,11 +226,11 @@ class CheckAssessorSchema(BaseAPISchema):
         )
 
 
-class AssessorProjectsSchema(BaseAPISchema):
-    def add_project(self):
+class FreeResourcesSchema(BaseAPISchema):
+    def retrieve(self):
         return self.swagger_auto_schema(
-            operation_summary='Add projects',
-            operation_description='Add projects to a specific assessor',
+            operation_summary='Get free resource',
+            operation_description='Get a specific free resource',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
@@ -239,46 +239,7 @@ class AssessorProjectsSchema(BaseAPISchema):
                     description='Unique assessor ID'
                 )
             ],
-            responses={
-                200: serializers.AssessorSerializer,
-                **self.get_responses(400, 401, 404)
-            }
-        )
-
-    def delete_project(self):
-        return self.swagger_auto_schema(
-            operation_summary='Delete projects',
-            operation_description='Delete projects from a specific assessor.\n'
-                                  'If the "all" parameter is "true", then all '
-                                  'assessor\'s projects will be deleted. '
-                                  'In this case, the "projects" list may not be '
-                                  'specified',
-            responses={
-                200: serializers.AssessorSerializer,
-                **self.get_responses(400, 401, 404)
-            }
-        )
-
-
-class FreeResourcesSchema(BaseAPISchema):
-    def check_as_free(self):
-        return self.swagger_auto_schema(
-            operation_summary='Check as free resource',
-            operation_description='Check assessors as free resource',
-            responses={
-                200: serializers.AssessorSerializer,
-                **self.get_responses(400, 401)
-            }
-        )
-
-    def uncheck_as_free(self):
-        return self.swagger_auto_schema(
-            operation_summary='Uncheck as free resource',
-            operation_description='Uncheck assessors as free resource',
-            responses={
-                200: serializers.AssessorSerializer,
-                **self.get_responses(400, 401)
-            }
+            responses={**self.get_responses(401, 404)}
         )
 
     def list(self):
@@ -288,38 +249,38 @@ class FreeResourcesSchema(BaseAPISchema):
             responses={**self.get_responses(401)}
         )
 
-    def take(self):
-        return self.swagger_auto_schema(
-            operation_summary='Take free resource',
-            operation_description='Take free resource',
-            request_body=None,
-            responses={
-                200: serializers.AssessorSerializer(),
-                **self.get_responses(400, 401, 404)
-            }
-        )
-
-    def cancel(self):
-        return self.swagger_auto_schema(
-            operation_summary='Cancel free resource',
-            operation_description='Cancel free resource',
-            request_body=None,
-            responses={
-                200: serializers.AssessorSerializer(),
-                **self.get_responses(400, 401, 404)
-            }
-        )
-
-    def add_to_team(self):
-        return self.swagger_auto_schema(
-            operation_summary='Add assessor to a team',
-            operation_description='Add assessor to a team',
-            request_body=None,
-            responses={
-                200: serializers.AssessorSerializer(),
-                **self.get_responses(400, 401, 404)
-            }
-        )
+    # def take(self):
+    #     return self.swagger_auto_schema(
+    #         operation_summary='Take free resource',
+    #         operation_description='Take free resource',
+    #         request_body=None,
+    #         responses={
+    #             200: serializers.AssessorSerializer(),
+    #             **self.get_responses(400, 401, 404)
+    #         }
+    #     )
+    #
+    # def cancel(self):
+    #     return self.swagger_auto_schema(
+    #         operation_summary='Cancel free resource',
+    #         operation_description='Cancel free resource',
+    #         request_body=None,
+    #         responses={
+    #             200: serializers.AssessorSerializer(),
+    #             **self.get_responses(400, 401, 404)
+    #         }
+    #     )
+    #
+    # def add_to_team(self):
+    #     return self.swagger_auto_schema(
+    #         operation_summary='Add assessor to a team',
+    #         operation_description='Add assessor to a team',
+    #         request_body=None,
+    #         responses={
+    #             200: serializers.AssessorSerializer(),
+    #             **self.get_responses(400, 401, 404)
+    #         }
+    #     )
 
 
 class WorkingHoursSchema(BaseAPISchema):
@@ -380,6 +341,5 @@ class WorkingHoursSchema(BaseAPISchema):
 assessor_schema = AssessorSchema(tags=['assessors'])
 check_assessor_schema = CheckAssessorSchema(tags=['assessors'])
 fr_schema = FreeResourcesSchema(tags=['free resources'])
-projects_schema = AssessorProjectsSchema(tags=['assessors'])
 skills_schema = SkillsSchema(tags=['assessors'])
 wh_schema = WorkingHoursSchema(tags=['assessors'])
