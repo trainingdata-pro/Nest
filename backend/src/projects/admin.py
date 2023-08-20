@@ -18,7 +18,8 @@ class ProjectAdmin(admin.ModelAdmin):
         'name',
         'managers',
         'status',
-        'date_of_creation'
+        'date_of_creation',
+        'date_of_completion'
     )
     list_display_links = ('name',)
     list_filter = ('manager', 'status')

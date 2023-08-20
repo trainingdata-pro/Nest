@@ -87,6 +87,11 @@ class Project(models.Model):
         default=current_date,
         verbose_name='дата старта'
     )
+    date_of_completion = models.DateField(
+        verbose_name='дата завершения',
+        blank=True,
+        null=True
+    )
 
     class Meta:
         db_table = 'projects'
