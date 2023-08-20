@@ -140,5 +140,24 @@ class AssessorsForProjectSchema(BaseAPISchema):
         )
 
 
+class TagsSchema(BaseAPISchema):
+    def get(self):
+        return self.swagger_auto_schema(
+            operation_summary='List tags',
+            operation_description='Get list of tags',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='ordering',
+                    type=openapi.TYPE_STRING,
+                    in_=openapi.IN_QUERY,
+                    description='Which field to use when ordering the results. '
+                                'Available fields: pk, name.'
+                )
+            ],
+            responses={**self.get_responses(401)}
+        )
+
+
 project_schema = ProjectSchema(tags=['projects'])
 project_schema2 = AssessorsForProjectSchema(tags=['projects'])
+tags_schema = TagsSchema(tags=['projects'])

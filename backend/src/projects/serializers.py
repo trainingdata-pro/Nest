@@ -93,3 +93,5 @@ class ProjectSerializer(serializers.ModelSerializer):
 #
 #     def get_assessors_count(self, obj) -> int:
 #         return obj.assessors.count()
+
+
