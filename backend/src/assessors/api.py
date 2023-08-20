@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.utils.decorators import method_decorator
 from rest_framework import status, viewsets, generics
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -15,6 +16,7 @@ from .schemas import (assessor_schema,
                       fr_schema,
                       skills_schema,
                       wh_schema)
+# from .utils import take_free_resources
 from . import serializers
 
 
@@ -194,16 +196,19 @@ class WorkingHoursAPIViewSet(BaseAPIViewSet):
 
 @method_decorator(name='retrieve', decorator=fr_schema.retrieve())
 @method_decorator(name='list', decorator=fr_schema.list())
+@method_decorator(name='take', decorator=fr_schema.take())
 class FreeResourcesAPIViewSet(BaseAPIViewSet):
     permission_classes = {
         'retrieve': (IsAuthenticated,),
-        'list': (IsAuthenticated,)
+        'list': (IsAuthenticated,),
+        'take': (IsAuthenticated, permissions.IsManager)
     }
     serializer_class = {
         'retrieve': serializers.AssessorSerializer,
-        'list': serializers.AssessorSerializer
+        'list': serializers.AssessorSerializer,
+        'take': serializers.TakeFreeResourceSerializer
     }
-    http_method_names = ['get']
+    http_method_names = ['get', 'patch']
 
     def get_queryset(self):
         queryset = (Assessor.objects
@@ -216,6 +221,19 @@ class FreeResourcesAPIViewSet(BaseAPIViewSet):
             queryset = queryset.exclude(second_manager__in=[self.request.user.manager])
 
         return queryset
+
+    @action(detail=False, methods=['patch'])
+    def take(self, request, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        assessors = serializer.save()
+        response = serializers.AssessorSerializer(assessors, many=True)
+
+        return Response(response.data)
+
+    # @action(detail=False, methods=['patch'])
+    # def cancel(self, request, **kwargs):
+    #     pass
 
 
 # @method_decorator(name='list', decorator=fr_schema.list())
