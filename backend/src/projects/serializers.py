@@ -83,13 +83,13 @@ class ProjectSerializer(serializers.ModelSerializer):
         return 'Тут пока не понятно, что это за поле, поэтому просто заглушка'
 
 
-class SimpleProjectSerializer(serializers.ModelSerializer):
-    assessors_count = serializers.SerializerMethodField(read_only=True)
-    tag = ProjectTagSerializer(read_only=True, many=True)
-
-    class Meta:
-        model = Project
-        exclude = ('manager',)
-
-    def get_assessors_count(self, obj) -> int:
-        return obj.assessors.count()
+# class SimpleProjectSerializer(serializers.ModelSerializer):
+#     assessors_count = serializers.SerializerMethodField(read_only=True)
+#     tag = ProjectTagSerializer(read_only=True, many=True)
+#
+#     class Meta:
+#         model = Project
+#         exclude = ('manager',)
+#
+#     def get_assessors_count(self, obj) -> int:
+#         return obj.assessors.count()

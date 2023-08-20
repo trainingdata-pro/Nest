@@ -4,7 +4,7 @@ from rest_framework.exceptions import ValidationError
 from users.serializers import ManagerSerializer
 
 # from blacklist.models import BlackListItem
-from projects.serializers import SimpleProjectSerializer
+from projects.serializers import ProjectSerializer
 from .models import (Assessor,
                      Skill,
                      WorkingHours)
@@ -169,7 +169,7 @@ class SimpleWorkingHoursSerializer(serializers.ModelSerializer):
 
 class AssessorSerializer(serializers.ModelSerializer):
     manager = ManagerSerializer(read_only=True)
-    projects = SimpleProjectSerializer(read_only=True, many=True)
+    projects = ProjectSerializer(read_only=True, many=True)
     skills = SkillSerializer(read_only=True, many=True)
     second_manager = ManagerSerializer(read_only=True, many=True)
     working_hours = SimpleWorkingHoursSerializer(read_only=True, source='workinghours')
