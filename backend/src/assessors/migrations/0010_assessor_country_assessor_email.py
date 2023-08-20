@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='assessor',
             name='email',
-            field=models.EmailField(default='as@mail.ru', max_length=254, verbose_name='эл. почта'),
+            field=models.EmailField(max_length=254, verbose_name='эл. почта'),
             preserve_default=False,
         ),
     ]
