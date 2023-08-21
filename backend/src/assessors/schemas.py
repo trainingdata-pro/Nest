@@ -249,40 +249,23 @@ class FreeResourcesSchema(BaseAPISchema):
             responses={**self.get_responses(401)}
         )
 
-    def take(self):
+    def partial_update(self):
         return self.swagger_auto_schema(
-            operation_summary='Take free resources',
-            operation_description='Take free resources.\n'
-                                  'If the user is an operational manager, '
-                                  'then you must specify a manager from his team.',
-            request_body=None,
+            operation_summary='Take free resource',
+            operation_description='Take a specific free resource',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique assessor ID'
+                )
+            ],
             responses={
-                200: serializers.AssessorSerializer(many=True),
-                **self.get_responses(401)
+                200: serializers.AssessorSerializer,
+                **self.get_responses(401, 404)
             }
         )
-    #
-    # def cancel(self):
-    #     return self.swagger_auto_schema(
-    #         operation_summary='Cancel free resource',
-    #         operation_description='Cancel free resource',
-    #         request_body=None,
-    #         responses={
-    #             200: serializers.AssessorSerializer(),
-    #             **self.get_responses(400, 401, 404)
-    #         }
-    #     )
-    #
-    # def add_to_team(self):
-    #     return self.swagger_auto_schema(
-    #         operation_summary='Add assessor to a team',
-    #         operation_description='Add assessor to a team',
-    #         request_body=None,
-    #         responses={
-    #             200: serializers.AssessorSerializer(),
-    #             **self.get_responses(400, 401, 404)
-    #         }
-    #     )
 
 
 class WorkingHoursSchema(BaseAPISchema):
