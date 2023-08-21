@@ -11,8 +11,8 @@ from core.utils.permissions import IsManager, ProjectPermission
 from core.utils.common import BaseAPIViewSet
 from users.models import Manager
 from .filters import ProjectFilter
-from .models import Project
-from .schemas import project_schema, project_schema2
+from .models import Project, ProjectTag
+from .schemas import project_schema, project_schema2, tags_schema
 from . import serializers
 
 
@@ -120,3 +120,11 @@ class GetAllAssessorForProject(generics.ListAPIView):
                 .select_related('manager__user')
                 .prefetch_related('projects__manager', 'second_manager')
                 .order_by('last_name'))
+
+
+@method_decorator(name='get', decorator=tags_schema.get())
+class TagsApiView(generics.ListAPIView):
+    queryset = ProjectTag.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = serializers.ProjectTagSerializer
+    ordering_fields = ['pk', 'name']

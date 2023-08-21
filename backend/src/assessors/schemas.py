@@ -249,16 +249,18 @@ class FreeResourcesSchema(BaseAPISchema):
             responses={**self.get_responses(401)}
         )
 
-    # def take(self):
-    #     return self.swagger_auto_schema(
-    #         operation_summary='Take free resource',
-    #         operation_description='Take free resource',
-    #         request_body=None,
-    #         responses={
-    #             200: serializers.AssessorSerializer(),
-    #             **self.get_responses(400, 401, 404)
-    #         }
-    #     )
+    def take(self):
+        return self.swagger_auto_schema(
+            operation_summary='Take free resources',
+            operation_description='Take free resources.\n'
+                                  'If the user is an operational manager, '
+                                  'then you must specify a manager from his team.',
+            request_body=None,
+            responses={
+                200: serializers.AssessorSerializer(many=True),
+                **self.get_responses(401)
+            }
+        )
     #
     # def cancel(self):
     #     return self.swagger_auto_schema(

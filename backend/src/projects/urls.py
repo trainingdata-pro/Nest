@@ -1,12 +1,13 @@
 from django.urls import path, include
 from rest_framework import routers
 
-from .api import ProjectAPIViewSet, GetAllAssessorForProject
+from . import api
 
 router = routers.DefaultRouter()
-router.register('', ProjectAPIViewSet, basename='project')
+router.register('', api.ProjectAPIViewSet, basename='project')
 
 urlpatterns = [
     path('projects/', include(router.urls)),
-    path('projects/<int:pk>/assessors/', GetAllAssessorForProject.as_view())
+    path('projects/<int:pk>/assessors/', api.GetAllAssessorForProject.as_view()),
+    path('tags/', api.TagsApiView.as_view())
 ]

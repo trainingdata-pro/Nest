@@ -1,10 +1,13 @@
+from typing import List
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from users.models import Manager
 from users.serializers import ManagerSerializer
 
 # from blacklist.models import BlackListItem
-from projects.serializers import SimpleProjectSerializer
+from projects.serializers import ProjectSerializer
 from .models import (Assessor,
                      Skill,
                      WorkingHours)
@@ -169,10 +172,11 @@ class SimpleWorkingHoursSerializer(serializers.ModelSerializer):
 
 class AssessorSerializer(serializers.ModelSerializer):
     manager = ManagerSerializer(read_only=True)
-    projects = SimpleProjectSerializer(read_only=True, many=True)
+    projects = ProjectSerializer(read_only=True, many=True)
     skills = SkillSerializer(read_only=True, many=True)
     second_manager = ManagerSerializer(read_only=True, many=True)
     working_hours = SimpleWorkingHoursSerializer(read_only=True, source='workinghours')
+
     # free_resource_schedule = FreeResourceScheduleSimpleSerializer(read_only=True, source='freeresourceschedule')
 
     class Meta:
@@ -199,6 +203,47 @@ class CreateUpdateWorkingHoursSerializer(serializers.ModelSerializer):
             raise ValidationError('Вы не можете выбрать данного исполнителя.')
 
         return assessor
+
+
+class TakeFreeResourceSerializer(serializers.Serializer):
+    assessors = serializers.PrimaryKeyRelatedField(
+        queryset=Assessor.objects.filter(is_free_resource=True),
+        many=True
+    )
+    manager = serializers.PrimaryKeyRelatedField(queryset=Manager.objects.all())
+
+    def get_manager(self):
+        return self.context.get('request').user.manager
+
+    def _add_second_manager(self) -> List[Assessor]:
+        manager = self.validated_data.get('manager')
+        assessors = self.validated_data.get('assessors')
+        for assessor in assessors:
+            if manager not in assessor.second_manager.all():
+                assessor.second_manager.add(manager)
+                assessor.save()
+
+        return assessors
+
+    def validate(self, attrs):
+        manager = attrs.get('manager')
+        if manager.is_operational_manager:
+            raise ValidationError(
+                {'manager': 'Вы не можете быть менеджером свободного ресурса. '
+                            'Выберите менеджера из вашей команды.'}
+            )
+
+        current_manager = self.get_manager()
+        if current_manager.is_operational_manager and manager.operational_manager != current_manager:
+            raise ValidationError(
+                {'manager': 'Выберите менеджера из вашей команды.'}
+            )
+        
+        return super().validate(attrs)
+
+    def save(self, **kwargs):
+        assessors = self._add_second_manager()
+        return assessors
 
 
 # class TakeFreeResourceSerializer(serializers.Serializer):
