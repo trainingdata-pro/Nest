@@ -17,6 +17,8 @@ export interface Assessor {
     first_name: string,
     middle_name: string,
     status: string,
+    email: string,
+    country: string,
     is_free_resource: boolean,
     blacklist: boolean,
     date_of_registration: string,
@@ -25,7 +27,7 @@ export interface Assessor {
 
 }
 
-interface AssessorWorkingTime {
+export interface AssessorWorkingTime {
     id: number,
     monday: number,
     tuesday: number,

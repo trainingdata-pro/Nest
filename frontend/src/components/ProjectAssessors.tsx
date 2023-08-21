@@ -205,7 +205,7 @@ const ProjectAssessors = () => {
                 <div className="flex container mx-auto pt-20 h-full pr-8 pl-8 items-center">
                     <div className="h-full w-full">
                         <div className="rounded-md border border-b-gray-400 bg-white">
-                            <Table data={data} columns={columns}/>
+                            <Table data={data} columns={columns} pages={false}/>
                         </div>
                     </div>
                 </div>

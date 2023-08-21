@@ -8,16 +8,13 @@ import Cookies from "universal-cookie";
 const Header = () => {
     const navigate = useNavigate()
     const {store} = useContext(Context)
-    const cookies = new Cookies()
     const logout = () => {
-        store.setAuth(false)
-        localStorage.removeItem('token')
-        cookies.remove('refresh')
+        store.logout()
         navigate('/login')
     }
     return (
         <>
-            {store.showProfile && <Profile/>}
+            {/*{store.showProfile && <Profile/>}*/}
             <header className="fixed h-20 w-screen border-b border-gray-200 bg-white">
                 <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
                     <div className="flex h-full w-full items-center justify-between gap-x-6">
@@ -40,6 +37,11 @@ const Header = () => {
                                         <NavLink
                                             className="inline-flex items-center hover:bg-gray-200 justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4"
                                             to='/dashboard/check'>Проверить</NavLink>
+                                    </li>
+                                    <li>
+                                        <NavLink
+                                            className="inline-flex items-center hover:bg-gray-200 justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4"
+                                            to='/dashboard/projects/free'>Завершенные</NavLink>
                                     </li>
                                     <li>
                                         <NavLink

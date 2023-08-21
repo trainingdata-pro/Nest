@@ -1,18 +1,17 @@
 import React, {useContext, useEffect, useMemo} from 'react';
 import {Context} from "./index";
 import {observer} from "mobx-react-lite";
-import {BrowserRouter, Routes, Route, Navigate, useNavigate} from "react-router-dom";
+import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import ConfirmationSignUp from "./components/SignUp/ConfirmationSignUp";
 import MainPage from './pages/MainPage';
 import ProfilePage from "./pages/ProfilePage";
-import ProjectForm from "./components/ProjectForm";
 import Loader from './components/UI/Loader';
 import ProjectAssessors from "./components/ProjectAssessors";
-import PersonalAccountTable from "./components/PersonalAccountTable";
 import AssessorsPage from "./components/Assessors/AssessorsPage";
 import AssessorPage from './components/Assessors/AssessorPage';
+import CompletedProjects from "./pages/CompletedProjects";
 
 function App() {
     const {store} = useContext(Context)
@@ -43,6 +42,7 @@ function App() {
                      <Route path={'/dashboard/projects/:id/assessors'} element={<ProjectAssessors/>}/>
                      <Route path={'/dashboard/assessors'} element={<AssessorsPage/>}/>
                      <Route path={'/assessor/:id'} element={<AssessorPage/>}/>
+                     <Route path={'/dashboard/projects/free'} element={<CompletedProjects/>} />
                      {/*<Route path={'/dashboard/assessor/add_project'} element={<AddAssessorToProject id={undefined}/>}/>*!/*/}
                      {/*<Route path={'/dashboard/projects/'} element={<ProjectsPage/>}/>*/}
                      {/*<Route path={'/dashboard/projects/:id'} element={<ProjectPage/>}/>*/}

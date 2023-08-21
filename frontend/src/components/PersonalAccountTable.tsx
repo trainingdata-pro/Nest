@@ -128,7 +128,7 @@ const PersonalAccountTable = () => {
                         </button>
                     </div>
                     <div className="rounded-md border border-b-gray-400 bg-white">
-                        <Table data={data} columns={columns}/>
+                        <Table data={data} columns={columns} pages={true}/>
                     </div>
                 </div>
             </div>

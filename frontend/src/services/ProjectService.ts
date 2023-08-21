@@ -12,6 +12,9 @@ export default class ProjectService {
     static fetchProjects(managerID:string): Promise<AxiosResponse<ProjectResponse>> {
         return $api.get<ProjectResponse>(`/api/projects/?&manager=${managerID}`)
     }
+    static fetchCompletedProjects(managerID:string): Promise<AxiosResponse<ProjectResponse>> {
+        return $api.get<ProjectResponse>(`/api/projects/?manager=${managerID}&status=completed`)
+    }
     static fetchProject(projectId: any): Promise<AxiosResponse<Project>>{
         return $api.get<Project>(`/api/projects/${projectId}/`)
     }

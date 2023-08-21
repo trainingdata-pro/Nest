@@ -12,7 +12,7 @@ import {mdiSort, mdiSortAscending, mdiSortDescending} from "@mdi/js";
 import {Project} from "../../models/ProjectResponse";
 
 // @ts-ignore
-const Table = ({data, columns}) => {
+const Table = ({data, columns, pages}) => {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -55,7 +55,7 @@ const Table = ({data, columns}) => {
                                         header.getSize(),
                                 }}
                                     colSpan={header.colSpan}
-                                    className="items-center py-2 text-[#64748b] text-sm">
+                                        className="items-center py-2 text-[#64748b] text-sm">
                                     {header.isPlaceholder ? null : (
                                         // <div >
                                         <div{...{
@@ -110,7 +110,7 @@ const Table = ({data, columns}) => {
                 </tr>
                 </tbody>}
             </table>
-            <div className="px-2 py-3">
+            {pages && <div className="px-2 py-3">
                 <div className="flex items-center justify-between px-2">
                     <div className="flex-1 text-sm text-muted-foreground text-gray-400">
                         Выделено {Object.keys(rowSelection).length} из{' '}
@@ -174,7 +174,7 @@ const Table = ({data, columns}) => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>}
         </>
     );
 };
