@@ -9,6 +9,7 @@ from users.serializers import ManagerSerializer
 # from blacklist.models import BlackListItem
 from projects.serializers import ProjectSerializer
 from .models import (Assessor,
+                     AssessorStatus,
                      Skill,
                      WorkingHours)
 from .utils import check_project_permission
@@ -28,25 +29,25 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
             'date_of_registration',
             'blacklist'
         )
-        extra_kwargs = {'manager': {'required': False}}
+        # extra_kwargs = {'manager': {'required': False}}
 
     def get_manager(self):
         return self.context.get('request').user.manager
 
     def validate(self, attrs):
         current_manager = self.get_manager()
-
-        if current_manager.is_operational_manager:
-            manager = attrs.get('manager')
-            if manager is None and self.instance is None:
+        manager = attrs.get('manager')
+        if manager is not None:
+            if manager.is_operational_manager:
                 raise ValidationError(
-                    {'manager': ['Выберите ответственного менеджера.']}
+                    {'manager': ['Операционный менеджер не может быть ответственным менеджером '
+                                 'исполнителя.']}
                 )
-
-            if manager and manager.operational_manager.pk != current_manager.pk:
-                raise ValidationError(
-                    {'manager': [f'Менеджер {manager.full_name} не в вашей команде.']}
-                )
+            else:
+                if current_manager.is_operational_manager and manager.operational_manager != current_manager:
+                    raise ValidationError(
+                        {'manager': [f'Менеджер {manager.full_name} не в вашей команде.']}
+                    )
 
         projects = attrs.get('projects')
         if projects:
@@ -81,16 +82,23 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
         return validated_data
 
     def create(self, validated_data):
-        manager = self.get_manager()
-        validated_data = self._update_if_free_resource(validated_data)
         skills = validated_data.pop('skills', None)
-        if manager.is_operational_manager:
-            assessor = Assessor.objects.create(**validated_data)
-        else:
-            assessor = Assessor.objects.create(manager=manager, **validated_data)
+        projects = validated_data.pop('projects', None)
+        assessor = Assessor(**validated_data)
+        if assessor.manager is None:
+            assessor.is_free_resource = True
+            assessor.free_resource_weekday_hours = None
+            assessor.free_resource_day_off_hours = None
+            assessor.status = AssessorStatus.FREE
+
+        assessor.save()
 
         if skills is not None:
             assessor.skills.set(skills)
+            assessor.save()
+
+        if projects is not None and assessor.manager is not None:
+            assessor.projects.set(projects)
             assessor.save()
 
         return assessor
@@ -167,38 +175,77 @@ class CreateUpdateWorkingHoursSerializer(serializers.ModelSerializer):
 class UpdateFreeResourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assessor
-        fields = ['second_manager']
+        fields = ['second_manager', 'manager']
 
     def get_manager(self):
         return self.context.get('request').user.manager
 
     @staticmethod
-    def _validation_error(message: str):
+    def _second_manager_validation_error(message: str):
         raise ValidationError(
             {'second_manager': [message]}
+        )
+
+    @staticmethod
+    def _manager_validation_error(message: str):
+        raise ValidationError(
+            {'manager': [message]}
         )
 
     def _check_second_manager(self, second_managers: List[Manager]) -> None:
         current_manager = self.get_manager()
         for manager in second_managers:
-            if manager.is_operational_manager:
-                self._validation_error(f'Операционный менеджер {manager.full_name} не может '
-                                       'быть менеджером свободного ресурса.')
+            if self.instance.manager is None:
+                self._second_manager_validation_error(f'Исполнитель {self.instance.full_name} находится '
+                                                      f'без команды и ему не могут быть назначены доп. '
+                                                      f'менеджеры.')
+            elif manager.is_operational_manager:
+                self._second_manager_validation_error(f'Операционный менеджер {manager.full_name} не может '
+                                                      'быть менеджером свободного ресурса.')
             elif current_manager.is_operational_manager and manager.operational_manager != current_manager:
-                self._validation_error(f'Менеджер {manager.full_name} не из вашей команды.')
+                self._second_manager_validation_error(f'Менеджер {manager.full_name} не из вашей команды.')
             elif self.instance.manager == manager:
-                self._validation_error('Вы не можете назначить себя дополнительным менеджером '
-                                       'своего исполнителя.')
+                self._second_manager_validation_error('Вы не можете быть дополнительным менеджером '
+                                                      'своего исполнителя.')
+
+    def _check_manager(self, new_manager: Manager = None) -> None:
+        current_manager = self.get_manager()
+        if self.instance.manager and new_manager is not None:
+            self._manager_validation_error(f'У исполнителя {self.instance.full_name} уже есть основной '
+                                           f'менеджер. Вы можете выбрать его только в качестве свободного '
+                                           f'ресурса.')
+        elif self.instance.manager is None:
+            if new_manager.is_operational_manager:
+                self._manager_validation_error('Вы не можете быть менеджером исполнителя. Выберите менеджера '
+                                               'из вашей команды.')
+            elif current_manager.is_operational_manager and new_manager.operational_manager != current_manager:
+                self._manager_validation_error('Выберите менеджера из вашей команды.')
 
     def validate(self, attrs):
         if self.instance.is_free_resource is False:
-            self._validation_error('Исполнитель не является свободным ресурсом.')
+            self._second_manager_validation_error('Исполнитель не является свободным ресурсом.')
+
+        manager = attrs.get('manager')
+        if manager is not None:
+            self._check_manager(manager)
 
         second_manager = attrs.get('second_manager')
         if second_manager is not None:
             self._check_second_manager(second_manager)
 
         return super().validate(attrs)
+
+    def update(self, instance, validated_data):
+        manager = validated_data.get('manager')
+        if manager is not None:
+            instance.manager = manager
+            instance.is_free_resource = False
+            instance.free_resource_weekday_hours = None
+            instance.free_resource_day_off_hours = None
+            instance.save()
+            return instance
+        else:
+            return super().update(instance, validated_data)
 
 
 class RemoveAssessorSerializer(serializers.Serializer):

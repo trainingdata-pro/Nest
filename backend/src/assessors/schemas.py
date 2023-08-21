@@ -150,8 +150,9 @@ class AssessorSchema(BaseAPISchema):
     def create(self):
         return self.swagger_auto_schema(
             operation_summary='Create assessor',
-            operation_description='The "manager" field is required if the user who '
-                                  'creates the project is an operational manager.\n\n'
+            operation_description='If the manager field is None, then the assessor '
+                                  'will be immediately added to free resources as an '
+                                  'assessor without a team.\n\n'
                                   'Statuses: full, partial, free.',
             responses={
                 201: serializers.CreateUpdateAssessorSerializer(),
