@@ -29,7 +29,6 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
             'date_of_registration',
             'blacklist'
         )
-        # extra_kwargs = {'manager': {'required': False}}
 
     def get_manager(self):
         return self.context.get('request').user.manager
