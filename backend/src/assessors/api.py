@@ -207,6 +207,12 @@ class FreeResourcesAPIViewSet(BaseAPIViewSet):
         'partial_update': serializers.UpdateFreeResourceSerializer
     }
     http_method_names = ['get', 'patch']
+    ordering_fields = [
+        'pk',
+        'username',
+        'last_name',
+        'manager__last_name'
+    ]
 
     def get_queryset(self):
         queryset = (Assessor.objects

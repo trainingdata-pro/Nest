@@ -247,6 +247,15 @@ class FreeResourcesSchema(BaseAPISchema):
         return self.swagger_auto_schema(
             operation_summary='List free resources',
             operation_description='Get list of free resources',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='ordering',
+                    type=openapi.TYPE_STRING,
+                    in_=openapi.IN_QUERY,
+                    description='Which field to use when ordering the results. '
+                                'Available fields: pk, username, last_name, manager__last_name.'
+                )
+            ],
             responses={**self.get_responses(401)}
         )
 
