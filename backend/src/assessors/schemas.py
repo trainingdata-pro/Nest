@@ -251,8 +251,8 @@ class FreeResourcesSchema(BaseAPISchema):
 
     def partial_update(self):
         return self.swagger_auto_schema(
-            operation_summary='Take free resource',
-            operation_description='Take a specific free resource',
+            operation_summary='Take or return free resource',
+            operation_description='Take or return a specific free resource',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
