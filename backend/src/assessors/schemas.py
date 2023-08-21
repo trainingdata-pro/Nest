@@ -273,7 +273,7 @@ class FreeResourcesSchema(BaseAPISchema):
             ],
             responses={
                 200: serializers.AssessorSerializer,
-                **self.get_responses(401, 404)
+                **self.get_responses(400, 401, 404)
             }
         )
 
