@@ -71,6 +71,7 @@ class CreateProjectSerializer(serializers.ModelSerializer):
     def create(self, validated_data) -> Project:
         current_manager = self.get_manager()
         project_manager = validated_data.pop('manager', None)
+        tag = validated_data.pop('tag', None)
         if current_manager.is_operational_manager:
             project = Project.objects.create(**validated_data)
             project.manager.set(project_manager)
@@ -78,6 +79,9 @@ class CreateProjectSerializer(serializers.ModelSerializer):
         else:
             project = Project.objects.create(**validated_data)
             project.manager.set([current_manager])
+
+        if tag:
+            project.tag.set(tag)
 
         project.save()
         project = self._check_if_completed(project)
