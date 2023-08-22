@@ -5,11 +5,11 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from assessors.models import Assessor
-from assessors.serializers import AssessorSerializer
+from apps.assessors.models import Assessor
+from apps.assessors.serializers import AssessorSerializer
 from core.utils.permissions import IsManager, ProjectPermission
 from core.utils.common import BaseAPIViewSet
-from users.models import Manager
+from apps.users.models import Manager
 from .filters import ProjectFilter
 from .models import Project, ProjectTag
 from .schemas import project_schema, project_schema2, tags_schema

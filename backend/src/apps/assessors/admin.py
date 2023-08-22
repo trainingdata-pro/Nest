@@ -62,27 +62,6 @@ class WorkingHoursAdmin(admin.ModelAdmin):
     list_display_links = ('assessor',)
 
 
-class ReasonAdmin(admin.ModelAdmin):
-    list_display = (
-        'pk',
-        'title'
-    )
-    list_display_links = ('title',)
-
-
-class StateAdmin(admin.ModelAdmin):
-    list_display = (
-        'pk',
-        'assessor',
-        'reason'
-    )
-    list_display_links = ('assessor',)
-
-
 admin.site.register(models.Assessor, AssessorAdmin)
 admin.site.register(models.Skill, SkillAdmin)
 admin.site.register(models.WorkingHours, WorkingHoursAdmin)
-admin.site.register(models.BlackListReason, ReasonAdmin)
-admin.site.register(models.FiredReason, ReasonAdmin)
-admin.site.register(models.Fired, StateAdmin)
-admin.site.register(models.BlackList, StateAdmin)

@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from core.utils.common import current_date
-from users.serializers import ManagerSerializer
+from apps.users.serializers import ManagerSerializer
 from .models import ProjectTag, Project, ProjectStatuses
 
 

@@ -2,7 +2,7 @@ from django.db import models
 
 from core.utils.common import current_date
 from core.utils.validators import not_negative_value_validator
-from users.models import Manager
+from apps.users.models import Manager
 
 
 class ProjectTag(models.Model):

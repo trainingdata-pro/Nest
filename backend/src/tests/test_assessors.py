@@ -2,7 +2,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from projects.models import Project
+from apps.projects import Project
 from .common import base_test_config as config
 
 
