@@ -1,5 +1,6 @@
 from typing import Dict
 
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from rest_framework import exceptions
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -14,7 +15,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def check_is_active(self, attrs: Dict) -> None:
         username = attrs.get(self.username_field)
-        user = User.objects.filter(username=username, is_active=False).first()
+        model = get_user_model()
+        user = model.objects.filter(username=username, is_active=False).first()
         if user is not None:
             raise exceptions.AuthenticationFailed(
                 self.default_error_messages['user_not_active'],

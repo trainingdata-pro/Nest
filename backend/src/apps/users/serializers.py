@@ -1,6 +1,6 @@
 from typing import Dict
 
-from django.contrib.auth import password_validation
+from django.contrib.auth import password_validation, get_user_model
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -17,7 +17,8 @@ class CreateManagerSerializer(serializers.Serializer):
     password = serializers.CharField(min_length=8)
 
     def validate_username(self, username: str) -> str:
-        if User.objects.filter(username=username).exists():
+        model = get_user_model()
+        if model.objects.filter(username=username).exists():
             raise ValidationError(
                 f'Пользователь {username} уже существует.'
             )
@@ -25,7 +26,8 @@ class CreateManagerSerializer(serializers.Serializer):
         return username
 
     def validate_email(self, email: str) -> str:
-        if User.objects.filter(email=email).exists():
+        model = get_user_model()
+        if model.objects.filter(email=email).exists():
             raise ValidationError(
                 'Пользователь с таким эл. адресом уже существует.'
             )
@@ -39,7 +41,8 @@ class CreateManagerSerializer(serializers.Serializer):
         return email
 
     def validate_password(self, password: str) -> str:
-        user = User(username=self.initial_data.get('username'))
+        model = get_user_model()
+        user = model(username=self.initial_data.get('username'))
         password_validation.validate_password(password, user)
 
         return password

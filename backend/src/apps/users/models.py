@@ -1,10 +1,12 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db import models
+
+user_model = get_user_model()
 
 
 class Manager(models.Model):
     user = models.OneToOneField(
-        User,
+        user_model,
         on_delete=models.CASCADE,
         related_name='manager'
     )
@@ -55,7 +57,7 @@ class Code(models.Model):
         verbose_name='код'
     )
     user = models.OneToOneField(
-        to=User,
+        user_model,
         on_delete=models.CASCADE,
         related_name='code'
     )
