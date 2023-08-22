@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 
 class Pagination(LimitOffsetPagination):
-    def get_paginated_response(self, data):
+    def get_paginated_response(self, data) -> Response:
         return Response(OrderedDict([
             ('count', self.count),
             ('next', self.get_next_link()),

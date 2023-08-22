@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from rest_framework import status, generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from core.utils.common import BaseAPIViewSet
@@ -35,7 +36,7 @@ class ManagerAPIViewSet(BaseAPIViewSet):
     filterset_class = ManagerFilter
     ordering_fields = ['pk', 'user__username', 'last_name']
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         manager = serializer.save()
@@ -50,7 +51,7 @@ class UserActivateAPIView(generics.CreateAPIView):
     queryset = Manager.objects.all().select_related('user')
     serializer_class = serializers.CodeSerializer
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         active_user = serializer.save()

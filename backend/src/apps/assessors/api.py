@@ -1,9 +1,12 @@
-from django.db.models import Q
+from typing import Dict
+
+from django.db.models import Q, QuerySet
 from django.utils.decorators import method_decorator
 from rest_framework import status, viewsets, generics
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from core.utils.common import BaseAPIViewSet
@@ -66,7 +69,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         'status'
     ]
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[Assessor]:
         user = self.request.user
         if user.is_superuser:
             return (Assessor.objects.all()
@@ -92,7 +95,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
                     .order_by('last_name')
                     .distinct())
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         assessor = serializer.save()
@@ -100,7 +103,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
 
         return Response(response.data, status=status.HTTP_201_CREATED)
 
-    def partial_update(self, request, *args, **kwargs):
+    def partial_update(self, request: Request, *args, **kwargs) -> Response:
         instance = self.get_object()
         serializer = self.get_serializer(
             instance,
@@ -113,7 +116,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
 
         return Response(response.data, status=status.HTTP_200_OK)
 
-    def _fire(self, request, **kwargs):
+    def _fire(self, request: Request, **kwargs) -> Response:
         instance = self.get_object()
         serializer = self.get_serializer(
             data=request.data,
@@ -126,11 +129,11 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         return Response(response.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['patch'])
-    def blacklist(self, request, **kwargs):
+    def blacklist(self, request: Request, **kwargs) -> Response:
         return self._fire(request, **kwargs)
 
     @action(detail=True, methods=['patch'])
-    def fire(self, request, **kwargs):
+    def fire(self, request: Request, **kwargs) -> Response:
         return self._fire(request, **kwargs)
 
 
@@ -140,7 +143,7 @@ class AssessorCheckAPIView(generics.ListAPIView):
     serializer_class = serializers.CheckAssessorSerializer
     permission_classes = (IsAuthenticated,)
 
-    def __check_request(self):
+    def __extract_request_data(self) -> Dict:
         last_name = self.request.GET.get('last_name')
         first_name = self.request.GET.get('first_name')
         middle_name = self.request.GET.get('middle_name')
@@ -154,8 +157,8 @@ class AssessorCheckAPIView(generics.ListAPIView):
             'middle_name': middle_name
         }
 
-    def filter_queryset(self, queryset):
-        data = self.__check_request()
+    def filter_queryset(self, queryset: QuerySet[Assessor]) -> QuerySet[Assessor]:
+        data = self.__extract_request_data()
         last_name = data.get('last_name')
         first_name = data.get('first_name')
         middle_name = data.get('middle_name')
@@ -186,7 +189,7 @@ class WorkingHoursAPIViewSet(BaseAPIViewSet):
     }
     http_method_names = ['get', 'post', 'patch']
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         wh = serializer.save()
@@ -194,7 +197,7 @@ class WorkingHoursAPIViewSet(BaseAPIViewSet):
 
         return Response(response.data, status=status.HTTP_201_CREATED)
 
-    def partial_update(self, request, *args, **kwargs):
+    def partial_update(self, request: Request, *args, **kwargs) -> Response:
         instance = self.get_object()
         serializer = self.get_serializer(
             instance,
@@ -230,7 +233,7 @@ class FreeResourcesAPIViewSet(BaseAPIViewSet):
         'manager__last_name'
     ]
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[Assessor]:
         queryset = (Assessor.objects
                     .filter(Q(is_free_resource=True) | Q(manager=None))
                     .select_related('manager')
@@ -239,7 +242,7 @@ class FreeResourcesAPIViewSet(BaseAPIViewSet):
 
         return queryset
 
-    def update(self, request, *args, **kwargs):
+    def update(self, request: Request, *args, **kwargs) -> Response:
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)

@@ -1,8 +1,9 @@
-from django.db.models import Count
+from django.db.models import Count, QuerySet
 from django.utils.decorators import method_decorator
 from rest_framework import status, generics
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.assessors.models import Assessor
@@ -41,7 +42,7 @@ class ProjectAPIViewSet(BaseAPIViewSet):
     ordering_fields = ['pk', 'name', 'manager__last_name', 'assessors_count',
                        'status', 'date_of_creation']
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         project = serializer.save()
@@ -49,7 +50,7 @@ class ProjectAPIViewSet(BaseAPIViewSet):
 
         return Response(response.data, status=status.HTTP_201_CREATED)
 
-    def partial_update(self, request, *args, **kwargs):
+    def partial_update(self, request: Request, *args, **kwargs) -> Response:
         instance = self.get_object()
         serializer = self.get_serializer(
             instance,
@@ -62,21 +63,21 @@ class ProjectAPIViewSet(BaseAPIViewSet):
 
         return Response(response.data, status=status.HTTP_200_OK)
 
-    def destroy(self, request, *args, **kwargs):
+    def destroy(self, request: Request, *args, **kwargs) -> Response:
         instance = self.get_object()
         self.check_project(instance)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @staticmethod
-    def check_project(project):
+    def check_project(project: Project) -> Project:
         if project.assessors.exists():
             raise ValidationError(
                 {'detail': ['Снимите исполнителей с текущего проекта, чтобы продолжить.']}
             )
         return project
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[Project]:
         user = self.request.user
         if user.is_superuser:
             return (Project.objects.all()
@@ -113,7 +114,7 @@ class GetAllAssessorForProject(generics.ListAPIView):
         'status'
     ]
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[Assessor]:
         project_pk = self.kwargs.get('pk')
         return (Assessor.objects
                 .filter(projects__in=[project_pk])

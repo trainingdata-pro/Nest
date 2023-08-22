@@ -102,7 +102,7 @@ class Project(models.Model):
         return self.name
 
     @property
-    def managers(self):
+    def managers(self) -> str:
         if self.manager.exists():
             return ', '.join([man.full_name for man in self.manager.all()])
         return '-'

@@ -1,3 +1,5 @@
+from typing import Dict
+
 from django.contrib.auth import password_validation
 from django.contrib.auth.models import User
 from rest_framework import serializers
@@ -42,7 +44,7 @@ class CreateManagerSerializer(serializers.Serializer):
 
         return password
 
-    def create(self, validated_data) -> Manager:
+    def create(self, validated_data: Dict) -> Manager:
         username = validated_data.get('username')
         email = validated_data.get('email')
         password = validated_data.get('password')
@@ -76,14 +78,14 @@ class UpdateManagerSerializer(serializers.ModelSerializer):
         ]
 
     @staticmethod
-    def check_team_lead(manager):
+    def check_team_lead(manager: Manager) -> Manager:
         if not manager.is_operational_manager:
             raise ValidationError(
                 {'operational_manager': 'Руководитель должен быть операционным менеджером.'}
             )
         return manager
 
-    def update(self, instance, validated_data):
+    def update(self, instance: Manager, validated_data: Dict):
         operational_manager = validated_data.get('operational_manager')
         if not instance.operational_manager and not operational_manager:
             raise ValidationError(
