@@ -13,22 +13,32 @@ from core.utils.common import BaseAPIViewSet
 from apps.users.models import Manager
 from .filters import ProjectFilter
 from .models import Project, ProjectTag
-from .schemas import project_schema, project_schema2, tags_schema
-from . import serializers
+from . import serializers, schemas
 
 
-@method_decorator(name='retrieve', decorator=project_schema.retrieve())
-@method_decorator(name='list', decorator=project_schema.list())
-@method_decorator(name='create', decorator=project_schema.create())
-@method_decorator(name='partial_update', decorator=project_schema.partial_update())
-@method_decorator(name='destroy', decorator=project_schema.destroy())
+@method_decorator(name='retrieve', decorator=schemas.project_schema.retrieve())
+@method_decorator(name='list', decorator=schemas.project_schema.list())
+@method_decorator(name='create', decorator=schemas.project_schema.create())
+@method_decorator(name='partial_update', decorator=schemas.project_schema.partial_update())
+@method_decorator(name='destroy', decorator=schemas.project_schema.destroy())
 class ProjectAPIViewSet(BaseAPIViewSet):
     permission_classes = {
         'retrieve': (IsAuthenticated,),
         'list': (IsAuthenticated,),
-        'create': (IsAuthenticated, IsManager),
-        'partial_update': (IsAuthenticated, IsManager, ProjectPermission),
-        'destroy': (IsAuthenticated, IsManager, ProjectPermission)
+        'create': (
+            IsAuthenticated,
+            IsManager
+        ),
+        'partial_update': (
+            IsAuthenticated,
+            IsManager,
+            ProjectPermission
+        ),
+        'destroy': (
+            IsAuthenticated,
+            IsManager,
+            ProjectPermission
+        )
     }
     serializer_class = {
         'retrieve': serializers.ProjectSerializer,
@@ -101,7 +111,7 @@ class ProjectAPIViewSet(BaseAPIViewSet):
                     .order_by('manager__last_name', 'name', '-date_of_creation'))
 
 
-@method_decorator(name='get', decorator=project_schema2.get())
+@method_decorator(name='get', decorator=schemas.project_schema2.get())
 class GetAllAssessorForProject(generics.ListAPIView):
     queryset = Assessor.objects.all()
     serializer_class = AssessorSerializer
@@ -123,7 +133,7 @@ class GetAllAssessorForProject(generics.ListAPIView):
                 .order_by('last_name'))
 
 
-@method_decorator(name='get', decorator=tags_schema.get())
+@method_decorator(name='get', decorator=schemas.tags_schema.get())
 class TagsApiView(generics.ListAPIView):
     queryset = ProjectTag.objects.all()
     permission_classes = (IsAuthenticated,)

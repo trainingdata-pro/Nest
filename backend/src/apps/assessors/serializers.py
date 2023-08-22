@@ -6,10 +6,12 @@ from rest_framework.exceptions import ValidationError
 from apps.users.models import Manager
 from apps.users.serializers import ManagerSerializer
 from apps.projects.serializers import ProjectSerializer
-from .models import (Assessor,
-                     AssessorStatus,
-                     Skill,
-                     WorkingHours)
+from .models import (
+    Assessor,
+    AssessorStatus,
+    Skill,
+    WorkingHours
+)
 from .utils import check_project_permission
 
 
@@ -22,11 +24,11 @@ class SkillSerializer(serializers.ModelSerializer):
 class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assessor
-        exclude = (
+        exclude = [
             'second_manager',
             'state',
             'date_of_registration',
-        )
+        ]
 
     def get_manager(self):
         return self.context.get('request').user.manager
@@ -121,7 +123,7 @@ class SimpleAssessorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Assessor
-        exclude = ('projects', 'skills', 'second_manager')
+        exclude = ['projects', 'skills', 'second_manager']
 
 
 class WorkingHoursSerializer(serializers.ModelSerializer):
@@ -165,7 +167,7 @@ class CheckAssessorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Assessor
-        fields = (
+        fields = [
             'pk',
             'username',
             'last_name',
@@ -175,7 +177,7 @@ class CheckAssessorSerializer(serializers.ModelSerializer):
             'projects',
             'is_free_resource',
             'state'
-        )
+        ]
 
 
 class CreateUpdateWorkingHoursSerializer(serializers.ModelSerializer):

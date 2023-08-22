@@ -11,56 +11,63 @@ from rest_framework.response import Response
 
 from core.utils.common import BaseAPIViewSet
 from core.utils import permissions
-from apps.fired.serializers import BlackListAssessorSerializer, FireAssessorSerializer
+from apps.fired import serializers as fired_serializers
 from apps.users.models import Manager
-from .filters import AssessorFilter, SkillsFilter
-from .models import (Assessor,
-                     Skill,
-                     WorkingHours)
-from .schemas import (assessor_schema,
-                      check_assessor_schema,
-                      fr_schema,
-                      skills_schema,
-                      wh_schema)
-from . import serializers
+from .models import Assessor, Skill, WorkingHours
+from . import filters, serializers, schemas
 
 
-@method_decorator(name='retrieve', decorator=skills_schema.retrieve())
-@method_decorator(name='list', decorator=skills_schema.list())
+@method_decorator(name='retrieve', decorator=schemas.skills_schema.retrieve())
+@method_decorator(name='list', decorator=schemas.skills_schema.list())
 class SkillsAPIViewSet(viewsets.ModelViewSet):
     queryset = Skill.objects.all().order_by('title')
     serializer_class = serializers.SkillSerializer
     permission_classes = (IsAuthenticated,)
     http_method_names = ['get']
-    filterset_class = SkillsFilter
+    filterset_class = filters.SkillsFilter
     ordering_fields = ['pk', 'title']
 
 
-@method_decorator(name='retrieve', decorator=assessor_schema.retrieve())
-@method_decorator(name='list', decorator=assessor_schema.list())
-@method_decorator(name='create', decorator=assessor_schema.create())
-@method_decorator(name='partial_update', decorator=assessor_schema.partial_update())
-@method_decorator(name='blacklist', decorator=assessor_schema.blacklist())
-@method_decorator(name='fire', decorator=assessor_schema.fire())
+@method_decorator(name='retrieve', decorator=schemas.assessor_schema.retrieve())
+@method_decorator(name='list', decorator=schemas.assessor_schema.list())
+@method_decorator(name='create', decorator=schemas.assessor_schema.create())
+@method_decorator(name='partial_update', decorator=schemas.assessor_schema.partial_update())
+@method_decorator(name='blacklist', decorator=schemas.assessor_schema.blacklist())
+@method_decorator(name='fire', decorator=schemas.assessor_schema.fire())
 class AssessorAPIViewSet(BaseAPIViewSet):
     permission_classes = {
         'retrieve': (IsAuthenticated,),
         'list': (IsAuthenticated,),
-        'create': (IsAuthenticated, permissions.IsManager),
-        'partial_update': (IsAuthenticated, permissions.IsManager, permissions.AssessorPermission),
-        'blacklist': (IsAuthenticated, permissions.IsManager, permissions.AssessorPermission),
-        'fire': (IsAuthenticated, permissions.IsManager, permissions.AssessorPermission)
+        'create': (
+            IsAuthenticated,
+            permissions.IsManager
+        ),
+        'partial_update': (
+            IsAuthenticated,
+            permissions.IsManager,
+            permissions.AssessorPermission
+        ),
+        'blacklist': (
+            IsAuthenticated,
+            permissions.IsManager,
+            permissions.AssessorPermission
+        ),
+        'fire': (
+            IsAuthenticated,
+            permissions.IsManager,
+            permissions.AssessorPermission
+        )
     }
     serializer_class = {
         'list': serializers.AssessorSerializer,
         'retrieve': serializers.AssessorSerializer,
         'create': serializers.CreateUpdateAssessorSerializer,
         'partial_update': serializers.CreateUpdateAssessorSerializer,
-        'blacklist': BlackListAssessorSerializer,
-        'fire': FireAssessorSerializer
+        'blacklist': fired_serializers.BlackListAssessorSerializer,
+        'fire': fired_serializers.FireAssessorSerializer
     }
     http_method_names = ['get', 'post', 'patch']
-    filterset_class = AssessorFilter
+    filterset_class = filters.AssessorFilter
     ordering_fields = [
         'pk',
         'username',
@@ -137,7 +144,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         return self._fire(request, **kwargs)
 
 
-@method_decorator(name='get', decorator=check_assessor_schema.get())
+@method_decorator(name='get', decorator=schemas.check_assessor_schema.get())
 class AssessorCheckAPIView(generics.ListAPIView):
     queryset = Assessor.objects.all().select_related('manager__user')
     serializer_class = serializers.CheckAssessorSerializer
@@ -168,10 +175,10 @@ class AssessorCheckAPIView(generics.ListAPIView):
                                Q(middle_name__iexact=middle_name))
 
 
-@method_decorator(name='retrieve', decorator=wh_schema.retrieve())
-@method_decorator(name='list', decorator=wh_schema.list())
-@method_decorator(name='create', decorator=wh_schema.create())
-@method_decorator(name='partial_update', decorator=wh_schema.partial_update())
+@method_decorator(name='retrieve', decorator=schemas.wh_schema.retrieve())
+@method_decorator(name='list', decorator=schemas.wh_schema.list())
+@method_decorator(name='create', decorator=schemas.wh_schema.create())
+@method_decorator(name='partial_update', decorator=schemas.wh_schema.partial_update())
 class WorkingHoursAPIViewSet(BaseAPIViewSet):
     queryset = WorkingHours.objects.all()
     permission_classes = {
@@ -211,9 +218,9 @@ class WorkingHoursAPIViewSet(BaseAPIViewSet):
         return Response(response.data, status=status.HTTP_200_OK)
 
 
-@method_decorator(name='retrieve', decorator=fr_schema.retrieve())
-@method_decorator(name='list', decorator=fr_schema.list())
-@method_decorator(name='partial_update', decorator=fr_schema.partial_update())
+@method_decorator(name='retrieve', decorator=schemas.fr_schema.retrieve())
+@method_decorator(name='list', decorator=schemas.fr_schema.list())
+@method_decorator(name='partial_update', decorator=schemas.fr_schema.partial_update())
 class FreeResourcesAPIViewSet(BaseAPIViewSet):
     permission_classes = {
         'retrieve': (IsAuthenticated,),

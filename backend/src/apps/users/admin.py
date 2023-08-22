@@ -6,43 +6,43 @@ from .models import Manager, Code
 
 
 class CustomUserAdmin(UserAdmin):
-    list_display = (
+    list_display = [
         'pk',
         'username',
         'email',
         'is_superuser',
         'is_active'
-    )
-    list_display_links = ('username',)
+    ]
+    list_display_links = ['username']
 
 
 class ManagerAdmin(admin.ModelAdmin):
-    search_fields = (
+    search_fields = [
         'user__username',
         'last_name',
         'first_name',
         'middle_name'
-    )
+    ]
     search_help_text = 'Введите username или ФИО менеджера'
-    list_display = (
+    list_display = [
         'pk',
         'user',
         'last_name',
         'first_name',
         'middle_name',
         'is_operational_manager'
-    )
-    list_display_links = ('user',)
-    list_filter = ('is_operational_manager',)
-    ordering = ('last_name',)
+    ]
+    list_display_links = ['user']
+    list_filter = ['is_operational_manager']
+    ordering = ['last_name']
 
 
 class CodeAdmin(admin.ModelAdmin):
-    list_display = (
+    list_display = [
         'pk',
         'code',
         'user'
-    )
+    ]
 
 
 admin.site.unregister(User)
