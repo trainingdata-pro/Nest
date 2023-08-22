@@ -1,84 +1,111 @@
-import React, {FC, useContext, useEffect, useMemo, useState} from 'react';
-import {Controller, useForm} from 'react-hook-form'
-import ProjectService from "../services/ProjectService";
+import React, {Dispatch, SetStateAction, useContext, useEffect, useState} from 'react';
+import {useForm} from 'react-hook-form'
+import ProjectService, {Tag} from "../services/ProjectService";
 import {Context} from "../index";
-import {ManagerData} from "../store/store";
 import ManagerService from '../services/ManagerService';
 import Select from "react-select";
-import {useNavigate, useParams} from "react-router-dom";
 import {Project} from "../models/ProjectResponse";
 import MyInput from "./UI/MyInput";
 import {format} from 'date-fns';
-import {Calendar} from 'primereact/calendar';
-import {Simulate} from "react-dom/test-utils";
-import reset = Simulate.reset;
 import {IManager} from "../models/ManagerResponse";
 import {observer} from "mobx-react-lite";
 import MyLabel from "./UI/MyLabel";
 
+interface SelectProps {
+    value: string | number,
+    label: string
+}
+
 interface ProjectFormProps {
     name: string,
-    manager: any,
-    speed_per_hour: number,
+    asana_id: number | string,
+    manager: SelectProps[] | null,
+    speed_per_hour: number | string,
+    project: SelectProps[] | null,
     price_for_assessor: number,
     price_for_costumer: number,
     unloading_value: number,
     unloading_regularity: number,
-    status: string,
-    tag: number[],
+    status: SelectProps,
+    tag: SelectProps[] | null,
     date_of_creation: string
 }
-// @ts-ignore
-const ProjectForm = ({projectId, setNewData, closeSidebar}) => {
-    const {handleSubmit,getValues, reset, register} = useForm<ProjectFormProps>()
+const FormSection =({children}: {children:React.ReactNode}) => {
+    return <div className="mb-2">{children}</div>
+}
+const ProjectForm = ({projectId, setNewData, closeSidebar}: {
+    projectId: number | string,
+    setNewData: Dispatch<SetStateAction<Project[]>>,
+    closeSidebar: Dispatch<SetStateAction<boolean>>
+}) => {
     const {store} = useContext(Context)
     useEffect(() => {
-        ManagerService.fetch_managers().then((res: any) => {
-            setManagers(res.data.results.map((manager:IManager) => {
-                return {
-                    value:manager.id, label: `${manager.last_name} ${manager.first_name}`
-                }}))
-        })
-        if (projectId){
-            if(projectId!==0){
+        if (projectId) {
+            if (projectId !== 0) {
                 ProjectService.fetchProject(projectId).then(res => {
-                    // @ts-ignore
-                    setProject({...res.data, tag: res.data.tag.map(tag => tag.id)})
+                    setValue('name', res.data.name)
+                    setValue('speed_per_hour', res.data.speed_per_hour)
+                    setValue('price_for_assessor', res.data.price_for_assessor)
                 })
-            } else{
-                setProject({
-                    id: 0,
-                    name: '',
-                    manager: [],
-                    assessors_count: 0,
-                    backlog: '',
-                    asana_id: 0,
-                    speed_per_hour: 0,
-                    price_for_assessor: 0,
-                    price_for_costumer: 0,
-                    unloading_value: 0,
-                    unloading_regularity: 0,
-                    status: '',
-                    // tag: [1],
-                    date_of_creation: format(new Date(), 'yyyy-MM-dd')
-                })
-            }}
-        console.log(managers)
+            } else {
+                // setValue('date_of_creation', format(new Date(), 'yyyy-MM-dd'))
+                // setProject({
+                //     tag: [],
+                //     id: 0,
+                //     name: '',
+                //     manager: [],
+                //     assessors_count: 0,
+                //     backlog: '',
+                //     asana_id: 0,
+                //     speed_per_hour: 0,
+                //     price_for_assessor: 0,
+                //     price_for_costumer: 0,
+                //     unloading_value: 0,
+                //     unloading_regularity: 0,
+                //     status: '',
+                //     date_of_creation: format(new Date(), 'yyyy-MM-dd')
+                // })
+            }
+        }
     }, [projectId])
-    const options = [
-        { value: 'option1', label: 'Option 1' },
-        { value: 'option2', label: 'Option 2' },
-        { value: 'option3', label: 'Option 3' }
-    ];
+
+
+    useEffect(() => {
+        ManagerService.fetch_managers().then((res: any) => {
+            setManagers(res.data.results.map((manager: IManager) => {
+                return {
+                    value: manager.id, label: `${manager.last_name} ${manager.first_name}`
+                }
+            }))
+        })
+        ProjectService.fetchProjectTags().then((res) => {
+            setTags(res.data.results.map((tag) => {
+                console.log(tag)
+                return {value: tag.id, label: tag.name}
+            }))
+        })
+
+        console.log(managers)
+    }, [])
+    const [tags, setTags] = useState<SelectProps[]>()
     const [project, setProject] = useState<Project>()
-    const [managers, setManagers] = useState<any[]>([])
+    const [managers, setManagers] = useState<SelectProps[]>([])
     const statusList = [
         {value: 'active', label: 'Активный'},
         {value: 'pause', label: 'На паузе'},
         {value: 'completed', label: 'Завершен'}
     ]
 
-
+    const {handleSubmit, control, setValue, getValues, reset, register} = useForm<ProjectFormProps>({
+        defaultValues: {
+            date_of_creation: format(new Date(), 'yyyy-MM-dd'),
+            manager: [{
+                value: store.managerData.id,
+                label: `${store.managerData.last_name} ${store.managerData.first_name}`
+            }],
+            speed_per_hour: project?.speed_per_hour ? project.speed_per_hour : 0
+        }
+    })
     async function onSubmit() {
         console.log(getValues())
         // const projectData: any = {...project, manager: project?.manager.map(manager => manager.id)}
@@ -98,146 +125,93 @@ const ProjectForm = ({projectId, setNewData, closeSidebar}) => {
         //     })
         // }
     }
-    const [selectedManagers, setSelectedManagers] = useState()
+
+    const handleSelectChange = (value: any) => {
+        if (value) {
+            setValue('manager', value);
+        } else {
+            setValue('manager', null);
+        }
+    };
+    const handleSelectTagChange = (value: any) => {
+        if (value) {
+            setValue('tag', value);
+        } else {
+            setValue('tag', null);
+        }
+    };
+    const handleSelectChangeStatus = (value: any) => {
+            setValue('status', value);
+
+    };
     return (
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-            <div className={"w-[90%]"} >
+            <div className={"w-[90%]"}>
                 <form className="grid columns-1" onSubmit={handleSubmit(onSubmit)}>
-                    <div className="mb-2">
-                        <MyLabel required={true} >Название проекта</MyLabel>
-                        <MyInput placeholder="Название проекта" register={{...register('name', {required:true})}} type="password"/>
-                    </div>
-                    <Select
-                        {...register('manager')}
-                        options={managers}
-                        placeholder="Select an option"
-                        isMulti
-                        onChange={(selectedOptions) => {
-                            console.log(selectedOptions)
-                        }}
-                    />
-                    {/*<div className="mb-2">*/}
-                    {/*    <label*/}
-                    {/*        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"*/}
-                    {/*        htmlFor="asana_id">Asana ID <span className="text-red-700">*</span></label>*/}
-                    {/*    <MyInput*/}
-                    {/*        value={project.asana_id}*/}
-                    {/*        onChange={(e: any) => setProject({...project, asana_id: e.target.value})}*/}
-                    {/*        required={true}*/}
-                    {/*    />*/}
-                    {/*</div>*/}
-                    {/*<div className="mb-2">*/}
-                    {/*    <label>Менеджер проекта <span className="text-red-700">*</span></label>*/}
-
-                    {/*    <Select*/}
-                    {/*        options={managers.map(manager => ({*/}
-                    {/*            "value": manager.id,*/}
-                    {/*            "label": `${manager.last_name} ${manager.first_name}`*/}
-                    {/*        }))}*/}
-                    {/*        value={project.manager.map((manager) => ({*/}
-                    {/*            "value": manager.id,*/}
-                    {/*            "label": `${manager.last_name} ${manager.first_name}`*/}
-                    {/*        }))}*/}
-                    {/*        onChange={(e: any) => {*/}
-                    {/*            const managersIds = e.map((v: any) => v.value)*/}
-                    {/*            setProject({*/}
-                    {/*                ...project,*/}
-                    {/*                manager: managers.filter((manager) => managersIds.includes(manager.id))*/}
-                    {/*            })*/}
-
-                    {/*        }}*/}
-                    {/*        isMulti*/}
-
-                    {/*    />*/}
-                    {/*</div>*/}
-                    {/*<div className="mb-2">*/}
-                    {/*    <label*/}
-                    {/*        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"*/}
-                    {/*        htmlFor="name">Скорость в час</label>*/}
-                    {/*    <MyInput*/}
-                    {/*        value={project.speed_per_hour ? project.speed_per_hour : 0}*/}
-                    {/*        onChange={(e: any) => setProject({...project, speed_per_hour: e.target.value})}*/}
-                    {/*    />*/}
-                    {/*</div>*/}
-                    {/*<div className="mb-2">*/}
-                    {/*    <label*/}
-                    {/*        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"*/}
-                    {/*        htmlFor="name">Цена за единицу для ассесора</label>*/}
-                    {/*    <MyInput*/}
-                    {/*        value={project.price_for_assessor ? project.price_for_assessor : 0}*/}
-                    {/*        onChange={(e: any) => setProject({...project, price_for_assessor: e.target.value})}*/}
-                    {/*    />*/}
-                    {/*</div>*/}
-                    {/*/!*<div className="mb-2">*!/*/}
-                    {/*/!*    <label*!/*/}
-                    {/*/!*        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"*!/*/}
-                    {/*/!*        htmlFor="name">Тег</label>*!/*/}
-                    {/*/!*    <MyInput*!/*/}
-                    {/*/!*        // value={project.tag ? project.tag : 0}*!/*/}
-                    {/*/!*        value={[1]}*!/*/}
-                    {/*/!*        onChange={(e: any) => setProject({...project, tag: [e.target.value]})}*!/*/}
-                    {/*/!*    />*!/*/}
-                    {/*/!*</div>*!/*/}
-                    {/*<div className="mb-2">*/}
-                    {/*    <label*/}
-                    {/*        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"*/}
-                    {/*        htmlFor="name">Цена за единицу для заказчика</label>*/}
-                    {/*    <MyInput*/}
-                    {/*        value={project.price_for_costumer ? project.price_for_costumer : 0}*/}
-                    {/*        onChange={(e: any) => setProject({...project, price_for_costumer: e.target.value})}*/}
-                    {/*    />*/}
-                    {/*</div>*/}
-                    {/*<div className="mb-2">*/}
-                    {/*    <label*/}
-                    {/*        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"*/}
-                    {/*        htmlFor="name">Объем выгрузок</label>*/}
-                    {/*    <MyInput*/}
-                    {/*        value={project.unloading_value ? project.unloading_value : 0}*/}
-                    {/*        onChange={(e: any) => setProject({...project, unloading_value: e.target.value})}*/}
-                    {/*    />*/}
-                    {/*</div>*/}
-                    {/*<div className="mb-2">*/}
-                    {/*    <label*/}
-                    {/*        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"*/}
-                    {/*        htmlFor="name">Регулярность выгрузок</label>*/}
-                    {/*    <MyInput*/}
-                    {/*        value={project.unloading_regularity ? project.unloading_regularity : 0}*/}
-                    {/*        onChange={(e: any) => setProject({...project, unloading_regularity: e.target.value})}*/}
-                    {/*    />*/}
-                    {/*</div>*/}
-                    {/*<div className="mb-2">*/}
-                    {/*    <label*/}
-                    {/*        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"*/}
-                    {/*        htmlFor="name">Статус проекта <span className="text-red-700">*</span></label>*/}
-                    {/*    <Select*/}
-                    {/*        options={statusList}*/}
-
-                    {/*        onChange={(e) => {*/}
-                    {/*            // @ts-ignore*/}
-                    {/*            setProject({...project, status: e.value})*/}
-                    {/*        }}*/}
-                    {/*        value={statusList.filter(status => status.value === project.status)}*/}
-                    {/*    />*/}
-                    {/*</div>*/}
-                    {/*<div className="mb-2">*/}
-                    {/*    <label*/}
-                    {/*        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"*/}
-                    {/*        htmlFor="name">Дата старта проекта</label>*/}
-                    {/*    <MyInput*/}
-                    {/*        value={project.date_of_creation}*/}
-                    {/*        onChange={(e: any) => {*/}
-                    {/*            setProject({...project, date_of_creation: e.target.value})*/}
-                    {/*        }}*/}
-                    {/*    />*/}
-                    {/*</div>*/}
+                    <FormSection>
+                        <MyLabel required={true}>Название проекта</MyLabel>
+                        <MyInput placeholder="Название проекта" register={{...register('name', {required: true})}}
+                                 type="text"/>
+                    </FormSection>
+                    <FormSection>
+                        <MyLabel required={true}>Менеджер проекта</MyLabel>
+                        <Select
+                            options={managers}
+                            isMulti
+                            defaultValue={getValues('manager')}
+                            {...register('manager')}
+                            onChange={handleSelectChange}
+                        />
+                    </FormSection>
+                    <FormSection>
+                        <MyLabel required={false}>Скорость в час</MyLabel>
+                        <MyInput placeholder="Скорость в час" type="text" register={{...register('speed_per_hour')}}/>
+                    </FormSection>
+                    <FormSection>
+                        <MyLabel required={false}>Цена за единицу для асессора</MyLabel>
+                        <MyInput placeholder="Цена за единицу для асессора" type="text" register={{...register('price_for_assessor')}}/>
+                    </FormSection>
+                    <FormSection>
+                        <MyLabel required={false}>Цена за единицу для заказчика</MyLabel>
+                        <MyInput placeholder="Цена за единицу для заказчика" type="text" register={{...register('price_for_costumer')}}/>
+                    </FormSection>
+                    <FormSection>
+                        <MyLabel required={false}>Объем выгрузок</MyLabel>
+                        <MyInput placeholder="Объем выгрузок" type="text" register={{...register('unloading_value')}}/>
+                    </FormSection>
+                    <FormSection>
+                        <MyLabel required={false}>Регулярность выгрузок</MyLabel>
+                        <MyInput placeholder="Регулярность выгрузок" type="text" register={{...register("unloading_regularity")}}/>
+                    </FormSection>
+                    <FormSection>
+                        <MyLabel required={true}>Статус</MyLabel>
+                        <Select
+                            options={statusList}
+                            defaultValue={getValues('status')}
+                            {...register('status')}
+                            onChange={handleSelectChangeStatus}
+                        />
+                    </FormSection>
+                    <FormSection>
+                        <MyLabel required={true}>Тег</MyLabel>
+                        <Select
+                            options={tags}
+                            isMulti
+                            defaultValue={getValues('tag')}
+                            {...register('tag')}
+                            onChange={handleSelectTagChange}
+                        />
+                    </FormSection>
+                    <FormSection>
+                        <MyLabel required={true}>Дата старта проекта</MyLabel>
+                        <MyInput placeholder="Дата старта проекта"
+                                 register={{...register('date_of_creation', {required: true})}} type="text"/>
+                    </FormSection>
                     <button type="submit"
                             className="bg-black text-white rounded-md px-2 py-2">{project?.id === 0 ? 'Добавить' : 'Сохранить'}
                     </button>
 
                 </form>
             </div>
-
-        </div>
     );
 }
 export default observer(ProjectForm);

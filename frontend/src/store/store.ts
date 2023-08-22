@@ -14,7 +14,8 @@ interface UserData {
 }
 
 export interface Token {
-    user_data: UserData
+    user_data: UserData,
+    exp: number
 }
 
 export interface ManagerData {
@@ -36,7 +37,7 @@ export default class Store {
     managerData = {} as ManagerData
     isLoading = false
     showProfile = false
-    cookies = new Cookies();
+    cookies = new Cookies()
     authError = ''
     constructor() {
         makeAutoObservable(this)
@@ -65,8 +66,12 @@ export default class Store {
         await AuthService.login(username, password)
             .then(res => {
                 localStorage.setItem('token', res.data.access)
+                console.log(res)
                 const decodeJwt: Token = jwtDecode(res.data.access)
-                this.cookies.set('refresh', `${res.data.refresh}`, { path: '/' });
+                console.log(decodeJwt)
+                this.cookies.set('refresh', res.data.refresh, {path: '/', maxAge: decodeJwt.exp})
+                // document.cookie = `refresh=${res.data.refresh};Max-Age=${decodeJwt.exp};path=/`
+                // this.cookies.set('fdfdf', 'fdfdf', {m})
                 const managerId = decodeJwt.user_data.manager_id
                 ManagerService.fetch_manager(managerId).then(res => {
                     this.setManagerData(res.data)
@@ -91,7 +96,11 @@ export default class Store {
     async checkAuth() {
         this.setIsLoading(true)
         try {
+            // const cookieValue = document.cookie
+            //     .split('; ')
+            //     .find((row) => row.startsWith('refresh='))?.split('=')[1];
             const response = await axios.post(`${API_URL}/api/token/refresh/`, {'refresh': this.cookies.get('refresh')})
+            console.log(response)
             localStorage.setItem('token', response.data.access)
             const decodeJwt: Token = jwtDecode(response.data.access)
             const managerId = decodeJwt.user_data.manager_id

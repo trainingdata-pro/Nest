@@ -1,7 +1,7 @@
 import React from 'react';
 
-// @ts-ignore
-const MyLabel = ({children, required}) => {
+
+const MyLabel = ({children, required}:{children: React.ReactNode, required:boolean}) => {
     return (
         <label
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

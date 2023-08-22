@@ -25,6 +25,7 @@ import AddProjectButton from "./Projects/AddProjectButton";
 import Table from "./UI/Table";
 import Sidebar from "./UI/Sidebar";
 import ProjectForm from "./ProjectForm";
+import SideBar from "./UI/Dialog";
 
 const PersonalAccountTable = () => {
     const {store} = useContext(Context)
@@ -112,12 +113,14 @@ const PersonalAccountTable = () => {
     }
     return (
         <>
-            <Sidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar}>
-                <ProjectForm projectId={projectsId}
-                             setNewData={setData}
-                             closeSidebar={setShowSidebar}/>
-            </Sidebar>
             <div className="flex container pt-20 h-full pr-8 pl-8 items-center">
+                <SideBar isOpen={showSidebar} setIsOpen={setShowSidebar}>
+                    <div className="w-[30rem]">
+                    <ProjectForm projectId={projectsId}
+                                     setNewData={setData}
+                                     closeSidebar={setShowSidebar}/>
+                    </div>
+                    </SideBar>
                 <div className="h-full w-full">
                     <div className="flex justify-end my-2">
                         <button className="bg-black rounded-md text-white px-4 py-2"

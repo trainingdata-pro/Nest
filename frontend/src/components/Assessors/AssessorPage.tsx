@@ -1,15 +1,10 @@
-import React, {useContext, useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {NavLink, useParams} from "react-router-dom";
 import {Assessor, AssessorWorkingTime} from "../../models/AssessorResponse";
 import AssessorService from "../../services/AssessorService";
 import {ColumnDef} from "@tanstack/react-table";
-import {Project} from "../../models/ProjectResponse";
 import Table from "../UI/Table";
-import {ManagerData} from "../../store/store";
 import {IManager} from "../../models/ManagerResponse";
-import {Calendar} from "primereact/calendar";
-import ProjectService from "../../services/ProjectService";
-import {Context} from "../../index";
 
 const AssessorPage = () => {
     const columnsInfo = useMemo<ColumnDef<Assessor>[]>(() => {

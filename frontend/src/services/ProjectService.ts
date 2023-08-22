@@ -7,7 +7,13 @@ interface ProjectResponse {
     count: number,
     results: Project[]
 }
-
+export interface Tag {
+    id: number,
+    name: string,
+}
+interface TagResult {
+    results: Tag[]
+}
 export default class ProjectService {
     static fetchProjects(managerID:string): Promise<AxiosResponse<ProjectResponse>> {
         return $api.get<ProjectResponse>(`/api/projects/?&manager=${managerID}`)
@@ -21,6 +27,9 @@ export default class ProjectService {
     static addProject(data: any): Promise<AxiosResponse<Project>> {
         return $api.post<Project>(`/api/projects/`, data)
 
+    }
+    static fetchProjectTags(): Promise<AxiosResponse<TagResult>> {
+        return $api.get<TagResult>('/api/tags/')
     }
     static patchProject(id:any,data: any): Promise<AxiosResponse<Project>> {
         return $api.patch<Project>(`/api/projects/${id}/`, data)

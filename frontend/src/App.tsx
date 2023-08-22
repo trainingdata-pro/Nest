@@ -28,7 +28,6 @@ function App() {
 
 
     return (
-        <div className="min-w-screen relative min-h-screen bg-gray-50">
             <BrowserRouter>
                 {!store.isAuth ? <Routes>
                         <Route path={'/login'} element={<SignInPage/>}/>
@@ -49,7 +48,6 @@ function App() {
                      <Route path="*" element={<Navigate to="/dashboard/projects" replace/>}/> // TODO: redirect 404
                  </Routes>}
              </BrowserRouter>
-        </div>
     );
 
 

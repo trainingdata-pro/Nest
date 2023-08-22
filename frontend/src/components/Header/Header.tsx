@@ -8,10 +8,6 @@ import Cookies from "universal-cookie";
 const Header = () => {
     const navigate = useNavigate()
     const {store} = useContext(Context)
-    const logout = () => {
-        store.logout()
-        navigate('/login')
-    }
     return (
         <>
             {/*{store.showProfile && <Profile/>}*/}
@@ -60,7 +56,7 @@ const Header = () => {
                                     </li>
                                     <li>
                                         <NavLink
-                                            onClick={() => logout()}
+                                            onClick={() => store.logout()}
                                             className="inline-flex items-center hover:bg-gray-200 justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4"
                                             to='/logout'>Выход</NavLink>
                                     </li>
