@@ -80,15 +80,21 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
 
         return validated_data
 
+    @staticmethod
+    def _create_assessor_without_team(instance: Assessor) -> Assessor:
+        instance.is_free_resource = True
+        instance.free_resource_weekday_hours = None
+        instance.free_resource_day_off_hours = None
+        instance.status = AssessorStatus.FREE
+
+        return instance
+
     def create(self, validated_data):
         skills = validated_data.pop('skills', None)
         projects = validated_data.pop('projects', None)
         assessor = Assessor(**validated_data)
         if assessor.manager is None:
-            assessor.is_free_resource = True
-            assessor.free_resource_weekday_hours = None
-            assessor.free_resource_day_off_hours = None
-            assessor.status = AssessorStatus.FREE
+            assessor = self._create_assessor_without_team(assessor)
 
         assessor.save()
 
@@ -104,7 +110,12 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         validated_data = self._update_if_free_resource(validated_data, instance)
-        return super().update(instance, validated_data)
+        assessor = super().update(instance, validated_data)
+        if assessor.manager is None:
+            assessor = self._create_assessor_without_team(assessor)
+            assessor.save()
+
+        return assessor
 
 
 class SimpleAssessorSerializer(serializers.ModelSerializer):
