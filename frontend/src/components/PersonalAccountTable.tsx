@@ -117,6 +117,7 @@ const PersonalAccountTable = () => {
                 <SideBar isOpen={showSidebar} setIsOpen={setShowSidebar}>
                     <div className="w-[30rem]">
                     <ProjectForm projectId={projectsId}
+                                        projects={data}
                                      setNewData={setData}
                                      closeSidebar={setShowSidebar}/>
                     </div>

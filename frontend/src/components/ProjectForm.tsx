@@ -1,5 +1,5 @@
 import React, {Dispatch, SetStateAction, useContext, useEffect, useState} from 'react';
-import {useForm} from 'react-hook-form'
+import {Controller, useForm} from 'react-hook-form'
 import ProjectService, {Tag} from "../services/ProjectService";
 import {Context} from "../index";
 import ManagerService from '../services/ManagerService';
@@ -33,10 +33,11 @@ interface ProjectFormProps {
 const FormSection =({children}: {children:React.ReactNode}) => {
     return <div className="mb-2">{children}</div>
 }
-const ProjectForm = ({projectId, setNewData, closeSidebar}: {
+const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
     projectId: number | string,
     setNewData: Dispatch<SetStateAction<Project[]>>,
-    closeSidebar: Dispatch<SetStateAction<boolean>>
+    closeSidebar: Dispatch<SetStateAction<boolean>>,
+    projects: Project[]
 }) => {
     const {store} = useContext(Context)
     useEffect(() => {
@@ -44,30 +45,22 @@ const ProjectForm = ({projectId, setNewData, closeSidebar}: {
             if (projectId !== 0) {
                 ProjectService.fetchProject(projectId).then(res => {
                     setValue('name', res.data.name)
+                    setValue('manager', res.data.manager.map(manager => {
+                        return {value: manager.id, label: `${manager.last_name} ${manager.first_name}`}
+                    }))
                     setValue('speed_per_hour', res.data.speed_per_hour)
                     setValue('price_for_assessor', res.data.price_for_assessor)
+                    setValue('price_for_costumer', res.data.price_for_costumer)
+                    setValue('unloading_value', res.data.unloading_value)
+                    setValue('unloading_regularity', res.data.unloading_regularity)
+                    setValue('status', statusList.filter(item => item.value === res.data.status)[0])
+                    setValue('tag', res.data.tag.map(tag => {
+                        return {value: tag.id, label: tag.name}
+                    }))
+                    setValue('date_of_creation',res.data.date_of_creation)
                 })
-            } else {
-                // setValue('date_of_creation', format(new Date(), 'yyyy-MM-dd'))
-                // setProject({
-                //     tag: [],
-                //     id: 0,
-                //     name: '',
-                //     manager: [],
-                //     assessors_count: 0,
-                //     backlog: '',
-                //     asana_id: 0,
-                //     speed_per_hour: 0,
-                //     price_for_assessor: 0,
-                //     price_for_costumer: 0,
-                //     unloading_value: 0,
-                //     unloading_regularity: 0,
-                //     status: '',
-                //     date_of_creation: format(new Date(), 'yyyy-MM-dd')
-                // })
             }
-        }
-    }, [projectId])
+    }}, [projectId])
 
 
     useEffect(() => {
@@ -80,50 +73,46 @@ const ProjectForm = ({projectId, setNewData, closeSidebar}: {
         })
         ProjectService.fetchProjectTags().then((res) => {
             setTags(res.data.results.map((tag) => {
-                console.log(tag)
                 return {value: tag.id, label: tag.name}
             }))
         })
-
-        console.log(managers)
     }, [])
     const [tags, setTags] = useState<SelectProps[]>()
-    const [project, setProject] = useState<Project>()
     const [managers, setManagers] = useState<SelectProps[]>([])
+
     const statusList = [
         {value: 'active', label: 'Активный'},
         {value: 'pause', label: 'На паузе'},
         {value: 'completed', label: 'Завершен'}
     ]
 
-    const {handleSubmit, control, setValue, getValues, reset, register} = useForm<ProjectFormProps>({
+    const {handleSubmit,watch, control, setValue, getValues, reset, register} = useForm<ProjectFormProps>({
         defaultValues: {
             date_of_creation: format(new Date(), 'yyyy-MM-dd'),
             manager: [{
                 value: store.managerData.id,
                 label: `${store.managerData.last_name} ${store.managerData.first_name}`
             }],
-            speed_per_hour: project?.speed_per_hour ? project.speed_per_hour : 0
+
         }
     })
     async function onSubmit() {
-        console.log(getValues())
-        // const projectData: any = {...project, manager: project?.manager.map(manager => manager.id)}
-        // if (project?.id === 0) {
-        //     await ProjectService.addProject(projectData).then(() => {
-        //         closeSidebar(false)
-        //     })
-        //     await ProjectService.fetchProjects(store.managerData.id.toString()).then(res => {
-        //         setNewData(res.data.results.filter(project => project.status !== 'completed'))
-        //     })
-        // } else {
-        //     await ProjectService.patchProject(project?.id, projectData).then(() => {
-        //         closeSidebar(false)
-        //     })
-        //     await ProjectService.fetchProjects(store.managerData.id.toString()).then(res => {
-        //         setNewData(res.data.results.filter(project => project.status !== 'completed'))
-        //     })
-        // }
+        const formValue = getValues()
+        const requestData1 = {...formValue, manager: formValue.manager?.map(manager =>manager.value)}
+        const requestData2 = {...requestData1, status: formValue.status.value}
+        const requestData3 = {...requestData2, tag: formValue.tag?.map(tag =>tag.value)}
+
+        if (projectId === 0) {
+            await ProjectService.addProject(requestData3).then((res) => {
+                setNewData([...projects, res.data])
+                closeSidebar(false)
+            })
+
+        } else {
+            await ProjectService.patchProject(projectId, requestData3).then((res) => {
+                closeSidebar(false)
+            })
+        }
     }
 
     const handleSelectChange = (value: any) => {
@@ -142,7 +131,6 @@ const ProjectForm = ({projectId, setNewData, closeSidebar}: {
     };
     const handleSelectChangeStatus = (value: any) => {
             setValue('status', value);
-
     };
     return (
             <div className={"w-[90%]"}>
@@ -156,8 +144,8 @@ const ProjectForm = ({projectId, setNewData, closeSidebar}: {
                         <MyLabel required={true}>Менеджер проекта</MyLabel>
                         <Select
                             options={managers}
+                            value={watch('manager')}
                             isMulti
-                            defaultValue={getValues('manager')}
                             {...register('manager')}
                             onChange={handleSelectChange}
                         />
@@ -185,9 +173,9 @@ const ProjectForm = ({projectId, setNewData, closeSidebar}: {
                     <FormSection>
                         <MyLabel required={true}>Статус</MyLabel>
                         <Select
-                            options={statusList}
-                            defaultValue={getValues('status')}
                             {...register('status')}
+                            options={statusList}
+                            value={watch('status')}
                             onChange={handleSelectChangeStatus}
                         />
                     </FormSection>
@@ -196,10 +184,11 @@ const ProjectForm = ({projectId, setNewData, closeSidebar}: {
                         <Select
                             options={tags}
                             isMulti
-                            defaultValue={getValues('tag')}
-                            {...register('tag')}
+                            value={watch('tag')}
+                            {...register('tag', {required:'Привет'})}
                             onChange={handleSelectTagChange}
                         />
+
                     </FormSection>
                     <FormSection>
                         <MyLabel required={true}>Дата старта проекта</MyLabel>
@@ -207,7 +196,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar}: {
                                  register={{...register('date_of_creation', {required: true})}} type="text"/>
                     </FormSection>
                     <button type="submit"
-                            className="bg-black text-white rounded-md px-2 py-2">{project?.id === 0 ? 'Добавить' : 'Сохранить'}
+                            className="bg-black text-white rounded-md px-2 py-2">{projectId === 0 ? 'Добавить' : 'Сохранить'}
                     </button>
 
                 </form>

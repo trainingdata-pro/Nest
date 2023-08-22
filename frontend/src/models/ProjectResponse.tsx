@@ -18,7 +18,7 @@ export interface Project {
 }
 interface Tag {
     id: number,
-    title: string
+    name: string
 }
 type Status = {
     status: "paused" | "active" | "completed"

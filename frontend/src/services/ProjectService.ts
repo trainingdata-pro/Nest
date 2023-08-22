@@ -26,7 +26,6 @@ export default class ProjectService {
     }
     static addProject(data: any): Promise<AxiosResponse<Project>> {
         return $api.post<Project>(`/api/projects/`, data)
-
     }
     static fetchProjectTags(): Promise<AxiosResponse<TagResult>> {
         return $api.get<TagResult>('/api/tags/')
