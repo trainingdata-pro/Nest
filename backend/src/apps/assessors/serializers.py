@@ -164,7 +164,13 @@ class CheckAssessorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Assessor
-        fields = ('pk', 'username', 'manager')
+        fields = (
+            'pk',
+            'username',
+            'manager',
+            'is_free_resource',
+            'state'
+        )
 
 
 class CreateUpdateWorkingHoursSerializer(serializers.ModelSerializer):

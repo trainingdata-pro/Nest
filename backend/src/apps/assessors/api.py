@@ -140,13 +140,13 @@ class AssessorCheckAPIView(generics.ListAPIView):
     serializer_class = serializers.CheckAssessorSerializer
     permission_classes = (IsAuthenticated,)
 
-    def check_request(self):
+    def __check_request(self):
         last_name = self.request.GET.get('last_name')
         first_name = self.request.GET.get('first_name')
         middle_name = self.request.GET.get('middle_name')
         if not all([last_name, first_name, middle_name]):
             raise ValidationError(
-                {'detail': 'You have to specify last_name, first_name and middle_name.'}
+                {'detail': ['You have to specify last_name, first_name and middle_name.']}
             )
         return {
             'last_name': last_name,
@@ -155,16 +155,14 @@ class AssessorCheckAPIView(generics.ListAPIView):
         }
 
     def filter_queryset(self, queryset):
-        data = self.check_request()
+        data = self.__check_request()
         last_name = data.get('last_name')
         first_name = data.get('first_name')
         middle_name = data.get('middle_name')
 
-        return queryset.filter(
-            last_name__iexact=last_name,
-            first_name__iexact=first_name,
-            middle_name__iexact=middle_name
-        )
+        return queryset.filter(Q(last_name__iexact=last_name) &
+                               Q(first_name__iexact=first_name) &
+                               Q(middle_name__iexact=middle_name))
 
 
 @method_decorator(name='retrieve', decorator=wh_schema.retrieve())
