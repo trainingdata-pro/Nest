@@ -71,4 +71,4 @@ class BlackList(BaseStateModel):
     class Meta:
         db_table = 'blacklist'
         verbose_name = 'черный список'
-        verbose_name_plural = 'черные списки'
+        verbose_name_plural = 'черный список'
