@@ -178,10 +178,10 @@ class AssessorSchema(BaseAPISchema):
             }
         )
 
-    def destroy(self):
+    def fire(self):
         return self.swagger_auto_schema(
-            operation_summary='Delete assessor',
-            operation_description='Delete a specific assessor',
+            operation_summary='Fire assessor',
+            operation_description='Fire a specific assessor',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
@@ -190,8 +190,28 @@ class AssessorSchema(BaseAPISchema):
                     description='Unique assessor ID'
                 )
             ],
-            request_body=serializers.RemoveAssessorSerializer(),
-            responses={**self.get_responses(204, 400, 401, 403, 404)}
+            responses={
+                200: serializers.AssessorSerializer(),
+                **self.get_responses(400, 401, 403, 404)
+            }
+        )
+
+    def blacklist(self):
+        return self.swagger_auto_schema(
+            operation_summary='Add assessor to blacklist',
+            operation_description='Add a specific assessor to blacklist',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique assessor ID'
+                )
+            ],
+            responses={
+                200: serializers.AssessorSerializer(),
+                **self.get_responses(400, 401, 403, 404)
+            }
         )
 
 
@@ -333,8 +353,111 @@ class WorkingHoursSchema(BaseAPISchema):
         )
 
 
+class FiredSchema(BaseAPISchema):
+    def retrieve_blacklist(self):
+        return self.swagger_auto_schema(
+            operation_summary='Get assessor from blacklist',
+            operation_description='Get a specific assessor from blacklist',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique assessor ID'
+                )
+            ],
+            responses={
+                200: serializers.BlackListSerializer(),
+                **self.get_responses(401, 404)
+            }
+        )
+
+    def list_blacklist(self):
+        return self.swagger_auto_schema(
+            operation_summary='All blacklist',
+            operation_description='Get all blacklist',
+            responses={**self.get_responses(401)}
+        )
+
+    def retrieve_fired(self):
+        return self.swagger_auto_schema(
+            operation_summary='Get fired assessor',
+            operation_description='Get a specific fired assessor',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique fired assessor ID'
+                )
+            ],
+            responses={
+                200: serializers.FiredSerializer(),
+                **self.get_responses(401, 404)
+            }
+        )
+
+    def list_fired(self):
+        return self.swagger_auto_schema(
+            operation_summary='List fired assessors',
+            operation_description='Get list of fired assessors',
+            responses={**self.get_responses(401)}
+        )
+
+    def retrieve_bl_reason(self):
+        return self.swagger_auto_schema(
+            operation_summary='Get blacklist reason',
+            operation_description='Get a specific blacklist reason',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique blacklist reason ID'
+                )
+            ],
+            responses={
+                200: serializers.BlackListReasonSerializer(),
+                **self.get_responses(401, 404)
+            }
+        )
+
+    def list_bl_reason(self):
+        return self.swagger_auto_schema(
+            operation_summary='List blacklist reasons',
+            operation_description='Get list of blacklist reasons',
+            responses={**self.get_responses(401)}
+        )
+
+    def retrieve_fired_reason(self):
+        return self.swagger_auto_schema(
+            operation_summary='Get fire reason',
+            operation_description='Get a specific fire reason',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique fire reason ID'
+                )
+            ],
+            responses={
+                200: serializers.FiredReasonSerializer(),
+                **self.get_responses(401, 404)
+            }
+        )
+
+    def list_fired_reason(self):
+        return self.swagger_auto_schema(
+            operation_summary='List fire reasons',
+            operation_description='Get list of fire reasons',
+            responses={**self.get_responses(401)}
+        )
+
+
 assessor_schema = AssessorSchema(tags=['assessors'])
 check_assessor_schema = CheckAssessorSchema(tags=['assessors'])
 fr_schema = FreeResourcesSchema(tags=['free resources'])
 skills_schema = SkillsSchema(tags=['assessors'])
 wh_schema = WorkingHoursSchema(tags=['assessors'])
+fired_schema = FiredSchema(tags=['fired'])

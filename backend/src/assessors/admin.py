@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Assessor, Skill, WorkingHours
+from . import models
 
 
 class AssessorAdmin(admin.ModelAdmin):
@@ -21,20 +21,20 @@ class AssessorAdmin(admin.ModelAdmin):
         'manager',
         'is_free_resource',
         'status',
-        'blacklist',
+        'state',
         'all_projects'
     )
     list_filter = (
         'is_free_resource',
         'manager',
         'projects',
-        'blacklist'
+        'state'
     )
     list_display_links = ('username',)
     ordering = ('manager__last_name', 'last_name')
 
     def get_queryset(self, request):
-        return (Assessor.objects.all()
+        return (models.Assessor.objects.all()
                 .select_related('manager')
                 .prefetch_related('projects')
                 .order_by('manager__last_name', 'last_name'))
@@ -59,17 +59,30 @@ class WorkingHoursAdmin(admin.ModelAdmin):
         'saturday',
         'sunday',
     )
+    list_display_links = ('assessor',)
 
 
-class FreeResourceScheduleAdmin(admin.ModelAdmin):
+class ReasonAdmin(admin.ModelAdmin):
+    list_display = (
+        'pk',
+        'title'
+    )
+    list_display_links = ('title',)
+
+
+class StateAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
         'assessor',
-        'weekday_hours',
-        'day_off_hours'
+        'reason'
     )
+    list_display_links = ('assessor',)
 
 
-admin.site.register(Assessor, AssessorAdmin)
-admin.site.register(Skill, SkillAdmin)
-admin.site.register(WorkingHours, WorkingHoursAdmin)
+admin.site.register(models.Assessor, AssessorAdmin)
+admin.site.register(models.Skill, SkillAdmin)
+admin.site.register(models.WorkingHours, WorkingHoursAdmin)
+admin.site.register(models.BlackListReason, ReasonAdmin)
+admin.site.register(models.FiredReason, ReasonAdmin)
+admin.site.register(models.Fired, StateAdmin)
+admin.site.register(models.BlackList, StateAdmin)

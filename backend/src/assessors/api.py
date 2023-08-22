@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.utils.decorators import method_decorator
 from rest_framework import status, viewsets, generics
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -9,12 +10,19 @@ from core.utils.common import BaseAPIViewSet
 from core.utils import permissions
 from users.models import Manager
 from .filters import AssessorFilter, SkillsFilter
-from .models import Assessor, Skill, WorkingHours
+from .models import (Assessor,
+                     Skill,
+                     WorkingHours,
+                     BlackList,
+                     Fired,
+                     FiredReason,
+                     BlackListReason)
 from .schemas import (assessor_schema,
                       check_assessor_schema,
                       fr_schema,
                       skills_schema,
-                      wh_schema)
+                      wh_schema,
+                      fired_schema)
 from . import serializers
 
 
@@ -33,6 +41,8 @@ class SkillsAPIViewSet(viewsets.ModelViewSet):
 @method_decorator(name='list', decorator=assessor_schema.list())
 @method_decorator(name='create', decorator=assessor_schema.create())
 @method_decorator(name='partial_update', decorator=assessor_schema.partial_update())
+@method_decorator(name='blacklist', decorator=assessor_schema.blacklist())
+@method_decorator(name='fire', decorator=assessor_schema.fire())
 # @method_decorator(name='destroy', decorator=assessor_schema.destroy())
 class AssessorAPIViewSet(BaseAPIViewSet):
     permission_classes = {
@@ -40,14 +50,16 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         'list': (IsAuthenticated,),
         'create': (IsAuthenticated, permissions.IsManager),
         'partial_update': (IsAuthenticated, permissions.IsManager, permissions.AssessorPermission),
-        # 'destroy': (IsAuthenticated, AssessorOwner),
+        'blacklist': (IsAuthenticated, permissions.IsManager, permissions.AssessorPermission),
+        'fire': (IsAuthenticated, permissions.IsManager, permissions.AssessorPermission)
     }
     serializer_class = {
         'list': serializers.AssessorSerializer,
         'retrieve': serializers.AssessorSerializer,
         'create': serializers.CreateUpdateAssessorSerializer,
         'partial_update': serializers.CreateUpdateAssessorSerializer,
-        # 'destroy': serializers.RemoveAssessorSerializer
+        'blacklist': serializers.BlackListAssessorSerializer,
+        'fire': serializers.FireAssessorSerializer
     }
     # http_method_names = ['get', 'post', 'patch']  # TODO 'delete'
     http_method_names = ['get', 'post', 'patch']
@@ -107,13 +119,25 @@ class AssessorAPIViewSet(BaseAPIViewSet):
 
         return Response(response.data, status=status.HTTP_200_OK)
 
-    # def destroy(self, request, *args, **kwargs):
-    #     instance = self.get_object()
-    #     serializer = self.get_serializer(instance, data=request.data, partial=True)
-    #     serializer.is_valid(raise_exception=True)
-    #     serializer.save()
-    #
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
+    def _fire(self, request, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(
+            data=request.data,
+            context={'assessor': instance}
+        )
+        serializer.is_valid(raise_exception=True)
+        assessor = serializer.save()
+        response = serializers.AssessorSerializer(assessor)
+
+        return Response(response.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['patch'])
+    def blacklist(self, request, **kwargs):
+        return self._fire(request, **kwargs)
+
+    @action(detail=True, methods=['patch'])
+    def fire(self, request, **kwargs):
+        return self._fire(request, **kwargs)
 
 
 @method_decorator(name='get', decorator=check_assessor_schema.get())
@@ -232,3 +256,39 @@ class FreeResourcesAPIViewSet(BaseAPIViewSet):
         response = serializers.AssessorSerializer(obj)
 
         return Response(response.data)
+
+
+@method_decorator(name='retrieve', decorator=fired_schema.retrieve_blacklist())
+@method_decorator(name='list', decorator=fired_schema.list_blacklist())
+class BlackListAPIViewSet(viewsets.ModelViewSet):
+    queryset = BlackList.objects.all().select_related('assessor', 'reason')
+    serializer_class = serializers.BlackListSerializer
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['get']
+
+
+@method_decorator(name='retrieve', decorator=fired_schema.retrieve_fired())
+@method_decorator(name='list', decorator=fired_schema.list_fired())
+class FiredAPIViewSet(viewsets.ModelViewSet):
+    queryset = Fired.objects.all().select_related('assessor', 'reason')
+    serializer_class = serializers.FiredSerializer
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['get']
+
+
+@method_decorator(name='retrieve', decorator=fired_schema.retrieve_fired_reason())
+@method_decorator(name='list', decorator=fired_schema.list_fired_reason())
+class FiredReasonAPIViewSet(viewsets.ModelViewSet):
+    queryset = FiredReason.objects.all()
+    serializer_class = serializers.FiredReasonSerializer
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['get']
+
+
+@method_decorator(name='retrieve', decorator=fired_schema.retrieve_bl_reason())
+@method_decorator(name='list', decorator=fired_schema.list_bl_reason())
+class BlackListReasonAPIViewSet(viewsets.ModelViewSet):
+    queryset = BlackListReason.objects.all()
+    serializer_class = serializers.BlackListReasonSerializer
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['get']
