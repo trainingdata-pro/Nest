@@ -123,7 +123,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         assessor = serializer.save()
         response = serializers.AssessorSerializer(assessor)
 
-        return Response(response.data, status=status.HTTP_201_CREATED)
+        return Response(response.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['patch'])
     def blacklist(self, request, **kwargs):
@@ -184,7 +184,7 @@ class WorkingHoursAPIViewSet(BaseAPIViewSet):
         'create': serializers.CreateUpdateWorkingHoursSerializer,
         'partial_update': serializers.CreateUpdateWorkingHoursSerializer
     }
-    http_method_names = ['get', 'post', 'patch']  # delete
+    http_method_names = ['get', 'post', 'patch']
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
