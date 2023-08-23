@@ -1,8 +1,9 @@
-from django.db.models import Count
+from django.db.models import Count, QuerySet
 from django.utils.decorators import method_decorator
 from rest_framework import status, generics
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.assessors.models import Assessor
@@ -12,22 +13,32 @@ from core.utils.common import BaseAPIViewSet
 from apps.users.models import Manager
 from .filters import ProjectFilter
 from .models import Project, ProjectTag
-from .schemas import project_schema, project_schema2, tags_schema
-from . import serializers
+from . import serializers, schemas
 
 
-@method_decorator(name='retrieve', decorator=project_schema.retrieve())
-@method_decorator(name='list', decorator=project_schema.list())
-@method_decorator(name='create', decorator=project_schema.create())
-@method_decorator(name='partial_update', decorator=project_schema.partial_update())
-@method_decorator(name='destroy', decorator=project_schema.destroy())
+@method_decorator(name='retrieve', decorator=schemas.project_schema.retrieve())
+@method_decorator(name='list', decorator=schemas.project_schema.list())
+@method_decorator(name='create', decorator=schemas.project_schema.create())
+@method_decorator(name='partial_update', decorator=schemas.project_schema.partial_update())
+@method_decorator(name='destroy', decorator=schemas.project_schema.destroy())
 class ProjectAPIViewSet(BaseAPIViewSet):
     permission_classes = {
         'retrieve': (IsAuthenticated,),
         'list': (IsAuthenticated,),
-        'create': (IsAuthenticated, IsManager),
-        'partial_update': (IsAuthenticated, IsManager, ProjectPermission),
-        'destroy': (IsAuthenticated, IsManager, ProjectPermission)
+        'create': (
+            IsAuthenticated,
+            IsManager
+        ),
+        'partial_update': (
+            IsAuthenticated,
+            IsManager,
+            ProjectPermission
+        ),
+        'destroy': (
+            IsAuthenticated,
+            IsManager,
+            ProjectPermission
+        )
     }
     serializer_class = {
         'retrieve': serializers.ProjectSerializer,
@@ -41,7 +52,7 @@ class ProjectAPIViewSet(BaseAPIViewSet):
     ordering_fields = ['pk', 'name', 'manager__last_name', 'assessors_count',
                        'status', 'date_of_creation']
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         project = serializer.save()
@@ -49,7 +60,7 @@ class ProjectAPIViewSet(BaseAPIViewSet):
 
         return Response(response.data, status=status.HTTP_201_CREATED)
 
-    def partial_update(self, request, *args, **kwargs):
+    def partial_update(self, request: Request, *args, **kwargs) -> Response:
         instance = self.get_object()
         serializer = self.get_serializer(
             instance,
@@ -62,21 +73,21 @@ class ProjectAPIViewSet(BaseAPIViewSet):
 
         return Response(response.data, status=status.HTTP_200_OK)
 
-    def destroy(self, request, *args, **kwargs):
+    def destroy(self, request: Request, *args, **kwargs) -> Response:
         instance = self.get_object()
         self.check_project(instance)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @staticmethod
-    def check_project(project):
+    def check_project(project: Project) -> Project:
         if project.assessors.exists():
             raise ValidationError(
                 {'detail': ['Снимите исполнителей с текущего проекта, чтобы продолжить.']}
             )
         return project
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[Project]:
         user = self.request.user
         if user.is_superuser:
             return (Project.objects.all()
@@ -100,7 +111,7 @@ class ProjectAPIViewSet(BaseAPIViewSet):
                     .order_by('manager__last_name', 'name', '-date_of_creation'))
 
 
-@method_decorator(name='get', decorator=project_schema2.get())
+@method_decorator(name='get', decorator=schemas.project_schema2.get())
 class GetAllAssessorForProject(generics.ListAPIView):
     queryset = Assessor.objects.all()
     serializer_class = AssessorSerializer
@@ -113,7 +124,7 @@ class GetAllAssessorForProject(generics.ListAPIView):
         'status'
     ]
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[Assessor]:
         project_pk = self.kwargs.get('pk')
         return (Assessor.objects
                 .filter(projects__in=[project_pk])
@@ -122,7 +133,7 @@ class GetAllAssessorForProject(generics.ListAPIView):
                 .order_by('last_name'))
 
 
-@method_decorator(name='get', decorator=tags_schema.get())
+@method_decorator(name='get', decorator=schemas.tags_schema.get())
 class TagsApiView(generics.ListAPIView):
     queryset = ProjectTag.objects.all()
     permission_classes = (IsAuthenticated,)

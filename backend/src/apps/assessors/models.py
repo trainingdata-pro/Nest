@@ -141,11 +141,11 @@ class Assessor(models.Model):
         return self.full_name
 
     @property
-    def full_name(self):
+    def full_name(self) -> str:
         return f'{self.last_name} {self.first_name} {self.middle_name}'
 
     @property
-    def all_projects(self):
+    def all_projects(self) -> str:
         if self.projects.exists():
             return '; '.join([pr.name for pr in self.projects.all()])
         return '-'
@@ -199,7 +199,7 @@ class WorkingHours(models.Model):
         verbose_name_plural = 'рабочие часы'
 
     @property
-    def total(self):
+    def total(self) -> int:
         return (self.monday + self.tuesday + self.wednesday +
                 self.thursday + self.friday + self.saturday + self.sunday)
 

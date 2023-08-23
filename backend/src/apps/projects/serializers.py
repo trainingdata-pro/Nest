@@ -1,8 +1,11 @@
+from typing import Dict
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from core.utils.common import current_date
 from apps.users.serializers import ManagerSerializer
+from apps.users.models import Manager
+from core.utils.common import current_date
 from .models import ProjectTag, Project, ProjectStatuses
 
 
@@ -18,21 +21,21 @@ class CreateProjectSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {'manager': {'required': False}}
 
-    def get_manager(self):
+    def get_manager(self) -> Manager:
         return self.context.get('request').user.manager
 
-    def _check_if_completed(self, obj):
+    def _check_if_completed(self, project: Project) -> Project:
         date_of_completion = self.validated_data.get('date_of_completion')
-        if obj.status == ProjectStatuses.COMPLETED:
-            if date_of_completion is None and obj.date_of_completion is None:
-                obj.date_of_completion = current_date()
+        if project.status == ProjectStatuses.COMPLETED:
+            if date_of_completion is None and project.date_of_completion is None:
+                project.date_of_completion = current_date()
         else:
-            obj.date_of_completion = None
+            project.date_of_completion = None
 
-        obj.save()
-        return obj
+        project.save()
+        return project
 
-    def validate(self, attrs):
+    def validate(self, attrs: Dict):
         manager = self.get_manager()
         if manager.is_operational_manager:
             owners = attrs.get('manager')
@@ -68,7 +71,7 @@ class CreateProjectSerializer(serializers.ModelSerializer):
 
         return super().validate(attrs)
 
-    def create(self, validated_data) -> Project:
+    def create(self, validated_data: Dict) -> Project:
         current_manager = self.get_manager()
         project_manager = validated_data.pop('manager', None)
         tag = validated_data.pop('tag', None)
@@ -88,7 +91,7 @@ class CreateProjectSerializer(serializers.ModelSerializer):
 
         return project
 
-    def update(self, instance, validated_data):
+    def update(self, instance: Project, validated_data: Dict):
         project = super().update(instance, validated_data)
         project = self._check_if_completed(project)
 
@@ -105,19 +108,8 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = '__all__'
 
-    def get_assessors_count(self, obj) -> int:
+    def get_assessors_count(self, obj: Project) -> int:
         return obj.assessors.count()
 
     def get_backlog(self, obj) -> str:
         return 'Тут пока не понятно, что это за поле, поэтому просто заглушка'
-
-# class SimpleProjectSerializer(serializers.ModelSerializer):
-#     assessors_count = serializers.SerializerMethodField(read_only=True)
-#     tag = ProjectTagSerializer(read_only=True, many=True)
-#
-#     class Meta:
-#         model = Project
-#         exclude = ('manager',)
-#
-#     def get_assessors_count(self, obj) -> int:
-#         return obj.assessors.count()

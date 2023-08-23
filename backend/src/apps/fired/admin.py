@@ -4,20 +4,20 @@ from .models import BlackListReason, FiredReason, BlackList, Fired
 
 
 class ReasonAdmin(admin.ModelAdmin):
-    list_display = (
+    list_display = [
         'pk',
         'title'
-    )
-    list_display_links = ('title',)
+    ]
+    list_display_links = ['title']
 
 
 class StateAdmin(admin.ModelAdmin):
-    list_display = (
+    list_display = [
         'pk',
         'assessor',
         'reason'
-    )
-    list_display_links = ('assessor',)
+    ]
+    list_display_links = ['assessor']
 
 
 admin.site.register(BlackListReason, ReasonAdmin)

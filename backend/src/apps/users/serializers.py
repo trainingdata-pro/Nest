@@ -1,4 +1,6 @@
-from django.contrib.auth import password_validation
+from typing import Dict
+
+from django.contrib.auth import password_validation, get_user_model
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -15,7 +17,8 @@ class CreateManagerSerializer(serializers.Serializer):
     password = serializers.CharField(min_length=8)
 
     def validate_username(self, username: str) -> str:
-        if User.objects.filter(username=username).exists():
+        model = get_user_model()
+        if model.objects.filter(username=username).exists():
             raise ValidationError(
                 f'Пользователь {username} уже существует.'
             )
@@ -23,7 +26,8 @@ class CreateManagerSerializer(serializers.Serializer):
         return username
 
     def validate_email(self, email: str) -> str:
-        if User.objects.filter(email=email).exists():
+        model = get_user_model()
+        if model.objects.filter(email=email).exists():
             raise ValidationError(
                 'Пользователь с таким эл. адресом уже существует.'
             )
@@ -37,12 +41,13 @@ class CreateManagerSerializer(serializers.Serializer):
         return email
 
     def validate_password(self, password: str) -> str:
-        user = User(username=self.initial_data.get('username'))
+        model = get_user_model()
+        user = model(username=self.initial_data.get('username'))
         password_validation.validate_password(password, user)
 
         return password
 
-    def create(self, validated_data) -> Manager:
+    def create(self, validated_data: Dict) -> Manager:
         username = validated_data.get('username')
         email = validated_data.get('email')
         password = validated_data.get('password')
@@ -76,14 +81,14 @@ class UpdateManagerSerializer(serializers.ModelSerializer):
         ]
 
     @staticmethod
-    def check_team_lead(manager):
+    def check_team_lead(manager: Manager) -> Manager:
         if not manager.is_operational_manager:
             raise ValidationError(
                 {'operational_manager': 'Руководитель должен быть операционным менеджером.'}
             )
         return manager
 
-    def update(self, instance, validated_data):
+    def update(self, instance: Manager, validated_data: Dict):
         operational_manager = validated_data.get('operational_manager')
         if not instance.operational_manager and not operational_manager:
             raise ValidationError(

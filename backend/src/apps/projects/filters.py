@@ -1,4 +1,4 @@
-from django.db.models import Count
+from django.db.models import Count, QuerySet
 from django_filters import rest_framework as filters
 
 from .models import Project
@@ -19,11 +19,11 @@ class ProjectFilter(filters.FilterSet):
             'status'
         )
 
-    def filter_manager(self, queryset, name, value):
+    def filter_manager(self, queryset: QuerySet[Project], name: str, value: str):
         managers = self.get_filtered_values(value)
         return queryset.filter(manager__in=managers).distinct()
 
-    def filter_assessors_count(self, queryset, name, value):
+    def filter_assessors_count(self, queryset: QuerySet[Project], name: str, value: int):
         return queryset.annotate(assessors_count=Count('assessors')).filter(assessors_count=value)
 
     @staticmethod

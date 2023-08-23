@@ -1,4 +1,5 @@
 from django.contrib.postgres.search import SearchVector
+from django.db.models import QuerySet
 from django_filters import rest_framework as filters
 
 from .models import Manager
@@ -17,7 +18,7 @@ class ManagerFilter(filters.FilterSet):
             'operational_manager'
         )
 
-    def filter_by_full_name(self, queryset, name, value):
+    def filter_by_full_name(self, queryset: QuerySet[Manager], name: str, value: str):
         return queryset.annotate(search=SearchVector(
             'last_name', 'first_name', 'middle_name'
         )).filter(search__icontains=value)

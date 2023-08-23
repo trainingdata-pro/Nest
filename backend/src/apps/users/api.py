@@ -1,22 +1,22 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.utils.decorators import method_decorator
 from rest_framework import status, generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from core.utils.common import BaseAPIViewSet
-from core.utils.permissions import BaseUserPermission, IsCurrentManager
+from core.utils import permissions
 from .filters import ManagerFilter
 from .models import Manager
-from .schemas import users_schema, user_activate_schema, base_user_schema
 from .utils import send_code
-from . import serializers
+from . import serializers, schemas
 
 
-@method_decorator(name='retrieve', decorator=users_schema.retrieve())
-@method_decorator(name='list', decorator=users_schema.list())
-@method_decorator(name='create', decorator=users_schema.create())
-@method_decorator(name='partial_update', decorator=users_schema.partial_update())
+@method_decorator(name='retrieve', decorator=schemas.users_schema.retrieve())
+@method_decorator(name='list', decorator=schemas.users_schema.list())
+@method_decorator(name='create', decorator=schemas.users_schema.create())
+@method_decorator(name='partial_update', decorator=schemas.users_schema.partial_update())
 class ManagerAPIViewSet(BaseAPIViewSet):
     queryset = Manager.objects.all().select_related('user')
     serializer_class = {
@@ -29,13 +29,16 @@ class ManagerAPIViewSet(BaseAPIViewSet):
         'create': (AllowAny,),
         'retrieve': (IsAuthenticated,),
         'list': (IsAuthenticated,),
-        'partial_update': (IsAuthenticated, IsCurrentManager)
+        'partial_update': (
+            IsAuthenticated,
+            permissions.IsCurrentManager
+        )
     }
     http_method_names = ['get', 'post', 'patch']
     filterset_class = ManagerFilter
     ordering_fields = ['pk', 'user__username', 'last_name']
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         manager = serializer.save()
@@ -45,12 +48,12 @@ class ManagerAPIViewSet(BaseAPIViewSet):
         return Response(response.data, status=status.HTTP_201_CREATED)
 
 
-@method_decorator(name='post', decorator=user_activate_schema.post())
+@method_decorator(name='post', decorator=schemas.user_activate_schema.post())
 class UserActivateAPIView(generics.CreateAPIView):
     queryset = Manager.objects.all().select_related('user')
     serializer_class = serializers.CodeSerializer
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         active_user = serializer.save()
@@ -59,9 +62,9 @@ class UserActivateAPIView(generics.CreateAPIView):
         return Response(response.data, status=200)
 
 
-@method_decorator(name='patch', decorator=base_user_schema.patch())
+@method_decorator(name='patch', decorator=schemas.base_user_schema.patch())
 class UpdateUsernameAPIView(generics.UpdateAPIView):
-    queryset = User
-    permission_classes = (IsAuthenticated, BaseUserPermission)
+    queryset = get_user_model()
+    permission_classes = (IsAuthenticated, permissions.BaseUserPermission)
     serializer_class = serializers.UserSerializer
     http_method_names = ['patch']
