@@ -57,10 +57,17 @@ const CompletedProjects = () => {
 
             },
             {
-                accessorKey: 'status',
+                accessorKey: 'date_of_creation',
                 header: 'Статус проекта',
-                // @ts-ignore
-                cell: info => statusObject[info.row.original.status],
+                cell: info => info.getValue(),
+                size: 100,
+                enableGlobalFilter: false
+
+            },
+            {
+                accessorKey: 'date_of_completion',
+                header: 'Статус проекта',
+                cell: info => info.getValue(),
                 size: 100,
                 enableGlobalFilter: false
 

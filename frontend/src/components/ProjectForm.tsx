@@ -10,6 +10,7 @@ import {format} from 'date-fns';
 import {IManager} from "../models/ManagerResponse";
 import {observer} from "mobx-react-lite";
 import MyLabel from "./UI/MyLabel";
+import Error from "./UI/Error";
 
 interface SelectProps {
     value: string | number,
@@ -77,7 +78,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
             }))
         })
     }, [])
-    const [tags, setTags] = useState<SelectProps[]>()
+    const [tags, setTags] = useState<SelectProps[]>([])
     const [managers, setManagers] = useState<SelectProps[]>([])
 
     const statusList = [
@@ -86,13 +87,20 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
         {value: 'completed', label: 'Завершен'}
     ]
 
-    const {handleSubmit,watch, control, setValue, getValues, reset, register} = useForm<ProjectFormProps>({
+    const {handleSubmit,watch, formState:{
+        errors
+    }, control, setValue, getValues, reset, register} = useForm<ProjectFormProps>({
         defaultValues: {
             date_of_creation: format(new Date(), 'yyyy-MM-dd'),
             manager: [{
                 value: store.managerData.id,
                 label: `${store.managerData.last_name} ${store.managerData.first_name}`
             }],
+            speed_per_hour: 0,
+            price_for_assessor: 0,
+            price_for_costumer: 0,
+            unloading_value:0,
+            unloading_regularity: 0
 
         }
     })
@@ -104,12 +112,22 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
 
         if (projectId === 0) {
             await ProjectService.addProject(requestData3).then((res) => {
-                setNewData([...projects, res.data])
+                setNewData([res.data,...projects])
                 closeSidebar(false)
             })
 
         } else {
             await ProjectService.patchProject(projectId, requestData3).then((res) => {
+                const index = projects.findIndex(project => project.id === projectId)
+                let pr = [...projects]
+                if (res.data.status === 'completed'){
+                    pr[index] = res.data
+                    setNewData([...pr.filter(project => project.status !== 'completed')])
+                } else {
+                    pr[index] = res.data
+                    setNewData([...pr])
+                }
+
                 closeSidebar(false)
             })
         }
@@ -137,8 +155,9 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
                 <form className="grid columns-1" onSubmit={handleSubmit(onSubmit)}>
                     <FormSection>
                         <MyLabel required={true}>Название проекта</MyLabel>
-                        <MyInput placeholder="Название проекта" register={{...register('name', {required: true})}}
+                        <MyInput placeholder="Название проекта" register={{...register('name', {required: 'Обязательное поле'})}}
                                  type="text"/>
+                        <Error>{errors.name && errors.name?.message}</Error>
                     </FormSection>
                     <FormSection>
                         <MyLabel required={true}>Менеджер проекта</MyLabel>
@@ -146,9 +165,10 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
                             options={managers}
                             value={watch('manager')}
                             isMulti
-                            {...register('manager')}
+                            {...register('manager', {required: 'Обязательное поле'})}
                             onChange={handleSelectChange}
                         />
+                        <Error>{errors.manager && errors.manager?.message}</Error>
                     </FormSection>
                     <FormSection>
                         <MyLabel required={false}>Скорость в час</MyLabel>
@@ -173,11 +193,12 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
                     <FormSection>
                         <MyLabel required={true}>Статус</MyLabel>
                         <Select
-                            {...register('status')}
+                            {...register('status', {required: 'Обязательное поле'})}
                             options={statusList}
                             value={watch('status')}
                             onChange={handleSelectChangeStatus}
                         />
+                        <Error>{errors.status && errors.status?.message}</Error>
                     </FormSection>
                     <FormSection>
                         <MyLabel required={true}>Тег</MyLabel>
@@ -188,12 +209,13 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
                             {...register('tag', {required:'Привет'})}
                             onChange={handleSelectTagChange}
                         />
-
+                        <Error>{errors.tag && errors.tag?.message}</Error>
                     </FormSection>
                     <FormSection>
                         <MyLabel required={true}>Дата старта проекта</MyLabel>
                         <MyInput placeholder="Дата старта проекта"
                                  register={{...register('date_of_creation', {required: true})}} type="text"/>
+                        <Error>{errors.date_of_creation && errors.date_of_creation?.message}</Error>
                     </FormSection>
                     <button type="submit"
                             className="bg-black text-white rounded-md px-2 py-2">{projectId === 0 ? 'Добавить' : 'Сохранить'}

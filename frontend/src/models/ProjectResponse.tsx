@@ -14,7 +14,8 @@ export interface Project {
     unloading_regularity: number,
     status: string,
     tag: Tag[],
-    date_of_creation: string
+    date_of_creation: string,
+    date_of_completion: string,
 }
 interface Tag {
     id: number,
