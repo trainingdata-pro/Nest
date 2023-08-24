@@ -105,6 +105,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
 
         }
     })
+    const [serverError, setServerError] = useState([])
     async function onSubmit() {
         const formValue = getValues()
         const requestData1 = {...formValue, manager: formValue.manager?.map(manager =>manager.value)}
@@ -115,6 +116,9 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
             await ProjectService.addProject(requestData3).then((res) => {
                 setNewData([res.data,...projects])
                 closeSidebar(false)
+            }).catch(e=> {
+                const errJson = JSON.parse(e.request.response)
+                setServerError(errJson)
             })
 
         } else {
@@ -130,6 +134,9 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
                 }
 
                 closeSidebar(false)
+            }).catch(e=> {
+                const errJson = JSON.parse(e.request.response)
+                setServerError(errJson)
             })
         }
     }
@@ -218,8 +225,11 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
                                  register={{...register('date_of_creation', {required: true})}} type="text"/>
                         <Error>{errors.date_of_creation && errors.date_of_creation?.message}</Error>
                     </FormSection>
+                    <FormSection>
+                        {Object.keys(serverError).map((key:any) => <Error>{serverError[key]}</Error>)}
+                    </FormSection>
                     <button type="submit"
-                            className="bg-black text-white rounded-md px-2 py-2">{projectId === 0 ? 'Добавить' : 'Сохранить'}
+                            className="bg-black text-white rounded-md mt-2 pt-2 py-2">{projectId === 0 ? 'Добавить' : 'Сохранить'}
                     </button>
 
                 </form>
