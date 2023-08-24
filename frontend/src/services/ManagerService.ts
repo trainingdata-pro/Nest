@@ -14,12 +14,16 @@ interface IManager {
     is_operational_manager: boolean,
     operational_manager: number
 }
+
+interface ManagerResponse {
+    results: IManager[]
+}
 export default class ManagerService{
     static fetch_manager(id: number): Promise<AxiosResponse<IManager>> {
         return $api.get<IManager>(`/api/users/${id}`)
     }
-    static fetch_managers(): any {
-        return $api.get<IManager[]>(`/api/users/?is_operational_manager=false`)
+    static fetch_managers(): Promise<AxiosResponse<ManagerResponse>> {
+        return $api.get<ManagerResponse>(`/api/users/?is_operational_manager=false`)
     }
 
     static patchManager(managerId:number, data:any) {

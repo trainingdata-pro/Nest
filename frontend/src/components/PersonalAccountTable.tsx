@@ -55,7 +55,7 @@ const PersonalAccountTable = () => {
                 header: 'Владелец',
                 cell: (info) => {
                     return <div>{info.row.original.manager.map(manager => {
-                        return <div key={manager.id}>{manager.last_name} {manager.first_name}</div>
+                        return <div className="rounded-full bg-black text-white text-center py-1 px-3 mb-1" key={manager.id}>{manager.last_name} {manager.first_name}</div>
                     })}</div>
                 },
                 enableSorting: false,

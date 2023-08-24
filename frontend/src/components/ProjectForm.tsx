@@ -12,7 +12,7 @@ import {observer} from "mobx-react-lite";
 import MyLabel from "./UI/MyLabel";
 import Error from "./UI/Error";
 
-interface SelectProps {
+export interface SelectProps {
     value: string | number,
     label: string
 }
@@ -31,6 +31,7 @@ interface ProjectFormProps {
     tag: SelectProps[] | null,
     date_of_creation: string
 }
+
 const FormSection =({children}: {children:React.ReactNode}) => {
     return <div className="mb-2">{children}</div>
 }
@@ -65,8 +66,8 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
 
 
     useEffect(() => {
-        ManagerService.fetch_managers().then((res: any) => {
-            setManagers(res.data.results.map((manager: IManager) => {
+        ManagerService.fetch_managers().then(res => {
+            setManagers(res.data.results.filter(manager => manager.operational_manager == store.managerData.operational_manager).map((manager: IManager) => {
                 return {
                     value: manager.id, label: `${manager.last_name} ${manager.first_name}`
                 }

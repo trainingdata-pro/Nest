@@ -15,7 +15,7 @@ import ProjectService from "../services/ProjectService";
 import {Project} from "../models/ProjectResponse";
 
 const ProjectAssessors = () => {
-        const columnHelper = createColumnHelper<Assessor>()
+    const columnHelper = createColumnHelper<Assessor>()
         const columns: ColumnDef<Assessor>[] = [
             columnHelper.group({
                 id: 'fio',

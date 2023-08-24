@@ -1,13 +1,11 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import Header from "../Header/Header";
+import React, {useEffect, useState} from 'react';
 import Table from "../UI/Table";
-import {ColumnDef, createColumnHelper} from "@tanstack/react-table";
-import {Project} from "../../models/ProjectResponse";
+import {createColumnHelper} from "@tanstack/react-table";
 import {NavLink, useNavigate} from "react-router-dom";
 import {Assessor} from "../../models/AssessorResponse";
 import AssessorService from "../../services/AssessorService";
-import Sidebar from "../UI/Sidebar";
 import AddAssessorForm from "../AddAssessorForm";
+import SideBar from "../UI/Dialog";
 
 const AssessorsPage = () => {
     const statusObject = {
@@ -27,7 +25,6 @@ const AssessorsPage = () => {
         columnHelper.accessor('last_name', {
             header: 'Фамилия',
             cell: info => info.getValue(),
-            enableSorting: false
         }),
         columnHelper.accessor('first_name', {
             header: 'Имя',
@@ -42,6 +39,13 @@ const AssessorsPage = () => {
         columnHelper.accessor("username", {
             header: () => 'Ник в ТГ',
             cell: info => info.getValue(),
+            enableSorting: false
+        }),
+        columnHelper.accessor("projects", {
+            header: () => 'Проекты',
+            cell: (info) => {
+                return <div>{info.row.original.projects.map(project => <div key={project.id} className="rounded-full bg-black text-white text-center py-1 px-3 mb-1">{project.name}</div>)}</div>
+            },
             enableSorting: false
         }),
         columnHelper.accessor('working_hours', {
@@ -65,7 +69,7 @@ const AssessorsPage = () => {
         columnHelper.accessor('status', {
             header: "Статус",
             // @ts-ignore
-            cell: info => statusObject[info.row.original.status],
+            cell: info => <div className="text-center">{statusObject[info.row.original.status]}</div>,
             enableSorting: false,
             size:155
 
@@ -74,7 +78,7 @@ const AssessorsPage = () => {
             header: "Skills",
             cell: (info) => {
                 return <div>{info.row.original.skills.map(skill => {
-                    return <div key={skill.id}>{skill.title}</div>
+                    return <div className="rounded-full bg-black text-white text-center py-1 px-3 mb-1" key={skill.id}>{skill.title}</div>
                 })}</div>
             },
             enableSorting: false
@@ -83,9 +87,9 @@ const AssessorsPage = () => {
     const [showSidebar, setShowSidebar] = useState(false)
     return (
         <div>
-            <Sidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar}>
-                    <AddAssessorForm assessors={assessors} showSidebar={showSidebar} setShowSidebar={setShowSidebar} setAssessors={setAssessors}/>
-            </Sidebar>
+            <SideBar isOpen={showSidebar} setIsOpen={setShowSidebar}>
+                <AddAssessorForm assessors={assessors} showSidebar={showSidebar} setShowSidebar={setShowSidebar} setAssessors={setAssessors}/>
+            </SideBar>
             <header className="fixed h-20 w-screen z-10 border-b border-gray-200 bg-white">
                 <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
                     <div className="flex h-full w-full items-center justify-between gap-x-6">
