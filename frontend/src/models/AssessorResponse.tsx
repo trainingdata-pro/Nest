@@ -17,23 +17,25 @@ export interface Assessor {
     first_name: string,
     middle_name: string,
     status: string,
+    email: string,
+    country: string,
     is_free_resource: boolean,
     blacklist: boolean,
     date_of_registration: string,
+    working_hours: AssessorWorkingTime
 
 
 }
 
-interface AssessorWorkingTime {
-    assessor: {
-        monday: number,
-        tuesday: number,
-        wednesday: number,
-        thursday: number,
-        friday: number,
-        saturday: number,
-        sunday: number
-    }
+export interface AssessorWorkingTime {
+    id: number,
+    monday: number,
+    tuesday: number,
+    wednesday: number,
+    thursday: number,
+    friday: number,
+    saturday: number,
+    sunday: number
 }
 
 export interface AssessorResponse {

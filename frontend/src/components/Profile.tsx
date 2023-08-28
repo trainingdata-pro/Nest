@@ -42,12 +42,8 @@ const Profile = () => {
     const handleSelectChange = (event:any) => {
         setSelectedOperationsManager(event.target.value);
     };
-    // @ts-ignore
     return (
-        <div className="fixed inset-0 z-50 flex h-screen w-screen items-end justify-center sm:items-center">
-
-            <div className="animate-in fade-in fixed inset-0 z-50 bg-white backdrop-blur-sm transition-opacity">
-            </div>
+        <div className="flex h-screen w-screen items-end justify-center sm:items-center">
 
             <div className="bg-white fixed z-50 w-full max-w-max border bg-background p-6 opacity-100">
 
@@ -79,7 +75,7 @@ const Profile = () => {
                     </div>
                     <div>
                         <label>Ответственный TeamLead</label>
-                        <select disabled={!!manager?.operational_manager}{...register('operational_manager')} value={selectedOperationsManager} onChange={handleSelectChange}
+                        <select disabled={!!manager?.operational_manager || manager?.is_operational_manager} {...register('operational_manager')} value={selectedOperationsManager} onChange={handleSelectChange}
                                 className="flex h-10 rounded-md border border-input mb-2 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full max-w-[30rem] bg-white"
                         >
                             <option value="" disabled>Выберите своего начальника</option>

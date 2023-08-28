@@ -25,6 +25,7 @@ import AddProjectButton from "./Projects/AddProjectButton";
 import Table from "./UI/Table";
 import Sidebar from "./UI/Sidebar";
 import ProjectForm from "./ProjectForm";
+import SideBar from "./UI/Dialog";
 
 const PersonalAccountTable = () => {
     const {store} = useContext(Context)
@@ -36,7 +37,6 @@ const PersonalAccountTable = () => {
     }
     const [projectsId, setProjectId] = useState(0)
     const columns = useMemo<ColumnDef<Project>[]>(() => {
-        // @ts-ignore
         return [
             {
                 accessorKey: 'name',
@@ -46,11 +46,6 @@ const PersonalAccountTable = () => {
                         onClick={() => {
                             setProjectId(info.row.original.id)
                             setShowSidebar(true)
-    // return (<Sidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar}>
-    //                             <ProjectForm projectId={info.row.original.id}
-    //                         setNewData={setData}
-    //                         closeSidebar={setShowSidebar}/>
-    //                     </Sidebar>)
                         }}>{info.row.original.name}</div>
                 },
                 size: 200,
@@ -60,7 +55,7 @@ const PersonalAccountTable = () => {
                 header: 'Владелец',
                 cell: (info) => {
                     return <div>{info.row.original.manager.map(manager => {
-                        return <div key={manager.id}>{manager.last_name} {manager.first_name}</div>
+                        return <div className="rounded-full bg-black text-white text-center py-1 px-3 mb-1" key={manager.id}>{manager.last_name} {manager.first_name}</div>
                     })}</div>
                 },
                 enableSorting: false,
@@ -118,15 +113,17 @@ const PersonalAccountTable = () => {
     }
     return (
         <>
-            <Sidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar}>
-                <ProjectForm projectId={projectsId}
-                             setNewData={setData}
-                             closeSidebar={setShowSidebar}/>
-            </Sidebar>
-            <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
+            <div className="flex container pt-20 h-full pr-8 pl-8 items-center">
+                <SideBar isOpen={showSidebar} setIsOpen={setShowSidebar}>
+                    <div className="w-[30rem]">
+                    <ProjectForm projectId={projectsId}
+                                        projects={data}
+                                     setNewData={setData}
+                                     closeSidebar={setShowSidebar}/>
+                    </div>
+                    </SideBar>
                 <div className="h-full w-full">
                     <div className="flex justify-end my-2">
-                        {/*<AddProjectButton/>*/}
                         <button className="bg-black rounded-md text-white px-4 py-2"
                                 onClick={() => {
                                     setProjectId(0)
@@ -135,7 +132,7 @@ const PersonalAccountTable = () => {
                         </button>
                     </div>
                     <div className="rounded-md border border-b-gray-400 bg-white">
-                        <Table data={data} columns={columns}/>
+                        <Table data={data} columns={columns} pages={true}/>
                     </div>
                 </div>
             </div>

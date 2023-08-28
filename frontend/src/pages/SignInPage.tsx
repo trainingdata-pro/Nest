@@ -3,10 +3,6 @@ import React from 'react'
 import SignInForm from '../components/SignIn/SignInForm';
 
 
-interface ISignIn {
-    username: string,
-    password: string
-}
 const SignInPage = () => {
     return(
         <div className="flex h-screen w-screen items-center justify-center">
