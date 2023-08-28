@@ -10,7 +10,7 @@ class HistoryEvents(models.TextChoices):
     RETURNED = ('returned', 'Возвращен в команду из уволенных')
 
     ADD_MANAGER = ('add_manager', 'Закреплен за менеджером')
-    REMOVE_FROM_MANAGER = ('remove_from_team', 'Удален из команды')
+    REMOVE_FROM_MANAGER = ('remove_from_manager', 'Удален из команды')
 
     ADD_PROJECT = ('add_project', 'Добавлен на проект')
     REMOVE_PROJECT = ('remove_project', 'Снят с проекта')
