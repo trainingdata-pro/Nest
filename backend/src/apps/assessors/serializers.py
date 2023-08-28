@@ -1,9 +1,11 @@
+from copy import copy
 from typing import List, Dict
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from apps.users.models import Manager
+from apps.history.utils import history
 from apps.users.serializers import ManagerSerializer
 from apps.projects.serializers import ProjectSerializer
 from .models import (
@@ -22,6 +24,13 @@ class SkillSerializer(serializers.ModelSerializer):
 
 
 class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
+    def __init__(self, instance=None, *args, **kwargs):
+        super().__init__(instance=instance, *args, **kwargs)
+        if instance:
+            self.projects_before_update = [pr.pk for pr in instance.projects.all()]
+            self.second_managers_before_update = [man.pk for man in instance.second_manager.all()]
+            self.instance_before_update = copy(instance)
+
     class Meta:
         model = Assessor
         exclude = [
@@ -106,6 +115,8 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
             assessor.projects.set(projects)
             assessor.save()
 
+        history.new_assessor_history(assessor)
+
         return assessor
 
     def update(self, instance: Assessor, validated_data: Dict):
@@ -114,6 +125,13 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
         if assessor.manager is None:
             assessor = self._create_assessor_without_team(assessor)
             assessor.save()
+
+        history.updated_assessor_history(
+            old_assessor=self.instance_before_update,
+            updated_assessor=assessor,
+            old_projects=set(self.projects_before_update),
+            old_second_managers=set(self.second_managers_before_update)
+        )
 
         return assessor
 
@@ -194,6 +212,13 @@ class CreateUpdateWorkingHoursSerializer(serializers.ModelSerializer):
 
 
 class UpdateFreeResourceSerializer(serializers.ModelSerializer):
+    def __init__(self, instance=None, *args, **kwargs):
+        super().__init__(instance=instance, *args, **kwargs)
+        if instance:
+            self.projects_before_update = [pr.pk for pr in instance.projects.all()]
+            self.second_managers_before_update = [man.pk for man in instance.second_manager.all()]
+            self.instance_before_update = copy(instance)
+
     class Meta:
         model = Assessor
         fields = ['second_manager', 'manager']
@@ -263,7 +288,15 @@ class UpdateFreeResourceSerializer(serializers.ModelSerializer):
             instance.is_free_resource = False
             instance.free_resource_weekday_hours = None
             instance.free_resource_day_off_hours = None
-            instance.save()
-            return instance
         else:
-            return super().update(instance, validated_data)
+            instance = super().update(instance, validated_data)
+
+        history.updated_assessor_history(
+            old_assessor=self.instance_before_update,
+            updated_assessor=instance,
+            old_projects=set(self.projects_before_update),
+            old_second_managers=set(self.second_managers_before_update)
+        )
+
+        return instance
+
