@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     # apps
     'apps.assessors.apps.AssessorsConfig',
     'apps.fired.apps.FiredConfig',
+    'apps.history.apps.HistoryConfig',
     'apps.projects.apps.ProjectsConfig',
     'apps.users.apps.UsersConfig',
     # other
