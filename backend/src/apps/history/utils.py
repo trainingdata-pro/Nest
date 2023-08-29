@@ -60,10 +60,11 @@ class HistoryManager:
 
         if assessor.projects.exists():
             event = HistoryEvents.ADD_PROJECT
+            projects = assessor.projects.values_list('name', flat=True)
             data.append(
                 {
                     'event': event,
-                    'description': self.__get_description(event, project=assessor.projects.all())
+                    'description': self.__get_description(event, project=projects)
                 }
             )
 
