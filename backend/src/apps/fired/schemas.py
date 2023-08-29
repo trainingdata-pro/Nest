@@ -1,6 +1,7 @@
 from drf_yasg import openapi
 
 from core.utils.schemas import BaseAPISchema
+from apps.assessors.serializers import AssessorSerializer
 
 from . import serializers
 
@@ -104,6 +105,27 @@ class FiredSchema(BaseAPISchema):
             operation_summary='List fire reasons',
             operation_description='Get list of fire reasons',
             responses={**self.get_responses(401)}
+        )
+
+    def back(self):
+        return self.swagger_auto_schema(
+            operation_summary='Return assessor to a team',
+            operation_description='Return assessor to a team.\n'
+                                  'The "manager" field is required for operational managers. '
+                                  'Otherwise, the user who made the request will be assigned '
+                                  'as the responsible manager.',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique fired item ID'
+                )
+            ],
+            responses={
+                200: AssessorSerializer(),
+                **self.get_responses(400, 401, 404)
+            }
         )
 
 

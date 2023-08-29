@@ -23,6 +23,7 @@ class BlackListAPIViewSet(viewsets.ModelViewSet):
 
 @method_decorator(name='retrieve', decorator=fired_schema.retrieve_fired())
 @method_decorator(name='list', decorator=fired_schema.list_fired())
+@method_decorator(name='back', decorator=fired_schema.back())
 class FiredAPIViewSet(BaseAPIViewSet):
     queryset = Fired.objects.all().select_related('assessor', 'reason')
     serializer_class = {
