@@ -19,7 +19,7 @@ interface ManagerResponse {
     results: IManager[]
 }
 export default class ManagerService{
-    static fetch_manager(id: number): Promise<AxiosResponse<IManager>> {
+    static fetch_manager(id: number | string): Promise<AxiosResponse<IManager>> {
         return $api.get<IManager>(`/api/users/${id}`)
     }
     static fetch_managers(): Promise<AxiosResponse<ManagerResponse>> {
@@ -32,6 +32,11 @@ export default class ManagerService{
             "last_name": data.last_name,
             "middle_name": data.middle_name,
             "operational_manager": Number(data.operational_manager)
+        })
+    }
+    static patchBaseUser(managerId:number, data:any) {
+        return $api.patch(`/api/base_user/${managerId}/`, {
+            "usernmae": data.username,
         })
     }
     static fetchOperationsManagers() {
