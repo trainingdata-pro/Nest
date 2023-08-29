@@ -1,12 +1,13 @@
 import axios from "axios";
+import Cookies from "universal-cookie";
 
-export const API_URL = 'http://192.168.1.83:8000'
+export const API_URL = 'http://localhost:8000'
 const $api = axios.create({
     withCredentials: true,
     baseURL: API_URL,
 
 })
-
+const cookie = new Cookies()
 
 $api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${localStorage.getItem('token')}`
@@ -20,12 +21,8 @@ $api.interceptors.response.use((response) => {
     if (error.response.status === 401 && error.config && !error.config._isRetry) {
         originalRequest._isRetry = true;
         try {
-            const cookieValue = document.cookie
-                .split('; ')
-                .find((row) => row.startsWith('refresh='))?.split('=')[1];
-            const response = await $api.post(`${API_URL}/api/token/refresh/`, {'refresh': cookieValue})
+            const response = await axios.post(`${API_URL}/api/token/refresh/`, {'refresh': cookie.get('refresh')})
             localStorage.setItem('token', response.data.access)
-            document.cookie = `refresh=${response.data.refresh}`
             return $api.request(originalRequest)
         } catch (error:any) {
             console.error('Произошла ошибка при обновлении токена:', error);

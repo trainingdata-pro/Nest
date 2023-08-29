@@ -3,8 +3,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from users.models import Code
-from users.utils import create_code
+from apps.users import Code
+from apps.users.utils import create_code
 from .common import base_test_config as config
 
 

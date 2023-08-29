@@ -1,6 +1,5 @@
-import $api from "../http";
-import {AxiosResponse} from "axios";
-
+import $api, {API_URL} from "../http";
+import axios, {AxiosResponse} from "axios";
 interface IUser {
     id: number,
     username: string,
@@ -15,12 +14,33 @@ interface IManager {
     is_operational_manager: boolean,
     operational_manager: number
 }
+
+interface ManagerResponse {
+    results: IManager[]
+}
 export default class ManagerService{
-    static fetch_manager(id: number): Promise<AxiosResponse<IManager>> {
+    static fetch_manager(id: number | string): Promise<AxiosResponse<IManager>> {
         return $api.get<IManager>(`/api/users/${id}`)
     }
-    static fetch_managers(): any {
-        return $api.get<IManager[]>(`/api/users/`)
+    static fetch_managers(): Promise<AxiosResponse<ManagerResponse>> {
+        return $api.get<ManagerResponse>(`/api/users/?is_operational_manager=false`)
+    }
+
+    static patchManager(managerId:number, data:any) {
+        return $api.patch(`/api/users/${managerId}/`, {
+            "first_name": data.first_name,
+            "last_name": data.last_name,
+            "middle_name": data.middle_name,
+            "operational_manager": Number(data.operational_manager)
+        })
+    }
+    static patchBaseUser(managerId:number, data:any) {
+        return $api.patch(`/api/base_user/${managerId}/`, {
+            "usernmae": data.username,
+        })
+    }
+    static fetchOperationsManagers() {
+        return $api.get('/api/users/?is_operational_manager=true')
     }
 
 }

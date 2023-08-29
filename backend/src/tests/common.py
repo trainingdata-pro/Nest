@@ -1,9 +1,9 @@
 from django.contrib.auth.models import User
 from django.urls import reverse
 
-from assessors.models import Assessor
-from projects.models import Project
-from users.models import Manager
+from apps.assessors import Assessor
+from apps.projects import Project
+from apps.users import Manager
 
 
 class BaseTestConfig:

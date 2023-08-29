@@ -32,10 +32,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # apps
-    'assessors.apps.AssessorsConfig',
-    'blacklist.apps.BlacklistConfig',
-    'projects.apps.ProjectsConfig',
-    'users.apps.UsersConfig',
+    'apps.assessors.apps.AssessorsConfig',
+    'apps.fired.apps.FiredConfig',
+    'apps.history.apps.HistoryConfig',
+    'apps.projects.apps.ProjectsConfig',
+    'apps.users.apps.UsersConfig',
     # other
     'rest_framework',
     'drf_yasg',
@@ -120,6 +121,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+    {
+        'NAME': 'core.utils.validators.NoCyrillicValidator'
+    }
 ]
 
 # Internationalization
@@ -139,7 +143,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'core.pagination.Pagination',
+    'DEFAULT_PAGINATION_CLASS': 'core.utils.pagination.Pagination',
     'PAGE_SIZE': 50,
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -153,15 +157,15 @@ REST_FRAMEWORK = {
 
 VALID_EMAIL_DOMAINS = ['trainingdata.pro']
 
-if DEBUG:
-    EMAIL_HOST = 'mail_server'
-    EMAIL_PORT = 1025
-else:
-    EMAIL_USE_TLS = True
-    EMAIL_PORT = 587
-    EMAIL_HOST = config('EMAIL_HOST')
-    EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+# if DEBUG:
+#     EMAIL_HOST = 'mail_server'
+#     EMAIL_PORT = 1025
+# else:
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
@@ -173,7 +177,7 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
 
-    'TOKEN_OBTAIN_SERIALIZER': 'core.serializers.CustomTokenObtainPairSerializer',
+    'TOKEN_OBTAIN_SERIALIZER': 'core.utils.serializers.CustomTokenObtainPairSerializer',
 }
 
 SWAGGER_SETTINGS = {

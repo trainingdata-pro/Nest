@@ -1,44 +1,73 @@
-import {Link, NavLink, redirect} from "react-router-dom";
-import React, {useContext, useEffect, useState} from "react";
+import {Link, NavLink, redirect, useNavigate} from "react-router-dom";
+import React, {useContext} from "react";
 import {Context} from "../../index";
-import DropdownMenu from "./Profile";
+import Profile from "../Profile";
 import {observer} from "mobx-react-lite";
-import { RxPlus } from "react-icons/rx";
-import AddProject from "../AddProject";
+import Cookies from "universal-cookie";
 
-
-// @ts-ignore
-const Header = ({name, setVisible}) => {
+const Header = () => {
+    const navigate = useNavigate()
+    const {store} = useContext(Context)
     return (
-        <header className="sticky h-20 border-b border-gray-200 bg-white">
-            <div className="container mx-auto h-full pr-8 pl-8">
-                <div className="flex h-full w-full items-center gap-x-6">
-                    <nav className="relative z-10 flex flex-1 items-center justify-start">
-                        <div className="relative">
-                            <ul className="group flex flex-1 list-none items-center justify-center space-x-1">
-                                <li>
-                                    <NavLink
-                                        className="inline-flex items-center hover:bg-gray-200 justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4"
-                                        to='/dashboard/team'>Команда</NavLink>
-                                </li>
-                                <li>
-                                    <NavLink
-                                        className="inline-flex items-center hover:bg-gray-200 justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4"
-                                        to='/dashboard/projects'>Проекты</NavLink>
-                                </li>
-                            </ul>
+        <>
+            {/*{store.showProfile && <Profile/>}*/}
+            <header className="fixed h-20 w-screen border-b border-gray-200 bg-white">
+                <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
+                    <div className="flex h-full w-full items-center justify-between gap-x-6">
+                        <div
+                            className="inline-flex items-center border border-b-black hover:bg-gray-200 justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4"
+                        >
+                            <NavLink
+                                to='/dashboard/main'>Service Desk</NavLink>
                         </div>
-                    </nav>
-                    <div onClick={()=> setVisible(true)} className="justify-center bg-black cursor-pointer hover:bg-black/80 text-white rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background bg-primary text-primary-foreground hover:bg-primary/90 h-10 py-2 px-4 flex items-center gap-x-2">
-                        <RxPlus/> {name}
+                        <nav className="relative z-10 flex items-center justify-between">
+                            <ul className="flex list-none items-center space-x-1">
+
+                                <div className="flex justify-end">
+                                    <li>
+                                        <NavLink
+                                            className="inline-flex items-center hover:bg-gray-200 justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4"
+                                            to='/profile'>Профиль</NavLink>
+                                    </li>
+                                    <li>
+                                        <NavLink
+                                            className="inline-flex items-center hover:bg-gray-200 justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4"
+                                            to='/dashboard/check'>Проверить</NavLink>
+                                    </li>
+                                    <li>
+                                        <NavLink
+                                            className="inline-flex items-center hover:bg-gray-200 justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4"
+                                            to='/dashboard/projects/free'>Завершенные</NavLink>
+                                    </li>
+                                    <li>
+                                        <NavLink
+                                            className="inline-flex items-center hover:bg-gray-200 justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4"
+                                            to='/blacklist'>Черный список</NavLink>
+                                    </li>
+                                    <li>
+                                        <NavLink
+                                            className="inline-flex items-center hover:bg-gray-200 justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4"
+                                            to='/dashboard/assessors'>Мои исполнители</NavLink>
+                                    </li>
+                                    <li>
+                                        <NavLink
+                                            className="inline-flex items-center hover:bg-gray-200 justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4"
+                                            to='/dashboard/free'>Свободные ресурсы</NavLink>
+                                    </li>
+                                    <li>
+                                        <NavLink
+                                            onClick={() => store.logout()}
+                                            className="inline-flex items-center hover:bg-gray-200 justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4"
+                                            to='/logout'>Выход</NavLink>
+                                    </li>
+                                </div>
+                            </ul>
+                        </nav>
                     </div>
-
-                    <DropdownMenu/>
-
                 </div>
-            </div>
-        </header>
+            </header>
+        </>
     )
 }
 
-export default Header;
+export default observer(Header);
