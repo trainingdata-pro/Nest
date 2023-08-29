@@ -155,3 +155,4 @@ trash
 tmp
 *.json
 managers.json
+.DS_Store
