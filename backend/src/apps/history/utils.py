@@ -25,6 +25,14 @@ class HistoryManager:
         )
         self.__create_history(updated_assessor, updates)
 
+    def fired_assessor_history(self,
+                               assessor: Assessor,
+                               manager: Manager,
+                               fired_item: Union[Fired, BlackList],
+                               blacklist: bool = False) -> None:
+        updates = self.__fired_event(manager=manager, fired_item=fired_item, blacklist=blacklist)
+        self.__create_history(assessor, updates)
+
     @staticmethod
     def __create_history(assessor: Assessor, updates: List[Dict]) -> None:
         histories = [History(
@@ -54,6 +62,7 @@ class HistoryManager:
                     'description': self.__get_description(event, project=assessor.projects.all())
                 }
             )
+
         if assessor.is_free_resource:
             event = HistoryEvents.ADD_TO_FREE_RESOURCE
             data.append(
@@ -90,6 +99,7 @@ class HistoryManager:
                         'description': self.__get_description(event, manager=updated_assessor.manager)
                     }
                 )
+
         if old_assessor.is_free_resource != updated_assessor.is_free_resource:
             if updated_assessor.is_free_resource is True:
                 event = HistoryEvents.ADD_TO_FREE_RESOURCE
@@ -183,6 +193,18 @@ class HistoryManager:
 
         return data
 
+    def __fired_event(self,
+                      manager: Manager,
+                      fired_item: Union[Fired, BlackList],
+                      blacklist: bool = True) -> List[Dict]:
+        event = HistoryEvents.BLACKLIST if blacklist else HistoryEvents.LEFT
+        return [
+            {
+                'event': event,
+                'description': self.__get_description(event, manager=manager, fired_item=fired_item)
+            }
+        ]
+
     def __created_event(self) -> Dict:
         event = HistoryEvents.CREATED
         description = self.__create_description(event)
@@ -209,10 +231,10 @@ class HistoryManager:
             description = 'Добавлен в систему'
         elif event == HistoryEvents.BLACKLIST:
             description = f'Добавлен в ЧС менеджером {manager_info} по ' \
-                          f'причине {fired_item.reason}'
+                          f'причине "{fired_item.reason}"'
         elif event == HistoryEvents.LEFT:
             description = f'Уволен по собственному желанию менеджером {manager_info} ' \
-                          f'по причине {fired_item.reason}'
+                          f'по причине "{fired_item.reason}"'
         elif event == HistoryEvents.RETURNED:
             description = f'Возвращен в команду менеджера {manager_info}'
         elif event == HistoryEvents.ADD_MANAGER:
