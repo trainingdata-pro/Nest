@@ -109,11 +109,9 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
 
         if skills is not None:
             assessor.skills.set(skills)
-            assessor.save()
 
         if projects is not None and assessor.manager is not None:
             assessor.projects.set(projects)
-            assessor.save()
 
         history.new_assessor_history(assessor)
 
