@@ -2,6 +2,7 @@ from typing import Dict
 
 from rest_framework import serializers
 
+from apps.history.utils import history
 from apps.assessors.models import Assessor, AssessorState
 from apps.assessors.serializers import AssessorSerializer
 from .models import FiredReason, BlackListReason, Fired, BlackList
@@ -32,9 +33,16 @@ class FireAssessorSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: Dict):
         assessor = self.context.get('assessor')
+        manager = assessor.manager
         reason = validated_data.get('reason')
         fired_assessor = remove_assessor(assessor, state=AssessorState.FIRED)
-        self.__create(fired_assessor, reason=reason)
+        fired_item = self.__create(fired_assessor, reason=reason)
+
+        history.fired_assessor_history(
+            assessor=fired_assessor,
+            manager=manager,
+            fired_item=fired_item
+        )
 
         return fired_assessor
 
@@ -60,9 +68,17 @@ class BlackListAssessorSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: Dict):
         assessor = self.context.get('assessor')
+        manager = assessor.manager
         reason = validated_data.get('reason')
         bl_assessor = remove_assessor(assessor, state=AssessorState.BLACKLIST)
-        self.__create(bl_assessor, reason=reason)
+        fired_item = self.__create(bl_assessor, reason=reason)
+
+        history.fired_assessor_history(
+            assessor=bl_assessor,
+            manager=manager,
+            fired_item=fired_item,
+            blacklist=True
+        )
 
         return bl_assessor
 
