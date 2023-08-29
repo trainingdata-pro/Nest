@@ -32,7 +32,8 @@ class SkillsSchema(BaseAPISchema):
                     name='title',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by skill title.'
+                    description='Case-independent filtering by skill title.\n'
+                                'Example: host.com/?title=cvat'
                 ),
                 openapi.Parameter(
                     name='ordering',
@@ -42,10 +43,7 @@ class SkillsSchema(BaseAPISchema):
                                 'Available fields: pk, title.'
                 )
             ],
-            responses={
-                200: serializers.SkillSerializer(many=True),
-                **self.get_responses(401)
-            }
+            responses={**self.get_responses(401)}
         )
 
 
@@ -141,10 +139,7 @@ class AssessorSchema(BaseAPISchema):
                                 'Available fields: pk, username, last_name, manager__last_name, status.'
                 )
             ],
-            responses={
-                200: serializers.AssessorSerializer(many=True),
-                **self.get_responses(401)
-            }
+            responses={**self.get_responses(401)}
         )
 
     def create(self):
