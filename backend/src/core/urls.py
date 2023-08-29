@@ -24,6 +24,7 @@ schema_view = get_schema_view(
 _api = [
     path('', include('apps.assessors.urls')),
     path('', include('apps.fired.urls')),
+    path('', include('apps.history.urls')),
     path('', include('apps.projects.urls')),
     path('', include('apps.users.urls'))
 ]
