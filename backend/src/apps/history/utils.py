@@ -33,6 +33,10 @@ class HistoryManager:
         updates = self.__fired_event(manager=manager, fired_item=fired_item, blacklist=blacklist)
         self.__create_history(assessor, updates)
 
+    def returned_history(self, assessor: Assessor, manager: Manager) -> None:
+        updates = self.__returned_event(manager)
+        self.__create_history(assessor, updates)
+
     @staticmethod
     def __create_history(assessor: Assessor, updates: List[Dict]) -> None:
         histories = [History(
@@ -44,7 +48,7 @@ class HistoryManager:
         History.objects.bulk_create(histories)
 
     def __check_new(self, assessor: Assessor) -> List[Dict]:
-        data = [self.__created_event()]
+        data = self.__created_event()
         if assessor.manager:
             event = HistoryEvents.ADD_MANAGER
             data.append(
@@ -56,10 +60,11 @@ class HistoryManager:
 
         if assessor.projects.exists():
             event = HistoryEvents.ADD_PROJECT
+            projects = assessor.projects.values_list('name', flat=True)
             data.append(
                 {
                     'event': event,
-                    'description': self.__get_description(event, project=assessor.projects.all())
+                    'description': self.__get_description(event, project=projects)
                 }
             )
 
@@ -183,13 +188,7 @@ class HistoryManager:
                     }
                 )
             elif updated_assessor.state == AssessorState.WORK:
-                event = HistoryEvents.RETURNED
-                data.append(
-                    {
-                        'event': event,
-                        'description': self.__get_description(event, manager=updated_assessor.manager)
-                    }
-                )
+                data.extend(self.__returned_event(manager=updated_assessor.manager))
 
         return data
 
@@ -205,13 +204,23 @@ class HistoryManager:
             }
         ]
 
-    def __created_event(self) -> Dict:
+    def __created_event(self) -> List[Dict]:
         event = HistoryEvents.CREATED
-        description = self.__create_description(event)
-        return {
-            'event': event,
-            'description': description
-        }
+        return [
+            {
+                'event': event,
+                'description': self.__create_description(event)
+            }
+        ]
+
+    def __returned_event(self, manager: Manager) -> List[Dict]:
+        event = HistoryEvents.RETURNED
+        return [
+            {
+                'event': event,
+                'description': self.__create_description(event, manager=manager)
+            }
+        ]
 
     def __get_description(self, event: str, **kwargs) -> str:
         return self.__create_description(event, **kwargs)
@@ -236,7 +245,8 @@ class HistoryManager:
             description = f'Уволен по собственному желанию менеджером {manager_info} ' \
                           f'по причине "{fired_item.reason}"'
         elif event == HistoryEvents.RETURNED:
-            description = f'Возвращен в команду менеджера {manager_info}'
+            description = f'Удален из уволенных по собственному желанию ' \
+                          f'и закреплен за менеджером {manager_info}'
         elif event == HistoryEvents.ADD_MANAGER:
             description = f'Закреплен за менеджером {manager_info}'
         elif event == HistoryEvents.REMOVE_FROM_MANAGER:

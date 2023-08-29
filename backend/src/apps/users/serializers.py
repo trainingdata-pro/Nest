@@ -88,13 +88,14 @@ class UpdateManagerSerializer(serializers.ModelSerializer):
             )
         return manager
 
-    def update(self, instance: Manager, validated_data: Dict):
+    def update(self, instance: Manager, validated_data: Dict) -> Manager:
         operational_manager = validated_data.get('operational_manager')
         if not instance.operational_manager and not operational_manager:
             raise ValidationError(
                 {'operational_manager': 'Укажите вашего руководителя.'}
             )
         self.check_team_lead(operational_manager)
+
         return super().update(instance, validated_data)
 
 

@@ -21,8 +21,9 @@ class HistorySchema(BaseAPISchema):
                     name='event',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Filtering by event. Example: host.com/?event=created.\n\n'
-                                f'Available events: '
+                    description='Case-independent filtering by event.\n'
+                                'Example: host.com/?event=created.\n\n'
+                                f'Available events:\n'
                                 f'{", ".join([f"{item[0]} - {item[1]}" for item in HistoryEvents.choices])}'
                 ),
                 openapi.Parameter(
