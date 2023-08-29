@@ -35,7 +35,7 @@ class CreateProjectSerializer(serializers.ModelSerializer):
         project.save()
         return project
 
-    def validate(self, attrs: Dict):
+    def validate(self, attrs: Dict) -> Dict:
         manager = self.get_manager()
         if manager.is_operational_manager:
             owners = attrs.get('manager')
@@ -91,7 +91,7 @@ class CreateProjectSerializer(serializers.ModelSerializer):
 
         return project
 
-    def update(self, instance: Project, validated_data: Dict):
+    def update(self, instance: Project, validated_data: Dict) -> Project:
         project = super().update(instance, validated_data)
         project = self._check_if_completed(project)
 

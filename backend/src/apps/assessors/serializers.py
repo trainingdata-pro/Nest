@@ -39,10 +39,10 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
             'date_of_registration',
         ]
 
-    def get_manager(self):
+    def get_manager(self) -> Manager:
         return self.context.get('request').user.manager
 
-    def validate(self, attrs):
+    def validate(self, attrs: Dict) -> Dict:
         current_manager = self.get_manager()
         manager = attrs.get('manager')
         if manager is not None:
@@ -98,7 +98,7 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
 
         return instance
 
-    def create(self, validated_data: Dict):
+    def create(self, validated_data: Dict) -> Assessor:
         skills = validated_data.pop('skills', None)
         projects = validated_data.pop('projects', None)
         assessor = Assessor(**validated_data)
@@ -119,7 +119,7 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
 
         return assessor
 
-    def update(self, instance: Assessor, validated_data: Dict):
+    def update(self, instance: Assessor, validated_data: Dict) -> Assessor:
         validated_data = self._update_if_free_resource(validated_data, instance)
         assessor = super().update(instance, validated_data)
         if assessor.manager is None:
@@ -203,7 +203,7 @@ class CreateUpdateWorkingHoursSerializer(serializers.ModelSerializer):
         model = WorkingHours
         fields = '__all__'
 
-    def validate_assessor(self, assessor: Assessor):
+    def validate_assessor(self, assessor: Assessor) -> Assessor:
         manager = self.context.get('request').user.manager
         if assessor.manager != manager and assessor.manager.operational_manager != manager:
             raise ValidationError('Вы не можете выбрать данного исполнителя.')
@@ -223,17 +223,17 @@ class UpdateFreeResourceSerializer(serializers.ModelSerializer):
         model = Assessor
         fields = ['second_manager', 'manager']
 
-    def get_manager(self):
+    def get_manager(self) -> Manager:
         return self.context.get('request').user.manager
 
     @staticmethod
-    def _second_manager_validation_error(message: str):
+    def _second_manager_validation_error(message: str) -> None:
         raise ValidationError(
             {'second_manager': [message]}
         )
 
     @staticmethod
-    def _manager_validation_error(message: str):
+    def _manager_validation_error(message: str) -> None:
         raise ValidationError(
             {'manager': [message]}
         )
@@ -267,7 +267,7 @@ class UpdateFreeResourceSerializer(serializers.ModelSerializer):
             elif current_manager.is_operational_manager and new_manager.operational_manager != current_manager:
                 self._manager_validation_error('Выберите менеджера из вашей команды.')
 
-    def validate(self, attrs: Dict):
+    def validate(self, attrs: Dict) -> Dict:
         if self.instance.is_free_resource is False:
             self._second_manager_validation_error('Исполнитель не является свободным ресурсом.')
 
@@ -281,7 +281,7 @@ class UpdateFreeResourceSerializer(serializers.ModelSerializer):
 
         return super().validate(attrs)
 
-    def update(self, instance: Assessor, validated_data: Dict):
+    def update(self, instance: Assessor, validated_data: Dict) -> Assessor:
         manager = validated_data.get('manager')
         if manager is not None:
             instance.manager = manager

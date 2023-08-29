@@ -2,6 +2,7 @@ from django.utils.decorators import method_decorator
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.assessors.serializers import AssessorSerializer
@@ -40,7 +41,7 @@ class FiredAPIViewSet(BaseAPIViewSet):
     http_method_names = ['get', 'patch']
 
     @action(detail=True, methods=['patch'])
-    def back(self, request, **kwargs) -> Response:
+    def back(self, request: Request, **kwargs) -> Response:
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
