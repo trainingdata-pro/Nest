@@ -26,6 +26,7 @@ import Table from "./UI/Table";
 import Sidebar from "./UI/Sidebar";
 import ProjectForm from "./ProjectForm";
 import SideBar from "./UI/Dialog";
+import ManagerService from "../services/ManagerService";
 
 const PersonalAccountTable = () => {
     const {store} = useContext(Context)
@@ -97,12 +98,22 @@ const PersonalAccountTable = () => {
     useMemo(async () => {
         if (store.managerData.id) {
             setIsLoading(true)
+            if (!store.managerData.is_operational_manager){
             await ProjectService.fetchProjects(store.managerData.id.toString())
                 .then(res => {
                     setData(res.data.results.filter(project => project.status !== 'completed'))
 
                 })
-                .catch(e => console.log(e))
+                .catch(e => console.log(e))}
+            else{
+                await ManagerService.fetch_managers().then(res => {
+
+                    const ids = res.data.results.filter(manager => manager.operational_manager === store.managerData.id).map(man =>man.id)
+
+                    ProjectService.fetchProjects(ids.join(',')).then(res => setData(res.data.results))
+
+                })
+            }
             setIsLoading(false)
         }
 

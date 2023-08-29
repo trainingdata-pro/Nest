@@ -9,6 +9,8 @@ import MyInput from "./UI/MyInput";
 import Error from "./UI/Error";
 import Select from "react-select";
 import {SelectProps} from "./ProjectForm";
+import {Assessor} from "../models/AssessorResponse";
+import {da} from "date-fns/locale";
 
 
 interface FormProps {
@@ -44,11 +46,14 @@ const AddAssessorForm = ({assessors, setAssessors, showSidebar, setShowSidebar}:
         const [serverError, setServerError] = useState({})
 
         function submit() {
-            AssessorService.addAssessor(getValues()).then((res: any) => {
+            let data = getValues()
+            const requestData2 = {...data, status: data.status.value}
+            AssessorService.addAssessor(requestData2).then((res:any) => {
                     setAssessors([...assessors, res.data])
                     setShowSidebar(false)
                 }
             ).catch((e: any) => {
+                console.log(e)
                 const errJson = JSON.parse(e.request.response)
                 setServerError(errJson)
             })

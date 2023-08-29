@@ -21,9 +21,6 @@ $api.interceptors.response.use((response) => {
     if (error.response.status === 401 && error.config && !error.config._isRetry) {
         originalRequest._isRetry = true;
         try {
-            // const cookieValue = document.cookie
-            //     .split('; ')
-            //     .find((row) => row.startsWith('refresh='))?.split('=')[1];
             const response = await axios.post(`${API_URL}/api/token/refresh/`, {'refresh': cookie.get('refresh')})
             localStorage.setItem('token', response.data.access)
             return $api.request(originalRequest)

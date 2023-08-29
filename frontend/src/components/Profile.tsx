@@ -6,41 +6,69 @@ import ManagerService from "../services/ManagerService";
 import {ManagerData} from "../store/store";
 import {useNavigate} from "react-router-dom";
 import Header from "./Header/Header";
+import MyLabel from "./UI/MyLabel";
+import MyInput from "./UI/MyInput";
+import Select from "react-select";
+
+interface SelectProps {
+    value: number | string,
+    label: string
+}
+
+interface FormProps {
+    last_name: string,
+    first_name: string,
+    middle_name: string,
+    username: string,
+    id: number,
+    operational_manager: SelectProps
+}
 
 const Profile = () => {
     const {store} = useContext(Context)
+    useMemo(async () => {
+
+        await ManagerService.fetchOperationsManagers().then((res) => setOperationsManagers(res.data.results.map((operations: any) => {
+            return {value: operations.id, label: `${operations.last_name} ${operations.first_name}`}
+        })))
+        if (store.managerData.operational_manager){
+            await ManagerService.fetch_manager(store.managerData.operational_manager).then(res => {
+                console.log(res.data)
+                setValue('operational_manager', {
+                    value: res.data.id,
+                    label: `${res.data.last_name} ${res.data.first_name}`
+                })
+            })
+        }
+
+    }, []);
+
     useEffect(() => {
-        ManagerService.fetchOperationsManagers().then((res) => setOperationsManagers(res.data.results));
         ManagerService.fetch_manager(store.managerData.id).then((res) => {
-            setManager(res.data);
+            setValue('id', res.data.id);
+            setValue('last_name', res.data.last_name);
+            setValue('first_name', res.data.first_name);
+            setValue('middle_name', res.data.middle_name);
+            setValue('username', res.data.user.username);
         });
     }, []);
     const navigate = useNavigate()
-    const [manager, setManager] = useState<ManagerData>()
-    const [operationsManagers, setOperationsManagers] = useState<ManagerData[]>([])
-    const [selectedOperationsManager, setSelectedOperationsManager] = useState(store.managerData.operational_manager)
-    const {register, getValues,reset, setValue, handleSubmit} = useForm(
-        )
-    useEffect(() => {
-        setValue('id', manager?.id || '');
-        setValue('last_name', manager?.last_name || '');
-        setValue('first_name', manager?.first_name || '');
-        setValue('middle_name', manager?.middle_name || '');
-        setValue('username', manager?.user.username || '');
-        setValue('operational_manager', manager?.operational_manager || '');
-    }, [manager, setValue]);
-    useEffect(() => {
+    const [operationsManagers, setOperationsManagers] = useState<SelectProps[]>([])
+    const {register, watch, getValues, reset, setValue, handleSubmit} = useForm<FormProps>(
+    )
 
-        reset();
-    }, [reset]);
-    function onSubmit(data: any) {
-        ManagerService.patchManager(data.id, data).then((res) => {
-            store.setShowProfile(false)
-
+    function onSubmit() {
+        const data = getValues()
+        const newData = {...data, operational_manager: data.operational_manager.value}
+        store.managerData.operational_manager = newData.operational_manager
+        ManagerService.patchManager(data.id, newData)
+        ManagerService.patchBaseUser(store.user_id, {'username': getValues('username')}).then((res) => {
+            navigate(-1)
         })
     }
-    const handleSelectChange = (event:any) => {
-        setSelectedOperationsManager(event.target.value);
+
+    const handleSelectChange = (value: any) => {
+        setValue('operational_manager', value);
     };
     return (
         <div className="flex h-screen w-screen items-end justify-center sm:items-center">
@@ -50,44 +78,40 @@ const Profile = () => {
                 <form className="w-[40rem] space-y-4" onSubmit={handleSubmit(onSubmit)}>
                     <section className="grid grid-cols-3 gap-x-3">
                         <div className="col-span-1">
-                            <label>Фамилия</label>
-                            <input {...register('last_name')}
-                                   className="flex h-8 rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full"
-                            />
+                            <MyLabel required={true}>Фамилия</MyLabel>
+                            <MyInput register={{...register('last_name')}} type="text" placeholder="Фамилия"/>
                         </div>
                         <div className="col-span-1">
-                            <label>Имя</label>
-                            <input {...register('first_name')}
-                                   className="flex h-8 rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full"
-                            />
+                            <MyLabel required={true}>Имя</MyLabel>
+                            <MyInput register={{...register('first_name')}} type="text" placeholder="Имя"/>
                         </div>
                         <div className="col-span-1">
-                            <label>Отчество</label>
-                            <input {...register('middle_name')}
-                                   className="flex h-8 rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full"
-                            />
+                            <MyLabel required={true}>Отчество</MyLabel>
+                            <MyInput register={{...register('middle_name')}} type="text" placeholder="Отчество"/>
                         </div>
                     </section>
                     <div>
-                        <label>Ник в телеграмм</label>
-                        <input {...register('username')}
-                               className="h-8 rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full"/>
+                        <MyLabel required={true}>Ник в ТГ</MyLabel>
+                        <MyInput register={{...register('username')}} type="text" placeholder="Ник в ТГ"/>
                     </div>
                     <div>
-                        <label>Ответственный TeamLead</label>
-                        <select disabled={!!manager?.operational_manager || manager?.is_operational_manager} {...register('operational_manager')} value={selectedOperationsManager} onChange={handleSelectChange}
-                                className="flex h-10 rounded-md border border-input mb-2 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full max-w-[30rem] bg-white"
-                        >
-                            <option value="" disabled>Выберите своего начальника</option>
-                            {operationsManagers.map(manager => <option key={manager.id}
-                                                                       value={manager.id}>{manager.last_name} {manager.first_name}</option>)}
-                        </select>
+                        <MyLabel required={true}>Ответственный TeamLead</MyLabel>
+                        <Select
+                            isDisabled={store.managerData.is_operational_manager || !!store.managerData.operational_manager}
+                            options={operationsManagers}
+                            value={watch('operational_manager')}
+                            {...register('operational_manager', {required: 'Обязательное поле'})}
+                            onChange={handleSelectChange}
+                        />
+
                     </div>
                     <div>
-                        <label>ID Менеджера</label>
-                        <input disabled {...register('id')} value={store.managerData.id}
-                               className="h-8 rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full"/>
+                        <MyLabel required={true}>ID</MyLabel>
+                        <MyInput register={{...register('id')}} type="text" placeholder="Фамилия" disabled={true}/>
                     </div>
+                    <button
+                        className="bg-black text-white rounded-md text-sm font-medium disabled:opacity-50 transition-colors hover:bg-primary/90 h-10 py-2 px-4">Сохранить
+                    </button>
                 </form>
                 <div className="mt-5 flex justify-between">
                     <button
@@ -97,17 +121,12 @@ const Profile = () => {
                             navigate(-1)
                         }}>Закрыть страницу
                     </button>
-                    <button
-                        className="bg-black text-white rounded-md text-sm font-medium disabled:opacity-50 transition-colors hover:bg-primary/90 h-10 py-2 px-4"
-                        onClick={() => {
-                            onSubmit(getValues())
-                            navigate(-1)
-                        }}>Сохранить
-                    </button>
+
                 </div>
             </div>
         </div>
-    );
+    )
+        ;
 };
 
 export default observer(Profile);
