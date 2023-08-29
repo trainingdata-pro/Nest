@@ -15,7 +15,8 @@ class StateAdmin(admin.ModelAdmin):
     list_display = [
         'pk',
         'assessor',
-        'reason'
+        'reason',
+        'date'
     ]
     list_display_links = ['assessor']
 
