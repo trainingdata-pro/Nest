@@ -6,7 +6,6 @@ import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import ConfirmationSignUp from "./components/SignUp/ConfirmationSignUp";
 import MainPage from './pages/MainPage';
-import ProfilePage from "./pages/ProfilePage";
 import Loader from './components/UI/Loader';
 import ProjectAssessors from "./components/ProjectAssessors";
 import AssessorsPage from "./components/Assessors/AssessorsPage";
@@ -37,14 +36,10 @@ function App() {
                 </Routes>:
                  <Routes>
                      <Route path={'/dashboard/projects'} element={<MainPage/>}/>
-                     <Route path={'/profile'} element={<ProfilePage/>}/>
                      <Route path={'/dashboard/projects/:id/assessors'} element={<ProjectAssessors/>}/>
                      <Route path={'/dashboard/assessors'} element={<AssessorsPage/>}/>
                      <Route path={'/assessor/:id'} element={<AssessorPage/>}/>
                      <Route path={'/dashboard/projects/free'} element={<CompletedProjects/>} />
-                     {/*<Route path={'/dashboard/assessor/add_project'} element={<AddAssessorToProject id={undefined}/>}/>*!/*/}
-                     {/*<Route path={'/dashboard/projects/'} element={<ProjectsPage/>}/>*/}
-                     {/*<Route path={'/dashboard/projects/:id'} element={<ProjectPage/>}/>*/}
                      <Route path="*" element={<Navigate to="/dashboard/projects" replace/>}/> // TODO: redirect 404
                  </Routes>}
              </BrowserRouter>

@@ -1,16 +1,20 @@
 import {Link, NavLink, redirect, useNavigate} from "react-router-dom";
-import React, {useContext} from "react";
+import React, {useContext, useState} from "react";
 import {Context} from "../../index";
 import Profile from "../Profile";
 import {observer} from "mobx-react-lite";
 import Cookies from "universal-cookie";
+import Dialog from "../UI/Dialog";
 
 const Header = () => {
     const navigate = useNavigate()
     const {store} = useContext(Context)
+    const [isOpen, setIsOpen] = useState(false)
     return (
         <>
-            {/*{store.showProfile && <Profile/>}*/}
+            <Dialog isOpen={isOpen} setIsOpen={setIsOpen}>
+                <Profile setIsOpen={setIsOpen}/>
+            </Dialog>
             <header className="fixed h-20 w-screen border-b border-gray-200 bg-white">
                 <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
                     <div className="flex h-full w-full items-center justify-between gap-x-6">
@@ -25,9 +29,9 @@ const Header = () => {
 
                                 <div className="flex justify-end">
                                     <li>
-                                        <NavLink
+                                        <button
                                             className="inline-flex items-center hover:bg-gray-200 justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4"
-                                            to='/profile'>Профиль</NavLink>
+                                            onClick={() => setIsOpen(true)}>Профиль</button>
                                     </li>
                                     <li>
                                         <NavLink
