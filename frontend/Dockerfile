@@ -9,7 +9,7 @@ COPY package.json package-lock.json ./
 RUN npm install
 
 COPY src .
-RUN npm run build
+RUN npm start build
 
 # --- STAGE 2: Serve React App
 
