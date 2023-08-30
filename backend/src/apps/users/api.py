@@ -8,8 +8,8 @@ from rest_framework.response import Response
 from core.utils.common import BaseAPIViewSet
 from core.utils import permissions
 from .filters import ManagerFilter
-from .models import Manager
-from .utils import send_code
+from .models import Manager, PasswordResetToken
+from .utils import send_confirmation_code, send_reset_password_token
 from . import serializers, schemas
 
 
@@ -42,7 +42,7 @@ class ManagerAPIViewSet(BaseAPIViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         manager = serializer.save()
-        send_code(email=manager.user.email, code=manager.user.code.code)
+        send_confirmation_code(email=manager.user.email, code=manager.user.code.code)
         response = serializers.ManagerSerializer(manager)
 
         return Response(response.data, status=status.HTTP_201_CREATED)
@@ -58,7 +58,6 @@ class UserActivateAPIView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         active_user = serializer.save()
         response = serializers.ManagerSerializer(active_user)
-
         return Response(response.data, status=200)
 
 
@@ -68,3 +67,32 @@ class UpdateUsernameAPIView(generics.UpdateAPIView):
     permission_classes = (IsAuthenticated, permissions.BaseUserPermission)
     serializer_class = serializers.UserSerializer
     http_method_names = ['patch']
+
+
+@method_decorator(name='post', decorator=schemas.password_schema.reset())
+class ResetPasswordAPIView(generics.CreateAPIView):
+    queryset = PasswordResetToken.objects.all()
+    permission_classes = (AllowAny,)
+    serializer_class = serializers.PasswordResetSerializer
+
+    def post(self, request: Request, *args, **kwargs) -> Response:
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        token = serializer.save()
+        if token is not None:
+            send_reset_password_token(token.user.email, token.token)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class PasswordSetAPIView(generics.CreateAPIView):
+    queryset = PasswordResetToken.objects.all()
+    permission_classes = (AllowAny,)
+    serializer_class = serializers.PasswordSetSerializer
+
+    def post(self, request: Request, *args, **kwargs) -> Response:
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

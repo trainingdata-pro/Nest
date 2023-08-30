@@ -1,13 +1,12 @@
-from typing import Dict
+from typing import Dict, Union
 
 from django.contrib.auth import password_validation, get_user_model
-from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from core.settings import VALID_EMAIL_DOMAINS
 
-from .models import Manager, Code
+from .models import user_model, Manager, Code, PasswordResetToken
 from .utils import create_code
 
 
@@ -51,7 +50,7 @@ class CreateManagerSerializer(serializers.Serializer):
         username = validated_data.get('username')
         email = validated_data.get('email')
         password = validated_data.get('password')
-        user = User.objects.create_user(
+        user = user_model.objects.create_user(
             username=username,
             email=email,
             password=password,
@@ -101,7 +100,7 @@ class UpdateManagerSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = user_model
         fields = ['id', 'username', 'email']
 
 
@@ -132,3 +131,67 @@ class CodeSerializer(serializers.Serializer):
             confirmation_code.delete()
 
             return user.manager
+
+
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    @staticmethod
+    def _get_user(email: str) -> user_model:
+        return user_model.objects.filter(email=email).first()
+
+    @staticmethod
+    def __create_token(user: user_model) -> PasswordResetToken:
+        token = PasswordResetToken.objects.create(
+            user=user
+        )
+
+        return token
+
+    def create(self, validated_data) -> Union[PasswordResetToken, None]:
+        email = validated_data.get('email')
+        user = self._get_user(email)
+
+        if user is not None:
+            token = self.__create_token(user)
+        else:
+            token = None
+
+        return token
+
+
+class PasswordSetSerializer(serializers.Serializer):
+    def __init__(self, instance=None, *args, **kwargs):
+        super().__init__(instance=instance, *args, **kwargs)
+        self.obj = None
+
+    token = serializers.UUIDField()
+    password = serializers.CharField(max_length=255)
+
+    def validate(self, attrs: Dict) -> Dict:
+        super().validate(attrs)
+
+        password = attrs.get('password')
+        model = get_user_model()
+        user = model(username=self.initial_data.get('username'))
+        password_validation.validate_password(password, user)
+
+        token = attrs.get('token')
+        token_obj = PasswordResetToken.objects.filter(token=token).first()
+        if not token_obj:
+            raise ValidationError(
+                {'token': ['Неверный токен.']}
+            )
+
+        self.obj = token_obj
+
+        return attrs
+
+    def save(self, **kwargs) -> user_model:
+        user = self.obj.user
+        password = self.validated_data.get('password')
+        user.set_password(password)
+        user.save()
+        self.obj.delete()
+
+        return user

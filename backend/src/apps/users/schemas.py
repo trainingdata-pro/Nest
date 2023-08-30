@@ -118,6 +118,27 @@ class BaseUserSchema(BaseAPISchema):
         )
 
 
+class ResetPasswordSchema(BaseAPISchema):
+    def reset(self):
+        return self.swagger_auto_schema(
+            operation_summary='Reset user password',
+            operation_description='Generate and send a unique password reset token.',
+            responses={
+                **self.get_responses(204)
+            }
+        )
+
+    def set(self):
+        return self.swagger_auto_schema(
+            operation_summary='Set user password',
+            operation_description='Set new user password.',
+            responses={
+                **self.get_responses(204, 400)
+            }
+        )
+
+
 users_schema = UserSchema(tags=['users'])
 user_activate_schema = UserActivateSchema(tags=['users'])
 base_user_schema = BaseUserSchema(tags=['users'])
+password_schema = ResetPasswordSchema(tags=['password'])

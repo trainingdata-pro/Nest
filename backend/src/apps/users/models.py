@@ -1,5 +1,8 @@
+import uuid
+
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.utils import timezone
 
 user_model = get_user_model()
 
@@ -43,7 +46,7 @@ class Manager(models.Model):
         verbose_name_plural = 'менеджеры'
 
     def __str__(self):
-        return self.full_name
+        return str(self.full_name)
 
     @property
     def full_name(self) -> str:
@@ -66,3 +69,23 @@ class Code(models.Model):
         db_table = 'codes'
         verbose_name = 'код подтверждения'
         verbose_name_plural = 'коды подтверждения'
+
+    def __str__(self):
+        return str(self.code)
+
+
+class PasswordResetToken(models.Model):
+    user = models.ForeignKey(
+        user_model,
+        on_delete=models.CASCADE
+    )
+    token = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False
+    )
+    created_at = models.DateTimeField(
+        default=timezone.now
+    )
+
+    def __str__(self):
+        return str(self.token)

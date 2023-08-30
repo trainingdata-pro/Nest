@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group, User
 
-from .models import Manager, Code
+from .models import Manager, Code, PasswordResetToken
 
 
 class CustomUserAdmin(UserAdmin):
@@ -45,8 +45,14 @@ class CodeAdmin(admin.ModelAdmin):
     ]
 
 
+class TokenAdmin(admin.ModelAdmin):
+    list_display = ['pk', 'user', 'token']
+    list_display_links = ['user']
+
+
 admin.site.unregister(User)
 admin.site.unregister(Group)
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Manager, ManagerAdmin)
 admin.site.register(Code, CodeAdmin)
+admin.site.register(PasswordResetToken, TokenAdmin)
