@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Собираем React-приложение
-RUN npm run build
+RUN npm build
 
 # Команда для запуска приложения, если это необходимо
 CMD ["npm", "start"]
