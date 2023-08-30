@@ -1,18 +1,20 @@
+# Устанавливаем базовый образ Node.js
+FROM node:14
 
-# --- STAGE 1: Install Dependencies and Build React App
-
-FROM node:14 AS builder
-
+# Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+# Копируем package.json и package-lock.json в контейнер
+COPY package*.json ./
+
+# Устанавливаем зависимости
 RUN npm install
 
-COPY src .
-RUN npm start build
+# Копируем все файлы из текущей директории в контейнер
+COPY . .
 
-# --- STAGE 2: Serve React App
+# Собираем React-приложение
+RUN npm run build
 
-FROM nginx:alpine
-
-COPY --from=builder /app/build /usr/share/nginx/html
+# Команда для запуска приложения, если это необходимо
+CMD ["npm", "start"]
