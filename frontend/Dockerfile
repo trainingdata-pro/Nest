@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install
 
-COPY . .
+COPY src .
 RUN npm run build
 
 # --- STAGE 2: Serve React App
