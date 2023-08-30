@@ -25,17 +25,17 @@ const ProjectAssessors = () => {
                 columns: [
                     columnHelper.accessor('last_name', {
                         header: 'Фамилия',
-                        cell: info => info.getValue(),
+                        cell: info => <NavLink to={`/assessor/${info.row.original.id}`}>{info.getValue()}</NavLink>,
                         enableSorting: false
                     }),
                     columnHelper.accessor('first_name', {
                         header: 'Имя',
-                        cell: info => info.getValue(),
+                        cell: info => <NavLink to={`/assessor/${info.row.original.id}`}>{info.getValue()}</NavLink>,
                         enableSorting: false
                     }),
                     columnHelper.accessor('middle_name', {
                         header: 'Отчество',
-                        cell: info => info.getValue(),
+                        cell: info => <NavLink to={`/assessor/${info.row.original.id}`}>{info.getValue()}</NavLink>,
                         enableSorting: false
                     }),
                 ],
