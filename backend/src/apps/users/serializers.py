@@ -145,7 +145,11 @@ class PasswordResetSerializer(serializers.Serializer):
         return user_model.objects.filter(email=email).first()
 
     @staticmethod
-    def __create_token(user: user_model) -> PasswordResetToken:
+    def __remove_unused_token(user: user_model) -> None:
+        PasswordResetToken.objects.filter(user=user).delete()
+
+    def __create_token(self, user: user_model) -> PasswordResetToken:
+        self.__remove_unused_token(user)
         token = PasswordResetToken.objects.create(
             user=user
         )

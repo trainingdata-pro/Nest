@@ -9,7 +9,6 @@ from core.utils.common import BaseAPIViewSet
 from core.utils import permissions
 from .filters import ManagerFilter
 from .models import Manager, PasswordResetToken
-# from .utils import send_confirmation_code, send_reset_password_token
 from .tasks import send_confirmation_code, send_reset_password_token
 from . import serializers, schemas
 
