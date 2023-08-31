@@ -144,16 +144,17 @@ class PasswordResetSerializer(serializers.Serializer):
     def _get_user(email: str) -> user_model:
         return user_model.objects.filter(email=email).first()
 
+    def _new_token(self, user: user_model) -> PasswordResetToken:
+        self.__remove_unused_token(user)
+        return self.__create_token(user)
+
     @staticmethod
     def __remove_unused_token(user: user_model) -> None:
         PasswordResetToken.objects.filter(user=user).delete()
 
-    def __create_token(self, user: user_model) -> PasswordResetToken:
-        self.__remove_unused_token(user)
-        token = PasswordResetToken.objects.create(
-            user=user
-        )
-
+    @staticmethod
+    def __create_token(user: user_model) -> PasswordResetToken:
+        token = PasswordResetToken.objects.create(user=user)
         return token
 
     def validate(self, attrs: Dict) -> Dict:
@@ -170,7 +171,7 @@ class PasswordResetSerializer(serializers.Serializer):
         return attrs
 
     def create(self, validated_data) -> Union[PasswordResetToken, None]:
-        token = self.__create_token(self.user)
+        token = self._new_token(self.user)
 
         return token
 
