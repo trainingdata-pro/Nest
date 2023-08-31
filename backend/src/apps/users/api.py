@@ -71,7 +71,7 @@ class UpdateUsernameAPIView(generics.UpdateAPIView):
 
 @method_decorator(name='post', decorator=schemas.password_schema.reset())
 class ResetPasswordAPIView(generics.CreateAPIView):
-    queryset = PasswordResetToken.objects.all()
+    queryset = PasswordResetToken
     permission_classes = (AllowAny,)
     serializer_class = serializers.PasswordResetSerializer
 
@@ -86,7 +86,7 @@ class ResetPasswordAPIView(generics.CreateAPIView):
 
 
 class PasswordSetAPIView(generics.CreateAPIView):
-    queryset = PasswordResetToken.objects.all()
+    queryset = PasswordResetToken
     permission_classes = (AllowAny,)
     serializer_class = serializers.PasswordSetSerializer
 
@@ -94,5 +94,21 @@ class PasswordSetAPIView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@method_decorator(name='patch', decorator=schemas.password_schema.change())
+class ChangePasswordAPIView(generics.UpdateAPIView):
+    queryset = get_user_model()
+    permission_classes = (IsAuthenticated, permissions.BaseUserPermission)
+    serializer_class = serializers.ChangePasswordSerializer
+    http_method_names = ['patch']
+
+    def update(self, request: Request, *args, **kwargs) -> Response:
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
