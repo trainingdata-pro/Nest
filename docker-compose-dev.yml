@@ -1,0 +1,42 @@
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend/src/:/home/assessors/api/src
+      - static_volume:/home/assessors/api/src/static
+    ports:
+      - "8000:8000"
+    depends_on:
+      - celery
+      - redis
+
+  postgres:
+    image: postgres:15.3-alpine3.18
+    volumes:
+      - ./storage/postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=assessors
+      - POSTGRES_PORT=5432
+    ports:
+      - "5432:5432"
+    expose:
+      - 5432
+
+  redis:
+    image: redis
+    volumes:
+      - redis_data:/data
+
+  celery:
+    build: ./backend
+    command: sh -c "cd src && celery -A core.celery worker --loglevel=info"
+    depends_on:
+      - redis
+
+volumes:
+  static_volume:
+  redis_data:
