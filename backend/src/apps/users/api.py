@@ -85,6 +85,7 @@ class ResetPasswordAPIView(generics.CreateAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@method_decorator(name='post', decorator=schemas.password_schema.set())
 class PasswordSetAPIView(generics.CreateAPIView):
     queryset = PasswordResetToken
     permission_classes = (AllowAny,)
