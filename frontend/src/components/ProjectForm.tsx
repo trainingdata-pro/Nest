@@ -32,7 +32,7 @@ interface ProjectFormProps {
     date_of_creation: string
 }
 
-const FormSection =({children}: {children:React.ReactNode}) => {
+export const FormSection =({children}: {children:React.ReactNode}) => {
     return <div className="mb-2">{children}</div>
 }
 const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {

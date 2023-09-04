@@ -35,7 +35,7 @@ const SignInForm = () => {
         setIsLoading(false)
     }
     return (
-        <form className="w-[30rem]"
+        <form className="rounded-md"
               onSubmit={handleSubmit(onSubmit)}>
             <FormRow>
                 <MyLabel required={true}>Имя пользователя</MyLabel>
