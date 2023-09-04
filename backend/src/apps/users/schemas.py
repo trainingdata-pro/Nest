@@ -137,6 +137,23 @@ class ResetPasswordSchema(BaseAPISchema):
             }
         )
 
+    def change(self):
+        return self.swagger_auto_schema(
+            operation_summary='Change user password',
+            operation_description='Change a specific user password.',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique base user ID'
+                )
+            ],
+            responses={
+                **self.get_responses(204, 400, 401, 403)
+            }
+        )
+
 
 users_schema = UserSchema(tags=['users'])
 user_activate_schema = UserActivateSchema(tags=['users'])

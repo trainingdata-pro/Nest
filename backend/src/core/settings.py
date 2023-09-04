@@ -157,10 +157,6 @@ REST_FRAMEWORK = {
 
 VALID_EMAIL_DOMAINS = ['trainingdata.pro']
 
-# if DEBUG:
-#     EMAIL_HOST = 'mail_server'
-#     EMAIL_PORT = 1025
-# else:
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST = config('EMAIL_HOST')
@@ -179,6 +175,10 @@ SIMPLE_JWT = {
 
     'TOKEN_OBTAIN_SERIALIZER': 'core.utils.serializers.CustomTokenObtainPairSerializer',
 }
+
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+CELERY_TIMEZONE = TIME_ZONE
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {

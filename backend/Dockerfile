@@ -12,4 +12,4 @@ COPY ./.env.dev ./.env
 RUN pip install -r requirements.txt
 
 COPY ./src ./src
-CMD ["/bin/bash", "-c", "python3 src/manage.py migrate && python3 src/manage.py runserver 0.0.0.0:8000"]
+CMD python3 src/manage.py migrate && python3 src/manage.py runserver 0.0.0.0:8000

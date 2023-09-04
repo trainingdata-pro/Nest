@@ -56,6 +56,12 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
                     raise ValidationError(
                         {'manager': [f'Менеджер {manager.full_name} не в вашей команде.']}
                     )
+        else:
+            if self.instance and self.instance.second_manager.exists():
+                raise ValidationError(
+                    {'manager': ['Невозможно убрать исполнителя из команды, т.к. он '
+                                 'работает у других менеджеров как свободный ресурс.']}
+                )
 
         projects = attrs.get('projects')
         if projects:

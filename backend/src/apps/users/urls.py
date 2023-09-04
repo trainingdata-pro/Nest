@@ -8,7 +8,8 @@ router.register('', api.ManagerAPIViewSet, basename='user')
 
 _password = [
     path('reset/', api.ResetPasswordAPIView.as_view()),
-    path('set/', api.PasswordSetAPIView.as_view())
+    path('set/', api.PasswordSetAPIView.as_view()),
+    path('<int:pk>/change/', api.ChangePasswordAPIView.as_view())
 ]
 
 urlpatterns = [

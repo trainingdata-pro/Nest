@@ -10,7 +10,7 @@ from apps.users.models import Manager
 
 class BaseUserPermission(BasePermission):
     def has_object_permission(self, request: Request, view: APIView, obj: User) -> bool:
-        return request.user.is_superuser or request.user.pk == obj.pk
+        return request.user.pk == obj.pk
 
 
 class IsManager(BasePermission):
