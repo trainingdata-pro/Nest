@@ -2,7 +2,7 @@ from django.db import models
 
 from core.utils.validators import not_negative_value_validator, day_hours_validator
 from apps.projects.models import Project
-from apps.users.models import Manager
+from apps.users.models import ManagerProfile
 
 from .validators import assessor_username_validator, assessor_email_validator
 
@@ -77,7 +77,7 @@ class Assessor(models.Model):
         verbose_name='страна'
     )
     manager = models.ForeignKey(
-        Manager,
+        ManagerProfile,
         on_delete=models.PROTECT,
         verbose_name='менеджер',
         related_name='assessor',
@@ -120,7 +120,7 @@ class Assessor(models.Model):
         blank=True
     )
     second_manager = models.ManyToManyField(
-        Manager,
+        ManagerProfile,
         blank=True,
         related_name='extra',
         verbose_name='доп. менеджеры'

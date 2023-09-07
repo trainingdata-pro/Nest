@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 from apps.history.utils import history
 from apps.assessors.models import Assessor, AssessorState
 from apps.assessors.serializers import AssessorSerializer
-from apps.users.models import Manager
+from apps.users.models import ManagerProfile
 from .models import FiredReason, BlackListReason, Fired, BlackList
 from .utils import remove_assessor
 
@@ -59,16 +59,16 @@ class FiredSerializer(serializers.ModelSerializer):
 
 
 class BackToTeamSerializer(serializers.Serializer):
-    manager = serializers.PrimaryKeyRelatedField(queryset=Manager.objects.all())
+    manager = serializers.PrimaryKeyRelatedField(queryset=ManagerProfile.objects.all())
 
-    def get_manager(self) -> Manager:
+    def get_manager(self) -> ManagerProfile:
         return self.context.get('request').user.manager
 
     def validate(self, attrs: Dict) -> Dict:
         current_manager = self.get_manager()
         manager = attrs.get('manager')
         if manager is None:
-            if current_manager.is_operational_manager:
+            if current_manager.is_teamlead:
                 raise ValidationError(
                     {'manager': ['Выберите ответственного менеджера.']}
                 )
@@ -79,7 +79,7 @@ class BackToTeamSerializer(serializers.Serializer):
                                  'ответственным менеджером исполнителя.']}
                 )
 
-            if current_manager.is_operational_manager and manager.operational_manager != current_manager:
+            if current_manager.is_teamlead and manager.operational_manager != current_manager:
                 raise ValidationError(
                     {'manager': [f'Менеджер {manager.full_name} не в вашей команде.']}
                 )

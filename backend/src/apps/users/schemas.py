@@ -35,16 +35,16 @@ class UserSchema(BaseAPISchema):
                     description='Case-independent filtering by manager full name.'
                 ),
                 openapi.Parameter(
-                    name='is_operational_manager',
+                    name='is_teamlead',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_BOOLEAN,
-                    description='Filtering by operational managers.'
+                    description='Filtering by teamlead.'
                 ),
                 openapi.Parameter(
-                    name='operational_manager',
+                    name='teamlead',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_INTEGER,
-                    description='Filtering by operational manager ID.'
+                    description='Filtering by teamlead ID.'
                 ),
                 openapi.Parameter(
                     name='ordering',

@@ -10,7 +10,7 @@ from apps.assessors.models import Assessor
 from apps.assessors.serializers import AssessorSerializer
 from core.utils.permissions import IsManager, ProjectPermission, ProjectIsActive
 from core.utils.common import BaseAPIViewSet
-from apps.users.models import Manager
+from apps.users.models import ManagerProfile
 from .filters import ProjectFilter
 from .models import Project, ProjectTag
 from . import serializers, schemas
@@ -98,8 +98,8 @@ class ProjectAPIViewSet(BaseAPIViewSet):
                     .order_by('manager__last_name', 'name', '-date_of_creation'))
         else:
             manager = user.manager
-            if manager.is_operational_manager:
-                team = Manager.objects.filter(operational_manager=manager)
+            if manager.is_teamlead:
+                team = ManagerProfile.objects.filter(operational_manager=manager)
                 return (Project.objects
                         .filter(manager__in=team)
                         .annotate(assessors_count=Count('assessors'))

@@ -1,15 +1,74 @@
 import uuid
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
 
-user_model = get_user_model()
+from core.utils.validators import email_domain_validator
 
 
-class Manager(models.Model):
+class UserManager(BaseUserManager):
+    def __create_user(self, email, password, **extra_fields):
+        user = self.model(
+            email=email,
+            **extra_fields
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+
+        return user
+
+    def create_user(self, email, password, **extra_fields):
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self.__create_user(email, password, **extra_fields)
+
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        if extra_fields.get('is_active') is not True:
+            raise ValueError('Superuser must have is_active=True.')
+
+        return self.__create_user(email, password, **extra_fields)
+
+
+class BaseUser(AbstractUser):
+    first_name = None
+    last_name = None
+    email = models.EmailField(
+        'email',
+        unique=True,
+        db_index=True,
+        validators=[email_domain_validator]
+    )
+
+    objects = UserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    class Meta:
+        db_table = 'users'
+        verbose_name = 'пользователь'
+        verbose_name_plural = 'пользователи'
+
+    def __str__(self):
+        return str(self.email)
+
+
+class ManagerProfile(models.Model):
     user = models.OneToOneField(
-        user_model,
+        get_user_model(),
         on_delete=models.CASCADE,
         related_name='manager'
     )
@@ -28,11 +87,11 @@ class Manager(models.Model):
         verbose_name='отчество',
         blank=True
     )
-    is_operational_manager = models.BooleanField(
+    is_teamlead = models.BooleanField(
         default=False,
-        verbose_name='операционный менеджер'
+        verbose_name='teamlead'
     )
-    operational_manager = models.ForeignKey(
+    teamlead = models.ForeignKey(
         'self',
         on_delete=models.PROTECT,
         null=True,
@@ -42,8 +101,8 @@ class Manager(models.Model):
 
     class Meta:
         db_table = 'managers'
-        verbose_name = 'менеджер'
-        verbose_name_plural = 'менеджеры'
+        verbose_name = 'профиль менеджера'
+        verbose_name_plural = 'профили менеджеров'
 
     def __str__(self):
         return str(self.full_name)
@@ -60,7 +119,7 @@ class Code(models.Model):
         verbose_name='код'
     )
     user = models.OneToOneField(
-        user_model,
+        get_user_model(),
         on_delete=models.CASCADE,
         related_name='code'
     )
@@ -76,7 +135,7 @@ class Code(models.Model):
 
 class PasswordResetToken(models.Model):
     user = models.ForeignKey(
-        user_model,
+        get_user_model(),
         on_delete=models.CASCADE
     )
     token = models.UUIDField(

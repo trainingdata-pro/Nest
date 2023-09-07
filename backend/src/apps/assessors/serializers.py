@@ -4,7 +4,7 @@ from typing import List, Dict
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from apps.users.models import Manager
+from apps.users.models import ManagerProfile
 from apps.history.utils import history
 from apps.users.serializers import ManagerSerializer
 from apps.projects.serializers import ProjectSerializer
@@ -39,23 +39,29 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
             'date_of_registration',
         ]
 
-    def get_manager(self) -> Manager:
+    def get_manager(self) -> ManagerProfile:
         return self.context.get('request').user.manager
 
     def validate(self, attrs: Dict) -> Dict:
         current_manager = self.get_manager()
         manager = attrs.get('manager')
         if manager is not None:
-            if manager.is_operational_manager:
+            if manager.is_teamlead:
                 raise ValidationError(
                     {'manager': ['Операционный менеджер не может быть ответственным менеджером '
                                  'исполнителя.']}
                 )
             else:
-                if current_manager.is_operational_manager and manager.operational_manager != current_manager:
-                    raise ValidationError(
-                        {'manager': [f'Менеджер {manager.full_name} не в вашей команде.']}
-                    )
+                if current_manager.is_teamlead:
+                    if manager.teamlead != current_manager:
+                        raise ValidationError(
+                            {'manager': [f'Менеджер {manager.full_name} не в вашей команде.']}
+                        )
+                else:
+                    if current_manager.pk != manager.pk:
+                        raise ValidationError(
+                            {'manager': ['Вы не можете выбрать другого менеджера.']}
+                        )
         else:
             if self.instance and self.instance.second_manager.exists():
                 raise ValidationError(
@@ -209,7 +215,7 @@ class CreateUpdateWorkingHoursSerializer(serializers.ModelSerializer):
 
     def validate_assessor(self, assessor: Assessor) -> Assessor:
         manager = self.context.get('request').user.manager
-        if assessor.manager != manager and assessor.manager.operational_manager != manager:
+        if assessor.manager != manager and assessor.manager.teamlead != manager:
             raise ValidationError('Вы не можете выбрать данного исполнителя.')
 
         return assessor
@@ -227,7 +233,7 @@ class UpdateFreeResourceSerializer(serializers.ModelSerializer):
         model = Assessor
         fields = ['second_manager', 'manager']
 
-    def get_manager(self) -> Manager:
+    def get_manager(self) -> ManagerProfile:
         return self.context.get('request').user.manager
 
     @staticmethod
@@ -242,33 +248,33 @@ class UpdateFreeResourceSerializer(serializers.ModelSerializer):
             {'manager': [message]}
         )
 
-    def _check_second_manager(self, second_managers: List[Manager]) -> None:
+    def _check_second_manager(self, second_managers: List[ManagerProfile]) -> None:
         current_manager = self.get_manager()
         for manager in second_managers:
             if self.instance.manager is None:
                 self._second_manager_validation_error(f'Исполнитель {self.instance.full_name} находится '
                                                       f'без команды и ему не могут быть назначены доп. '
                                                       f'менеджеры.')
-            elif manager.is_operational_manager:
+            elif manager.is_teamlead:
                 self._second_manager_validation_error(f'Операционный менеджер {manager.full_name} не может '
                                                       'быть менеджером свободного ресурса.')
-            elif current_manager.is_operational_manager and manager.operational_manager != current_manager:
+            elif current_manager.is_teamlead and manager.teamlead != current_manager:
                 self._second_manager_validation_error(f'Менеджер {manager.full_name} не из вашей команды.')
             elif self.instance.manager == manager:
                 self._second_manager_validation_error('Вы не можете быть дополнительным менеджером '
                                                       'своего исполнителя.')
 
-    def _check_manager(self, new_manager: Manager = None) -> None:
+    def _check_manager(self, new_manager: ManagerProfile = None) -> None:
         current_manager = self.get_manager()
         if self.instance.manager and new_manager is not None:
             self._manager_validation_error(f'У исполнителя {self.instance.full_name} уже есть основной '
                                            f'менеджер. Вы можете выбрать его только в качестве свободного '
                                            f'ресурса.')
         elif self.instance.manager is None:
-            if new_manager.is_operational_manager:
+            if new_manager.is_teamlead:
                 self._manager_validation_error('Вы не можете быть менеджером исполнителя. Выберите менеджера '
                                                'из вашей команды.')
-            elif current_manager.is_operational_manager and new_manager.operational_manager != current_manager:
+            elif current_manager.is_teamlead and new_manager.teamlead != current_manager:
                 self._manager_validation_error('Выберите менеджера из вашей команды.')
 
     def validate(self, attrs: Dict) -> Dict:

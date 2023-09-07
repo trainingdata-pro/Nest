@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 
 from apps.assessors.models import Assessor
 from apps.projects.models import Project, ProjectStatuses
-from apps.users.models import Manager
+from apps.users.models import ManagerProfile
 
 
 class BaseUserPermission(BasePermission):
@@ -21,12 +21,12 @@ class IsManager(BasePermission):
 class ProjectPermission(BasePermission):
     def has_object_permission(self, request: Request, view: APIView, obj: Project) -> bool:
         return request.user.manager in obj.manager.all() or \
-            request.user.manager.is_operational_manager
+            request.user.manager.is_teamlead
 
 
 class ProjectIsActive(BasePermission):
     def has_object_permission(self, request: Request, view: APIView, obj: Project) -> bool:
-        if obj.status == ProjectStatuses.COMPLETED and not request.user.manager.is_operational_manager:
+        if obj.status == ProjectStatuses.COMPLETED and not request.user.manager.is_teamlead:
             return False
         return True
 
@@ -34,9 +34,9 @@ class ProjectIsActive(BasePermission):
 class AssessorPermission(BasePermission):
     def has_object_permission(self, request: Request, view: APIView, obj: Assessor) -> bool:
         return request.user.manager == obj.manager or \
-            obj.manager.operational_manager == request.user.manager
+            obj.manager.teamlead == request.user.manager
 
 
 class IsCurrentManager(BasePermission):
-    def has_object_permission(self, request: Request, view: APIView, obj: Manager) -> bool:
+    def has_object_permission(self, request: Request, view: APIView, obj: ManagerProfile) -> bool:
         return request.user.manager.pk == obj.pk

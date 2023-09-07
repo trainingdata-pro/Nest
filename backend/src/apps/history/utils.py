@@ -3,7 +3,7 @@ from typing import Union, Dict, List, Set, Iterable
 from apps.assessors.models import Assessor, AssessorState
 from apps.fired.models import Fired, BlackList
 from apps.projects.models import Project
-from apps.users.models import Manager
+from apps.users.models import ManagerProfile
 from .models import History, HistoryEvents
 
 
@@ -27,13 +27,13 @@ class HistoryManager:
 
     def fired_assessor_history(self,
                                assessor: Assessor,
-                               manager: Manager,
+                               manager: ManagerProfile,
                                fired_item: Union[Fired, BlackList],
                                blacklist: bool = False) -> None:
         updates = self.__fired_event(manager=manager, fired_item=fired_item, blacklist=blacklist)
         self.__create_history(assessor, updates)
 
-    def returned_history(self, assessor: Assessor, manager: Manager) -> None:
+    def returned_history(self, assessor: Assessor, manager: ManagerProfile) -> None:
         updates = self.__returned_event(manager)
         self.__create_history(assessor, updates)
 
@@ -122,7 +122,7 @@ class HistoryManager:
             removed_id = [manager_id for manager_id in old_second_managers if manager_id not in new_second_managers]
             if removed_id:
                 event = HistoryEvents.REMOVE_ADDITIONAL_MANAGER
-                removed = Manager.objects.filter(pk__in=removed_id)
+                removed = ManagerProfile.objects.filter(pk__in=removed_id)
                 data.append(
                     {
                         'event': event,
@@ -133,7 +133,7 @@ class HistoryManager:
             added_id = [manager_id for manager_id in new_second_managers if manager_id not in old_second_managers]
             if added_id:
                 event = HistoryEvents.ADD_ADDITIONAL_MANAGER
-                added = Manager.objects.filter(pk__in=added_id)
+                added = ManagerProfile.objects.filter(pk__in=added_id)
                 data.append(
                     {
                         'event': event,
@@ -193,7 +193,7 @@ class HistoryManager:
         return data
 
     def __fired_event(self,
-                      manager: Manager,
+                      manager: ManagerProfile,
                       fired_item: Union[Fired, BlackList],
                       blacklist: bool = True) -> List[Dict]:
         event = HistoryEvents.BLACKLIST if blacklist else HistoryEvents.LEFT
@@ -213,7 +213,7 @@ class HistoryManager:
             }
         ]
 
-    def __returned_event(self, manager: Manager) -> List[Dict]:
+    def __returned_event(self, manager: ManagerProfile) -> List[Dict]:
         event = HistoryEvents.RETURNED
         return [
             {
@@ -227,9 +227,9 @@ class HistoryManager:
 
     @staticmethod
     def __create_description(event: str,
-                             manager: Manager = None,
+                             manager: ManagerProfile = None,
                              project: Iterable[str] = None,
-                             second_manager: Iterable[Manager] = None,
+                             second_manager: Iterable[ManagerProfile] = None,
                              fired_item: Union[Fired, BlackList] = None) -> str:
         projects = ', '.join(project) if project is not None else None
         second_managers = ', '.join([

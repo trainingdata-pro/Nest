@@ -1,19 +1,46 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import Group
+from django.utils.translation import gettext_lazy as _
 
-from .models import Manager, Code, PasswordResetToken
+from .models import BaseUser, ManagerProfile, Code, PasswordResetToken
 
 
-class CustomUserAdmin(UserAdmin):
-    list_display = [
+class BaseUserAdmin(UserAdmin):
+    model = BaseUser
+    add_form = UserCreationForm
+    list_display = (
         'pk',
-        'username',
         'email',
-        'is_superuser',
-        'is_active'
+        'username',
+        'is_active',
+        'is_staff',
+        'is_superuser'
+    )
+    list_display_links = ('email',)
+    list_filter = ['is_staff', 'is_superuser']
+    fieldsets = [
+        (None, {'fields': ['username', 'email', 'password']}),
+        (_('Permissions'), {'fields': ['is_staff', 'is_superuser']}),
+        (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     ]
-    list_display_links = ['username']
+    add_fieldsets = [
+        (None, {
+            'classes': ['wide'],
+            'fields': [
+                'username',
+                'email',
+                'password1',
+                'password2',
+                'is_active',
+                'is_staff',
+                'is_superuser'
+            ]
+        }),
+    ]
+    search_fields = ['email', 'username']
+    ordering = ['pk']
 
 
 class ManagerAdmin(admin.ModelAdmin):
@@ -30,10 +57,10 @@ class ManagerAdmin(admin.ModelAdmin):
         'last_name',
         'first_name',
         'middle_name',
-        'is_operational_manager'
+        'is_teamlead'
     ]
     list_display_links = ['user']
-    list_filter = ['is_operational_manager']
+    list_filter = ['is_teamlead']
     ordering = ['last_name']
 
 
@@ -50,9 +77,8 @@ class TokenAdmin(admin.ModelAdmin):
     list_display_links = ['user']
 
 
-admin.site.unregister(User)
 admin.site.unregister(Group)
-admin.site.register(User, CustomUserAdmin)
-admin.site.register(Manager, ManagerAdmin)
+admin.site.register(BaseUser, BaseUserAdmin)
+admin.site.register(ManagerProfile, ManagerAdmin)
 admin.site.register(Code, CodeAdmin)
 admin.site.register(PasswordResetToken, TokenAdmin)

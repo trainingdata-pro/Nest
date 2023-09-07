@@ -4,9 +4,7 @@ from django.contrib.auth import password_validation, get_user_model
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from core.settings import VALID_EMAIL_DOMAINS
-
-from .models import user_model, Manager, Code, PasswordResetToken
+from .models import BaseUser, ManagerProfile, Code, PasswordResetToken
 from .utils import create_code
 
 
@@ -24,21 +22,6 @@ class CreateManagerSerializer(serializers.Serializer):
 
         return username
 
-    def validate_email(self, email: str) -> str:
-        model = get_user_model()
-        if model.objects.filter(email=email).exists():
-            raise ValidationError(
-                'Пользователь с таким эл. адресом уже существует.'
-            )
-
-        domain = email.split('@')[-1]
-        if domain.lower() not in VALID_EMAIL_DOMAINS:
-            raise ValidationError(
-                'Используйте корпоративную электронную почту.'
-            )
-
-        return email
-
     def validate_password(self, password: str) -> str:
         model = get_user_model()
         user = model(username=self.initial_data.get('username'))
@@ -46,19 +29,20 @@ class CreateManagerSerializer(serializers.Serializer):
 
         return password
 
-    def create(self, validated_data: Dict) -> Manager:
+    def create(self, validated_data: Dict) -> ManagerProfile:
+        user_model = get_user_model()
         username = validated_data.get('username')
         email = validated_data.get('email')
         password = validated_data.get('password')
-        user = user_model.objects.create_user(
+        user = user_model.AUTH_USER_MODEL.objects.create_user(
             username=username,
             email=email,
             password=password,
             is_active=False
         )
-        manager = Manager.objects.create(
+        manager = ManagerProfile.objects.create(
             user=user,
-            is_operational_manager=False
+            is_teamlead=False
         )
         code = create_code()
         Code.objects.create(
@@ -71,36 +55,36 @@ class CreateManagerSerializer(serializers.Serializer):
 
 class UpdateManagerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Manager
+        model = ManagerProfile
         fields = [
             'first_name',
             'last_name',
             'middle_name',
-            'operational_manager'
+            'teamlead'
         ]
 
     @staticmethod
-    def check_team_lead(manager: Manager) -> Manager:
-        if not manager.is_operational_manager:
+    def check_team_lead(manager: ManagerProfile) -> ManagerProfile:
+        if not manager.is_teamlead:
             raise ValidationError(
-                {'operational_manager': 'Руководитель должен быть операционным менеджером.'}
+                {'teamlead': 'Руководитель должен быть операционным менеджером.'}
             )
         return manager
 
-    def update(self, instance: Manager, validated_data: Dict) -> Manager:
-        operational_manager = validated_data.get('operational_manager')
-        if not instance.operational_manager and not operational_manager:
+    def update(self, instance: ManagerProfile, validated_data: Dict) -> ManagerProfile:
+        teamlead = validated_data.get('teamlead')
+        if not instance.teamlead and not teamlead:
             raise ValidationError(
-                {'operational_manager': 'Укажите вашего руководителя.'}
+                {'teamlead': 'Укажите вашего руководителя.'}
             )
-        self.check_team_lead(operational_manager)
+        self.check_team_lead(teamlead)
 
         return super().update(instance, validated_data)
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = user_model
+        model = get_user_model()
         fields = ['id', 'username', 'email']
 
 
@@ -108,14 +92,14 @@ class ManagerSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
 
     class Meta:
-        model = Manager
+        model = ManagerProfile
         fields = '__all__'
 
 
 class CodeSerializer(serializers.Serializer):
     code = serializers.CharField(required=True, allow_blank=False)
 
-    def save(self, **kwargs) -> Manager:
+    def save(self, **kwargs) -> ManagerProfile:
         code = self.validated_data.get('code')
         obj = Code.objects.filter(code=code)
         if not obj.exists():
@@ -141,19 +125,20 @@ class PasswordResetSerializer(serializers.Serializer):
         self.user = None
 
     @staticmethod
-    def _get_user(email: str) -> user_model:
+    def _get_user(email: str) -> BaseUser:
+        user_model = get_user_model()
         return user_model.objects.filter(email=email).first()
 
-    def _new_token(self, user: user_model) -> PasswordResetToken:
+    def _new_token(self, user: BaseUser) -> PasswordResetToken:
         self.__remove_unused_token(user)
         return self.__create_token(user)
 
     @staticmethod
-    def __remove_unused_token(user: user_model) -> None:
+    def __remove_unused_token(user: BaseUser) -> None:
         PasswordResetToken.objects.filter(user=user).delete()
 
     @staticmethod
-    def __create_token(user: user_model) -> PasswordResetToken:
+    def __create_token(user: BaseUser) -> PasswordResetToken:
         token = PasswordResetToken.objects.create(user=user)
         return token
 
@@ -195,6 +180,7 @@ class PasswordSetSerializer(serializers.Serializer):
             )
 
         password = attrs.get('password')
+        user_model = get_user_model()
         user = user_model(username=token_obj.user.username)
         password_validation.validate_password(password, user)
 
@@ -202,7 +188,7 @@ class PasswordSetSerializer(serializers.Serializer):
 
         return attrs
 
-    def save(self, **kwargs) -> user_model:
+    def save(self, **kwargs) -> BaseUser:
         user = self.obj.user
         password = self.validated_data.get('password')
         user.set_password(password)
@@ -237,12 +223,13 @@ class ChangePasswordSerializer(serializers.Serializer):
             )
 
         new_password = attrs.get('new_password')
+        user_model = get_user_model()
         user = user_model(username=self.instance.username)
         password_validation.validate_password(new_password, user)
 
         return attrs
 
-    def update(self, instance: user_model, validated_data: Dict) -> user_model:
+    def update(self, instance: BaseUser, validated_data: Dict) -> BaseUser:
         instance.set_password(validated_data.get('new_password'))
         instance.save()
 

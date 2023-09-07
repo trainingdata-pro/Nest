@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from core.utils.common import BaseAPIViewSet
 from core.utils import permissions
 from .filters import ManagerFilter
-from .models import Manager, PasswordResetToken
+from .models import ManagerProfile, PasswordResetToken
 from .tasks import send_confirmation_code, send_reset_password_token
 from . import serializers, schemas
 
@@ -18,7 +18,7 @@ from . import serializers, schemas
 @method_decorator(name='create', decorator=schemas.users_schema.create())
 @method_decorator(name='partial_update', decorator=schemas.users_schema.partial_update())
 class ManagerAPIViewSet(BaseAPIViewSet):
-    queryset = Manager.objects.all().select_related('user')
+    queryset = ManagerProfile.objects.all().select_related('user')
     serializer_class = {
         'create': serializers.CreateManagerSerializer,
         'retrieve': serializers.ManagerSerializer,
@@ -50,7 +50,7 @@ class ManagerAPIViewSet(BaseAPIViewSet):
 
 @method_decorator(name='post', decorator=schemas.user_activate_schema.post())
 class UserActivateAPIView(generics.CreateAPIView):
-    queryset = Manager.objects.all().select_related('user')
+    queryset = ManagerProfile.objects.all().select_related('user')
     serializer_class = serializers.CodeSerializer
 
     def post(self, request: Request, *args, **kwargs) -> Response:

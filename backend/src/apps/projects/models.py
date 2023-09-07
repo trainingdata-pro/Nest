@@ -2,7 +2,7 @@ from django.db import models
 
 from core.utils.common import current_date
 from core.utils.validators import not_negative_value_validator
-from apps.users.models import Manager
+from apps.users.models import ManagerProfile
 
 
 class ProjectTag(models.Model):
@@ -39,7 +39,7 @@ class Project(models.Model):
 
     )
     manager = models.ManyToManyField(
-        Manager,
+        ManagerProfile,
         verbose_name='менеджеры'
     )
     speed_per_hour = models.IntegerField(

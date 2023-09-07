@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from apps.users.serializers import ManagerSerializer
-from apps.users.models import Manager
+from apps.users.models import ManagerProfile
 from core.utils.common import current_date
 from .models import ProjectTag, Project, ProjectStatuses
 
@@ -20,7 +20,7 @@ class CreateProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = '__all__'
 
-    def get_manager(self) -> Manager:
+    def get_manager(self) -> ManagerProfile:
         return self.context.get('request').user.manager
 
     def _check_if_completed(self, project: Project) -> Project:
@@ -48,18 +48,18 @@ class CreateProjectSerializer(serializers.ModelSerializer):
 
         manager = self.get_manager()
         for owner in owners:
-            if owner.is_operational_manager:
+            if owner.is_teamlead:
                 raise ValidationError(
                     {'manager': [f'Нельзя назначить операционного менеджера '
                                  f'{owner.full_name} на проект.']}
                 )
 
-            if manager.is_operational_manager and owner.operational_manager != manager:
+            if manager.is_teamlead and owner.teamlead != manager:
                 raise ValidationError(
                     {'manager': [f'Менеджер {owner.full_name} не в вашей команде.']}
                 )
 
-            if not manager.is_operational_manager and owner.operational_manager != manager.operational_manager:
+            if not manager.is_teamlead and owner.teamlead != manager.teamlead:
                 raise ValidationError(
                     {'manager': [f'Менеджер {owner.full_name} не в вашей команде.']}
                 )

@@ -3,6 +3,8 @@ from typing import Union
 
 from django.core.exceptions import ValidationError
 
+from core.settings import VALID_EMAIL_DOMAINS
+
 
 class NoCyrillicValidator:
     def validate(self, password: str, user=None) -> None:
@@ -21,3 +23,11 @@ def not_negative_value_validator(value: Union[int, float]) -> None:
 def day_hours_validator(value: Union[int, float]) -> None:
     if value > 24:
         raise ValidationError('Данное значение не может быть больше 24.')
+
+
+def email_domain_validator(email: str) -> None:
+    domain = email.split('@')[-1]
+    if domain.lower() not in VALID_EMAIL_DOMAINS:
+        raise ValidationError(
+            'Используйте корпоративную электронную почту.'
+        )
