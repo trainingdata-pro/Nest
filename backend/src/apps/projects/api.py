@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from apps.assessors.models import Assessor
 from apps.assessors.serializers import AssessorSerializer
-from core.utils.permissions import IsManager, ProjectPermission
+from core.utils.permissions import IsManager, ProjectPermission, ProjectIsActive
 from core.utils.common import BaseAPIViewSet
 from apps.users.models import Manager
 from .filters import ProjectFilter
@@ -32,12 +32,14 @@ class ProjectAPIViewSet(BaseAPIViewSet):
         'partial_update': (
             IsAuthenticated,
             IsManager,
-            ProjectPermission
+            ProjectPermission,
+            ProjectIsActive,
         ),
         'destroy': (
             IsAuthenticated,
             IsManager,
-            ProjectPermission
+            ProjectPermission,
+            ProjectIsActive,
         )
     }
     serializer_class = {
