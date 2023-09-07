@@ -32,7 +32,7 @@ class ProjectSchema(BaseAPISchema):
                     name='name',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by project name.'
+                    description='Case-independent filtering by project name'
                 ),
                 openapi.Parameter(
                     name='manager',
@@ -44,19 +44,25 @@ class ProjectSchema(BaseAPISchema):
                     name='assessors_count',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_INTEGER,
-                    description='Filtering by assessors count.'
+                    description='Filtering by assessors count'
+                ),
+                openapi.Parameter(
+                    name='assessor_id',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_INTEGER,
+                    description='Filtering by assessor id'
                 ),
                 openapi.Parameter(
                     name='status',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Filtering by status.'
+                    description='Filtering by status'
                 ),
                 openapi.Parameter(
                     name='is_free_resource',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_BOOLEAN,
-                    description='Filtering by free resources.'
+                    description='Filtering by free resources'
                 ),
                 openapi.Parameter(
                     name='ordering',
@@ -64,7 +70,7 @@ class ProjectSchema(BaseAPISchema):
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results. '
                                 'Available fields: pk, name, manager__last_name, '
-                                'assessors_count, status, date_of_creation.'
+                                'assessors_count, status, date_of_creation'
                 )
             ],
             responses={**self.get_responses(401)}
@@ -75,7 +81,7 @@ class ProjectSchema(BaseAPISchema):
             operation_summary='Create project',
             operation_description='The "manager" field is required if the user who '
                                   'creates the project is an operational manager.\n\n'
-                                  'Statuses: active, pause, completed.',
+                                  'Statuses: active, pause, completed',
             responses={
                 201: serializers.ProjectSerializer(),
                 **self.get_responses(400, 401)
@@ -133,7 +139,7 @@ class AssessorsForProjectSchema(BaseAPISchema):
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results. '
-                                'Available fields: pk, username, last_name, manager__last_name, status.'
+                                'Available fields: pk, username, last_name, manager__last_name, status'
                 )
             ],
             responses={**self.get_responses(401)}
@@ -151,7 +157,7 @@ class TagsSchema(BaseAPISchema):
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results. '
-                                'Available fields: pk, name.'
+                                'Available fields: pk, name'
                 )
             ],
             responses={**self.get_responses(401)}
