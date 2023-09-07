@@ -4,6 +4,8 @@ from core.utils.validators import not_negative_value_validator, day_hours_valida
 from apps.projects.models import Project
 from apps.users.models import Manager
 
+from .validators import assessor_username_validator
+
 
 class AssessorStatus(models.TextChoices):
     FULL = ('full', 'Полная загрузка')
@@ -50,7 +52,8 @@ class Assessor(models.Model):
         error_messages={
             'unique': 'Исполнитель с таким именем пользователя уже существует.',
         },
-        verbose_name='имя пользователя'
+        verbose_name='имя пользователя',
+        validators=[assessor_username_validator]
     )
     last_name = models.CharField(
         max_length=255,
