@@ -4,7 +4,7 @@ from core.utils.validators import not_negative_value_validator, day_hours_valida
 from apps.projects.models import Project
 from apps.users.models import Manager
 
-from .validators import assessor_username_validator
+from .validators import assessor_username_validator, assessor_email_validator
 
 
 class AssessorStatus(models.TextChoices):
@@ -69,7 +69,8 @@ class Assessor(models.Model):
     )
     email = models.EmailField(
         verbose_name='эл. почта',
-        unique=True
+        unique=True,
+        validators=[assessor_email_validator]
     )
     country = models.CharField(
         max_length=255,
