@@ -4,7 +4,7 @@ from rest_framework.request import Request
 from rest_framework.views import APIView
 
 from apps.assessors.models import Assessor
-from apps.projects.models import Project
+from apps.projects.models import Project, ProjectStatuses
 from apps.users.models import Manager
 
 
@@ -22,6 +22,13 @@ class ProjectPermission(BasePermission):
     def has_object_permission(self, request: Request, view: APIView, obj: Project) -> bool:
         return request.user.manager in obj.manager.all() or \
             request.user.manager.is_operational_manager
+
+
+class ProjectIsActive(BasePermission):
+    def has_object_permission(self, request: Request, view: APIView, obj: Project) -> bool:
+        if obj.status == ProjectStatuses.COMPLETED and not request.user.manager.is_operational_manager:
+            return False
+        return True
 
 
 class AssessorPermission(BasePermission):
