@@ -5,11 +5,10 @@ ENV PYTHONUNBUFFERED=1
 RUN apt-get update -y
 RUN apt-get upgrade -y
 
-WORKDIR /app
+WORKDIR /backend
 
 COPY ./requirements.txt ./
-COPY ./.env.dev ./.env
 RUN pip install -r requirements.txt
 
 COPY ./src ./src
-CMD python3 src/manage.py migrate && python3 src/manage.py runserver 0.0.0.0:8000
+WORKDIR /backend/src

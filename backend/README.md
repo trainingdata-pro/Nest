@@ -4,7 +4,7 @@
 
 ### 1. Set global environment variables
 ```bash
-cp .env.dev .env
+cp .env.example .env
 ```
 ### 2. Create virtual local-environment
 ```bash
