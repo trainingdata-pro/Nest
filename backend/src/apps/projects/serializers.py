@@ -35,6 +35,11 @@ class CreateProjectSerializer(serializers.ModelSerializer):
         return project
 
     def validate(self, attrs: Dict) -> Dict:
+        asana_id = attrs.get('asana_id')
+        if asana_id is None:
+            raise ValidationError(
+                {'asana_id': ['Это обязательное поле']}
+            )
         owners = attrs.get('manager')
         if owners is None:
             raise ValidationError(
@@ -97,7 +102,6 @@ class CreateProjectSerializer(serializers.ModelSerializer):
 class ProjectSerializer(serializers.ModelSerializer):
     manager = ManagerSerializer(read_only=True, many=True)
     assessors_count = serializers.SerializerMethodField(read_only=True)
-    backlog = serializers.SerializerMethodField(read_only=True)
     tag = ProjectTagSerializer(read_only=True, many=True)
 
     class Meta:
@@ -106,6 +110,3 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     def get_assessors_count(self, obj: Project) -> int:
         return obj.assessors.count()
-
-    def get_backlog(self, obj) -> str:
-        return 'Тут пока не понятно, что это за поле, поэтому просто заглушка'

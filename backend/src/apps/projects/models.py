@@ -27,7 +27,6 @@ class Project(models.Model):
     asana_id = models.BigIntegerField(
         verbose_name='asana ID',
         unique=True,
-        blank=True,  # TODO
         null=True
     )
     name = models.CharField(
