@@ -7,9 +7,6 @@ from django.core.mail import send_mail
 from core.settings import UI_URL
 
 
-# from core.settings import EMAIL_HOST_USER
-
-
 def create_code() -> str:
     """ Get 20 character long code """
     h = hashlib.sha512()
