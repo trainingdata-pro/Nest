@@ -65,7 +65,7 @@ class UpdateManagerSerializer(serializers.ModelSerializer):
         ]
 
     @staticmethod
-    def check_team_lead(manager: ManagerProfile) -> ManagerProfile:
+    def check_teamlead(manager: ManagerProfile) -> ManagerProfile:
         if not manager.is_teamlead:
             raise ValidationError(
                 {'teamlead': 'Руководитель должен быть операционным менеджером.'}
@@ -78,7 +78,8 @@ class UpdateManagerSerializer(serializers.ModelSerializer):
             raise ValidationError(
                 {'teamlead': 'Укажите вашего руководителя.'}
             )
-        self.check_team_lead(teamlead)
+        if teamlead:
+            self.check_teamlead(teamlead)
 
         return super().update(instance, validated_data)
 
