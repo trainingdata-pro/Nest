@@ -13,7 +13,7 @@ from core.utils.common import BaseAPIViewSet
 from core.utils import permissions
 from apps.fired import serializers as fired_serializers
 from apps.users.models import ManagerProfile
-from .models import Assessor, Skill, WorkingHours
+from .models import Assessor, Skill
 from . import filters, serializers, schemas
 
 
@@ -175,47 +175,47 @@ class AssessorCheckAPIView(generics.ListAPIView):
                                Q(middle_name__iexact=middle_name))
 
 
-@method_decorator(name='retrieve', decorator=schemas.wh_schema.retrieve())
-@method_decorator(name='list', decorator=schemas.wh_schema.list())
-@method_decorator(name='create', decorator=schemas.wh_schema.create())
-@method_decorator(name='partial_update', decorator=schemas.wh_schema.partial_update())
-class WorkingHoursAPIViewSet(BaseAPIViewSet):
-    queryset = WorkingHours.objects.all()
-    permission_classes = {
-        'retrieve': (IsAuthenticated,),
-        'list': (IsAuthenticated,),
-        'create': (IsAuthenticated, permissions.IsManager),
-        'partial_update': (IsAuthenticated, permissions.IsManager),
-        'destroy': (IsAuthenticated, permissions.IsManager)
-    }
-    serializer_class = {
-        'retrieve': serializers.WorkingHoursSerializer,
-        'list': serializers.WorkingHoursSerializer,
-        'create': serializers.CreateUpdateWorkingHoursSerializer,
-        'partial_update': serializers.CreateUpdateWorkingHoursSerializer
-    }
-    http_method_names = ['get', 'post', 'patch']
-
-    def create(self, request: Request, *args, **kwargs) -> Response:
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        wh = serializer.save()
-        response = serializers.WorkingHoursSerializer(wh)
-
-        return Response(response.data, status=status.HTTP_201_CREATED)
-
-    def partial_update(self, request: Request, *args, **kwargs) -> Response:
-        instance = self.get_object()
-        serializer = self.get_serializer(
-            instance,
-            data=request.data,
-            partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        wh = serializer.save()
-        response = serializers.WorkingHoursSerializer(wh)
-
-        return Response(response.data, status=status.HTTP_200_OK)
+# @method_decorator(name='retrieve', decorator=schemas.wh_schema.retrieve())
+# @method_decorator(name='list', decorator=schemas.wh_schema.list())
+# @method_decorator(name='create', decorator=schemas.wh_schema.create())
+# @method_decorator(name='partial_update', decorator=schemas.wh_schema.partial_update())
+# class WorkingHoursAPIViewSet(BaseAPIViewSet):
+#     queryset = WorkingHours.objects.all()
+#     permission_classes = {
+#         'retrieve': (IsAuthenticated,),
+#         'list': (IsAuthenticated,),
+#         'create': (IsAuthenticated, permissions.IsManager),
+#         'partial_update': (IsAuthenticated, permissions.IsManager),
+#         'destroy': (IsAuthenticated, permissions.IsManager)
+#     }
+#     serializer_class = {
+#         'retrieve': serializers.WorkingHoursSerializer,
+#         'list': serializers.WorkingHoursSerializer,
+#         'create': serializers.CreateUpdateWorkingHoursSerializer,
+#         'partial_update': serializers.CreateUpdateWorkingHoursSerializer
+#     }
+#     http_method_names = ['get', 'post', 'patch']
+#
+#     def create(self, request: Request, *args, **kwargs) -> Response:
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         wh = serializer.save()
+#         response = serializers.WorkingHoursSerializer(wh)
+#
+#         return Response(response.data, status=status.HTTP_201_CREATED)
+#
+#     def partial_update(self, request: Request, *args, **kwargs) -> Response:
+#         instance = self.get_object()
+#         serializer = self.get_serializer(
+#             instance,
+#             data=request.data,
+#             partial=True
+#         )
+#         serializer.is_valid(raise_exception=True)
+#         wh = serializer.save()
+#         response = serializers.WorkingHoursSerializer(wh)
+#
+#         return Response(response.data, status=status.HTTP_200_OK)
 
 
 @method_decorator(name='retrieve', decorator=schemas.fr_schema.retrieve())

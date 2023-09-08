@@ -11,8 +11,7 @@ from apps.projects.serializers import ProjectSerializer
 from .models import (
     Assessor,
     AssessorStatus,
-    Skill,
-    WorkingHours
+    Skill
 )
 from .utils import check_project_permission
 
@@ -154,27 +153,27 @@ class SimpleAssessorSerializer(serializers.ModelSerializer):
         exclude = ['projects', 'skills', 'second_manager']
 
 
-class WorkingHoursSerializer(serializers.ModelSerializer):
-    assessor = SimpleAssessorSerializer(read_only=True)
-    total = serializers.SerializerMethodField(read_only=True)
+# class WorkingHoursSerializer(serializers.ModelSerializer):
+#     assessor = SimpleAssessorSerializer(read_only=True)
+#     total = serializers.SerializerMethodField(read_only=True)
+#
+#     class Meta:
+#         model = WorkingHours
+#         fields = '__all__'
+#
+#     def get_total(self, obj: WorkingHours) -> int:
+#         return obj.total
 
-    class Meta:
-        model = WorkingHours
-        fields = '__all__'
 
-    def get_total(self, obj: WorkingHours) -> int:
-        return obj.total
-
-
-class SimpleWorkingHoursSerializer(serializers.ModelSerializer):
-    total = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = WorkingHours
-        exclude = ['assessor']
-
-    def get_total(self, obj: WorkingHours) -> int:
-        return obj.total
+# class SimpleWorkingHoursSerializer(serializers.ModelSerializer):
+#     total = serializers.SerializerMethodField(read_only=True)
+#
+#     class Meta:
+#         model = WorkingHours
+#         exclude = ['assessor']
+#
+#     def get_total(self, obj: WorkingHours) -> int:
+#         return obj.total
 
 
 class AssessorSerializer(serializers.ModelSerializer):
@@ -182,7 +181,7 @@ class AssessorSerializer(serializers.ModelSerializer):
     projects = ProjectSerializer(read_only=True, many=True)
     skills = SkillSerializer(read_only=True, many=True)
     second_manager = ManagerSerializer(read_only=True, many=True)
-    working_hours = SimpleWorkingHoursSerializer(read_only=True, source='workinghours')
+    # working_hours = SimpleWorkingHoursSerializer(read_only=True, source='workinghours')
 
     class Meta:
         model = Assessor
@@ -208,17 +207,17 @@ class CheckAssessorSerializer(serializers.ModelSerializer):
         ]
 
 
-class CreateUpdateWorkingHoursSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = WorkingHours
-        fields = '__all__'
-
-    def validate_assessor(self, assessor: Assessor) -> Assessor:
-        manager = self.context.get('request').user.manager
-        if assessor.manager != manager and assessor.manager.teamlead != manager:
-            raise ValidationError('Вы не можете выбрать данного исполнителя.')
-
-        return assessor
+# class CreateUpdateWorkingHoursSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = WorkingHours
+#         fields = '__all__'
+#
+#     def validate_assessor(self, assessor: Assessor) -> Assessor:
+#         manager = self.context.get('request').user.manager
+#         if assessor.manager != manager and assessor.manager.teamlead != manager:
+#             raise ValidationError('Вы не можете выбрать данного исполнителя.')
+#
+#         return assessor
 
 
 class UpdateFreeResourceSerializer(serializers.ModelSerializer):
