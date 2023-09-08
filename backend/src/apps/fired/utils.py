@@ -1,4 +1,4 @@
-from apps.assessors.models import Assessor, AssessorStatus, WorkingHours
+from apps.assessors.models import Assessor, AssessorStatus
 
 
 def _change_assessor_state(assessor: Assessor, state: str) -> Assessor:
@@ -15,14 +15,14 @@ def _change_assessor_state(assessor: Assessor, state: str) -> Assessor:
     return assessor
 
 
-def _remove_working_hours(assessor: Assessor) -> None:
-    wh = WorkingHours.objects.filter(assessor=assessor)
-    if wh:
-        wh.delete()
+# def _remove_working_hours(assessor: Assessor) -> None:
+#     wh = WorkingHours.objects.filter(assessor=assessor)
+#     if wh:
+#         wh.delete()
 
 
 def remove_assessor(assessor: Assessor, state: str) -> Assessor:
     changed_assessor = _change_assessor_state(assessor, state)
-    _remove_working_hours(assessor)
+    # _remove_working_hours(assessor)
 
     return changed_assessor
