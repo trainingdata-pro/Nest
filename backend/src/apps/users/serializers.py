@@ -35,7 +35,7 @@ class CreateManagerSerializer(serializers.Serializer):
         username = validated_data.get('username')
         email = validated_data.get('email')
         password = validated_data.get('password')
-        user = user_model.AUTH_USER_MODEL.objects.create_user(
+        user = user_model.objects.create_user(
             username=username,
             email=email,
             password=password,
