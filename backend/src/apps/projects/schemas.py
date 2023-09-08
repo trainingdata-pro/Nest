@@ -56,7 +56,8 @@ class ProjectSchema(BaseAPISchema):
                     name='status',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Filtering by status'
+                    description='Filtering by status. You can chose a few statuses. '
+                                'Example: Example: host.com/?status=new,pilot'
                 ),
                 openapi.Parameter(
                     name='is_free_resource',
@@ -81,7 +82,7 @@ class ProjectSchema(BaseAPISchema):
             operation_summary='Create project',
             operation_description='The "manager" field is required if the user who '
                                   'creates the project is an operational manager.\n\n'
-                                  'Statuses: active, pause, completed',
+                                  'Statuses: new, pilot, active, pause, completed',
             responses={
                 201: serializers.ProjectSerializer(),
                 **self.get_responses(400, 401)

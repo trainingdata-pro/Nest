@@ -1,3 +1,5 @@
+from typing import List
+
 from django.db.models import Count, QuerySet
 from django_filters import rest_framework as filters
 
@@ -10,7 +12,7 @@ class ProjectFilter(filters.FilterSet):
     manager = filters.CharFilter(method='filter_manager')
     assessors_count = filters.NumberFilter(method='filter_assessors_count')
     assessor_id = filters.NumberFilter(method='filter_assessor_id')
-    status = filters.CharFilter(lookup_expr='icontains')
+    status = filters.CharFilter(method='filter_status')
 
     class Meta:
         model = Project
@@ -23,7 +25,7 @@ class ProjectFilter(filters.FilterSet):
         )
 
     def filter_manager(self, queryset: QuerySet[Project], name: str, value: str) -> QuerySet[Project]:
-        managers = self.get_filtered_values(value)
+        managers = self.get_id_for_filtering(value)
         return queryset.filter(manager__in=managers).distinct()
 
     def filter_assessors_count(self, queryset: QuerySet[Project], name: str, value: int) -> QuerySet[Project]:
@@ -36,6 +38,14 @@ class ProjectFilter(filters.FilterSet):
 
         return Project.objects.none()
 
+    def filter_status(self, queryset: QuerySet[Project], name: str, value: str) -> QuerySet[Project]:
+        statuses = self.get_string_for_filtering(value)
+        return queryset.filter(status__in=statuses)
+
     @staticmethod
-    def get_filtered_values(value):
-        return [int(val) for val in value.split(',') if val.isdigit()]
+    def get_id_for_filtering(string: str) -> List[int]:
+        return [int(val) for val in string.split(',') if val.isdigit()]
+
+    @staticmethod
+    def get_string_for_filtering(string: str) -> List[str]:
+        return [val.strip() for val in string.split(',')]
