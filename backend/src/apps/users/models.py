@@ -7,6 +7,7 @@ from django.db import models
 from django.utils import timezone
 
 from core.utils.validators import email_domain_validator
+from .utils import _create_expiration_date
 
 
 class UserManager(BaseUserManager):
@@ -142,8 +143,8 @@ class PasswordResetToken(models.Model):
         default=uuid.uuid4,
         editable=False
     )
-    created_at = models.DateTimeField(
-        default=timezone.now
+    expiration_time = models.DateTimeField(
+        default=_create_expiration_date
     )
 
     def __str__(self):

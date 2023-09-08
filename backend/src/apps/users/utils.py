@@ -1,10 +1,16 @@
+import datetime
 import hashlib
 import time
 from uuid import UUID
 
 from django.core.mail import send_mail
+from django.utils import timezone
 
-from core.settings import UI_URL
+from core.settings import UI_URL, RESET_PASSWORD_TOKEN_EXPIRATION_DAY
+
+
+def _create_expiration_date():
+    return timezone.now() + datetime.timedelta(days=RESET_PASSWORD_TOKEN_EXPIRATION_DAY)
 
 
 def create_code() -> str:

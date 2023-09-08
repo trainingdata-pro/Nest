@@ -1,6 +1,7 @@
 from typing import Dict, Union
 
 from django.contrib.auth import password_validation, get_user_model
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -177,6 +178,12 @@ class PasswordSetSerializer(serializers.Serializer):
         if not token_obj:
             raise ValidationError(
                 {'token': ['Неверный токен.']}
+            )
+
+        if timezone.now() > token_obj.expiration_time:
+            token_obj.delete()
+            raise ValidationError(
+                {'token': ['Срок действия ссылки истек.']}
             )
 
         password = attrs.get('password')
