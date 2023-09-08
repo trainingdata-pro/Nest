@@ -4,9 +4,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.utils import timezone
 
-from core.utils.validators import email_domain_validator
+from core.utils.validators import email_domain_validator, allowed_chars_validator
 from .utils import _create_expiration_date
 
 
@@ -77,17 +76,20 @@ class ManagerProfile(models.Model):
     last_name = models.CharField(
         max_length=255,
         verbose_name='фамилия',
-        blank=True
+        blank=True,
+        validators=[allowed_chars_validator]
     )
     first_name = models.CharField(
         max_length=255,
         verbose_name='имя',
-        blank=True
+        blank=True,
+        validators=[allowed_chars_validator]
     )
     middle_name = models.CharField(
         max_length=255,
         verbose_name='отчество',
-        blank=True
+        blank=True,
+        validators=[allowed_chars_validator]
     )
     is_teamlead = models.BooleanField(
         default=False,

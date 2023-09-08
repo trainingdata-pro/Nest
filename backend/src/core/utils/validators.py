@@ -31,3 +31,11 @@ def email_domain_validator(email: str) -> None:
         raise ValidationError(
             'Используйте корпоративную электронную почту.'
         )
+
+
+def allowed_chars_validator(string: str) -> None:
+    pattern = r'^[a-zA-Zа-яА-Я\s\-]+$'
+    if not re.match(pattern, string):
+        raise ValidationError(
+            'Недопустимые символы в тексте.'
+        )

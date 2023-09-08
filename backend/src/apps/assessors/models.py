@@ -1,6 +1,6 @@
 from django.db import models
 
-from core.utils.validators import not_negative_value_validator, day_hours_validator
+from core.utils.validators import not_negative_value_validator, day_hours_validator, allowed_chars_validator
 from apps.projects.models import Project
 from apps.users.models import ManagerProfile
 
@@ -58,15 +58,18 @@ class Assessor(models.Model):
     )
     last_name = models.CharField(
         max_length=255,
-        verbose_name='фамилия'
+        verbose_name='фамилия',
+        validators=[allowed_chars_validator]
     )
     first_name = models.CharField(
         max_length=255,
-        verbose_name='имя'
+        verbose_name='имя',
+        validators=[allowed_chars_validator]
     )
     middle_name = models.CharField(
         max_length=255,
-        verbose_name='отчество'
+        verbose_name='отчество',
+        validators=[allowed_chars_validator]
     )
     email = models.EmailField(
         verbose_name='эл. почта',
