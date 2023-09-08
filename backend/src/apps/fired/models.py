@@ -39,6 +39,7 @@ class FiredReason(BaseReasonModel):
         db_table = 'fired_reasons'
         verbose_name = 'причина увольнения'
         verbose_name_plural = 'причины увольнения'
+        ordering = ['id']
 
 
 class BlackListReason(BaseReasonModel):
@@ -46,6 +47,7 @@ class BlackListReason(BaseReasonModel):
         db_table = 'blacklist_reasons'
         verbose_name = 'причина добавления в ЧС'
         verbose_name_plural = 'причины добавления в ЧС'
+        ordering = ['id']
 
 
 class Fired(BaseStateModel):
@@ -59,6 +61,7 @@ class Fired(BaseStateModel):
         db_table = 'fired'
         verbose_name = 'уволенный'
         verbose_name_plural = 'уволенные'
+        ordering = ['id']
 
 
 class BlackList(BaseStateModel):
@@ -72,3 +75,4 @@ class BlackList(BaseStateModel):
         db_table = 'blacklist'
         verbose_name = 'черный список'
         verbose_name_plural = 'черный список'
+        ordering = ['id']

@@ -37,6 +37,7 @@ class Skill(models.Model):
         db_table = 'skills'
         verbose_name = 'навык'
         verbose_name_plural = 'навыки'
+        ordering = ['id']
 
     def __str__(self):
         if len(str(self.title)) > 30:
@@ -140,6 +141,7 @@ class Assessor(models.Model):
         db_table = 'assessors'
         verbose_name = 'исполнитель'
         verbose_name_plural = 'исполнители'
+        ordering = ['id']
 
     def __str__(self):
         return self.full_name
@@ -201,6 +203,7 @@ class WorkingHours(models.Model):
         db_table = 'working_hours'
         verbose_name = 'рабочие часы'
         verbose_name_plural = 'рабочие часы'
+        ordering = ['id']
 
     @property
     def total(self) -> int:

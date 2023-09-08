@@ -12,6 +12,7 @@ class ProjectTag(models.Model):
         db_table = 'project_tags'
         verbose_name = 'тег'
         verbose_name_plural = 'теги'
+        ordering = ['id']
 
     def __str__(self):
         return self.name
@@ -96,6 +97,7 @@ class Project(models.Model):
         db_table = 'projects'
         verbose_name = 'проект'
         verbose_name_plural = 'проекты'
+        ordering = ['id']
 
     def __str__(self):
         return self.name

@@ -62,6 +62,7 @@ class BaseUser(AbstractUser):
         db_table = 'users'
         verbose_name = 'пользователь'
         verbose_name_plural = 'пользователи'
+        ordering = ['id']
 
     def __str__(self):
         return str(self.email)
@@ -104,6 +105,7 @@ class ManagerProfile(models.Model):
         db_table = 'managers'
         verbose_name = 'профиль менеджера'
         verbose_name_plural = 'профили менеджеров'
+        ordering = ['id']
 
     def __str__(self):
         return str(self.full_name)
