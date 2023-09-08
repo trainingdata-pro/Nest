@@ -19,7 +19,9 @@ class ProjectTag(models.Model):
 
 
 class ProjectStatuses(models.TextChoices):
-    ACTIVE = ('active', 'Активный')
+    NEW = ('new', 'Новый')
+    PILOT = ('pilot', 'Пилот')
+    ACTIVE = ('active', 'В работе')
     PAUSE = ('pause', 'На паузе')
     COMPLETED = ('completed', 'Завершен')
 
@@ -27,15 +29,10 @@ class ProjectStatuses(models.TextChoices):
 class Project(models.Model):
     asana_id = models.BigIntegerField(
         verbose_name='asana ID',
-        unique=True,
-        null=True
+        null=True,
     )
     name = models.CharField(
         max_length=255,
-        unique=True,
-        error_messages={
-            'unique': 'Проект с таким названием уже существует.',
-        },
         verbose_name='название'
 
     )
@@ -61,9 +58,9 @@ class Project(models.Model):
         blank=True,
         null=True
     )
-    unloading_value = models.IntegerField(
+    unloading_value = models.CharField(
         verbose_name='Объем выгрузок',
-        validators=[not_negative_value_validator],
+        max_length=255,
         blank=True,
         null=True
     )
