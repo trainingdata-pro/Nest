@@ -5,103 +5,77 @@ from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from core.utils.users import UserStatus
 from .models import BaseUser, ManagerProfile, Code, PasswordResetToken
-from .utils import create_code
+from .utils.create import create_manager_profile, create_user_confirmation_code
 
 
-class CreateManagerSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=150)
-    email = serializers.EmailField()
-    password = serializers.CharField(min_length=8)
-
-    def validate_username(self, username: str) -> str:
+class CreateUserSerializer(serializers.ModelSerializer):
+    class Meta:
         model = get_user_model()
-        if model.objects.filter(username=username).exists():
-            raise ValidationError(
-                f'Пользователь {username} уже существует.'
-            )
-
-        return username
+        fields = [
+            'username',
+            'last_name',
+            'first_name',
+            'middle_name',
+            'email',
+            'status',
+            'password'
+        ]
 
     def validate_password(self, password: str) -> str:
-        model = get_user_model()
-        user = model(username=self.initial_data.get('username'))
+        user_model = get_user_model()
+        user = user_model(email=self.initial_data.get('email'))
         password_validation.validate_password(password, user)
 
         return password
 
-    def create(self, validated_data: Dict) -> ManagerProfile:
+    def create(self, validated_data: Dict) -> BaseUser:
+        if validated_data.get('status') != UserStatus.MANAGER:
+            raise ValidationError(
+                {'status': 'Неверный статус.'}
+            )
+
         user_model = get_user_model()
-        username = validated_data.get('username')
-        email = validated_data.get('email')
-        password = validated_data.get('password')
         user = user_model.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            is_active=False
+            is_active=False,
+            **validated_data
         )
-        manager = ManagerProfile.objects.create(
-            user=user,
-            is_teamlead=False
-        )
-        code = create_code()
-        Code.objects.create(
-            code=code,
-            user=user
-        )
+        create_manager_profile(user)
+        create_user_confirmation_code(user)
 
-        return manager
+        return user
 
 
-class UpdateManagerSerializer(serializers.ModelSerializer):
+class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ManagerProfile
+        model = get_user_model()
         fields = [
-            'first_name',
+            'username',
             'last_name',
+            'first_name',
             'middle_name',
-            'teamlead'
         ]
-
-    @staticmethod
-    def check_teamlead(manager: ManagerProfile) -> ManagerProfile:
-        if not manager.is_teamlead:
-            raise ValidationError(
-                {'teamlead': 'Руководитель должен быть операционным менеджером.'}
-            )
-        return manager
-
-    def update(self, instance: ManagerProfile, validated_data: Dict) -> ManagerProfile:
-        teamlead = validated_data.get('teamlead')
-        if not instance.teamlead and not teamlead:
-            raise ValidationError(
-                {'teamlead': 'Укажите вашего руководителя.'}
-            )
-        if teamlead:
-            self.check_teamlead(teamlead)
-
-        return super().update(instance, validated_data)
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ['id', 'username', 'email']
+        fields = [
+            'id',
+            'username',
+            'last_name',
+            'first_name',
+            'middle_name',
+            'email',
+            'status'
+        ]
 
 
-class ManagerSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-
-    class Meta:
-        model = ManagerProfile
-        fields = '__all__'
-
-
-class CodeSerializer(serializers.Serializer):
+class ConfirmationCodeSerializer(serializers.Serializer):
     code = serializers.CharField(required=True, allow_blank=False)
 
-    def save(self, **kwargs) -> ManagerProfile:
+    def save(self, **kwargs) -> BaseUser:
         code = self.validated_data.get('code')
         obj = Code.objects.filter(code=code)
         if not obj.exists():
@@ -116,7 +90,43 @@ class CodeSerializer(serializers.Serializer):
 
             confirmation_code.delete()
 
-            return user.manager
+            return user
+
+
+class UpdateManagerProfileSerializer(serializers.ModelSerializer):
+    field = 'teamlead'
+
+    class Meta:
+        model = ManagerProfile
+        fields = ['teamlead']
+
+    def update(self, instance: ManagerProfile, validated_data: Dict) -> ManagerProfile:
+        if instance.teamlead:
+            raise ValidationError(
+                {self.field: ['У вас уже есть руководитель.']}
+            )
+
+        teamlead = validated_data.get('teamlead')
+        if not teamlead:
+            raise ValidationError(
+                {self.field: ['Укажите вашего руководителя.']}
+            )
+
+        if not teamlead.manager_profile.is_teamlead:
+            raise ValidationError(
+                {self.field: ['Руководитель должен быть операционным менеджером.']}
+            )
+
+        return super().update(instance, validated_data)
+
+
+class ManagerProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    teamlead = UserSerializer(read_only=True)
+
+    class Meta:
+        model = ManagerProfile
+        fields = '__all__'
 
 
 class PasswordResetSerializer(serializers.Serializer):

@@ -3,8 +3,11 @@ from rest_framework import routers
 
 from . import api
 
-router = routers.DefaultRouter()
-router.register('', api.ManagerAPIViewSet, basename='user')
+users_router = routers.DefaultRouter()
+users_router.register('', api.UserAPIViewSet, basename='users')
+
+profiles_router = routers.DefaultRouter()
+profiles_router.register('', api.ManagerAPIViewSet, basename='manager-profiles')
 
 _password = [
     path('reset/', api.ResetPasswordAPIView.as_view()),
@@ -13,8 +16,8 @@ _password = [
 ]
 
 urlpatterns = [
-    path('users/', include(router.urls)),
-    path('base_user/<int:pk>/', api.UpdateUsernameAPIView.as_view(), name='update_username'),
+    path('users/', include(users_router.urls)),
+    path('managers/', include(profiles_router.urls)),
     path('activate_user/', api.UserActivateAPIView.as_view(), name='activate'),
     path('password/', include(_password))
 ]

@@ -1,12 +1,19 @@
 import uuid
+from typing import Union
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
-from core.utils.validators import email_domain_validator, allowed_chars_validator
-from .utils import _create_expiration_date
+from core.utils.users import UserStatus
+from core.utils.validators import (
+    email_domain_validator,
+    allowed_chars_validator,
+    only_manager_validator
+)
+from .utils.common import create_expiration_date
 
 
 class UserManager(BaseUserManager):
@@ -29,6 +36,7 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('status', UserStatus.ADMIN)
 
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
@@ -39,40 +47,13 @@ class UserManager(BaseUserManager):
         if extra_fields.get('is_active') is not True:
             raise ValueError('Superuser must have is_active=True.')
 
+        if extra_fields.get('status') != UserStatus.ADMIN:
+            raise ValueError('Superuser mush have ADMIN status.')
+
         return self.__create_user(email, password, **extra_fields)
 
 
 class BaseUser(AbstractUser):
-    first_name = None
-    last_name = None
-    email = models.EmailField(
-        'email',
-        unique=True,
-        db_index=True,
-        validators=[email_domain_validator]
-    )
-
-    objects = UserManager()
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
-
-    class Meta:
-        db_table = 'users'
-        verbose_name = 'пользователь'
-        verbose_name_plural = 'пользователи'
-        ordering = ['id']
-
-    def __str__(self):
-        return str(self.email)
-
-
-class ManagerProfile(models.Model):
-    user = models.OneToOneField(
-        get_user_model(),
-        on_delete=models.CASCADE,
-        related_name='manager'
-    )
     last_name = models.CharField(
         max_length=255,
         verbose_name='фамилия',
@@ -91,30 +72,77 @@ class ManagerProfile(models.Model):
         blank=True,
         validators=[allowed_chars_validator]
     )
+    email = models.EmailField(
+        'email',
+        unique=True,
+        db_index=True,
+        validators=[email_domain_validator]
+    )
+    status = models.CharField(
+        'статус',
+        max_length=10,
+        choices=UserStatus.choices
+    )
+    objects = UserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    class Meta:
+        db_table = 'users'
+        verbose_name = 'пользователь'
+        verbose_name_plural = 'пользователи'
+        ordering = ['id']
+
+    def __str__(self):
+        return str(self.email)
+
+    @property
+    def full_name(self) -> str:
+        return f'{self.last_name} {self.first_name} {self.middle_name}'
+
+    @property
+    def manager_profile(self) -> Union['ManagerProfile', None]:
+        obj = None
+        try:
+            obj = ManagerProfile.objects.get(user=self)
+        except ObjectDoesNotExist:
+            pass
+
+        return obj
+
+
+class ManagerProfile(models.Model):
+    user = models.OneToOneField(
+        get_user_model(),
+        on_delete=models.CASCADE,
+        related_name='manager_profile'
+    )
     is_teamlead = models.BooleanField(
         default=False,
         verbose_name='teamlead'
     )
     teamlead = models.ForeignKey(
-        'self',
+        get_user_model(),
         on_delete=models.PROTECT,
         null=True,
         blank=True,
-        verbose_name='руководитель'
+        verbose_name='руководитель',
+        validators=[only_manager_validator]
     )
 
     class Meta:
-        db_table = 'managers'
+        db_table = 'manager profiles'
         verbose_name = 'профиль менеджера'
         verbose_name_plural = 'профили менеджеров'
         ordering = ['id']
 
-    def __str__(self):
-        return str(self.full_name)
+    # def __str__(self):
+    #     return str(self.user.full_name)
 
-    @property
-    def full_name(self) -> str:
-        return f'{self.last_name} {self.first_name} {self.middle_name}'
+    # @property
+    # def full_name(self) -> str:
+    #     return f'{self.last_name} {self.first_name} {self.middle_name}'
 
 
 class Code(models.Model):
@@ -148,7 +176,7 @@ class PasswordResetToken(models.Model):
         editable=False
     )
     expiration_time = models.DateTimeField(
-        default=_create_expiration_date
+        default=create_expiration_date
     )
 
     def __str__(self):

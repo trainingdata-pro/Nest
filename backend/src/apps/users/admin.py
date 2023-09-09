@@ -10,20 +10,46 @@ from .models import BaseUser, ManagerProfile, Code, PasswordResetToken
 class BaseUserAdmin(UserAdmin):
     model = BaseUser
     add_form = UserCreationForm
+    search_help_text = 'Введите username, email или ФИО пользователя'
+    search_fields = [
+        'username',
+        'email',
+        'last_name',
+        'first_name',
+        'middle_name'
+    ]
     list_display = (
         'pk',
-        'email',
         'username',
+        'last_name',
+        'first_name',
+        'middle_name',
+        'email',
+        'status',
         'is_active',
         'is_staff',
         'is_superuser'
     )
-    list_display_links = ('email',)
-    list_filter = ['is_staff', 'is_superuser']
+    list_display_links = ('username',)
+    list_filter = ['status', 'is_staff', 'is_superuser']
     fieldsets = [
-        (None, {'fields': ['username', 'email', 'password']}),
-        (_('Permissions'), {'fields': ['is_staff', 'is_superuser']}),
-        (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
+        (None, {
+            'fields': [
+                'last_name',
+                'first_name',
+                'middle_name',
+                'username',
+                'email',
+                'status',
+                'password'
+            ]
+        }),
+        (_('Permissions'), {
+            'fields': ['is_staff', 'is_superuser']
+        }),
+        (_('Important dates'), {
+            'fields': ('last_login', 'date_joined')
+        }),
     ]
     add_fieldsets = [
         (None, {
@@ -31,6 +57,10 @@ class BaseUserAdmin(UserAdmin):
             'fields': [
                 'username',
                 'email',
+                'last_name',
+                'first_name',
+                'middle_name',
+                'status',
                 'password1',
                 'password2',
                 'is_active',
@@ -39,29 +69,17 @@ class BaseUserAdmin(UserAdmin):
             ]
         }),
     ]
-    search_fields = ['email', 'username']
-    ordering = ['pk']
 
 
-class ManagerAdmin(admin.ModelAdmin):
-    search_fields = [
-        'user__username',
-        'last_name',
-        'first_name',
-        'middle_name'
-    ]
-    search_help_text = 'Введите username или ФИО менеджера'
+class ManagerProfileAdmin(admin.ModelAdmin):
     list_display = [
         'pk',
         'user',
-        'last_name',
-        'first_name',
-        'middle_name',
-        'is_teamlead'
+        'is_teamlead',
+        'teamlead'
     ]
     list_display_links = ['user']
-    list_filter = ['is_teamlead']
-    ordering = ['last_name']
+    list_filter = ['is_teamlead', 'teamlead']
 
 
 class CodeAdmin(admin.ModelAdmin):
@@ -79,6 +97,6 @@ class TokenAdmin(admin.ModelAdmin):
 
 admin.site.unregister(Group)
 admin.site.register(BaseUser, BaseUserAdmin)
-admin.site.register(ManagerProfile, ManagerAdmin)
+admin.site.register(ManagerProfile, ManagerProfileAdmin)
 admin.site.register(Code, CodeAdmin)
 admin.site.register(PasswordResetToken, TokenAdmin)
