@@ -3,9 +3,10 @@ from typing import Dict
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from apps.users.serializers import ManagerSerializer
+from apps.users.serializers import ManagerProfileSerializer
 from apps.users.models import ManagerProfile
 from core.utils.common import current_date
+from core.utils.mixins import GetUserMixin
 from .models import ProjectTag, Project, ProjectStatuses
 
 
@@ -15,13 +16,10 @@ class ProjectTagSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CreateProjectSerializer(serializers.ModelSerializer):
+class CreateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = '__all__'
-
-    def get_manager(self) -> ManagerProfile:
-        return self.context.get('request').user.manager
 
     def _check_if_completed(self, project: Project) -> Project:
         date_of_completion = self.validated_data.get('date_of_completion')
@@ -35,34 +33,36 @@ class CreateProjectSerializer(serializers.ModelSerializer):
         return project
 
     def validate(self, attrs: Dict) -> Dict:
-        asana_id = attrs.get('asana_id')
-        if asana_id is None:
-            raise ValidationError(
-                {'asana_id': ['Это обязательное поле']}
-            )
         owners = attrs.get('manager')
-        if owners is None:
+        if self.instance is None and owners is None:
             raise ValidationError(
                 {'manager': ['Укажите менеджера проекта.']}
             )
 
-        manager = self.get_manager()
-        for owner in owners:
-            if owner.is_teamlead:
-                raise ValidationError(
-                    {'manager': [f'Нельзя назначить операционного менеджера '
-                                 f'{owner.full_name} на проект.']}
-                )
+        if owners is not None:
+            manager = self.get_user()
+            for owner in owners:
+                if not hasattr(owner, 'manager_profile'):
+                    raise ValidationError(
+                        {'manager': [f'Пользователь {owner.username} не является менеджером.']}
+                    )
 
-            if manager.is_teamlead and owner.teamlead != manager:
-                raise ValidationError(
-                    {'manager': [f'Менеджер {owner.full_name} не в вашей команде.']}
-                )
+                if owner.manager_profile.is_teamlead:
+                    raise ValidationError(
+                        {'manager': [f'Нельзя назначить операционного менеджера '
+                                     f'{owner.full_name} на проект.']}
+                    )
 
-            if not manager.is_teamlead and owner.teamlead != manager.teamlead:
-                raise ValidationError(
-                    {'manager': [f'Менеджер {owner.full_name} не в вашей команде.']}
-                )
+                if manager.manager_profile.is_teamlead and owner.manager_profile.teamlead != manager:
+                    raise ValidationError(
+                        {'manager': [f'Менеджер {owner.full_name} не в вашей команде.']}
+                    )
+
+                if (not manager.manager_profile.is_teamlead and
+                        owner.manager_profile.teamlead != manager.manager_profile.teamlead):
+                    raise ValidationError(
+                        {'manager': [f'Менеджер {owner.full_name} не в вашей команде.']}
+                    )
 
         date_of_creation = attrs.get('date_of_creation')
 
@@ -100,7 +100,7 @@ class CreateProjectSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    manager = ManagerSerializer(read_only=True, many=True)
+    manager = ManagerProfileSerializer(read_only=True, many=True)
     assessors_count = serializers.SerializerMethodField(read_only=True)
     tag = ProjectTagSerializer(read_only=True, many=True)
 

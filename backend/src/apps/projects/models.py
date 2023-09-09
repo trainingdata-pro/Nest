@@ -1,8 +1,8 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 
 from core.utils.common import current_date
 from core.utils.validators import not_negative_value_validator
-from apps.users.models import ManagerProfile
 
 
 class ProjectTag(models.Model):
@@ -28,8 +28,7 @@ class ProjectStatuses(models.TextChoices):
 
 class Project(models.Model):
     asana_id = models.BigIntegerField(
-        verbose_name='asana ID',
-        null=True,
+        verbose_name='asana ID'
     )
     name = models.CharField(
         max_length=255,
@@ -37,8 +36,9 @@ class Project(models.Model):
 
     )
     manager = models.ManyToManyField(
-        ManagerProfile,
-        verbose_name='менеджеры'
+        get_user_model(),
+        verbose_name='менеджеры',
+        blank=True
     )
     speed_per_hour = models.IntegerField(
         verbose_name='Скорость в час',
@@ -73,12 +73,12 @@ class Project(models.Model):
     status = models.CharField(
         verbose_name='статус проекта',
         choices=ProjectStatuses.choices,
-        default=ProjectStatuses.ACTIVE,
         max_length=10
     )
     tag = models.ManyToManyField(
         ProjectTag,
-        verbose_name='тег'
+        verbose_name='тег',
+        blank=True
     )
     date_of_creation = models.DateField(
         default=current_date,

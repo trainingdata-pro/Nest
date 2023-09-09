@@ -8,8 +8,8 @@ from rest_framework.response import Response
 
 from apps.assessors.models import Assessor
 from apps.assessors.serializers import AssessorSerializer
+from core.utils.mixins import BaseAPIViewSet
 from core.utils.permissions import IsManager, ProjectPermission, ProjectIsActive
-from core.utils.common import BaseAPIViewSet
 from apps.users.models import ManagerProfile
 from .filters import ProjectFilter
 from .models import Project, ProjectTag
@@ -94,22 +94,21 @@ class ProjectAPIViewSet(BaseAPIViewSet):
         if user.is_superuser:
             return (Project.objects.all()
                     .annotate(assessors_count=Count('assessors'))
-                    .prefetch_related('manager__user')
+                    .prefetch_related('manager')
                     .order_by('manager__last_name', 'name', '-date_of_creation'))
         else:
-            manager = user.manager
-            if manager.is_teamlead:
-                team = ManagerProfile.objects.filter(operational_manager=manager)
+            if user.manager_profile.is_teamlead:
+                team = ManagerProfile.objects.filter(teamlead=user)
                 return (Project.objects
                         .filter(manager__in=team)
                         .annotate(assessors_count=Count('assessors'))
-                        .prefetch_related('manager__user')
+                        .prefetch_related('manager')
                         .order_by('manager__last_name', 'name', '-date_of_creation'))
 
             return (Project.objects
-                    .filter(manager=manager)
+                    .filter(manager=user)
                     .annotate(assessors_count=Count('assessors'))
-                    .prefetch_related('manager__user')
+                    .prefetch_related('manager')
                     .order_by('manager__last_name', 'name', '-date_of_creation'))
 
 
