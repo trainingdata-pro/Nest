@@ -233,7 +233,6 @@ class CheckAssessorSchema(BaseAPISchema):
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
                     description='New assessor middle name')
-                ,
             ],
             responses={
                 200: serializers.CheckAssessorSerializer,

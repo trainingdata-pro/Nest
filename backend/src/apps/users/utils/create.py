@@ -12,6 +12,3 @@ def create_user_confirmation_code(user: BaseUser) -> 'Code':
         code=get_code(),
         user=user
     )
-
-
-
