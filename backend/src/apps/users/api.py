@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from core.utils.common import BaseAPIViewSet
+from core.utils.mixins import BaseAPIViewSet
 from core.utils import permissions
 from .filters import UserFilter, ManagerProfileFilter
 from .models import ManagerProfile, PasswordResetToken

@@ -1,8 +1,8 @@
 from django.db import models
 
-from core.utils.validators import not_negative_value_validator, day_hours_validator, allowed_chars_validator
+from core.utils.validators import allowed_chars_validator, only_manager_validator
 from apps.projects.models import Project
-from apps.users.models import ManagerProfile
+from apps.users.models import BaseUser
 
 from .validators import assessor_username_validator, assessor_email_validator
 
@@ -10,7 +10,7 @@ from .validators import assessor_username_validator, assessor_email_validator
 class AssessorStatus(models.TextChoices):
     FULL = ('full', 'Полная загрузка')
     PARTIAL = ('partial', 'Частичная загрузка')
-    FREE = ('free', 'Свободен')
+    RESERVED = ('reserved', 'Зарезервирован')
 
 
 class AssessorState(models.TextChoices):
@@ -69,24 +69,31 @@ class Assessor(models.Model):
     middle_name = models.CharField(
         max_length=255,
         verbose_name='отчество',
+        blank=True,
+        null=True,
         validators=[allowed_chars_validator]
     )
     email = models.EmailField(
         verbose_name='эл. почта',
         unique=True,
+        blank=True,
+        null=True,
         validators=[assessor_email_validator]
     )
     country = models.CharField(
         max_length=255,
-        verbose_name='страна'
+        verbose_name='страна',
+        blank=True,
+        null=True
     )
     manager = models.ForeignKey(
-        ManagerProfile,
+        BaseUser,
         on_delete=models.PROTECT,
         verbose_name='менеджер',
-        related_name='assessor',
+        related_name='assessors',
         null=True,
-        blank=True
+        blank=True,
+        validators=[only_manager_validator]
     )
     projects = models.ManyToManyField(
         Project,
@@ -98,13 +105,26 @@ class Assessor(models.Model):
         verbose_name='статус',
         max_length=10,
         choices=AssessorStatus.choices,
-        default=AssessorStatus.FREE
+        blank=True,
+        null=True
     )
     skills = models.ManyToManyField(
         to=Skill,
         verbose_name='навыки',
         blank=True
     )
+    state = models.CharField(
+        verbose_name='состояние',
+        max_length=10,
+        choices=AssessorState.choices,
+        default=AssessorState.WORK
+    )
+    date_of_registration = models.DateField(
+        auto_now_add=True,
+        verbose_name='дата регистрации'
+    )
+
+    # TODO ?????
     is_free_resource = models.BooleanField(
         default=False,
         verbose_name='св. ресурс'
@@ -124,20 +144,10 @@ class Assessor(models.Model):
         blank=True
     )
     second_manager = models.ManyToManyField(
-        ManagerProfile,
+        BaseUser,
         blank=True,
         related_name='extra',
         verbose_name='доп. менеджеры'
-    )
-    state = models.CharField(
-        verbose_name='состояние',
-        max_length=10,
-        choices=AssessorState.choices,
-        default=AssessorState.WORK
-    )
-    date_of_registration = models.DateField(
-        auto_now_add=True,
-        verbose_name='дата регистрации'
     )
 
     class Meta:
@@ -151,14 +161,16 @@ class Assessor(models.Model):
 
     @property
     def full_name(self) -> str:
-        return f'{self.last_name} {self.first_name} {self.middle_name}'
+        name = f'{self.last_name} {self.first_name}'
+        if self.middle_name:
+            name += f' {self.middle_name}'
+        return name
 
     @property
     def all_projects(self) -> str:
         if self.projects.exists():
             return '; '.join([pr.name for pr in self.projects.all()])
         return '-'
-
 
 # class WorkingHours(models.Model):
 #     assessor = models.OneToOneField(
@@ -212,6 +224,3 @@ class Assessor(models.Model):
 #     def total(self) -> int:
 #         return (self.monday + self.tuesday + self.wednesday +
 #                 self.thursday + self.friday + self.saturday + self.sunday)
-
-
-

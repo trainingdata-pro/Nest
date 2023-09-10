@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from core.utils.common import BaseAPIViewSet
+from core.utils.mixins import BaseAPIViewSet
 from core.utils import permissions
 from apps.fired import serializers as fired_serializers
 from apps.users.models import ManagerProfile
@@ -80,24 +80,23 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         user = self.request.user
         if user.is_superuser:
             return (Assessor.objects.all()
-                    .select_related('manager__user')
+                    .select_related('manager')
                     .prefetch_related('projects__manager', 'second_manager')
                     .order_by('manager__last_name', 'last_name')
                     .distinct())
         else:
-            manager = user.manager
-            if manager.is_teamlead:
-                team = ManagerProfile.objects.filter(operational_manager=manager)
+            if user.manager_profile.is_teamlead:
+                team = ManagerProfile.objects.filter(operational_manager=user)
                 return (Assessor.objects
                         .filter(manager__in=team)
-                        .select_related('manager__user')
+                        .select_related('manager')
                         .prefetch_related('projects__manager', 'second_manager')
                         .order_by('manager__last_name', 'last_name')
                         .distinct())
 
             return (Assessor.objects
-                    .filter(Q(manager=manager) | Q(second_manager__in=[manager]))
-                    .select_related('manager__user')
+                    .filter(Q(manager=user) | Q(second_manager__in=[user]))
+                    .select_related('manager')
                     .prefetch_related('projects__manager', 'second_manager')
                     .order_by('last_name')
                     .distinct())

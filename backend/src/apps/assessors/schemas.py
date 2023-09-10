@@ -148,7 +148,7 @@ class AssessorSchema(BaseAPISchema):
             operation_description='If the manager field is None, then the assessor '
                                   'will be immediately added to free resources as an '
                                   'assessor without a team.\n\n'
-                                  'Statuses: full, partial, free.',
+                                  'Statuses: full, partial, reserved.',
             responses={
                 201: serializers.CreateUpdateAssessorSerializer(),
                 **self.get_responses(400, 401)

@@ -3,8 +3,7 @@ from typing import Dict
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from apps.users.serializers import ManagerProfileSerializer
-from apps.users.models import ManagerProfile
+from apps.users.serializers import UserSerializer
 from core.utils.common import current_date
 from core.utils.mixins import GetUserMixin
 from .models import ProjectTag, Project, ProjectStatuses
@@ -100,7 +99,7 @@ class CreateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    manager = ManagerProfileSerializer(read_only=True, many=True)
+    manager = UserSerializer(read_only=True, many=True)
     assessors_count = serializers.SerializerMethodField(read_only=True)
     tag = ProjectTagSerializer(read_only=True, many=True)
 
