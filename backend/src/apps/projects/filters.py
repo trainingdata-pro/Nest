@@ -1,5 +1,3 @@
-from typing import List
-
 from django.db.models import Count, QuerySet
 from django_filters import rest_framework as filters
 

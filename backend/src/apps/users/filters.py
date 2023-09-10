@@ -1,13 +1,12 @@
-from typing import List
-
 from django.contrib.postgres.search import SearchVector
 from django.db.models import QuerySet
 from django_filters import rest_framework as filters
 
+from core.utils.mixins import FilteringMixin
 from .models import BaseUser, ManagerProfile
 
 
-class UserFilter(filters.FilterSet):
+class UserFilter(FilteringMixin, filters.FilterSet):
     full_name = filters.CharFilter(method='filter_by_full_name')
     status = filters.CharFilter(method='filter_status')
 
@@ -23,10 +22,6 @@ class UserFilter(filters.FilterSet):
     def filter_status(self, queryset: QuerySet[BaseUser], name: str, value: str) -> QuerySet[BaseUser]:
         statuses = self.get_string_for_filtering(value)
         return queryset.filter(status__in=statuses)
-
-    @staticmethod
-    def get_string_for_filtering(string: str) -> List[str]:
-        return [val.strip() for val in string.split(',')]
 
 
 class ManagerProfileFilter(filters.FilterSet):
