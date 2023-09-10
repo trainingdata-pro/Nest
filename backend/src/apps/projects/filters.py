@@ -4,10 +4,11 @@ from django.db.models import Count, QuerySet
 from django_filters import rest_framework as filters
 
 from apps.assessors.models import Assessor
-from .models import Project
+from core.utils.mixins import FilteringMixin
+from .models import Project, ProjectWorkingHours
 
 
-class ProjectFilter(filters.FilterSet):
+class ProjectFilter(FilteringMixin, filters.FilterSet):
     name = filters.CharFilter(lookup_expr='icontains')
     manager = filters.CharFilter(method='filter_manager')
     assessors_count = filters.NumberFilter(method='filter_assessors_count')
@@ -16,13 +17,13 @@ class ProjectFilter(filters.FilterSet):
 
     class Meta:
         model = Project
-        fields = (
+        fields = [
             'name',
             'manager',
             'assessors_count',
             'assessor_id',
             'status'
-        )
+        ]
 
     def filter_manager(self, queryset: QuerySet[Project], name: str, value: str) -> QuerySet[Project]:
         managers = self.get_id_for_filtering(value)
@@ -42,10 +43,24 @@ class ProjectFilter(filters.FilterSet):
         statuses = self.get_string_for_filtering(value)
         return queryset.filter(status__in=statuses)
 
-    @staticmethod
-    def get_id_for_filtering(string: str) -> List[int]:
-        return [int(val) for val in string.split(',') if val.isdigit()]
 
-    @staticmethod
-    def get_string_for_filtering(string: str) -> List[str]:
-        return [val.strip() for val in string.split(',')]
+class ProjectWorkingHoursFilter(FilteringMixin, filters.FilterSet):
+    assessor = filters.CharFilter(method='filter_assessor')
+    project = filters.CharFilter(method='filter_project')
+
+    class Meta:
+        model = ProjectWorkingHours
+        fields = ['assessor', 'project']
+
+    def filter_assessor(self,
+                        queryset: QuerySet[ProjectWorkingHours],
+                        name: str, value: str) -> QuerySet[ProjectWorkingHours]:
+        assessors = self.get_id_for_filtering(value)
+        return queryset.filter(assessor__in=assessors)
+
+    def filter_project(self,
+                       queryset: QuerySet[ProjectWorkingHours],
+                       name: str,
+                       value: str) -> QuerySet[ProjectWorkingHours]:
+        projects = self.get_id_for_filtering(value)
+        return queryset.filter(project__in=projects)

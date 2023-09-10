@@ -7,13 +7,10 @@ from rest_framework.exceptions import ValidationError
 from apps.users.models import ManagerProfile
 from apps.history.utils import history
 from apps.users.serializers import UserSerializer
-from apps.projects.serializers import ProjectSerializer
+from apps.projects.models import ProjectWorkingHours
+from apps.projects.serializers import ProjectSerializer, ProjectWorkingHoursSimpleSerializer
 from core.utils.mixins import GetUserMixin
-from .models import (
-    Assessor,
-    AssessorStatus,
-    Skill
-)
+from .models import Assessor, Skill
 from .utils.common import check_project_permission
 
 
@@ -196,12 +193,16 @@ class AssessorSerializer(serializers.ModelSerializer):
     projects = ProjectSerializer(read_only=True, many=True)
     skills = SkillSerializer(read_only=True, many=True)
     second_manager = UserSerializer(read_only=True, many=True)
-
-    # working_hours = SimpleWorkingHoursSerializer(read_only=True, source='workinghours')
+    working_hours = serializers.SerializerMethodField(method_name='get_working_hours')
 
     class Meta:
         model = Assessor
         fields = '__all__'
+
+    def get_working_hours(self, obj: Assessor) -> Dict:
+        wh = ProjectWorkingHours.objects.filter(assessor=obj, project__in=obj.projects.all())
+        serialized = ProjectWorkingHoursSimpleSerializer(wh, many=True)
+        return serialized.data
 
 
 class CheckAssessorSerializer(serializers.ModelSerializer):

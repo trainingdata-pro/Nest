@@ -165,6 +165,82 @@ class TagsSchema(BaseAPISchema):
         )
 
 
+class ProjectWorkingHoursSchema(BaseAPISchema):
+    def retrieve(self):
+        return self.swagger_auto_schema(
+            operation_summary='Get project working hours',
+            operation_description='Get a specific project working hours',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique project working hours ID'
+                )
+            ],
+            responses={
+                200: serializers.ProjectWorkingHoursSerializer(),
+                **self.get_responses(401, 404)
+            }
+        )
+
+    def list(self):
+        return self.swagger_auto_schema(
+            operation_summary='List project working hours',
+            operation_description='Get list of project working hours',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='assessor',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by assessor ID. Example: host.com/?assessor=1,2'
+                ),
+                openapi.Parameter(
+                    name='project',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by project ID. Example: host.com/?project=1,2'
+                ),
+                openapi.Parameter(
+                    name='ordering',
+                    type=openapi.TYPE_STRING,
+                    in_=openapi.IN_QUERY,
+                    description='Which field to use when ordering the results. '
+                                'Available fields: pk'
+                )
+            ],
+            responses={**self.get_responses(401)}
+        )
+
+    def create(self):
+        return self.swagger_auto_schema(
+            operation_summary='Create project working hours',
+            responses={
+                201: serializers.ProjectWorkingHoursSerializer(),
+                **self.get_responses(400, 401, 403)
+            }
+        )
+
+    def partial_update(self):
+        return self.swagger_auto_schema(
+            operation_summary='Update project working hours',
+            operation_description='Update project working hours',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique project working hours ID'
+                )
+            ],
+            responses={
+                200: serializers.ProjectWorkingHoursSerializer(),
+                **self.get_responses(400, 401, 403, 404)
+            }
+        )
+
+
 project_schema = ProjectSchema(tags=['projects'])
 project_schema2 = AssessorsForProjectSchema(tags=['projects'])
 tags_schema = TagsSchema(tags=['projects'])
+project_wh_schema = ProjectWorkingHoursSchema(tags=['projects'])

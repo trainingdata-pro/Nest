@@ -10,9 +10,10 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from core.utils.mixins import BaseAPIViewSet
+from core.utils.users import UserStatus
 from core.utils import permissions
 from apps.fired import serializers as fired_serializers
-from apps.users.models import ManagerProfile
+from apps.users.models import BaseUser
 from .models import Assessor, Skill
 from . import filters, serializers, schemas
 
@@ -86,7 +87,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
                     .distinct())
         else:
             if user.manager_profile.is_teamlead:
-                team = ManagerProfile.objects.filter(operational_manager=user)
+                team = BaseUser.objects.filter(status=UserStatus.MANAGER, manager_profile__teamlead=user)
                 return (Assessor.objects
                         .filter(manager__in=team)
                         .select_related('manager')
