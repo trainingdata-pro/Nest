@@ -4,7 +4,7 @@ from rest_framework.request import Request
 from rest_framework.views import APIView
 
 from apps.assessors.models import Assessor
-from apps.projects.models import Project, ProjectStatuses
+from apps.projects.models import Project, ProjectStatuses, ProjectWorkingHours
 from apps.users.models import UserStatus, ManagerProfile
 
 
@@ -36,6 +36,13 @@ class AssessorPermission(BasePermission):
         return (request.user.pk == obj.manager.pk
                 or obj.manager.manager_profile.teamlead.pk == request.user.pk
                 or request.user.pk in obj.projects.values_list('manager__pk', flat=True))
+
+
+class ProjectWHPermission(BasePermission):
+    def has_object_permission(self, request: Request, view: APIView, obj: ProjectWorkingHours) -> bool:
+        return (request.user.pk == obj.assessor.manager.pk
+                or obj.assessor.manager.manager_profile.teamlead.pk == request.user.pk
+                or request.user.pk in obj.assessor.second_manager.values_list('pk', flat=True))
 
 
 class IsCurrentManager(BasePermission):
