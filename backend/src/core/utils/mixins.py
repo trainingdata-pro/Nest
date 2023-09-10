@@ -29,3 +29,13 @@ class BaseAPIViewSet(GetSerializerClassMixin,
 class GetUserMixin:
     def get_user(self) -> BaseUser:
         return self.context.get('request').user
+
+
+class FilteringMixin:
+    @staticmethod
+    def get_id_for_filtering(string: str) -> List[int]:
+        return [int(val) for val in string.split(',') if val.isdigit()]
+
+    @staticmethod
+    def get_string_for_filtering(string: str) -> List[str]:
+        return [val.strip() for val in string.split(',')]
