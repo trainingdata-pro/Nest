@@ -1,9 +1,22 @@
 import re
 from typing import Union
 
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
 from core.settings import VALID_EMAIL_DOMAINS
+from .users import UserStatus
+
+
+def only_manager_validator(user) -> None:
+    error = 'Выбранный пользователь не является менеджером.'
+    if isinstance(user, int):
+        user_model = get_user_model()
+        if not user_model.objects.filter(id=user, status=UserStatus.MANAGER).exists():
+            raise ValidationError(error)
+    else:
+        if user.status != UserStatus.MANAGER:
+            raise ValidationError(error)
 
 
 class NoCyrillicValidator:

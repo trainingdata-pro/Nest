@@ -32,15 +32,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['user_data'] = {
             'email': user.email,
             'username': user.username,
-            'is_active': user.is_active
+            'status': user.status,
+            'is_active': user.is_active,
+            'is_admin': user.is_superuser
         }
-        if user.is_superuser:
-            token['user_data']['is_admin'] = True
-            token['user_data']['manager_id'] = None
-            token['user_data']['is_teamlead'] = False
-        else:
-            token['user_data']['is_admin'] = False
-            token['user_data']['manager_id'] = user.manager.id
-            token['user_data']['is_teamlead'] = user.manager.is_teamlead
+        if hasattr(user, 'manager_profile'):
+            token['user_data']['manager_profile_id'] = user.manager_profile.id
 
         return token
