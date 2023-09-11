@@ -3,9 +3,7 @@ import {Context} from "../index";
 import {observer} from "mobx-react-lite";
 import {useForm} from "react-hook-form";
 import ManagerService from "../services/ManagerService";
-import {ManagerData} from "../store/store";
 import {useNavigate} from "react-router-dom";
-import Header from "./Header/Header";
 import MyLabel from "./UI/MyLabel";
 import MyInput from "./UI/MyInput";
 import Select from "react-select";
@@ -33,8 +31,8 @@ const Profile = ({setIsOpen}: {
         await ManagerService.fetchOperationsManagers().then((res) => setOperationsManagers(res.data.results.map((operations: any) => {
             return {value: operations.id, label: `${operations.last_name} ${operations.first_name}`}
         })))
-        if (store.managerData.operational_manager){
-            await ManagerService.fetch_manager(store.managerData.operational_manager).then(res => {
+        if (store.userData.teamlead){
+            await ManagerService.fetch_manager(store.userData.teamlead).then(res => {
                 setValue('operational_manager', {
                     value: res.data.id,
                     label: `${res.data.last_name} ${res.data.first_name}`
@@ -45,7 +43,7 @@ const Profile = ({setIsOpen}: {
     }, []);
 
     useEffect(() => {
-        ManagerService.fetch_manager(store.managerData.id).then((res) => {
+        ManagerService.fetch_manager(store.user_id).then((res) => {
             setValue('id', res.data.id);
             setValue('last_name', res.data.last_name);
             setValue('first_name', res.data.first_name);
@@ -61,7 +59,7 @@ const Profile = ({setIsOpen}: {
     function onSubmit() {
         const data = getValues()
         const newData = {...data, operational_manager: data.operational_manager.value}
-        store.managerData.operational_manager = newData.operational_manager
+        store.userData.teamlead = newData.operational_manager
         ManagerService.patchManager(data.id, newData)
         ManagerService.patchBaseUser(store.user_id, {'username': getValues('username')}).then((res) => {
             setIsOpen(false)
@@ -95,7 +93,7 @@ const Profile = ({setIsOpen}: {
                 <div>
                     <MyLabel required={true}>Ответственный TeamLead</MyLabel>
                     <Select
-                        isDisabled={store.managerData.is_operational_manager || !!store.managerData.operational_manager}
+                        isDisabled={store.userData.is_teamlead || !!store.userData.teamlead}
                         options={operationsManagers}
                         value={watch('operational_manager')}
                         {...register('operational_manager', {required: 'Обязательное поле'})}
