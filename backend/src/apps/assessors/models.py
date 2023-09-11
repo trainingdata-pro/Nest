@@ -196,6 +196,7 @@ class AssessorCredentials(models.Model):
         db_table = 'assessor_credentials'
         verbose_name = 'учетные данные'
         verbose_name_plural = 'учетные данные'
+        ordering = ['id']
 
     def __str__(self):
         return str(self.tool)
