@@ -82,10 +82,10 @@ const PersonalAccountTable = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [showSidebar, setShowSidebar] = useState(false)
     useMemo(async () => {
-        if (store.managerData.id) {
+        if (store.user_id) {
             setIsLoading(true)
-            if (!store.managerData.is_operational_manager){
-            await ProjectService.fetchProjects(store.managerData.id.toString())
+            if (!store.userData.is_teamlead){
+            await ProjectService.fetchProjects(store.user_id)
                 .then(res => {
                     setData(res.data.results.filter(project => project.status !== 'completed'))
 
@@ -94,7 +94,7 @@ const PersonalAccountTable = () => {
             else{
                 await ManagerService.fetch_managers().then(res => {
 
-                    const ids = res.data.results.filter(manager => manager.operational_manager === store.managerData.id).map(man =>man.id)
+                    const ids = res.data.results.filter(manager => manager.operational_manager === store.user_id).map(man =>man.id)
 
                     ProjectService.fetchProjects(ids.join(',')).then(res => setData(res.data.results))
 
@@ -103,7 +103,7 @@ const PersonalAccountTable = () => {
             setIsLoading(false)
         }
 
-    }, [store.managerData])
+    }, [store.userData])
     const [data, setData] = useState<Project[]>([])
     if (isLoading) {
         return <Loader width={"16"}/>
