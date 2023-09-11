@@ -1,29 +1,15 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
-import Icon from '@mdi/react';
-import {mdiSortAscending, mdiSort, mdiSortDescending} from '@mdi/js';
 import {
-    useReactTable,
-    getCoreRowModel,
-    getPaginationRowModel,
     ColumnDef,
-    getSortedRowModel,
-    SortingState,
-    flexRender,
-    getFilteredRowModel, ColumnFiltersState
 } from "@tanstack/react-table";
 
-import {IndeterminateCheckbox} from '../utils/CheckBox'
 import {Context} from '../index';
-import {ManagerData} from "../store/store";
 import ProjectService from '../services/ProjectService';
-import AddProject from "./ProjectForm";
 import {useNavigate} from "react-router-dom";
 import {Project} from "../models/ProjectResponse";
 import {observer} from "mobx-react-lite";
 import Loader from "./UI/Loader";
-import AddProjectButton from "./Projects/AddProjectButton";
 import Table from "./UI/Table";
-import Sidebar from "./UI/Sidebar";
 import ProjectForm from "./ProjectForm";
 import SideBar from "./UI/Dialog";
 import ManagerService from "../services/ManagerService";
