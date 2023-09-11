@@ -16,7 +16,7 @@ const CompletedProjects = () => {
     const {store} = useContext(Context)
     const navigation = useNavigate()
     useEffect(()=>{
-        ProjectService.fetchCompletedProjects(store.managerData.id.toString()).then(res => setCompletedProjects(res.data.results))
+        ProjectService.fetchCompletedProjects(store.user_id).then(res => setCompletedProjects(res.data.results))
     }, [])
     const [completedProjects, setCompletedProjects] = useState<Project[]>([])
     const columns = useMemo<ColumnDef<Project>[]>(() => {

@@ -8,12 +8,16 @@ interface ISignUp {
     email: string,
     username: string,
     password: string,
+    status: string,
     password2: string
 
 }
 
 const SignUpForm = () => {
-    const {register, handleSubmit,watch, formState: {errors}} = useForm<ISignUp>()
+    useEffect(() => {
+        setValue('status', 'manager')
+    }, []);
+    const {register, setValue, handleSubmit,watch, formState: {errors}} = useForm<ISignUp>()
     const [isLoading, setIsLoading] = useState(false)
     const [serverError, setServerError] = useState({})
     const [confirmPage, setConfirmPage] = useState(false)
@@ -21,7 +25,7 @@ const SignUpForm = () => {
     const Submit = async (data: ISignUp) => {
         setIsLoading(true)
         try{
-            await AuthService.register(data.username, data.email, data.password).then(res => console.log(res.data))
+            await AuthService.register(data.username, data.email, data.password, data.status).then(res => console.log(res.data))
             setConfirmPage(true)
         } catch (e:any) {
             const errJson = JSON.parse(e.request.response)
@@ -97,7 +101,7 @@ const SignUpForm = () => {
                     </div>
                    {
                        // @ts-ignore
-                       Object.keys(serverError).map(error => <p className='h-6 text-red-500 text-sm'>{serverError[error][0]}</p>)
+                       Object.keys(serverError).map((error, index) => <p key={index} className='h-6 text-red-500 text-sm'>{serverError[error][0]}</p>)
                    }
                     <section className="flex items-center justify-between mb-3">
                         <div className="space-y-2">

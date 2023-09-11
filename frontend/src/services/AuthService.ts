@@ -9,11 +9,12 @@ export default class AuthService{
     static async login(email: string, password: string): Promise<AxiosResponse<AuthResponse>> {
         return axios.post<AuthResponse>(`${API_URL}/api/token/`, {'email':email, 'password':password})
     }
-    static async register(username:string, email:string, password:string): Promise<AxiosResponse<RegisterResponse>> {
+    static async register(username:string, email:string, password:string, status: string): Promise<AxiosResponse<RegisterResponse>> {
         return axios.post<AuthResponse>(`${API_URL}/api/users/`, {
             'email': email,
             'username': username,
-            'password': password
+            'password': password,
+            'status': status
         })
     }
     static async confirmRegistration(code: string){
