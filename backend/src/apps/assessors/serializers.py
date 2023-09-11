@@ -12,7 +12,7 @@ from apps.users.serializers import UserSerializer
 from core.utils.mixins import GetUserMixin
 from core.utils.permissions import check_full_assessor_permission
 from core.utils.users import UserStatus
-from .models import Assessor, Skill, AssessorCredentials
+from .models import Assessor, Skill, AssessorCredentials, AssessorState
 from .utils.common import check_project_permission
 
 
@@ -212,6 +212,10 @@ class CheckAssessorSerializer(serializers.ModelSerializer):
 
 
 class CreateUpdateAssessorCredentialsSerializer(GetUserMixin, serializers.ModelSerializer):
+    assessor = serializers.PrimaryKeyRelatedField(
+        queryset=Assessor.objects.filter(state=AssessorState.WORK)
+    )
+
     class Meta:
         model = AssessorCredentials
         fields = '__all__'
