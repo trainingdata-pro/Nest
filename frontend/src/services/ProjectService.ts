@@ -15,7 +15,7 @@ interface TagResult {
     results: Tag[]
 }
 export default class ProjectService {
-    static fetchProjects(managerID:string): Promise<AxiosResponse<ProjectResponse>> {
+    static fetchProjects(managerID:string | number): Promise<AxiosResponse<ProjectResponse>> {
         return $api.get<ProjectResponse>(`/api/projects/?&manager=${managerID}`)
     }
     static fetchCompletedProjects(managerID:string): Promise<AxiosResponse<ProjectResponse>> {
