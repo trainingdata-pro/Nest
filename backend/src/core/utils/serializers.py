@@ -37,6 +37,10 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'is_admin': user.is_superuser
         }
         if hasattr(user, 'manager_profile'):
-            token['user_data']['manager_profile_id'] = user.manager_profile.id
+            token['user_data']['is_teamlead'] = user.manager_profile.is_teamlead
+            if user.manager_profile.teamlead:
+                token['user_data']['teamlead'] = user.manager_profile.teamlead.id
+            else:
+                token['user_data']['teamlead'] = None
 
         return token
