@@ -40,7 +40,7 @@ class SkillsSchema(BaseAPISchema):
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results. '
-                                'Available fields: pk, title.'
+                                'Available fields: pk, title'
                 )
             ],
             responses={**self.get_responses(401)}
@@ -75,25 +75,25 @@ class AssessorSchema(BaseAPISchema):
                     name='username',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by assessor username.'
+                    description='Case-independent filtering by assessor username'
                 ),
                 openapi.Parameter(
                     name='last_name',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by assessor last_name.'
+                    description='Case-independent filtering by assessor last_name'
                 ),
                 openapi.Parameter(
                     name='first_name',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by assessor first_name.'
+                    description='Case-independent filtering by assessor first_name'
                 ),
                 openapi.Parameter(
                     name='middle_name',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by assessor middle_name.'
+                    description='Case-independent filtering by assessor middle_name'
                 ),
                 openapi.Parameter(
                     name='manager',
@@ -136,7 +136,7 @@ class AssessorSchema(BaseAPISchema):
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results. '
-                                'Available fields: pk, username, last_name, manager__last_name, status.'
+                                'Available fields: pk, username, last_name, manager__last_name, status'
                 )
             ],
             responses={**self.get_responses(401)}
@@ -148,7 +148,7 @@ class AssessorSchema(BaseAPISchema):
             operation_description='If the manager field is None, then the assessor '
                                   'will be immediately added to free resources as an '
                                   'assessor without a team.\n\n'
-                                  'Statuses: full, partial, reserved.',
+                                  'Statuses: full, partial, reserved',
             responses={
                 201: serializers.CreateUpdateAssessorSerializer(),
                 **self.get_responses(400, 401)
@@ -241,6 +241,91 @@ class CheckAssessorSchema(BaseAPISchema):
         )
 
 
+class AssessorCredentialsSchema(BaseAPISchema):
+    def retrieve(self):
+        return self.swagger_auto_schema(
+            operation_summary='Get assessor credentials',
+            operation_description='Get a specific assessor credentials',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique assessor credentials ID'
+                )
+            ],
+            responses={
+                200: serializers.AssessorCredentialsSerializer(),
+                **self.get_responses(401, 403, 404)
+            }
+        )
+
+    def list(self):
+        return self.swagger_auto_schema(
+            operation_summary='List assessor credentials',
+            operation_description='Get list of assessor credentials',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='assessor',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Case-independent filtering by assessor id'
+                ),
+                openapi.Parameter(
+                    name='ordering',
+                    type=openapi.TYPE_STRING,
+                    in_=openapi.IN_QUERY,
+                    description='Which field to use when ordering the results. '
+                                'Available fields: pk, assessor'
+                )
+            ],
+            responses={**self.get_responses(401, 403)}
+        )
+
+    def create(self):
+        return self.swagger_auto_schema(
+            operation_summary='Create assessor credentials',
+            operation_description='Create assessor credentials',
+            responses={
+                201: serializers.CreateUpdateAssessorCredentialsSerializer(),
+                **self.get_responses(400, 403, 401)
+            }
+        )
+
+    def partial_update(self):
+        return self.swagger_auto_schema(
+            operation_summary='Update assessor credentials',
+            operation_description='Update assessor credentials',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique assessor credentials ID'
+                )
+            ],
+            responses={
+                200: serializers.CreateUpdateAssessorCredentialsSerializer(),
+                **self.get_responses(400, 401, 403, 404)
+            }
+        )
+
+    def destroy(self):
+        return self.swagger_auto_schema(
+            operation_summary='Delete assessor credentials',
+            operation_description='Delete assessor credentials',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique assessor credentials ID'
+                )
+            ],
+            responses={**self.get_responses(204, 401, 403, 404)}
+        )
+
+
 class FreeResourcesSchema(BaseAPISchema):
     def retrieve(self):
         return self.swagger_auto_schema(
@@ -292,63 +377,8 @@ class FreeResourcesSchema(BaseAPISchema):
         )
 
 
-class WorkingHoursSchema(BaseAPISchema):
-    def retrieve(self):
-        return self.swagger_auto_schema(
-            operation_summary='Get working hours',
-            operation_description='Get specific working hours',
-            manual_parameters=[
-                openapi.Parameter(
-                    name='id',
-                    type=openapi.TYPE_INTEGER,
-                    in_=openapi.IN_PATH,
-                    description='Unique working hours ID'
-                )
-            ],
-            responses={
-                200: serializers.WorkingHoursSerializer(),
-                **self.get_responses(401, 404)
-            }
-        )
-
-    def list(self):
-        return self.swagger_auto_schema(
-            operation_summary='List working hours',
-            operation_description='Get list of working hours',
-            responses={**self.get_responses(401)}
-        )
-
-    def create(self):
-        return self.swagger_auto_schema(
-            operation_summary='Create working hours',
-            operation_description='Create working hours',
-            responses={
-                201: serializers.WorkingHoursSerializer(),
-                **self.get_responses(400, 401, 403)
-            }
-        )
-
-    def partial_update(self):
-        return self.swagger_auto_schema(
-            operation_summary='Update working hours',
-            operation_description='Update working hours',
-            manual_parameters=[
-                openapi.Parameter(
-                    name='id',
-                    type=openapi.TYPE_INTEGER,
-                    in_=openapi.IN_PATH,
-                    description='Unique working hours ID'
-                )
-            ],
-            responses={
-                200: serializers.WorkingHoursSerializer(),
-                **self.get_responses(400, 401, 403, 404)
-            }
-        )
-
-
 assessor_schema = AssessorSchema(tags=['assessors'])
-check_assessor_schema = CheckAssessorSchema(tags=['assessors'])
-fr_schema = FreeResourcesSchema(tags=['free resources'])
 skills_schema = SkillsSchema(tags=['assessors'])
-wh_schema = WorkingHoursSchema(tags=['assessors'])
+check_assessor_schema = CheckAssessorSchema(tags=['assessors'])
+credentials_schema = AssessorCredentialsSchema(tags=['assessors'])
+fr_schema = FreeResourcesSchema(tags=['free resources'])

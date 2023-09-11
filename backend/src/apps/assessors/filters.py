@@ -2,7 +2,7 @@ from django.db.models import QuerySet
 from django_filters import rest_framework as filters
 
 from core.utils.mixins import FilteringMixin
-from .models import Assessor, Skill
+from .models import Assessor, Skill, AssessorCredentials
 
 
 class SkillsFilter(filters.FilterSet):
@@ -10,7 +10,7 @@ class SkillsFilter(filters.FilterSet):
 
     class Meta:
         model = Skill
-        fields = ('title',)
+        fields = ['title']
 
 
 class AssessorFilter(FilteringMixin, filters.FilterSet):
@@ -27,7 +27,7 @@ class AssessorFilter(FilteringMixin, filters.FilterSet):
 
     class Meta:
         model = Assessor
-        fields = (
+        fields = [
             'username',
             'last_name',
             'first_name',
@@ -38,7 +38,7 @@ class AssessorFilter(FilteringMixin, filters.FilterSet):
             'skills',
             'is_free_resource',
             'second_manager'
-        )
+        ]
 
     def filter_projects(self, queryset: QuerySet[Assessor], name: str, value: str):
         projects = self.get_id_for_filtering(value)
@@ -51,3 +51,9 @@ class AssessorFilter(FilteringMixin, filters.FilterSet):
     def filter_second_manager(self, queryset: QuerySet[Assessor], name: str, value: str):
         managers = self.get_id_for_filtering(value)
         return queryset.filter(second_manager__in=managers).distinct()
+
+
+class AssessorCredentialsFilter(filters.FilterSet):
+    class Meta:
+        model = AssessorCredentials
+        fields = ['assessor']
