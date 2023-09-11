@@ -6,8 +6,8 @@ interface RegisterResponse {
 
 }
 export default class AuthService{
-    static async login(username: string, password: string): Promise<AxiosResponse<AuthResponse>> {
-        return axios.post<AuthResponse>(`${API_URL}/api/token/`, {'username':username, 'password':password})
+    static async login(email: string, password: string): Promise<AxiosResponse<AuthResponse>> {
+        return axios.post<AuthResponse>(`${API_URL}/api/token/`, {'email':email, 'password':password})
     }
     static async register(username:string, email:string, password:string): Promise<AxiosResponse<RegisterResponse>> {
         return axios.post<AuthResponse>(`${API_URL}/api/users/`, {

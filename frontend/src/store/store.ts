@@ -69,15 +69,12 @@ export default class Store {
         this.managerData = manager
     }
 
-    async login(username: string, password: string) {
-        await AuthService.login(username, password)
+    async login(email: string, password: string) {
+        await AuthService.login(email, password)
             .then(res => {
                 localStorage.setItem('token', res.data.access)
                 const decodeJwt: Token = jwtDecode(res.data.access)
                 this.cookies.set('refresh', res.data.refresh, {path: '/', maxAge: decodeJwt.exp})
-
-                // document.cookie = `refresh=${res.data.refresh};Max-Age=${decodeJwt.exp};path=/`
-                // this.cookies.set('fdfdf', 'fdfdf', {m})
                 const managerId = decodeJwt.user_data.manager_id
                 this.setUserId(decodeJwt.user_id)
                 ManagerService.fetch_manager(managerId).then(res => {
