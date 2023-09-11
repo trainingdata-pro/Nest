@@ -12,11 +12,11 @@ services:
     volumes:
       - ./backend/src/:/backend/src
     depends_on:
-      - db
+      - postgres
       - celery
 
-  db:
-    container_name: db
+  postgres:
+    container_name: postgres
     image: postgres:14-alpine3.18
     env_file:
       - './backend/.env'

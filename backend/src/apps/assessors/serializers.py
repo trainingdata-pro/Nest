@@ -10,8 +10,9 @@ from apps.projects.serializers import ProjectSerializer, ProjectWorkingHoursSimp
 from apps.users.models import BaseUser, ManagerProfile
 from apps.users.serializers import UserSerializer
 from core.utils.mixins import GetUserMixin
+from core.utils.permissions import check_full_assessor_permission
 from core.utils.users import UserStatus
-from .models import Assessor, Skill
+from .models import Assessor, Skill, AssessorCredentials, AssessorState
 from .utils.common import check_project_permission
 
 
@@ -208,6 +209,37 @@ class CheckAssessorSerializer(serializers.ModelSerializer):
             'is_free_resource',
             'state'
         ]
+
+
+class CreateUpdateAssessorCredentialsSerializer(GetUserMixin, serializers.ModelSerializer):
+    assessor = serializers.PrimaryKeyRelatedField(
+        queryset=Assessor.objects.filter(state=AssessorState.WORK)
+    )
+
+    class Meta:
+        model = AssessorCredentials
+        fields = '__all__'
+
+    def validate(self, attrs: Dict) -> Dict:
+        manager = self.get_user()
+        assessor = attrs.get('assessor')
+        check_full_assessor_permission(manager, assessor)
+        tool = attrs.get('tool')
+        if AssessorCredentials.objects.filter(assessor=assessor, tool__iexact=tool).exists():
+            raise ValidationError(
+                {'tool': f'У исполнителя {assessor.full_name} уже есть '
+                         f'учетные данные для инструмента {tool}.'}
+            )
+
+        return super().validate(attrs)
+
+
+class AssessorCredentialsSerializer(serializers.ModelSerializer):
+    assessor = SimpleAssessorSerializer(read_only=True)
+
+    class Meta:
+        model = AssessorCredentials
+        fields = '__all__'
 
 
 class UpdateFreeResourceSerializer(serializers.ModelSerializer):

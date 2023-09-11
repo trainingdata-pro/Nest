@@ -171,3 +171,32 @@ class Assessor(models.Model):
         if self.projects.exists():
             return '; '.join([pr.name for pr in self.projects.all()])
         return '-'
+
+
+class AssessorCredentials(models.Model):
+    assessor = models.ForeignKey(
+        Assessor,
+        on_delete=models.PROTECT,
+        verbose_name='менеджер'
+    )
+    tool = models.CharField(
+        verbose_name='инструмент',
+        max_length=150
+    )
+    login = models.CharField(
+        verbose_name='логин',
+        max_length=150
+    )
+    password = models.CharField(
+        verbose_name='пароль',
+        max_length=150
+    )
+
+    class Meta:
+        db_table = 'assessor_credentials'
+        verbose_name = 'учетные данные'
+        verbose_name_plural = 'учетные данные'
+        ordering = ['id']
+
+    def __str__(self):
+        return str(self.tool)
