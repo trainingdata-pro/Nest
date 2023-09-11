@@ -1,76 +1,67 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import {NavLink, useParams} from "react-router-dom";
 import {Assessor, AssessorWorkingTime} from "../../models/AssessorResponse";
 import AssessorService from "../../services/AssessorService";
-import {ColumnDef} from "@tanstack/react-table";
+import {ColumnDef, createColumnHelper} from "@tanstack/react-table";
 import Table from "../UI/Table";
 import {IManager} from "../../models/ManagerResponse";
+import {useForm} from "react-hook-form";
+import {fa} from "@faker-js/faker";
+import MyLabel from "../UI/MyLabel";
+import MyInput from "../UI/MyInput";
+import Error from "../UI/Error";
+import Select from "react-select";
+import {format} from "date-fns";
+import {Context} from "../../index";
+import {FormSection} from '../ProjectForm';
+import {PencilSquareIcon} from "@heroicons/react/24/outline";
+import {Simulate} from "react-dom/test-utils";
+import input = Simulate.input;
+import {CheckIcon} from "@heroicons/react/24/solid";
+
+
+interface AssessorPatch {
+    username: string,
+    last_name: string,
+    first_name: string,
+    middle_name: string,
+    email: string,
+    country: string,
+    status: string,
+    is_free_resource: boolean,
+    free_resource_weekday_hours: number | string,
+    free_resource_day_off_hours: number | string,
+    manager: string,
+    projects: number[],
+    skills: number[]
+}
 
 const AssessorPage = () => {
-    const columnsInfo = useMemo<ColumnDef<Assessor>[]>(() => {
-        return [
-            {
-                accessorKey: 'last_name',
-                header: 'Фамилия',
-                cell: info => info.getValue(),
-                enableSorting: false,
-            },
-            {
-                accessorKey: 'first_name',
-                header: 'Имя',
-                cell: info => info.getValue(),
-                enableSorting: false,
-
-            },
-            {
-                accessorKey: 'middle_name',
-                header: 'Отчество',
-                cell: info => info.getValue(),
-                size: 30,
-                enableSorting: false
-
-            },
-            {
-                accessorKey: 'username',
-                header: 'Ник в TG',
-                cell: info => info.getValue(),
-                enableSorting: false
-
-            },
-            {
-                accessorKey: 'manager',
-                header: 'Ответственный менеджер',
-                cell: info => info.row.original.manager.last_name,
-                enableSorting: false
-
-            },
-            {
-                accessorKey: 'email',
-                header: 'Почта',
-                cell: info => info.getValue(),
-                enableSorting: false
-
-            },
-            {
-                accessorKey: 'country',
-                header: 'Страна',
-                cell: info => info.getValue(),
-                enableSorting: false
-
-            }
-        ];
-    }, [])
-
-
     const id = useParams()["id"]
-    useEffect(() => {
-        setIsLoading(true)
-        AssessorService.fetchAssessor(id).then(res => {
-            console.log(res.data)
+    useMemo(async () => {
+        await AssessorService.fetchAssessor(id).then(res => {
             setAssessor(res.data)
-            setIsLoading(false)
+            setValue('last_name', res.data.last_name)
+            setValue('first_name', res.data.first_name)
+            setValue('middle_name', res.data.middle_name)
+            setValue('username', res.data.username)
+            setValue('manager', `${res.data.manager.last_name} ${res.data.manager.first_name}`)
+            setValue('email', res.data.email)
+            setValue('country', res.data.country)
+
         })
     }, [])
+    const [editable, setEditable] = useState(true)
+    const {
+        watch,
+        register,
+        formState: {
+            errors
+        },
+        setValue,
+        getValues,
+        handleSubmit
+    } = useForm<AssessorPatch>()
     const [assessor, setAssessor] = useState<Assessor>({
         blacklist: false,
         country: "",
@@ -89,6 +80,17 @@ const AssessorPage = () => {
         username: "",
         working_hours: {} as AssessorWorkingTime
     })
+    const {store} = useContext(Context)
+    function Submit() {
+      const values = getValues()
+      if (editable){
+          setEditable(false)
+      } else {
+
+          console.log(values)
+          setEditable(true)
+      }
+    }
     const [isLoading, setIsLoading] = useState(false)
     return (
         <div>
@@ -106,79 +108,52 @@ const AssessorPage = () => {
                     </div>
                 </div>
             </header>
-
-            <div className="container pt-20 h-full pr-8 pl-8 items-center">
-                <div className="mt-5 h-full w-full">
-                    <div className="rounded-md border border-b-gray-400 bg-white">
-                        <Table data={[{...assessor}]} columns={columnsInfo} pages={false}/></div>
-                </div>
+            <div className="container pt-24">
+                <table className="w-full border border-black">
+                    <thead className="border border-black">
+                    <tr>
+                        <th>Фамилия</th>
+                        <th>Имя</th>
+                        <th>Отчество</th>
+                        <th>Ник в ТГ</th>
+                        <th>Отвественный менеджер</th>
+                        <th>Почта</th>
+                        <th>Страна</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td className="text-center">
+                            <input disabled={!editable} className="w-full text-center" {...register('last_name')}/>
+                        </td>
+                        <td className="text-center">
+                            <input disabled={!editable} className="w-full text-center" {...register('first_name')}/>
+                        </td>
+                        <td className="text-center">
+                            <input disabled={!editable} className="w-full text-center" {...register('middle_name')}/>
+                        </td>
+                        <td className="text-center">
+                            <input disabled={!editable} className="w-full text-center" {...register('username')}/>
+                        </td>
+                        <td className="text-center">
+                            <input disabled={!editable} className="w-full text-center" {...register('manager')}/>
+                        </td>
+                        <td className="text-center">
+                            <input disabled={!editable} className="w-full text-center" {...register('email')}/>
+                        </td>
+                        <td className="text-center">
+                            <input disabled={!editable} className="w-full text-center" {...register('country')}/>
+                        </td>
+                        <td className="text-center" onClick={Submit}>
+                            {editable ? <PencilSquareIcon className="h-6 w-6 text-black cursor-pointer"/>: <CheckIcon className="h-6 w-6 text-black cursor-pointer" />}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
-            <div className="container h-full pr-8 pl-8 items-center">
-                <div className="mt-5 h-full w-full">
-                    <div className="rounded-md border border-b-gray-400 bg-white">
-                        <table className="w-full">
-                            <thead>
-                            <tr
-                                className="border-b transition-colors data-[state=selected]:bg-muted">
-                                <th className="items-center py-2 text-[#64748b] text-sm">
-                                    Название проекта
-                                </th>
-                                <th className="items-center py-2 text-[#64748b] text-sm">
-                                    Менеджер проекта
-                                </th>
-                                <th className="items-center py-2 text-[#64748b] text-sm">
-                                    Статус
-                                </th>
-                                <th className="items-center py-2 text-[#64748b] text-sm">
-                                    ПН
-                                </th>
-                                <th className="items-center py-2 text-[#64748b] text-sm">
-                                    ВТ
-                                </th>
-                                <th className="items-center py-2 text-[#64748b] text-sm">
-                                    СР
-                                </th>
-                                <th className="items-center py-2 text-[#64748b] text-sm">
-                                    ЧТ
-                                </th>
-                                <th className="items-center py-2 text-[#64748b] text-sm">
-                                    ПТ
-                                </th>
-                                <th className="items-center py-2 text-[#64748b] text-sm">
-                                    СБ
-                                </th>
-                                <th className="items-center py-2 text-[#64748b] text-sm">
-                                    ВС
-                                </th>
-                                <th className="items-center py-2 text-[#64748b] text-sm">
-                                    Всего
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {assessor.projects.map(project => <tr key={project.id}
-                                                                  className="border-b transition-colors hover:bg-gray-100">
-                                <td className="text-center py-2 text-[#64748b] text-sm">{project.name}</td>
-                                <td className="text-center py-2 text-[#64748b] text-sm">менеджер</td>
-                                <td className="text-center py-2 text-[#64748b] text-sm">{assessor.status}</td>
-                                <td className="text-center py-2 text-[#64748b] text-sm">{assessor.working_hours?.monday}</td>
-                                <td className="text-center py-2 text-[#64748b] text-sm">{assessor.working_hours?.tuesday}</td>
-                                <td className="text-center py-2 text-[#64748b] text-sm">{assessor.working_hours?.wednesday}</td>
-                                <td className="text-center py-2 text-[#64748b] text-sm">{assessor.working_hours?.thursday}</td>
-                                <td className="text-center py-2 text-[#64748b] text-sm">{assessor.working_hours?.friday}</td>
-                                <td className="text-center py-2 text-[#64748b] text-sm">{assessor.working_hours?.saturday}</td>
-                                <td className="text-center py-2 text-[#64748b] text-sm">{assessor.working_hours?.sunday}</td>
-                                <td className="text-center py-2 text-[#64748b] text-sm">{assessor.working_hours?.sunday +
-                                    assessor.working_hours?.monday + assessor.working_hours?.saturday + assessor.working_hours?.friday + assessor.working_hours?.tuesday + assessor.working_hours?.wednesday + assessor.working_hours?.thursday}</td>
-                            </tr>)}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
         </div>
-    );
+    )
 };
 
 export default AssessorPage;

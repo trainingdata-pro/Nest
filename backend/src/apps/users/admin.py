@@ -1,40 +1,85 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import Group
+from django.utils.translation import gettext_lazy as _
 
-from .models import Manager, Code
+from .models import BaseUser, ManagerProfile, Code, PasswordResetToken
 
 
-class CustomUserAdmin(UserAdmin):
-    list_display = [
-        'pk',
+class BaseUserAdmin(UserAdmin):
+    model = BaseUser
+    add_form = UserCreationForm
+    search_help_text = 'Введите username, email или ФИО пользователя'
+    search_fields = [
         'username',
         'email',
-        'is_superuser',
-        'is_active'
-    ]
-    list_display_links = ['username']
-
-
-class ManagerAdmin(admin.ModelAdmin):
-    search_fields = [
-        'user__username',
         'last_name',
         'first_name',
         'middle_name'
     ]
-    search_help_text = 'Введите username или ФИО менеджера'
-    list_display = [
+    list_display = (
         'pk',
-        'user',
+        'username',
         'last_name',
         'first_name',
         'middle_name',
-        'is_operational_manager'
+        'email',
+        'status',
+        'is_active',
+        'is_staff',
+        'is_superuser'
+    )
+    list_display_links = ('username',)
+    list_filter = ['status', 'is_staff', 'is_superuser']
+    fieldsets = [
+        (None, {
+            'fields': [
+                'last_name',
+                'first_name',
+                'middle_name',
+                'username',
+                'email',
+                'status',
+                'password'
+            ]
+        }),
+        (_('Permissions'), {
+            'fields': ['is_staff', 'is_superuser']
+        }),
+        (_('Important dates'), {
+            'fields': ('last_login', 'date_joined')
+        }),
+    ]
+    add_fieldsets = [
+        (None, {
+            'classes': ['wide'],
+            'fields': [
+                'username',
+                'email',
+                'last_name',
+                'first_name',
+                'middle_name',
+                'status',
+                'password1',
+                'password2',
+                'is_active',
+                'is_staff',
+                'is_superuser'
+            ]
+        }),
+    ]
+
+
+class ManagerProfileAdmin(admin.ModelAdmin):
+    list_display = [
+        'pk',
+        'user',
+        'is_teamlead',
+        'teamlead'
     ]
     list_display_links = ['user']
-    list_filter = ['is_operational_manager']
-    ordering = ['last_name']
+    list_filter = ['is_teamlead', 'teamlead']
 
 
 class CodeAdmin(admin.ModelAdmin):
@@ -45,8 +90,13 @@ class CodeAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.unregister(User)
+class TokenAdmin(admin.ModelAdmin):
+    list_display = ['pk', 'user', 'token']
+    list_display_links = ['user']
+
+
 admin.site.unregister(Group)
-admin.site.register(User, CustomUserAdmin)
-admin.site.register(Manager, ManagerAdmin)
+admin.site.register(BaseUser, BaseUserAdmin)
+admin.site.register(ManagerProfile, ManagerProfileAdmin)
 admin.site.register(Code, CodeAdmin)
+admin.site.register(PasswordResetToken, TokenAdmin)

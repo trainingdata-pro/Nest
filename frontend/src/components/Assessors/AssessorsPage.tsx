@@ -6,6 +6,7 @@ import {Assessor} from "../../models/AssessorResponse";
 import AssessorService from "../../services/AssessorService";
 import AddAssessorForm from "../AddAssessorForm";
 import SideBar from "../UI/Dialog";
+import Dialog from "../UI/Dialog";
 
 const AssessorsPage = () => {
     const statusObject = {
@@ -87,9 +88,9 @@ const AssessorsPage = () => {
     const [showSidebar, setShowSidebar] = useState(false)
     return (
         <div>
-            <SideBar isOpen={showSidebar} setIsOpen={setShowSidebar}>
+            <Dialog isOpen={showSidebar} setIsOpen={setShowSidebar}>
                 <AddAssessorForm assessors={assessors} showSidebar={showSidebar} setShowSidebar={setShowSidebar} setAssessors={setAssessors}/>
-            </SideBar>
+            </Dialog>
             <header className="fixed h-20 w-screen z-10 border-b border-gray-200 bg-white">
                 <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
                     <div className="flex h-full w-full items-center justify-between gap-x-6">

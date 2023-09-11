@@ -32,7 +32,7 @@ interface ProjectFormProps {
     date_of_creation: string
 }
 
-const FormSection =({children}: {children:React.ReactNode}) => {
+export const FormSection =({children}: {children:React.ReactNode}) => {
     return <div className="mb-2">{children}</div>
 }
 const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
@@ -46,7 +46,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
         if (projectId) {
             if (projectId !== 0) {
                 ProjectService.fetchProject(projectId).then(res => {
-                    setValue('name', res.data.name)
+                        setValue('name', res.data.name)
                     setValue('manager', res.data.manager.map(manager => {
                         return {value: manager.id, label: `${manager.last_name} ${manager.first_name}`}
                     }))

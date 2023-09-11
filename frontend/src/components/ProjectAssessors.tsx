@@ -13,6 +13,8 @@ import AssessorService from "../services/AssessorService";
 import Table from "./UI/Table";
 import ProjectService from "../services/ProjectService";
 import {Project} from "../models/ProjectResponse";
+import Dialog from "./UI/Dialog";
+import AddAssessorForm from "./AddAssessorForm";
 
 const ProjectAssessors = () => {
     const columnHelper = createColumnHelper<Assessor>()
@@ -23,17 +25,17 @@ const ProjectAssessors = () => {
                 columns: [
                     columnHelper.accessor('last_name', {
                         header: 'Фамилия',
-                        cell: info => info.getValue(),
+                        cell: info => <NavLink to={`/assessor/${info.row.original.id}`}>{info.getValue()}</NavLink>,
                         enableSorting: false
                     }),
                     columnHelper.accessor('first_name', {
                         header: 'Имя',
-                        cell: info => info.getValue(),
+                        cell: info => <NavLink to={`/assessor/${info.row.original.id}`}>{info.getValue()}</NavLink>,
                         enableSorting: false
                     }),
                     columnHelper.accessor('middle_name', {
                         header: 'Отчество',
-                        cell: info => info.getValue(),
+                        cell: info => <NavLink to={`/assessor/${info.row.original.id}`}>{info.getValue()}</NavLink>,
                         enableSorting: false
                     }),
                 ],
@@ -161,10 +163,17 @@ const ProjectAssessors = () => {
                 .then(res => setData(res.data.results))
                 .catch(e => console.log(e))
         }, [])
-
+        const [addToProject, setAddToProject] = useState(false)
+        const [addAssessor, setAddAssessor] = useState(false)
         const [data, setData] = useState<Assessor[]>([])
         return (
             <div>
+                <Dialog isOpen={addToProject} setIsOpen={setAddToProject}>
+                    <div></div>
+                </Dialog>
+                <Dialog isOpen={addAssessor} setIsOpen={setAddAssessor}>
+                    <AddAssessorForm assessors={data} setAssessors={setData} showSidebar={addAssessor} setShowSidebar={setAddAssessor}/>
+                </Dialog>
                 <header className="fixed w-screen h-20 border-b border-gray-200 bg-white">
 
                     <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
@@ -186,14 +195,14 @@ const ProjectAssessors = () => {
 
                                     <div className="flex justify-end">
                                         <li>
-                                            <NavLink
+                                            <button
                                                 className="inline-flex items-center hover:bg-gray-200 justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4"
-                                                to='/profile'>Добавить на проект</NavLink>
+                                                onClick={() => setAddToProject(true)} >Добавить на проект</button>
                                         </li>
                                         <li>
-                                            <NavLink
+                                            <button
                                                 className="inline-flex items-center hover:bg-gray-200 justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4"
-                                                to='/dashboard/check'>Создать ассессора</NavLink>
+                                                onClick={() => setAddAssessor(true)}>Создать ассессора</button>
                                         </li>
                                     </div>
                                 </ul>

@@ -1,7 +1,6 @@
 from typing import Dict
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
 from rest_framework import exceptions
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import Token
@@ -14,9 +13,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     }
 
     def check_is_active(self, attrs: Dict) -> None:
-        username = attrs.get(self.username_field)
-        model = get_user_model()
-        user = model.objects.filter(username=username, is_active=False).first()
+        email = attrs.get(self.username_field)
+        user_model = get_user_model()
+        user = user_model.objects.filter(email=email, is_active=False).first()
         if user is not None:
             raise exceptions.AuthenticationFailed(
                 self.default_error_messages['user_not_active'],
@@ -28,19 +27,16 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return super().validate(attrs)
 
     @classmethod
-    def get_token(cls, user: User) -> Token:
+    def get_token(cls, user) -> Token:
         token = super().get_token(user)
         token['user_data'] = {
+            'email': user.email,
             'username': user.username,
-            'is_active': user.is_active
+            'status': user.status,
+            'is_active': user.is_active,
+            'is_admin': user.is_superuser
         }
-        if user.is_superuser:
-            token['user_data']['is_admin'] = True
-            token['user_data']['manager_id'] = None
-            token['user_data']['is_operational_manager'] = False
-        else:
-            token['user_data']['is_admin'] = False
-            token['user_data']['manager_id'] = user.manager.id
-            token['user_data']['is_operational_manager'] = user.manager.is_operational_manager
+        if hasattr(user, 'manager_profile'):
+            token['user_data']['manager_profile_id'] = user.manager_profile.id
 
         return token

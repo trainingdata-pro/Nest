@@ -18,7 +18,8 @@ interface FormProps {
     first_name: string
     middle_name: string,
     username: string,
-    project: string,
+    projects: SelectProps[],
+    manager: number,
     status: SelectProps,
     country: string,
     email: string
@@ -35,25 +36,29 @@ const AddAssessorForm = ({assessors, setAssessors, showSidebar, setShowSidebar}:
         setShowSidebar: any,
     }) => {
         const {store} = useContext(Context)
-        const {register,setValue, watch, reset, getValues, formState: {errors}, handleSubmit} = useForm<FormProps>()
-        const [projects, setProjects] = useState<Project[]>([])
+        const {register,setValue, watch, reset, getValues, formState: {errors}, handleSubmit} = useForm<FormProps>({
+            defaultValues:{
+                manager: store.managerData.id
+            }
+        })
+
         useEffect(() => {
-            ProjectService.fetchProjects(store.managerData.id.toString()).then(res => setProjects(res.data.results.filter(d => d.manager.map(manager => manager.id === store.managerData.id))))
+            ProjectService.fetchProjects(store.managerData.id.toString()).then(res => setProjects(res.data.results.filter(d => d.manager.map(manager => manager.id === store.managerData.id)).map(result => {
+                return {value: result.id, label: result.name}
+            })))
         }, [])
-        useEffect(() => {
-            reset()
-        }, [showSidebar])
-        const [serverError, setServerError] = useState({})
+        const [projects, setProjects] = useState<SelectProps[]>([])
+        const [serverError, setServerError] = useState([])
 
         function submit() {
             let data = getValues()
             const requestData2 = {...data, status: data.status.value}
-            AssessorService.addAssessor(requestData2).then((res:any) => {
+            const requestData3 = {...requestData2, projects: data.projects.map(project => project.value)}
+            AssessorService.addAssessor(requestData3).then((res:any) => {
                     setAssessors([...assessors, res.data])
                     setShowSidebar(false)
                 }
             ).catch((e: any) => {
-                console.log(e)
                 const errJson = JSON.parse(e.request.response)
                 setServerError(errJson)
             })
@@ -65,14 +70,12 @@ const AddAssessorForm = ({assessors, setAssessors, showSidebar, setShowSidebar}:
             {value: "partial", label: "Частичная загруженность"}
 
         ]
-    const statusList = [
-        {value: 'active', label: 'Активный'},
-        {value: 'pause', label: 'На паузе'},
-        {value: 'completed', label: 'Завершен'}
-    ]
         const handleSelectChangeStatus = (value: any) => {
             setValue('status', value);
         };
+    const handleSelectChangeProject = (value: any) => {
+        setValue('projects', value);
+    };
         return (
             <form onSubmit={handleSubmit(submit)}>
                 <FormSection>
@@ -120,12 +123,13 @@ const AddAssessorForm = ({assessors, setAssessors, showSidebar, setShowSidebar}:
                 </FormSection>
                 <FormSection>
                     <MyLabel required={true}>Проект</MyLabel>
-                    <select {...register('project')}
-                            className="flex h-10 rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full"
-                    >
-                        <option value=''>------------</option>
-                        {projects.map(project => <option key={project.id} value={project.id}>{project.name}</option>)}
-                    </select>
+                    <Select
+                        {...register('projects', {required: 'Обязательное поле'})}
+                        options={projects}
+                        value={watch('projects')}
+                        onChange={handleSelectChangeProject}
+                        isMulti
+                    />
                 </FormSection>
                 <FormSection>
                     <MyLabel required={true}>Статус</MyLabel>
@@ -134,18 +138,6 @@ const AddAssessorForm = ({assessors, setAssessors, showSidebar, setShowSidebar}:
                         options={statusObject}
                         value={watch('status')}
                         onChange={handleSelectChangeStatus}
-                        styles={{
-                            control: base => ({
-                                ...base,
-                                height: 32,
-                                minHeight: 32,
-                                fontSize: 14
-                            }),
-                            input: (provided, state) => ({
-                                ...provided,
-                                padding: '0px',
-                            })
-                        }}
                     />
                 </FormSection>
                 <FormSection>
@@ -172,7 +164,10 @@ const AddAssessorForm = ({assessors, setAssessors, showSidebar, setShowSidebar}:
                     />
                     <Error>{errors.email && errors.email?.message}</Error>
                 </FormSection>
-                <div className="w-full">
+                <FormSection>
+                {Object.keys(serverError).map((key:any) => <Error>{serverError[key]}</Error>)}
+                </FormSection>
+                <div className="w-full pt-3">
                     <button
                         className="bg-black text-white rounded-md text-sm font-medium disabled:opacity-50 transition-colors hover:bg-primary/90 h-10 py-2 px-4"
                         type="submit">Сохранить

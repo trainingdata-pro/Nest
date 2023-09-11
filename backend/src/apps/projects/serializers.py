@@ -3,10 +3,13 @@ from typing import Dict
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from apps.users.serializers import ManagerSerializer
-from apps.users.models import Manager
+from apps.assessors.models import Assessor, AssessorState
+from apps.users.models import BaseUser
+from apps.users.serializers import UserSerializer
 from core.utils.common import current_date
-from .models import ProjectTag, Project, ProjectStatuses
+from core.utils.mixins import GetUserMixin
+from core.utils.users import UserStatus
+from .models import ProjectTag, Project, ProjectStatuses, ProjectWorkingHours
 
 
 class ProjectTagSerializer(serializers.ModelSerializer):
@@ -15,14 +18,14 @@ class ProjectTagSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CreateProjectSerializer(serializers.ModelSerializer):
+class CreateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
+    manager = serializers.PrimaryKeyRelatedField(
+        queryset=BaseUser.objects.filter(status=UserStatus.MANAGER)
+    )
+
     class Meta:
         model = Project
         fields = '__all__'
-        extra_kwargs = {'manager': {'required': False}}
-
-    def get_manager(self) -> Manager:
-        return self.context.get('request').user.manager
 
     def _check_if_completed(self, project: Project) -> Project:
         date_of_completion = self.validated_data.get('date_of_completion')
@@ -35,26 +38,32 @@ class CreateProjectSerializer(serializers.ModelSerializer):
         project.save()
         return project
 
-    def validate(self, attrs: Dict):
-        manager = self.get_manager()
-        if manager.is_operational_manager:
-            owners = attrs.get('manager')
-            if not owners:
-                raise ValidationError(
-                    {'manager': ['Укажите менеджера проекта.']}
-                )
-            else:
-                for owner in owners:
-                    if owner.is_operational_manager:
-                        raise ValidationError(
-                            {'manager': [f'Нельзя назначить операционного менеджера '
-                                         f'{owner.full_name} на проект.']}
-                        )
+    def validate(self, attrs: Dict) -> Dict:
+        owners = attrs.get('manager')
+        if self.instance is None and owners is None:
+            raise ValidationError(
+                {'manager': ['Укажите менеджера проекта.']}
+            )
 
-                    elif owner.operational_manager and owner.operational_manager.pk != manager.pk:
-                        raise ValidationError(
-                            {'manager': [f'Менеджер {owner.full_name} не в вашей команде.']}
-                        )
+        if owners is not None:
+            manager = self.get_user()
+            for owner in owners:
+                if owner.manager_profile.is_teamlead:
+                    raise ValidationError(
+                        {'manager': [f'Нельзя назначить операционного менеджера '
+                                     f'{owner.full_name} на проект.']}
+                    )
+
+                if manager.manager_profile.is_teamlead and owner.manager_profile.teamlead != manager:
+                    raise ValidationError(
+                        {'manager': [f'Менеджер {owner.full_name} не в вашей команде.']}
+                    )
+
+                if (not manager.manager_profile.is_teamlead and
+                        owner.manager_profile.teamlead != manager.manager_profile.teamlead):
+                    raise ValidationError(
+                        {'manager': [f'Менеджер {owner.full_name} не в вашей команде.']}
+                    )
 
         date_of_creation = attrs.get('date_of_creation')
 
@@ -72,26 +81,19 @@ class CreateProjectSerializer(serializers.ModelSerializer):
         return super().validate(attrs)
 
     def create(self, validated_data: Dict) -> Project:
-        current_manager = self.get_manager()
-        project_manager = validated_data.pop('manager', None)
+        project_manager = validated_data.pop('manager')
         tag = validated_data.pop('tag', None)
-        if current_manager.is_operational_manager:
-            project = Project.objects.create(**validated_data)
-            project.manager.set(project_manager)
-
-        else:
-            project = Project.objects.create(**validated_data)
-            project.manager.set([current_manager])
+        project = Project.objects.create(**validated_data)
+        project.manager.set(project_manager)
 
         if tag:
             project.tag.set(tag)
 
-        project.save()
         project = self._check_if_completed(project)
 
         return project
 
-    def update(self, instance: Project, validated_data: Dict):
+    def update(self, instance: Project, validated_data: Dict) -> Project:
         project = super().update(instance, validated_data)
         project = self._check_if_completed(project)
 
@@ -99,9 +101,8 @@ class CreateProjectSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    manager = ManagerSerializer(read_only=True, many=True)
+    manager = UserSerializer(read_only=True, many=True)
     assessors_count = serializers.SerializerMethodField(read_only=True)
-    backlog = serializers.SerializerMethodField(read_only=True)
     tag = ProjectTagSerializer(read_only=True, many=True)
 
     class Meta:
@@ -111,5 +112,70 @@ class ProjectSerializer(serializers.ModelSerializer):
     def get_assessors_count(self, obj: Project) -> int:
         return obj.assessors.count()
 
-    def get_backlog(self, obj) -> str:
-        return 'Тут пока не понятно, что это за поле, поэтому просто заглушка'
+
+class ProjectSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ['id', 'name']
+
+
+class CreateProjectWorkingHoursSerializer(GetUserMixin, serializers.ModelSerializer):
+    assessor = serializers.PrimaryKeyRelatedField(
+        queryset=Assessor.objects.filter(state=AssessorState.WORK)
+    )
+    project = serializers.PrimaryKeyRelatedField(
+        queryset=Project.objects.exclude(status=ProjectStatuses.COMPLETED)
+    )
+
+    class Meta:
+        model = ProjectWorkingHours
+        fields = '__all__'
+
+    @staticmethod
+    def _check_assessor_permission(manager: BaseUser, assessor: Assessor) -> None:
+        if (assessor.manager.pk != manager.pk
+                and assessor.manager.manager_profile.teamlead.pk != manager.pk
+                and manager.pk not in assessor.second_manager.values_list('pk', flat=True)):
+            raise ValidationError(
+                {'assessor': ['Вы не можете выбрать данного исполнителя.']}
+            )
+
+    @staticmethod
+    def _check_project_permission(assessor: Assessor, project: Project) -> None:
+        if project not in assessor.projects.all():
+            raise ValidationError(
+                {'project': ['На текущий момент исполнитель не работает над данным проектом.']}
+            )
+
+    def validate(self, attrs: Dict) -> Dict:
+        manager = self.get_user()
+        assessor = attrs.get('assessor')
+        project = attrs.get('project')
+        self._check_assessor_permission(manager, assessor)
+        self._check_project_permission(assessor, project)
+
+        return super().validate(attrs)
+
+
+class UpdateProjectWorkingHoursSerializer(GetUserMixin, serializers.ModelSerializer):
+    class Meta:
+        model = ProjectWorkingHours
+        exclude = ['assessor', 'project']
+
+
+class ProjectWorkingHoursSerializer(GetUserMixin, serializers.ModelSerializer):
+    project = ProjectSimpleSerializer(read_only=True)
+    total = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = ProjectWorkingHours
+        fields = '__all__'
+
+    def get_total(self, obj: ProjectWorkingHours) -> int:
+        return obj.total
+
+
+class ProjectWorkingHoursSimpleSerializer(ProjectWorkingHoursSerializer):
+    class Meta:
+        model = ProjectWorkingHours
+        exclude = ['assessor']

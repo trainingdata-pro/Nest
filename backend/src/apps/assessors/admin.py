@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Assessor, Skill, WorkingHours
+from .models import Assessor, Skill
 
 
 class AssessorAdmin(admin.ModelAdmin):
@@ -46,22 +46,22 @@ class SkillAdmin(admin.ModelAdmin):
     list_display = ['pk', 'title']
 
 
-class WorkingHoursAdmin(admin.ModelAdmin):
-    list_display = [
-        'pk',
-        'assessor',
-        'total',
-        'monday',
-        'tuesday',
-        'wednesday',
-        'thursday',
-        'friday',
-        'saturday',
-        'sunday',
-    ]
-    list_display_links = ['assessor']
+# class WorkingHoursAdmin(admin.ModelAdmin):
+#     list_display = [
+#         'pk',
+#         'assessor',
+#         'total',
+#         'monday',
+#         'tuesday',
+#         'wednesday',
+#         'thursday',
+#         'friday',
+#         'saturday',
+#         'sunday',
+#     ]
+#     list_display_links = ['assessor']
 
 
 admin.site.register(Assessor, AssessorAdmin)
 admin.site.register(Skill, SkillAdmin)
-admin.site.register(WorkingHours, WorkingHoursAdmin)
+# admin.site.register(WorkingHours, WorkingHoursAdmin)

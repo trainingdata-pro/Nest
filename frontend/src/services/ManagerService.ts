@@ -36,7 +36,7 @@ export default class ManagerService{
     }
     static patchBaseUser(managerId:number, data:any) {
         return $api.patch(`/api/base_user/${managerId}/`, {
-            "usernmae": data.username,
+            "username": data.username,
         })
     }
     static fetchOperationsManagers() {
