@@ -5,14 +5,18 @@ import jwtDecode from "jwt-decode";
 import {API_URL} from "../http";
 import ManagerService from "../services/ManagerService";
 import Cookies from 'universal-cookie';
+
 interface UserData {
     is_active: boolean,
     is_admin: boolean,
     email: string,
     status: string,
     username: string,
-    is_teamlead: boolean
-    teamlead: number
+    is_teamlead: boolean,
+    teamlead: number | string,
+    last_name: string,
+    first_name: string,
+    middle_name: string
 
 
 }
@@ -20,18 +24,19 @@ interface UserData {
 export interface Token {
     user_data: UserData,
     exp: number,
-    user_id:number
+    user_id: number
 
 }
 
 export default class Store {
-    user_id: number= 0
+    user_id: number = 0
     isAuth = false
-    managerData = {} as UserData
+    userData = {} as UserData
     isLoading = false
     showProfile = false
     cookies = new Cookies()
     authError = ''
+
     constructor() {
         makeAutoObservable(this)
     }
@@ -44,17 +49,20 @@ export default class Store {
         this.isLoading = bool
     }
 
-    setAuthError(error:string){
+    setAuthError(error: string) {
         this.authError = error
     }
+
     setAuth(bool: boolean) {
         this.isAuth = bool
     }
-    setUserId(id:number){
+
+    setUserId(id: number) {
         this.user_id = id
     }
+
     setManagerData(manager: UserData) {
-        this.managerData = manager
+        this.userData = manager
     }
 
     async login(email: string, password: string) {
@@ -81,7 +89,8 @@ export default class Store {
                 this.setAuthError(errJson['detail'])
             })
     }
-    async logout(){
+
+    async logout() {
         this.setAuth(false)
         localStorage.removeItem('token')
         this.cookies.remove('refresh')
