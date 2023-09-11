@@ -38,12 +38,12 @@ const AddAssessorForm = ({assessors, setAssessors, showSidebar, setShowSidebar}:
         const {store} = useContext(Context)
         const {register,setValue, watch, reset, getValues, formState: {errors}, handleSubmit} = useForm<FormProps>({
             defaultValues:{
-                manager: store.managerData.id
+                manager: store.user_id
             }
         })
 
         useEffect(() => {
-            ProjectService.fetchProjects(store.managerData.id.toString()).then(res => setProjects(res.data.results.filter(d => d.manager.map(manager => manager.id === store.managerData.id)).map(result => {
+            ProjectService.fetchProjects(store.user_id.toString()).then(res => setProjects(res.data.results.filter(d => d.manager.map(manager => manager.id === store.user_id)).map(result => {
                 return {value: result.id, label: result.name}
             })))
         }, [])
