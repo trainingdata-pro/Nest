@@ -7,14 +7,8 @@ import Cookies from "universal-cookie";
 import Dialog from "../UI/Dialog";
 
 const Header = () => {
-    const navigate = useNavigate()
     const {store} = useContext(Context)
     const [isOpen, setIsOpen] = useState(false)
-    useEffect(() => {
-        if (store.user_data.first_name === '' || store.user_data.last_name === '' || store.user_data.middle_name === '' || !store.user_data.is_teamlead && store.user_data.teamlead === null){
-            setIsOpen(true)
-        }
-    }, []);
     return (
         <>
             <Dialog isOpen={isOpen} setIsOpen={setIsOpen}>
