@@ -1,4 +1,3 @@
-import uuid
 from typing import Union
 
 from django.contrib.auth import get_user_model
@@ -13,7 +12,6 @@ from core.utils.validators import (
     allowed_chars_validator,
     only_manager_validator
 )
-from .utils.common import create_expiration_date
 
 
 class UserManager(BaseUserManager):
@@ -136,48 +134,3 @@ class ManagerProfile(models.Model):
         verbose_name = 'профиль менеджера'
         verbose_name_plural = 'профили менеджеров'
         ordering = ['id']
-
-    # def __str__(self):
-    #     return str(self.user.full_name)
-
-    # @property
-    # def full_name(self) -> str:
-    #     return f'{self.last_name} {self.first_name} {self.middle_name}'
-
-
-class Code(models.Model):
-    code = models.CharField(
-        max_length=20,
-        unique=True,
-        verbose_name='код'
-    )
-    user = models.OneToOneField(
-        get_user_model(),
-        on_delete=models.CASCADE,
-        related_name='code'
-    )
-
-    class Meta:
-        db_table = 'codes'
-        verbose_name = 'код подтверждения'
-        verbose_name_plural = 'коды подтверждения'
-
-    def __str__(self):
-        return str(self.code)
-
-
-class PasswordResetToken(models.Model):
-    user = models.ForeignKey(
-        get_user_model(),
-        on_delete=models.CASCADE
-    )
-    token = models.UUIDField(
-        default=uuid.uuid4,
-        editable=False
-    )
-    expiration_time = models.DateTimeField(
-        default=create_expiration_date
-    )
-
-    def __str__(self):
-        return str(self.token)

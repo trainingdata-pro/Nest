@@ -9,6 +9,7 @@ from apps.projects.models import ProjectStatuses, Project, ProjectWorkingHours
 from apps.projects.serializers import ProjectSerializer, ProjectWorkingHoursSimpleSerializer
 from apps.users.models import BaseUser, ManagerProfile
 from apps.users.serializers import UserSerializer
+from core.utils.common import current_date
 from core.utils.mixins import GetUserMixin
 from core.utils.permissions import check_full_assessor_permission
 from core.utils.users import UserStatus
@@ -240,6 +241,86 @@ class AssessorCredentialsSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssessorCredentials
         fields = '__all__'
+
+
+class AssessorVacationSerializer(serializers.ModelSerializer):
+    vacation = serializers.BooleanField()
+
+    class Meta:
+        model = Assessor
+        fields = ['vacation', 'vacation_date']
+
+    def validate(self, attrs: Dict) -> Dict:
+        assessor = self.instance
+        if not assessor.manager:
+            raise ValidationError(
+                {'vacation': ['У исполнителя нет руководителя.']}
+            )
+
+        vacation = attrs.get('vacation')
+        if vacation is None:
+            raise ValidationError(
+                {'vacation': ['Это обязательное поле.']}
+            )
+
+        if vacation:
+            vacation_date = attrs.get('vacation_date')
+            if vacation_date is None:
+                raise ValidationError(
+                    {'vacation_date': ['Это обязательное поле.']}
+                )
+
+            if current_date() > vacation_date:
+                raise ValidationError(
+                    {'vacation_date': ['Дата выхода из отпуска не может быть меньше текущей даты.']}
+                )
+
+            if assessor.state == AssessorState.VACATION:
+                raise ValidationError(
+                    {'vacation': ['Исполнитель уже находится в отпуске.']}
+                )
+
+            if assessor.projects.exists():
+                raise ValidationError(
+                    {'vacation': ['У исполнителя есть активные проекты.']}
+                )
+
+            if assessor.is_free_resource:
+                raise ValidationError(
+                    {'vacation': ['Исполнитель находится в свободных ресурсах.']}
+                )
+
+            if assessor.state == AssessorState.FIRED:
+                raise ValidationError(
+                    {'vacation': ['Исполнитель уволен.']}
+                )
+
+            if assessor.state == AssessorState.BLACKLIST:
+                raise ValidationError(
+                    {'vacation': ['Исполнитель в черном списке.']}
+                )
+        else:
+            if assessor.state == AssessorState.WORK:
+                raise ValidationError(
+                    {'vacation': ['Исполнитель уже работает.']}
+                )
+
+        return super().validate(attrs)
+
+    def save(self, **kwargs) -> Assessor:
+        assessor = self.instance
+        vacation = self.validated_data.get('vacation')
+        if vacation:
+            vacation_date = self.validated_data.get('vacation_date')
+            assessor.state = AssessorState.VACATION
+            assessor.vacation_date = vacation_date
+        else:
+            assessor.state = AssessorState.WORK
+            assessor.vacation_date = None
+
+        assessor.save()
+        history.vacation_history(assessor, to_vacation=vacation)
+        return assessor
 
 
 class UpdateFreeResourceSerializer(serializers.ModelSerializer):
