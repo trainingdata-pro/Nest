@@ -7,7 +7,6 @@ import ManagerService from "../services/ManagerService";
 import Cookies from 'universal-cookie';
 
 interface UserData {
-    is_active: boolean,
     is_admin: boolean,
     email: string,
     status: string,
@@ -85,11 +84,14 @@ export default class Store {
         this.setIsLoading(true)
         try {
             const response = await axios.post(`${API_URL}/api/token/refresh/`, {'refresh': this.cookies.get('refresh')})
+            localStorage.removeItem('token')
             localStorage.setItem('token', response.data.access)
+
             const decodeJwt: Token = jwtDecode(response.data.access)
             const managerId = decodeJwt.user_id
             console.log(decodeJwt)
             const user_data = decodeJwt.user_data
+            await ManagerService.fetch_manager(managerId).then(res => console.log(res.data))
             this.setUserId(managerId)
             this.setUserData(user_data)
             this.setAuth(true)

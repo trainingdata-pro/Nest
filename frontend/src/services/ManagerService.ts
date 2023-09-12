@@ -19,7 +19,7 @@ export default class ManagerService{
         })
     }
     static patchBaseUser(managerId:number, data:any) {
-        return $api.patch(`/api/user/${managerId}/`, {
+        return $api.patch(`/api/users/${managerId}/`, {
             "username": data.username,
             "last_name": data.last_name,
             "first_name": data.first_name,
@@ -27,7 +27,7 @@ export default class ManagerService{
         })
     }
     static fetchOperationsManagers() {
-        return $api.get('/api/users/?is_operational_manager=true')
+        return $api.get('/api/users/?is_teamlead=true')
     }
 
 }

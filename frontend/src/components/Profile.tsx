@@ -1,16 +1,11 @@
-import React, {useContext, useEffect, useMemo, useState} from 'react';
+import React, {useContext, useMemo, useState} from 'react';
 import {Context} from "../index";
 import {observer} from "mobx-react-lite";
 import {useForm} from "react-hook-form";
 import ManagerService from "../services/ManagerService";
 import MyLabel from "./UI/MyLabel";
 import MyInput from "./UI/MyInput";
-import Select from "react-select";
 
-interface SelectProps {
-    value: number | string,
-    label: string
-}
 
 interface FormProps {
     last_name: string,
@@ -18,95 +13,80 @@ interface FormProps {
     middle_name: string,
     username: string,
     id: number,
-    teamlead: SelectProps
+    teamlead: string
 }
 
+const FormSection = ({children}: { children: React.ReactNode }) => {
+    return (<div className="text-left">{children}</div>)
+}
 const Profile = ({setIsOpen}: {
     setIsOpen: any
 }) => {
     const {store} = useContext(Context)
+    const {register, watch, getValues, reset, setValue, handleSubmit} = useForm<FormProps>()
     useMemo(async () => {
-        await ManagerService.fetchOperationsManagers().then((res) => setOperationsManagers(res.data.results.map((operations: any) => {
-            return {value: operations.id, label: `${operations.last_name} ${operations.first_name}`}
-        })))
-        if (store.user_data.teamlead){
-            await ManagerService.fetch_manager(store.user_data.teamlead.id).then(res => {
-                console.log(res.data)
-                setValue('teamlead', {
-                    value: res.data.id,
-                    label: `${res.data.last_name} ${res.data.first_name}`
-                })
+        if (store.user_data.teamlead) {
+            await ManagerService.fetch_manager(store.user_data.teamlead).then(res => {
+                setValue('teamlead', `${res.data.last_name} ${res.data.first_name}`)
 
             })
         }
-        setValue('id', store.user_id);
-        setValue('last_name', store.user_data.last_name);
-        setValue('first_name', store.user_data.first_name);
-        setValue('middle_name', store.user_data.middle_name);
-        setValue('username', store.user_data.username);
-
-
-    }, []);
-    const [operationsManagers, setOperationsManagers] = useState<SelectProps[]>([])
-    const {register, watch, getValues, reset, setValue, handleSubmit} = useForm<FormProps>(
-    )
-
-    function onSubmit() {
-        const data = getValues()
-        const newData = {...data, teamlead: data.teamlead.value}
-        store.user_data.teamlead = newData.teamlead
-        ManagerService.patchManager(data.id, newData)
-        ManagerService.patchBaseUser(store.user_id, newData).then((res) => {
-            setIsOpen(false)
+        await ManagerService.fetch_manager(store.user_id).then(res => {
+            setValue('id', res.data.id);
+            setValue('last_name', res.data.last_name);
+            setValue('first_name', res.data.first_name);
+            setValue('middle_name', res.data.middle_name);
+            setValue('username', res.data.username);
         })
+    }, []);
+
+    function onSubmit(data: FormProps) {
+        ManagerService.patchBaseUser(store.user_id, data).then((res) => {
+                setIsOpen(false)
+            }
+        );
     }
 
-    const handleSelectChange = (value: any) => {
-        setValue('teamlead', value);
-    };
     return (
-        <div>
-            <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-                <section className="">
-                    <div className="col-span-1">
-                        <MyLabel required={true}>Фамилия</MyLabel>
-                        <MyInput register={{...register('last_name')}} type="text" placeholder="Фамилия"/>
-                    </div>
-                    <div className="col-span-1">
-                        <MyLabel required={true}>Имя</MyLabel>
-                        <MyInput register={{...register('first_name')}} type="text" placeholder="Имя"/>
-                    </div>
-                    <div className="col-span-1">
-                        <MyLabel required={true}>Отчество</MyLabel>
-                        <MyInput register={{...register('middle_name')}} type="text" placeholder="Отчество"/>
-                    </div>
-                </section>
-                <div>
-                    <MyLabel required={true}>Ник в ТГ</MyLabel>
-                    <MyInput register={{...register('username')}} type="text" placeholder="Ник в ТГ"/>
-                </div>
-                <div>
-                    <MyLabel required={true}>Ответственный TeamLead</MyLabel>
-                    <Select
-                        isDisabled={store.user_data.is_teamlead || !!store.user_data.teamlead}
-                        options={operationsManagers}
-                        value={watch('teamlead')}
-                        {...register('teamlead', {required: 'Обязательное поле'})}
-                        onChange={handleSelectChange}
-                    />
+        <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
+            <div className="flex h-2 justify-end w-full">
+                <div className="cursor-pointer" onClick={() => setIsOpen(false)}>x</div>
+            </div>
+            <FormSection>
+                <MyLabel required={true}>Фамилия</MyLabel>
+                <MyInput autoComplete="new-last_name" register={{...register('last_name')}} type="text" placeholder="Фамилия"/>
+            </FormSection>
+            <FormSection>
 
-                </div>
-                <div>
-                    <MyLabel required={true}>ID</MyLabel>
-                    <MyInput register={{...register('id')}} type="text" placeholder="ID" disabled={true}/>
-                </div>
-                <button
-                    className="bg-black text-white rounded-md w-full text-sm font-medium disabled:opacity-50 transition-colors hover:bg-primary/90 h-10 py-2 px-4">Сохранить
-                </button>
-            </form>
-        </div>
-    )
-        ;
+                <MyLabel required={true}>Имя</MyLabel>
+                <MyInput autoComplete="new-first_name" register={{...register('first_name')}} type="text" placeholder="Имя"/>
+            </FormSection>
+            <FormSection>
+
+                <MyLabel required={true}>Отчество</MyLabel>
+                <MyInput register={{...register('middle_name')}} type="text" placeholder="Отчество"/>
+            </FormSection>
+            <FormSection>
+
+                <MyLabel required={true}>Ник в ТГ</MyLabel>
+                <MyInput register={{...register('username')}} type="text" placeholder="Ник в ТГ"/>
+            </FormSection>
+            <FormSection>
+
+                <MyLabel required={true}>Ответственный TeamLead</MyLabel>
+                <MyInput disabled register={{...register('teamlead')}} type="text"
+                         placeholder="Ответственный TeamLead"/>
+            </FormSection>
+            <FormSection>
+                <MyLabel required={true}>ID</MyLabel>
+                <MyInput register={{...register('id')}} type="text" placeholder="ID" disabled={true}/>
+            </FormSection>
+            <button
+                className="bg-[#5970F6] text-white rounded-md w-full text-sm font-medium disabled:opacity-30 transition-colors hover:bg-primary/90 h-10 mt-4 py-2 px-4">Сохранить
+            </button>
+
+        </form>
+    );
 };
 
 export default observer(Profile);
