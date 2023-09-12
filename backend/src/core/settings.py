@@ -13,6 +13,7 @@ import os.path
 from datetime import timedelta
 from pathlib import Path
 
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'debug_toolbar',
+    'django_celery_beat'
 ]
 
 MIDDLEWARE = [
@@ -180,9 +182,16 @@ SIMPLE_JWT = {
     'TOKEN_OBTAIN_SERIALIZER': 'core.utils.serializers.CustomTokenObtainPairSerializer',
 }
 
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379')
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379')
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/1')
 CELERY_TIMEZONE = TIME_ZONE
+
+CELERY_BEAT_SCHEDULE = {
+    'every_day_task': {
+        'task': 'apps.assessors.tasks.update_assessor_status',
+        'schedule': crontab(hour='00', minute='00')
+    }
+}
 
 RESET_PASSWORD_TOKEN_EXPIRATION_DAY = 1
 
