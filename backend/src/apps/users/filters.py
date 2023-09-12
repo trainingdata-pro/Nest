@@ -25,7 +25,7 @@ class UserFilter(FilteringMixin, filters.FilterSet):
 
 
 class ManagerProfileFilter(filters.FilterSet):
-    is_operational_manager = filters.BooleanFilter()
+    is_teamlead = filters.BooleanFilter()
     teamlead = filters.CharFilter(lookup_expr='icontains')
 
     class Meta:
