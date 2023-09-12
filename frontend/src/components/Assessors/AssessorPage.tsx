@@ -1,23 +1,12 @@
-import React, {useContext, useEffect, useMemo, useState} from 'react';
+import React, {useContext, useMemo, useState} from 'react';
 import {NavLink, useParams} from "react-router-dom";
 import {Assessor, AssessorWorkingTime} from "../../models/AssessorResponse";
 import AssessorService from "../../services/AssessorService";
-import {ColumnDef, createColumnHelper} from "@tanstack/react-table";
-import Table from "../UI/Table";
-import {IManager} from "../../models/ManagerResponse";
 import {useForm} from "react-hook-form";
-import {fa} from "@faker-js/faker";
-import MyLabel from "../UI/MyLabel";
-import MyInput from "../UI/MyInput";
-import Error from "../UI/Error";
-import Select from "react-select";
-import {format} from "date-fns";
 import {Context} from "../../index";
-import {FormSection} from '../ProjectForm';
 import {PencilSquareIcon} from "@heroicons/react/24/outline";
-import {Simulate} from "react-dom/test-utils";
-import input = Simulate.input;
 import {CheckIcon} from "@heroicons/react/24/solid";
+import {IManager, IUser} from "../../models/ManagerResponse";
 
 
 interface AssessorPatch {
@@ -81,16 +70,18 @@ const AssessorPage = () => {
         working_hours: {} as AssessorWorkingTime
     })
     const {store} = useContext(Context)
-    function Submit() {
-      const values = getValues()
-      if (editable){
-          setEditable(false)
-      } else {
 
-          console.log(values)
-          setEditable(true)
-      }
+    function Submit() {
+        const values = getValues()
+        if (editable) {
+            setEditable(false)
+        } else {
+
+            console.log(values)
+            setEditable(true)
+        }
     }
+
     const [isLoading, setIsLoading] = useState(false)
     return (
         <div>
@@ -146,7 +137,8 @@ const AssessorPage = () => {
                             <input disabled={!editable} className="w-full text-center" {...register('country')}/>
                         </td>
                         <td className="text-center" onClick={Submit}>
-                            {editable ? <PencilSquareIcon className="h-6 w-6 text-black cursor-pointer"/>: <CheckIcon className="h-6 w-6 text-black cursor-pointer" />}
+                            {editable ? <PencilSquareIcon className="h-6 w-6 text-black cursor-pointer"/> :
+                                <CheckIcon className="h-6 w-6 text-black cursor-pointer"/>}
                         </td>
                     </tr>
                     </tbody>

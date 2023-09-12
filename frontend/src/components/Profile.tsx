@@ -3,7 +3,6 @@ import {Context} from "../index";
 import {observer} from "mobx-react-lite";
 import {useForm} from "react-hook-form";
 import ManagerService from "../services/ManagerService";
-import {useNavigate} from "react-router-dom";
 import MyLabel from "./UI/MyLabel";
 import MyInput from "./UI/MyInput";
 import Select from "react-select";
@@ -19,55 +18,51 @@ interface FormProps {
     middle_name: string,
     username: string,
     id: number,
-    operational_manager: SelectProps
+    teamlead: SelectProps
 }
 
 const Profile = ({setIsOpen}: {
-    setIsOpen: React.Dispatch<boolean>
+    setIsOpen: any
 }) => {
     const {store} = useContext(Context)
     useMemo(async () => {
-
         await ManagerService.fetchOperationsManagers().then((res) => setOperationsManagers(res.data.results.map((operations: any) => {
             return {value: operations.id, label: `${operations.last_name} ${operations.first_name}`}
         })))
-        if (store.userData.teamlead){
-            await ManagerService.fetch_manager(store.userData.teamlead).then(res => {
-                setValue('operational_manager', {
+        if (store.user_data.teamlead){
+            await ManagerService.fetch_manager(store.user_data.teamlead.id).then(res => {
+                console.log(res.data)
+                setValue('teamlead', {
                     value: res.data.id,
                     label: `${res.data.last_name} ${res.data.first_name}`
                 })
+
             })
         }
+        setValue('id', store.user_id);
+        setValue('last_name', store.user_data.last_name);
+        setValue('first_name', store.user_data.first_name);
+        setValue('middle_name', store.user_data.middle_name);
+        setValue('username', store.user_data.username);
+
 
     }, []);
-
-    useEffect(() => {
-        ManagerService.fetch_manager(store.user_id).then((res) => {
-            setValue('id', res.data.id);
-            setValue('last_name', res.data.last_name);
-            setValue('first_name', res.data.first_name);
-            setValue('middle_name', res.data.middle_name);
-            setValue('username', res.data.user.username);
-        });
-    }, []);
-    const navigate = useNavigate()
     const [operationsManagers, setOperationsManagers] = useState<SelectProps[]>([])
     const {register, watch, getValues, reset, setValue, handleSubmit} = useForm<FormProps>(
     )
 
     function onSubmit() {
         const data = getValues()
-        const newData = {...data, operational_manager: data.operational_manager.value}
-        store.userData.teamlead = newData.operational_manager
+        const newData = {...data, teamlead: data.teamlead.value}
+        store.user_data.teamlead = newData.teamlead
         ManagerService.patchManager(data.id, newData)
-        ManagerService.patchBaseUser(store.user_id, {'username': getValues('username')}).then((res) => {
+        ManagerService.patchBaseUser(store.user_id, newData).then((res) => {
             setIsOpen(false)
         })
     }
 
     const handleSelectChange = (value: any) => {
-        setValue('operational_manager', value);
+        setValue('teamlead', value);
     };
     return (
         <div>
@@ -93,10 +88,10 @@ const Profile = ({setIsOpen}: {
                 <div>
                     <MyLabel required={true}>Ответственный TeamLead</MyLabel>
                     <Select
-                        isDisabled={store.userData.is_teamlead || !!store.userData.teamlead}
+                        isDisabled={store.user_data.is_teamlead || !!store.user_data.teamlead}
                         options={operationsManagers}
-                        value={watch('operational_manager')}
-                        {...register('operational_manager', {required: 'Обязательное поле'})}
+                        value={watch('teamlead')}
+                        {...register('teamlead', {required: 'Обязательное поле'})}
                         onChange={handleSelectChange}
                     />
 

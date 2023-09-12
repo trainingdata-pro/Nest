@@ -13,12 +13,10 @@ interface UserData {
     status: string,
     username: string,
     is_teamlead: boolean,
-    teamlead: number | string,
+    teamlead: any,
     last_name: string,
     first_name: string,
     middle_name: string
-
-
 }
 
 export interface Token {
@@ -31,20 +29,13 @@ export interface Token {
 export default class Store {
     user_id: number = 0
     isAuth = false
-    userData = {} as UserData
+    user_data = {} as UserData
     isLoading = false
-    showProfile = false
     cookies = new Cookies()
     authError = ''
-
     constructor() {
         makeAutoObservable(this)
     }
-
-    setShowProfile(bool: boolean) {
-        this.showProfile = bool
-    }
-
     setIsLoading(bool: boolean) {
         this.isLoading = bool
     }
@@ -61,27 +52,21 @@ export default class Store {
         this.user_id = id
     }
 
-    setManagerData(manager: UserData) {
-        this.userData = manager
+    setUserData(manager: UserData) {
+        this.user_data = manager
     }
 
     async login(email: string, password: string) {
         await AuthService.login(email, password)
             .then(res => {
-                console.log(res)
                 localStorage.setItem('token', res.data.access)
                 const decodeJwt: Token = jwtDecode(res.data.access)
                 this.cookies.set('refresh', res.data.refresh, {path: '/', maxAge: decodeJwt.exp})
                 console.log(decodeJwt)
                 const managerId = decodeJwt.user_id
+                const user_data = decodeJwt.user_data
+                this.setUserData(user_data)
                 this.setUserId(managerId)
-                // ManagerService.fetch_manager(managerId).then(res => {
-                //     this.setManagerData(res.data)
-                //     const manager = res.data
-                //     if (manager.first_name === '' || manager.last_name === '' || manager.middle_name === '' || !manager.is_operational_manager && manager.operational_manager === null){
-                //         this.setShowProfile(true)
-                //     }
-                // })
                 this.setAuth(true)
             })
             .catch(e => {
@@ -99,21 +84,14 @@ export default class Store {
     async checkAuth() {
         this.setIsLoading(true)
         try {
-            // const cookieValue = document.cookie
-            //     .split('; ')
-            //     .find((row) => row.startsWith('refresh='))?.split('=')[1];
             const response = await axios.post(`${API_URL}/api/token/refresh/`, {'refresh': this.cookies.get('refresh')})
             localStorage.setItem('token', response.data.access)
             const decodeJwt: Token = jwtDecode(response.data.access)
             const managerId = decodeJwt.user_id
-            this.setUserId(decodeJwt.user_id)
-            // await ManagerService.fetch_manager(managerId).then(res => {
-            //     this.setManagerData(res.data.)
-            //     const manager = res.data
-            //     if (manager.first_name === '' || manager.last_name === '' || manager.middle_name === '' || !manager.is_operational_manager && manager.operational_manager === null){
-            //         this.setShowProfile(true)
-            //     }
-            // })
+            console.log(decodeJwt)
+            const user_data = decodeJwt.user_data
+            this.setUserId(managerId)
+            this.setUserData(user_data)
             this.setAuth(true)
         } catch (e: any) {
             this.setAuth(false)

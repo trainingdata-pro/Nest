@@ -38,7 +38,7 @@ export const FormSection =({children}: {children:React.ReactNode}) => {
 const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
     projectId: number | string,
     setNewData: Dispatch<SetStateAction<Project[]>>,
-    closeSidebar: Dispatch<SetStateAction<boolean>>,
+    closeSidebar: any,
     projects: Project[]
 }) => {
     const {store} = useContext(Context)
@@ -67,7 +67,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
 
     useEffect(() => {
         ManagerService.fetch_managers().then(res => {
-            setManagers(res.data.results.filter(manager => manager.operational_manager == store.userData.teamlead).map((manager: IManager) => {
+            setManagers(res.data.results.filter(manager => manager.teamlead.id == store.user_data.teamlead).map((manager: IManager) => {
                 return {
                     value: manager.id, label: `${manager.last_name} ${manager.first_name}`
                 }
@@ -95,7 +95,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
             date_of_creation: format(new Date(), 'yyyy-MM-dd'),
             manager: [{
                 value: store.user_id,
-                label: `${store.userData.last_name} ${store.userData.first_name}`
+                label: `${store.user_data.last_name} ${store.user_data.first_name}`
             }],
             speed_per_hour: 0,
             price_for_assessor: 0,
