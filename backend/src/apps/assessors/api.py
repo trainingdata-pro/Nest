@@ -33,12 +33,19 @@ class SkillsAPIViewSet(viewsets.ModelViewSet):
 @method_decorator(name='list', decorator=schemas.assessor_schema.list())
 @method_decorator(name='create', decorator=schemas.assessor_schema.create())
 @method_decorator(name='partial_update', decorator=schemas.assessor_schema.partial_update())
-@method_decorator(name='blacklist', decorator=schemas.assessor_schema.blacklist())
-@method_decorator(name='fire', decorator=schemas.assessor_schema.fire())
+@method_decorator(name='vacation', decorator=schemas.assessor_schema.vacation())
+# @method_decorator(name='blacklist', decorator=schemas.assessor_schema.blacklist())
+# @method_decorator(name='fire', decorator=schemas.assessor_schema.fire())
 class AssessorAPIViewSet(BaseAPIViewSet):
     permission_classes = {
-        'retrieve': (IsAuthenticated,),
-        'list': (IsAuthenticated,),
+        'retrieve': (
+            IsAuthenticated,
+            permissions.IsManager
+        ),
+        'list': (
+            IsAuthenticated,
+            permissions.IsManager
+        ),
         'create': (
             IsAuthenticated,
             permissions.IsManager
@@ -48,24 +55,30 @@ class AssessorAPIViewSet(BaseAPIViewSet):
             permissions.IsManager,
             permissions.AssessorPermission
         ),
-        'blacklist': (
-            IsAuthenticated,
-            permissions.IsManager,
-            permissions.AssessorPermission
-        ),
-        'fire': (
+        'vacation': (
             IsAuthenticated,
             permissions.IsManager,
             permissions.AssessorPermission
         )
+        # 'blacklist': (
+        #     IsAuthenticated,
+        #     permissions.IsManager,
+        #     permissions.AssessorPermission
+        # ),
+        # 'fire': (
+        #     IsAuthenticated,
+        #     permissions.IsManager,
+        #     permissions.AssessorPermission
+        # )
     }
     serializer_class = {
         'list': serializers.AssessorSerializer,
         'retrieve': serializers.AssessorSerializer,
         'create': serializers.CreateUpdateAssessorSerializer,
         'partial_update': serializers.CreateUpdateAssessorSerializer,
-        'blacklist': fired_serializers.BlackListAssessorSerializer,
-        'fire': fired_serializers.FireAssessorSerializer
+        'vacation': serializers.AssessorVacationSerializer
+        # 'blacklist': fired_serializers.BlackListAssessorSerializer,
+        # 'fire': fired_serializers.FireAssessorSerializer
     }
     http_method_names = ['get', 'post', 'patch']
     filterset_class = filters.AssessorFilter
@@ -112,36 +125,42 @@ class AssessorAPIViewSet(BaseAPIViewSet):
 
     def partial_update(self, request: Request, *args, **kwargs) -> Response:
         instance = self.get_object()
-        serializer = self.get_serializer(
-            instance,
-            data=request.data,
-            partial=True
-        )
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         assessor = serializer.save()
         response = serializers.AssessorSerializer(assessor)
 
         return Response(response.data, status=status.HTTP_200_OK)
 
-    def _fire(self, request: Request, **kwargs) -> Response:
+    @action(detail=True, methods=['patch'])
+    def vacation(self, request: Request, **kwargs) -> Response:
         instance = self.get_object()
-        serializer = self.get_serializer(
-            data=request.data,
-            context={'assessor': instance}
-        )
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         assessor = serializer.save()
         response = serializers.AssessorSerializer(assessor)
 
         return Response(response.data, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['patch'])
-    def blacklist(self, request: Request, **kwargs) -> Response:
-        return self._fire(request, **kwargs)
-
-    @action(detail=True, methods=['patch'])
-    def fire(self, request: Request, **kwargs) -> Response:
-        return self._fire(request, **kwargs)
+    # def _fire(self, request: Request, **kwargs) -> Response:
+    #     instance = self.get_object()
+    #     serializer = self.get_serializer(
+    #         data=request.data,
+    #         context={'assessor': instance}
+    #     )
+    #     serializer.is_valid(raise_exception=True)
+    #     assessor = serializer.save()
+    #     response = serializers.AssessorSerializer(assessor)
+    #
+    #     return Response(response.data, status=status.HTTP_200_OK)
+    #
+    # @action(detail=True, methods=['patch'])
+    # def blacklist(self, request: Request, **kwargs) -> Response:
+    #     return self._fire(request, **kwargs)
+    #
+    # @action(detail=True, methods=['patch'])
+    # def fire(self, request: Request, **kwargs) -> Response:
+    #     return self._fire(request, **kwargs)
 
 
 @method_decorator(name='get', decorator=schemas.check_assessor_schema.get())

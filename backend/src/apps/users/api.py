@@ -1,15 +1,15 @@
 from django.contrib.auth import get_user_model
 from django.utils.decorators import method_decorator
-from rest_framework import status, generics
+from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from apps.authapp.tasks import send_confirmation_code
 from core.utils.mixins import BaseAPIViewSet
 from core.utils import permissions
 from .filters import UserFilter, ManagerProfileFilter
-from .models import ManagerProfile, PasswordResetToken
-from .tasks import send_confirmation_code, reset_password
+from .models import ManagerProfile
 from . import serializers, schemas
 
 
@@ -54,19 +54,6 @@ class UserAPIViewSet(BaseAPIViewSet):
         return Response(response.data, status=status.HTTP_200_OK)
 
 
-@method_decorator(name='post', decorator=schemas.user_activate_schema.post())
-class UserActivateAPIView(generics.CreateAPIView):
-    queryset = get_user_model().objects.all()
-    serializer_class = serializers.ConfirmationCodeSerializer
-
-    def post(self, request: Request, *args, **kwargs) -> Response:
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        active_user = serializer.save()
-        response = serializers.UserSerializer(active_user)
-        return Response(response.data, status=200)
-
-
 @method_decorator(name='retrieve', decorator=schemas.manager_profile_schema.retrieve())
 @method_decorator(name='list', decorator=schemas.manager_profile_schema.list())
 @method_decorator(name='partial_update', decorator=schemas.manager_profile_schema.partial_update())
@@ -97,48 +84,3 @@ class ManagerAPIViewSet(BaseAPIViewSet):
         response = serializers.ManagerProfileSerializer(user)
 
         return Response(response.data, status=status.HTTP_200_OK)
-
-
-@method_decorator(name='post', decorator=schemas.password_schema.reset())
-class ResetPasswordAPIView(generics.CreateAPIView):
-    queryset = PasswordResetToken
-    permission_classes = (AllowAny,)
-    serializer_class = serializers.PasswordResetSerializer
-
-    def post(self, request: Request, *args, **kwargs) -> Response:
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        token = serializer.save()
-        reset_password.delay(email=token.user.email, token=token.token)
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-@method_decorator(name='post', decorator=schemas.password_schema.set())
-class PasswordSetAPIView(generics.CreateAPIView):
-    queryset = PasswordResetToken
-    permission_classes = (AllowAny,)
-    serializer_class = serializers.PasswordSetSerializer
-
-    def post(self, request: Request, *args, **kwargs) -> Response:
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-@method_decorator(name='patch', decorator=schemas.password_schema.change())
-class ChangePasswordAPIView(generics.UpdateAPIView):
-    queryset = get_user_model()
-    permission_classes = (IsAuthenticated, permissions.UserPermission)
-    serializer_class = serializers.ChangePasswordSerializer
-    http_method_names = ['patch']
-
-    def update(self, request: Request, *args, **kwargs) -> Response:
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-
-        return Response(status=status.HTTP_204_NO_CONTENT)

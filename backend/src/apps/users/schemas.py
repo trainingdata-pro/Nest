@@ -82,18 +82,6 @@ class BaseUserSchema(BaseAPISchema):
         )
 
 
-class UserActivateSchema(BaseAPISchema):
-    def post(self):
-        return self.swagger_auto_schema(
-            operation_summary='Activate user',
-            operation_description='Activate user',
-            responses={
-                200: serializers.UserSerializer(),
-                **self.get_responses(400)
-            }
-        )
-
-
 class ManagerProfileSchema(BaseAPISchema):
     def retrieve(self):
         return self.swagger_auto_schema(
@@ -160,44 +148,5 @@ class ManagerProfileSchema(BaseAPISchema):
         )
 
 
-class ResetPasswordSchema(BaseAPISchema):
-    def reset(self):
-        return self.swagger_auto_schema(
-            operation_summary='Reset user password',
-            operation_description='Generate and send a unique password reset token.',
-            responses={
-                **self.get_responses(204)
-            }
-        )
-
-    def set(self):
-        return self.swagger_auto_schema(
-            operation_summary='Set user password',
-            operation_description='Set new user password.',
-            responses={
-                **self.get_responses(204, 400)
-            }
-        )
-
-    def change(self):
-        return self.swagger_auto_schema(
-            operation_summary='Change user password',
-            operation_description='Change a specific user password.',
-            manual_parameters=[
-                openapi.Parameter(
-                    name='id',
-                    type=openapi.TYPE_INTEGER,
-                    in_=openapi.IN_PATH,
-                    description='Unique user ID'
-                )
-            ],
-            responses={
-                **self.get_responses(204, 400, 401, 403)
-            }
-        )
-
-
 user_schema = BaseUserSchema(tags=['users'])
-user_activate_schema = UserActivateSchema(tags=['users'])
 manager_profile_schema = ManagerProfileSchema(tags=['profiles'])
-password_schema = ResetPasswordSchema(tags=['password'])

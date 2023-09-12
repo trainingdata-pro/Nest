@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 
-from .models import BaseUser, ManagerProfile, Code, PasswordResetToken
+from .models import BaseUser, ManagerProfile
 
 
 class BaseUserAdmin(UserAdmin):
@@ -45,7 +45,7 @@ class BaseUserAdmin(UserAdmin):
             ]
         }),
         (_('Permissions'), {
-            'fields': ['is_staff', 'is_superuser']
+            'fields': ['is_active', 'is_staff', 'is_superuser']
         }),
         (_('Important dates'), {
             'fields': ('last_login', 'date_joined')
@@ -82,21 +82,6 @@ class ManagerProfileAdmin(admin.ModelAdmin):
     list_filter = ['is_teamlead', 'teamlead']
 
 
-class CodeAdmin(admin.ModelAdmin):
-    list_display = [
-        'pk',
-        'code',
-        'user'
-    ]
-
-
-class TokenAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'user', 'token']
-    list_display_links = ['user']
-
-
 admin.site.unregister(Group)
 admin.site.register(BaseUser, BaseUserAdmin)
 admin.site.register(ManagerProfile, ManagerProfileAdmin)
-admin.site.register(Code, CodeAdmin)
-admin.site.register(PasswordResetToken, TokenAdmin)
