@@ -4,7 +4,7 @@ from core.utils.validators import allowed_chars_validator, only_manager_validato
 from apps.projects.models import Project
 from apps.users.models import BaseUser
 
-from .validators import assessor_username_validator, assessor_email_validator
+from apps.assessors.utils.validators import assessor_username_validator, assessor_email_validator
 
 
 class AssessorStatus(models.TextChoices):
@@ -15,6 +15,7 @@ class AssessorStatus(models.TextChoices):
 
 class AssessorState(models.TextChoices):
     WORK = ('work', 'Работает')
+    VACATION = ('vacation', 'Отпуск')
     BLACKLIST = ('blacklist', 'Черный список')
     FIRED = ('fired', 'Уволен по собственному желанию')
 
@@ -122,6 +123,11 @@ class Assessor(models.Model):
     date_of_registration = models.DateField(
         auto_now_add=True,
         verbose_name='дата регистрации'
+    )
+    vacation_date = models.DateField(
+        verbose_name='дата выхода из отпуска',
+        blank=True,
+        null=True
     )
 
     # TODO ?????
