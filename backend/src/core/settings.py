@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # apps
     'apps.assessors.apps.AssessorsConfig',
+    'apps.authapp.apps.AuthappConfig',
     'apps.fired.apps.FiredConfig',
     'apps.history.apps.HistoryConfig',
     'apps.projects.apps.ProjectsConfig',
@@ -152,7 +153,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'core.utils.pagination.Pagination',
     'PAGE_SIZE': 50,
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework_simplejwt.authentication.JWTStatelessUserAuthentication',
     ],
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
@@ -170,7 +171,7 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=24),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
 
     'ALGORITHM': 'HS256',
@@ -180,12 +181,14 @@ SIMPLE_JWT = {
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
 
     'TOKEN_OBTAIN_SERIALIZER': 'core.utils.serializers.CustomTokenObtainPairSerializer',
+    'TOKEN_REFRESH_SERIALIZER': 'core.utils.serializers.CustomRefreshTokenSerializer',
 }
 
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/1')
 CELERY_TIMEZONE = TIME_ZONE
 
+# CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_BEAT_SCHEDULE = {
     'every_day_task': {
         'task': 'apps.assessors.tasks.update_assessor_status',
