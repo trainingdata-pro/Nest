@@ -67,7 +67,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
 
     useEffect(() => {
         ManagerService.fetch_managers().then(res => {
-            setManagers(res.data.results.filter(manager => manager.teamlead.id == store.user_data.teamlead).map((manager: IManager) => {
+            setManagers(res.data.results.filter(manager => manager.teamlead == store.user_data.teamlead).map((manager: IManager) => {
                 return {
                     value: manager.id, label: `${manager.last_name} ${manager.first_name}`
                 }
@@ -159,7 +159,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
             setValue('status', value);
     };
     return (
-            <div className={"w-[90%]"}>
+            <div>
                 <form className="grid columns-1" onSubmit={handleSubmit(onSubmit)}>
                     <FormSection>
                         <MyLabel required={true}>Название проекта</MyLabel>
@@ -172,6 +172,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
                         <Select
                             options={managers}
                             value={watch('manager')}
+                            isDisabled={true}
                             isMulti
                             {...register('manager', {required: 'Обязательное поле'})}
                             onChange={handleSelectChange}

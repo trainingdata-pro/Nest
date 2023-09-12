@@ -1,6 +1,5 @@
 import {observer} from 'mobx-react-lite';
 import React, {useEffect, useState} from 'react'
-import SignUpForm from "../components/SignUp/SignUpForm";
 import cat from "../components/SignIn/cat7.png";
 import {EnvelopeIcon, LockClosedIcon} from "@heroicons/react/24/solid";
 import Error from "../components/UI/Error";
