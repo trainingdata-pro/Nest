@@ -32,7 +32,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['user_data'] = {
             'email': user.email,
             'username': user.username,
-            'full_name': user.full_name,
+            'last_name': user.last_name,
+            'first_name': user.first_name,
+            'middle_name': user.middle_name,
             'status': user.status,
             'is_active': user.is_active,
             'is_admin': user.is_superuser
