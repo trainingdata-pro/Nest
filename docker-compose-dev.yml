@@ -40,5 +40,14 @@ services:
     depends_on:
       - redis
 
+  celery-beat:
+    container_name: celery-beat
+    build: ./backend
+    env_file:
+      - './backend/.env'
+    command: bash -c "celery -A core.celery beat --loglevel=info"
+    depends_on:
+      - redis
+
 volumes:
   redis_data:
