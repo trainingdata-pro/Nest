@@ -1,7 +1,8 @@
 from django.db.models import QuerySet
 from django_filters import rest_framework as filters
 
-from .models import Assessor, Skill
+from core.utils.mixins import FilteringMixin
+from .models import Assessor, Skill, AssessorCredentials
 
 
 class SkillsFilter(filters.FilterSet):
@@ -9,10 +10,10 @@ class SkillsFilter(filters.FilterSet):
 
     class Meta:
         model = Skill
-        fields = ('title',)
+        fields = ['title']
 
 
-class AssessorFilter(filters.FilterSet):
+class AssessorFilter(FilteringMixin, filters.FilterSet):
     username = filters.CharFilter(lookup_expr='icontains')
     last_name = filters.CharFilter(lookup_expr='icontains')
     first_name = filters.CharFilter(lookup_expr='icontains')
@@ -26,7 +27,7 @@ class AssessorFilter(filters.FilterSet):
 
     class Meta:
         model = Assessor
-        fields = (
+        fields = [
             'username',
             'last_name',
             'first_name',
@@ -37,20 +38,22 @@ class AssessorFilter(filters.FilterSet):
             'skills',
             'is_free_resource',
             'second_manager'
-        )
+        ]
 
     def filter_projects(self, queryset: QuerySet[Assessor], name: str, value: str):
-        projects = self.get_filtered_values(value)
+        projects = self.get_id_for_filtering(value)
         return queryset.filter(projects__in=projects).distinct()
 
     def filter_skills(self, queryset: QuerySet[Assessor], name: str, value: str):
-        skills = self.get_filtered_values(value)
+        skills = self.get_id_for_filtering(value)
         return queryset.filter(skills__in=skills).distinct()
 
     def filter_second_manager(self, queryset: QuerySet[Assessor], name: str, value: str):
-        managers = self.get_filtered_values(value)
+        managers = self.get_id_for_filtering(value)
         return queryset.filter(second_manager__in=managers).distinct()
 
-    @staticmethod
-    def get_filtered_values(value: str):
-        return [int(val) for val in value.split(',') if val.isdigit()]
+
+class AssessorCredentialsFilter(filters.FilterSet):
+    class Meta:
+        model = AssessorCredentials
+        fields = ['assessor']

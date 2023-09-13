@@ -1,28 +1,13 @@
 import datetime
-from typing import List
-
-from rest_framework import viewsets
-from rest_framework.exceptions import MethodNotAllowed
-from rest_framework.serializers import Serializer
+import hashlib
+import time
 
 
-class GetSerializerClassMixin:
-    def get_serializer_class(self) -> Serializer:
-        return self.serializer_class[self.action]
-
-
-class GetPermissionMixin:
-    def get_permissions(self) -> List[bool]:
-        action = self.action
-        if action not in self.permission_classes:
-            raise MethodNotAllowed(self.request.method)
-        return [perm() for perm in self.permission_classes[action]]
-
-
-class BaseAPIViewSet(GetSerializerClassMixin,
-                     GetPermissionMixin,
-                     viewsets.ModelViewSet):
-    pass
+def get_code() -> str:
+    """ Get 20 character long code """
+    h = hashlib.sha512()
+    h.update(str(time.time()).encode('utf-8'))
+    return h.hexdigest()[:20]
 
 
 def current_date() -> datetime.date:

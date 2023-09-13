@@ -1,5 +1,5 @@
 import {Link, NavLink, redirect, useNavigate} from "react-router-dom";
-import React, {useContext, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {Context} from "../../index";
 import Profile from "../Profile";
 import {observer} from "mobx-react-lite";
@@ -7,7 +7,6 @@ import Cookies from "universal-cookie";
 import Dialog from "../UI/Dialog";
 
 const Header = () => {
-    const navigate = useNavigate()
     const {store} = useContext(Context)
     const [isOpen, setIsOpen] = useState(false)
     return (

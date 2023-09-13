@@ -8,6 +8,8 @@ class HistoryEvents(models.TextChoices):
     BLACKLIST = ('blacklist', 'Добавлен в ЧС')
     LEFT = ('left', 'Уволен по собственному желанию')
     RETURNED = ('returned', 'Возвращен в команду из уволенных')
+    TO_VACATION = ('to_vacation', 'Отправлен в отпуск')
+    FROM_VACATION = ('from_vacation', 'Вернулся из отпуска')
 
     ADD_MANAGER = ('add_manager', 'Закреплен за менеджером')
     REMOVE_FROM_MANAGER = ('remove_from_manager', 'Удален из команды')

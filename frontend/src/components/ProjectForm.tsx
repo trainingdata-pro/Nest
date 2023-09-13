@@ -38,7 +38,7 @@ export const FormSection =({children}: {children:React.ReactNode}) => {
 const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
     projectId: number | string,
     setNewData: Dispatch<SetStateAction<Project[]>>,
-    closeSidebar: Dispatch<SetStateAction<boolean>>,
+    closeSidebar: any,
     projects: Project[]
 }) => {
     const {store} = useContext(Context)
@@ -67,7 +67,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
 
     useEffect(() => {
         ManagerService.fetch_managers().then(res => {
-            setManagers(res.data.results.filter(manager => manager.operational_manager == store.managerData.operational_manager).map((manager: IManager) => {
+            setManagers(res.data.results.filter(manager => manager.teamlead == store.user_data.teamlead).map((manager: IManager) => {
                 return {
                     value: manager.id, label: `${manager.last_name} ${manager.first_name}`
                 }
@@ -94,8 +94,8 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
         defaultValues: {
             date_of_creation: format(new Date(), 'yyyy-MM-dd'),
             manager: [{
-                value: store.managerData.id,
-                label: `${store.managerData.last_name} ${store.managerData.first_name}`
+                value: store.user_id,
+                label: `${store.user_data.last_name} ${store.user_data.first_name}`
             }],
             speed_per_hour: 0,
             price_for_assessor: 0,
@@ -159,7 +159,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
             setValue('status', value);
     };
     return (
-            <div className={"w-[90%]"}>
+            <div>
                 <form className="grid columns-1" onSubmit={handleSubmit(onSubmit)}>
                     <FormSection>
                         <MyLabel required={true}>Название проекта</MyLabel>
@@ -172,6 +172,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
                         <Select
                             options={managers}
                             value={watch('manager')}
+                            isDisabled={true}
                             isMulti
                             {...register('manager', {required: 'Обязательное поле'})}
                             onChange={handleSelectChange}

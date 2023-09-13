@@ -1,8 +1,8 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 
 from core.utils.common import current_date
-from core.utils.validators import not_negative_value_validator
-from apps.users.models import ManagerProfile
+from core.utils.validators import not_negative_value_validator, day_hours_validator
 
 
 class ProjectTag(models.Model):
@@ -29,7 +29,7 @@ class ProjectStatuses(models.TextChoices):
 class Project(models.Model):
     asana_id = models.BigIntegerField(
         verbose_name='asana ID',
-        null=True,
+        unique=True
     )
     name = models.CharField(
         max_length=255,
@@ -37,8 +37,9 @@ class Project(models.Model):
 
     )
     manager = models.ManyToManyField(
-        ManagerProfile,
-        verbose_name='менеджеры'
+        get_user_model(),
+        verbose_name='менеджеры',
+        blank=True
     )
     speed_per_hour = models.IntegerField(
         verbose_name='Скорость в час',
@@ -73,12 +74,12 @@ class Project(models.Model):
     status = models.CharField(
         verbose_name='статус проекта',
         choices=ProjectStatuses.choices,
-        default=ProjectStatuses.ACTIVE,
         max_length=10
     )
     tag = models.ManyToManyField(
         ProjectTag,
-        verbose_name='тег'
+        verbose_name='тег',
+        blank=True
     )
     date_of_creation = models.DateField(
         default=current_date,
@@ -104,3 +105,64 @@ class Project(models.Model):
         if self.manager.exists():
             return ', '.join([man.full_name for man in self.manager.all()])
         return '-'
+
+
+class ProjectWorkingHours(models.Model):
+    assessor = models.ForeignKey(
+        to='assessors.Assessor',
+        on_delete=models.PROTECT,
+        verbose_name='исполнитель',
+        related_name='project_working_hours'
+    )
+    project = models.ForeignKey(
+        to=Project,
+        on_delete=models.PROTECT,
+        verbose_name='проект'
+    )
+    monday = models.IntegerField(
+        validators=[not_negative_value_validator, day_hours_validator],
+        verbose_name='понедельник',
+        default=0
+    )
+    tuesday = models.IntegerField(
+        validators=[not_negative_value_validator, day_hours_validator],
+        verbose_name='вторник',
+        default=0
+    )
+    wednesday = models.IntegerField(
+        validators=[not_negative_value_validator, day_hours_validator],
+        verbose_name='среда',
+        default=0
+    )
+    thursday = models.IntegerField(
+        validators=[not_negative_value_validator, day_hours_validator],
+        verbose_name='четверг',
+        default=0
+    )
+    friday = models.IntegerField(
+        validators=[not_negative_value_validator, day_hours_validator],
+        verbose_name='пятница',
+        default=0
+    )
+    saturday = models.IntegerField(
+        validators=[not_negative_value_validator, day_hours_validator],
+        verbose_name='суббота',
+        default=0
+    )
+    sunday = models.IntegerField(
+        validators=[not_negative_value_validator, day_hours_validator],
+        verbose_name='воскресенье',
+        default=0
+    )
+
+    class Meta:
+        db_table = 'project_working_hours'
+        verbose_name = 'рабочие часы'
+        verbose_name_plural = 'рабочие часы'
+        ordering = ['id']
+
+    @property
+    def total(self) -> int:
+        return (int(self.monday) + int(self.tuesday) + int(self.wednesday)
+                + int(self.thursday) + int(self.friday) + int(self.saturday)
+                + int(self.sunday))

@@ -7,7 +7,6 @@ from drf_yasg.views import get_schema_view
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAdminUser
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from .settings import DEBUG, STATIC_URL, STATIC_ROOT
 
@@ -23,15 +22,11 @@ schema_view = get_schema_view(
 
 _api = [
     path('', include('apps.assessors.urls')),
+    path('', include('apps.authapp.urls')),
     path('', include('apps.fired.urls')),
     path('', include('apps.history.urls')),
     path('', include('apps.projects.urls')),
     path('', include('apps.users.urls'))
-]
-
-_token = [
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
 
 _documentation = [
@@ -46,10 +41,10 @@ _documentation = [
 ]
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('', include(_documentation)),
+    path('admin/', admin.site.urls),
     path('api/', include(_api)),
-    path('api/', include(_token))
+    # path('api/', include(_token))
 ]
 
 if DEBUG:

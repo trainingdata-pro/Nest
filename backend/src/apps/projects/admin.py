@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ProjectTag, Project
+from .models import ProjectTag, Project, ProjectWorkingHours
 
 
 class ProjectTagAdmin(admin.ModelAdmin):
@@ -29,5 +29,23 @@ class ProjectAdmin(admin.ModelAdmin):
         return Project.objects.all().prefetch_related('manager')
 
 
+class ProjectWorkingHoursAdmin(admin.ModelAdmin):
+    list_display = [
+        'pk',
+        'assessor',
+        'project',
+        'total',
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday',
+    ]
+    # list_display_links = ['assessor']
+
+
 admin.site.register(ProjectTag, ProjectTagAdmin)
 admin.site.register(Project, ProjectAdmin)
+admin.site.register(ProjectWorkingHours, ProjectWorkingHoursAdmin)

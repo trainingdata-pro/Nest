@@ -4,16 +4,17 @@ from typing import List, Dict
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from apps.users.models import ManagerProfile
 from apps.history.utils import history
-from apps.users.serializers import ManagerSerializer
-from apps.projects.serializers import ProjectSerializer
-from .models import (
-    Assessor,
-    AssessorStatus,
-    Skill
-)
-from .utils import check_project_permission
+from apps.projects.models import ProjectStatuses, Project, ProjectWorkingHours
+from apps.projects.serializers import ProjectSerializer, ProjectWorkingHoursSimpleSerializer
+from apps.users.models import BaseUser, ManagerProfile
+from apps.users.serializers import UserSerializer
+from core.utils.common import current_date
+from core.utils.mixins import GetUserMixin
+from core.utils.permissions import check_full_assessor_permission
+from core.utils.users import UserStatus
+from .models import Assessor, Skill, AssessorCredentials, AssessorState
+from .utils.common import check_project_permission
 
 
 class SkillSerializer(serializers.ModelSerializer):
@@ -22,7 +23,15 @@ class SkillSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
+class CreateUpdateAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
+    manager = serializers.PrimaryKeyRelatedField(
+        queryset=BaseUser.objects.filter(status=UserStatus.MANAGER)
+    )
+    projects = serializers.PrimaryKeyRelatedField(
+        queryset=Project.objects.exclude(status=ProjectStatuses.COMPLETED),
+        many=True
+    )
+
     def __init__(self, instance=None, *args, **kwargs):
         super().__init__(instance=instance, *args, **kwargs)
         if instance:
@@ -38,20 +47,17 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
             'date_of_registration',
         ]
 
-    def get_manager(self) -> ManagerProfile:
-        return self.context.get('request').user.manager
-
     def validate(self, attrs: Dict) -> Dict:
-        current_manager = self.get_manager()
+        current_manager = self.get_user()
         manager = attrs.get('manager')
         if manager is not None:
-            if manager.is_teamlead:
+            if manager.manager_profile.is_teamlead:
                 raise ValidationError(
                     {'manager': ['Операционный менеджер не может быть ответственным менеджером '
                                  'исполнителя.']}
                 )
             else:
-                if current_manager.is_teamlead:
+                if current_manager.manager_profile.is_teamlead:
                     if manager.teamlead != current_manager:
                         raise ValidationError(
                             {'manager': [f'Менеджер {manager.full_name} не в вашей команде.']}
@@ -62,7 +68,9 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
                             {'manager': ['Вы не можете выбрать другого менеджера.']}
                         )
         else:
-            if self.instance and self.instance.second_manager.exists():
+            if (self.instance
+                    and current_manager.pk == self.instance.manager.pk
+                    and self.instance.second_manager.exists()):
                 raise ValidationError(
                     {'manager': ['Невозможно убрать исполнителя из команды, т.к. он '
                                  'работает у других менеджеров как свободный ресурс.']}
@@ -71,6 +79,17 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
         projects = attrs.get('projects')
         if projects:
             check_project_permission(projects, current_manager)
+            status = attrs.get('status')
+            if self.instance:
+                if self.instance.status is None and status is None:
+                    raise ValidationError(
+                        {'status': ['Укажите статус исполнителя.']}
+                    )
+            else:
+                if status is None:
+                    raise ValidationError(
+                        {'status': ['Укажите статус исполнителя.']}
+                    )
 
         is_free_resource = attrs.get('is_free_resource')
         if is_free_resource is True:
@@ -102,12 +121,16 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def _create_assessor_without_team(instance: Assessor) -> Assessor:
-        instance.is_free_resource = True
-        instance.free_resource_weekday_hours = None
-        instance.free_resource_day_off_hours = None
-        instance.status = AssessorStatus.FREE
-
-        return instance
+        raise ValidationError(
+            'В спецификации не сказано, что делать с ассессором без менеджера, '
+            'так что передай параметр manager.'
+        )
+        # instance.is_free_resource = True
+        # instance.free_resource_weekday_hours = None
+        # instance.free_resource_day_off_hours = None
+        # instance.status = AssessorStatus.RESERVED
+        #
+        # return instance
 
     def create(self, validated_data: Dict) -> Assessor:
         skills = validated_data.pop('skills', None)
@@ -146,50 +169,32 @@ class CreateUpdateAssessorSerializer(serializers.ModelSerializer):
 
 
 class SimpleAssessorSerializer(serializers.ModelSerializer):
-    manager = ManagerSerializer(read_only=True)
+    manager = UserSerializer(read_only=True)
 
     class Meta:
         model = Assessor
         exclude = ['projects', 'skills', 'second_manager']
 
 
-# class WorkingHoursSerializer(serializers.ModelSerializer):
-#     assessor = SimpleAssessorSerializer(read_only=True)
-#     total = serializers.SerializerMethodField(read_only=True)
-#
-#     class Meta:
-#         model = WorkingHours
-#         fields = '__all__'
-#
-#     def get_total(self, obj: WorkingHours) -> int:
-#         return obj.total
-
-
-# class SimpleWorkingHoursSerializer(serializers.ModelSerializer):
-#     total = serializers.SerializerMethodField(read_only=True)
-#
-#     class Meta:
-#         model = WorkingHours
-#         exclude = ['assessor']
-#
-#     def get_total(self, obj: WorkingHours) -> int:
-#         return obj.total
-
-
 class AssessorSerializer(serializers.ModelSerializer):
-    manager = ManagerSerializer(read_only=True)
+    manager = UserSerializer(read_only=True)
     projects = ProjectSerializer(read_only=True, many=True)
     skills = SkillSerializer(read_only=True, many=True)
-    second_manager = ManagerSerializer(read_only=True, many=True)
-    # working_hours = SimpleWorkingHoursSerializer(read_only=True, source='workinghours')
+    second_manager = UserSerializer(read_only=True, many=True)
+    working_hours = serializers.SerializerMethodField(method_name='get_working_hours')
 
     class Meta:
         model = Assessor
         fields = '__all__'
 
+    def get_working_hours(self, obj: Assessor) -> Dict:
+        wh = ProjectWorkingHours.objects.filter(assessor=obj, project__in=obj.projects.all())
+        serialized = ProjectWorkingHoursSimpleSerializer(wh, many=True)
+        return serialized.data
+
 
 class CheckAssessorSerializer(serializers.ModelSerializer):
-    manager = ManagerSerializer(read_only=True)
+    manager = UserSerializer(read_only=True)
     projects = ProjectSerializer(read_only=True, many=True)
 
     class Meta:
@@ -207,17 +212,115 @@ class CheckAssessorSerializer(serializers.ModelSerializer):
         ]
 
 
-# class CreateUpdateWorkingHoursSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = WorkingHours
-#         fields = '__all__'
-#
-#     def validate_assessor(self, assessor: Assessor) -> Assessor:
-#         manager = self.context.get('request').user.manager
-#         if assessor.manager != manager and assessor.manager.teamlead != manager:
-#             raise ValidationError('Вы не можете выбрать данного исполнителя.')
-#
-#         return assessor
+class CreateUpdateAssessorCredentialsSerializer(GetUserMixin, serializers.ModelSerializer):
+    assessor = serializers.PrimaryKeyRelatedField(
+        queryset=Assessor.objects.filter(state=AssessorState.WORK)
+    )
+
+    class Meta:
+        model = AssessorCredentials
+        fields = '__all__'
+
+    def validate(self, attrs: Dict) -> Dict:
+        manager = self.get_user()
+        assessor = attrs.get('assessor')
+        check_full_assessor_permission(manager, assessor)
+        tool = attrs.get('tool')
+        if AssessorCredentials.objects.filter(assessor=assessor, tool__iexact=tool).exists():
+            raise ValidationError(
+                {'tool': f'У исполнителя {assessor.full_name} уже есть '
+                         f'учетные данные для инструмента {tool}.'}
+            )
+
+        return super().validate(attrs)
+
+
+class AssessorCredentialsSerializer(serializers.ModelSerializer):
+    assessor = SimpleAssessorSerializer(read_only=True)
+
+    class Meta:
+        model = AssessorCredentials
+        fields = '__all__'
+
+
+class AssessorVacationSerializer(serializers.ModelSerializer):
+    vacation = serializers.BooleanField()
+
+    class Meta:
+        model = Assessor
+        fields = ['vacation', 'vacation_date']
+
+    def validate(self, attrs: Dict) -> Dict:
+        assessor = self.instance
+        if not assessor.manager:
+            raise ValidationError(
+                {'vacation': ['У исполнителя нет руководителя.']}
+            )
+
+        vacation = attrs.get('vacation')
+        if vacation is None:
+            raise ValidationError(
+                {'vacation': ['Это обязательное поле.']}
+            )
+
+        if vacation:
+            vacation_date = attrs.get('vacation_date')
+            if vacation_date is None:
+                raise ValidationError(
+                    {'vacation_date': ['Это обязательное поле.']}
+                )
+
+            if current_date() > vacation_date:
+                raise ValidationError(
+                    {'vacation_date': ['Дата выхода из отпуска не может быть меньше текущей даты.']}
+                )
+
+            if assessor.state == AssessorState.VACATION:
+                raise ValidationError(
+                    {'vacation': ['Исполнитель уже находится в отпуске.']}
+                )
+
+            if assessor.projects.exists():
+                raise ValidationError(
+                    {'vacation': ['У исполнителя есть активные проекты.']}
+                )
+
+            if assessor.is_free_resource:
+                raise ValidationError(
+                    {'vacation': ['Исполнитель находится в свободных ресурсах.']}
+                )
+
+            if assessor.state == AssessorState.FIRED:
+                raise ValidationError(
+                    {'vacation': ['Исполнитель уволен.']}
+                )
+
+            if assessor.state == AssessorState.BLACKLIST:
+                raise ValidationError(
+                    {'vacation': ['Исполнитель в черном списке.']}
+                )
+        else:
+            if assessor.state == AssessorState.WORK:
+                raise ValidationError(
+                    {'vacation': ['Исполнитель уже работает.']}
+                )
+
+        return super().validate(attrs)
+
+    def save(self, **kwargs) -> Assessor:
+        assessor = self.instance
+        vacation = self.validated_data.get('vacation')
+        if vacation:
+            vacation_date = self.validated_data.get('vacation_date')
+            assessor.state = AssessorState.VACATION
+            assessor.vacation_date = vacation_date
+        else:
+            assessor.state = AssessorState.WORK
+            assessor.vacation_date = None
+
+        assessor.save()
+        history.vacation_history(assessor, to_vacation=vacation)
+        return assessor
 
 
 class UpdateFreeResourceSerializer(serializers.ModelSerializer):
@@ -308,4 +411,3 @@ class UpdateFreeResourceSerializer(serializers.ModelSerializer):
         )
 
         return instance
-

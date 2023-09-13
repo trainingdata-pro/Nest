@@ -6,7 +6,9 @@ from rest_framework.exceptions import ValidationError
 from apps.history.utils import history
 from apps.assessors.models import Assessor, AssessorState
 from apps.assessors.serializers import AssessorSerializer
-from apps.users.models import ManagerProfile
+from apps.users.models import BaseUser
+from core.utils.mixins import GetUserMixin
+from core.utils.users import UserStatus
 from .models import FiredReason, BlackListReason, Fired, BlackList
 from .utils import remove_assessor
 
@@ -58,28 +60,28 @@ class FiredSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class BackToTeamSerializer(serializers.Serializer):
-    manager = serializers.PrimaryKeyRelatedField(queryset=ManagerProfile.objects.all())
-
-    def get_manager(self) -> ManagerProfile:
-        return self.context.get('request').user.manager
+class BackToTeamSerializer(GetUserMixin, serializers.Serializer):
+    manager = serializers.PrimaryKeyRelatedField(
+        queryset=BaseUser.objects.filter(status=UserStatus.MANAGER)
+    )
 
     def validate(self, attrs: Dict) -> Dict:
-        current_manager = self.get_manager()
+        current_manager = self.get_user()
         manager = attrs.get('manager')
         if manager is None:
-            if current_manager.is_teamlead:
+            if current_manager.manager_profile.is_teamlead:
                 raise ValidationError(
                     {'manager': ['Выберите ответственного менеджера.']}
                 )
         else:
-            if manager.is_operational_manager:
+            if manager.manager_profile.is_teamlead:
                 raise ValidationError(
                     {'manager': ['Операционный менеджер не может быть '
                                  'ответственным менеджером исполнителя.']}
                 )
 
-            if current_manager.is_teamlead and manager.operational_manager != current_manager:
+            if (current_manager.manager_profile.is_teamlead
+                    and manager.manager_profile.teamlead.pk != current_manager.pk):
                 raise ValidationError(
                     {'manager': [f'Менеджер {manager.full_name} не в вашей команде.']}
                 )
@@ -90,7 +92,7 @@ class BackToTeamSerializer(serializers.Serializer):
         assessor = instance.assessor
         manager = validated_data.get('manager')
         if manager is None:
-            manager = self.get_manager()
+            manager = self.get_user()
         assessor.manager = manager
         assessor.state = AssessorState.WORK
         assessor.save()

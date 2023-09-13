@@ -12,11 +12,11 @@ services:
     volumes:
       - ./backend/src/:/backend/src
     depends_on:
-      - db
+      - postgres
       - celery
 
-  db:
-    container_name: db
+  postgres:
+    container_name: postgres
     image: postgres:14-alpine3.18
     env_file:
       - './backend/.env'
@@ -37,6 +37,15 @@ services:
     env_file:
       - './backend/.env'
     command: bash -c "celery -A core.celery worker --loglevel=info"
+    depends_on:
+      - redis
+
+  celery-beat:
+    container_name: celery-beat
+    build: ./backend
+    env_file:
+      - './backend/.env'
+    command: bash -c "celery -A core.celery beat --loglevel=info"
     depends_on:
       - redis
 

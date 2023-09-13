@@ -13,6 +13,7 @@ import os.path
 from datetime import timedelta
 from pathlib import Path
 
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -35,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # apps
     'apps.assessors.apps.AssessorsConfig',
+    'apps.authapp.apps.AuthappConfig',
     'apps.fired.apps.FiredConfig',
     'apps.history.apps.HistoryConfig',
     'apps.projects.apps.ProjectsConfig',
@@ -45,6 +47,7 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'debug_toolbar',
+    'django_celery_beat'
 ]
 
 MIDDLEWARE = [
@@ -168,7 +171,7 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=24),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
 
     'ALGORITHM': 'HS256',
@@ -178,11 +181,20 @@ SIMPLE_JWT = {
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
 
     'TOKEN_OBTAIN_SERIALIZER': 'core.utils.serializers.CustomTokenObtainPairSerializer',
+    'TOKEN_REFRESH_SERIALIZER': 'core.utils.serializers.CustomRefreshTokenSerializer',
 }
 
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379')
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379')
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/1')
 CELERY_TIMEZONE = TIME_ZONE
+
+# CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BEAT_SCHEDULE = {
+    'every_day_task': {
+        'task': 'apps.assessors.tasks.update_assessor_status',
+        'schedule': crontab(hour='00', minute='00')
+    }
+}
 
 RESET_PASSWORD_TOKEN_EXPIRATION_DAY = 1
 
