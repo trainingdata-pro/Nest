@@ -65,7 +65,7 @@ services:
     ports:
       - "80:80"
     volumes:
-       - postgres-data:/var/lib/postgresql/data
+       - static_volume:/home/assessors/backend/src/static
     networks:
       - default_network
 
