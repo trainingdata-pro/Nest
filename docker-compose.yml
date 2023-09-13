@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile.prod
     command: bash -c "python manage.py migrate --noinput && gunicorn core.wsgi:application --bind 0.0.0.0:8000"
     volumes:
-      - static_volume:/home/assessors/backend/src/static
+      - static_volume:/home/assessors/backend/src/api/static
     networks:
       - default_network
     expose:
