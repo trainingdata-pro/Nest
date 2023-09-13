@@ -152,3 +152,4 @@ cython_debug/
 .idea/
 .DS_Store
 storage/
+frontend/node_modules/
