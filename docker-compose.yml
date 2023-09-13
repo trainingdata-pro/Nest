@@ -36,6 +36,8 @@ services:
     image: redis
     volumes:
       - redis_data:/data
+    networks:
+      - default_network
 
   celery:
     container_name: celery
@@ -45,6 +47,8 @@ services:
     command: bash -c "celery -A core.celery worker --loglevel=info"
     depends_on:
       - redis
+    networks:
+      - default_network
 
   celery-beat:
     container_name: celery-beat
@@ -54,6 +58,8 @@ services:
     command: bash -c "celery -A core.celery beat --loglevel=info"
     depends_on:
       - redis
+    networks:
+      - default_network
 
   frontend:
     container_name: frontend
