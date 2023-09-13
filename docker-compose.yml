@@ -23,7 +23,7 @@ services:
     env_file:
       - './backend/.env'
     volumes:
-      - storage/postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
     networks:
       - default_network
 
