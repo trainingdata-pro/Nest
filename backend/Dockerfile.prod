@@ -34,7 +34,6 @@ RUN groupadd -r assessors && useradd -r -g assessors assessors
 ENV HOME=/home/assessors
 ENV APP_HOME=/home/assessors/backend
 RUN mkdir -p $APP_HOME
-RUN mkdir -p $APP_HOME/src/api/static
 WORKDIR $APP_HOME
 
 # install dependencies
