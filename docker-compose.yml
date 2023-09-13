@@ -12,7 +12,7 @@ services:
     expose:
       - 8000
     env_file:
-      - ./.env
+      - ./backend/.env
     depends_on:
       - postgres
       - celery
@@ -21,7 +21,7 @@ services:
     container_name: postgres
     image: postgres:14-alpine3.18
     env_file:
-      - './backend/.env'
+      - ./backend/.env
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
@@ -39,7 +39,7 @@ services:
     container_name: celery
     build: ./backend
     env_file:
-      - './backend/.env'
+      - ./backend/.env
     command: bash -c "celery -A core.celery worker --loglevel=info"
     depends_on:
       - redis
@@ -50,7 +50,7 @@ services:
     container_name: celery-beat
     build: ./backend
     env_file:
-      - './backend/.env'
+      - ./backend/.env
     command: bash -c "celery -A core.celery beat --loglevel=info"
     depends_on:
       - redis
