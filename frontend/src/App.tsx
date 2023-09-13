@@ -27,7 +27,7 @@ function App() {
 
 
     return (
-            <BrowserRouter>
+            <BrowserRouter basename="https://assessors-test.trainingdata.solutions">
                 {!store.isAuth ? <Routes>
                         <Route path={'/login'} element={<SignInPage/>}/>
                         <Route path={'/register'} element={<SignUpPage/>}/>
