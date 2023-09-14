@@ -46,6 +46,11 @@ class HistoryManager:
         histories = self.create_history_objects(assessor, updates)
         self.perform_create(histories)
 
+    def free_resource_history(self, assessor: Assessor, free_resource: bool, reason: str = None) -> None:
+        updates = self.free_resource_event(free_resource, reason)
+        histories = self.create_history_objects(assessor, updates)
+        self.perform_create(histories)
+
     def fired_event(self,
                     manager: BaseUser,
                     fired_item: Union[Fired, BlackList],
@@ -82,6 +87,15 @@ class HistoryManager:
             {
                 'event': event,
                 'description': self.__create_description(event, manager=manager)
+            }
+        ]
+
+    def free_resource_event(self, free_resource: bool, reason: str = None) -> List[Dict]:
+        event = HistoryEvents.ADD_TO_FREE_RESOURCE if free_resource else HistoryEvents.REMOVE_FROM_FREE_RESOURCE
+        return [
+            {
+                'event': event,
+                'description': self.__create_description(event, free_resource_reason=reason)
             }
         ]
 
@@ -155,18 +169,18 @@ class HistoryManager:
                     }
                 )
 
-        if old_assessor.is_free_resource != updated_assessor.is_free_resource:
-            if updated_assessor.is_free_resource is True:
-                event = HistoryEvents.ADD_TO_FREE_RESOURCE
-            else:
-                event = HistoryEvents.REMOVE_FROM_FREE_RESOURCE
-
-            data.append(
-                {
-                    'event': event,
-                    'description': self.get_description(event)
-                }
-            )
+        # if old_assessor.is_free_resource != updated_assessor.is_free_resource:
+        #     if updated_assessor.is_free_resource is True:
+        #         event = HistoryEvents.ADD_TO_FREE_RESOURCE
+        #     else:
+        #         event = HistoryEvents.REMOVE_FROM_FREE_RESOURCE
+        #
+        #     data.append(
+        #         {
+        #             'event': event,
+        #             'description': self.get_description(event)
+        #         }
+        #     )
 
         if new_second_managers != old_second_managers:
             removed_id = [manager_id for manager_id in old_second_managers if manager_id not in new_second_managers]
@@ -237,7 +251,7 @@ class HistoryManager:
                                                             fired_item=fired_item)
                     }
                 )
-            elif updated_assessor.state == AssessorState.WORK:
+            elif updated_assessor.state in AssessorState.work_states():
                 data.extend(self.returned_event(manager=updated_assessor.manager))
 
         return data
@@ -250,7 +264,8 @@ class HistoryManager:
                              manager: BaseUser = None,
                              project: Iterable[str] = None,
                              second_manager: Iterable[BaseUser] = None,
-                             fired_item: Union[Fired, BlackList] = None) -> str:
+                             fired_item: Union[Fired, BlackList] = None,
+                             free_resource_reason: str = None) -> str:
         projects = ', '.join(project) if project is not None else None
         second_managers = ', '.join([
             f'{manager.full_name} (@{manager.username})' for manager in second_manager
@@ -280,7 +295,7 @@ class HistoryManager:
         elif event == HistoryEvents.REMOVE_PROJECT:
             description = f'Удален с проекта(ов): {projects}'
         elif event == HistoryEvents.ADD_TO_FREE_RESOURCE:
-            description = 'Добавлен в свободные ресурсы'
+            description = f'Добавлен в свободные ресурсы по причине "{free_resource_reason}"'
         elif event == HistoryEvents.REMOVE_FROM_FREE_RESOURCE:
             description = 'Удален из свободных ресурсов'
         elif event == HistoryEvents.ADD_ADDITIONAL_MANAGER:
