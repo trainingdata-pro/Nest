@@ -11,6 +11,8 @@ services:
     command: bash -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend/src/:/backend/src
+    networks:
+      - dev_network
     depends_on:
       - postgres
       - celery
@@ -24,12 +26,16 @@ services:
       - 5432
     volumes:
       - ./storage/postgres-data:/var/lib/postgresql/data
+    networks:
+      - dev_network
 
   redis:
     container_name: redis
     image: redis
     volumes:
       - redis_data:/data
+    networks:
+      - dev_network
 
   celery:
     container_name: celery
@@ -39,6 +45,8 @@ services:
     command: bash -c "celery -A core.celery worker --loglevel=info"
     depends_on:
       - redis
+    networks:
+      - dev_network
 
   celery-beat:
     container_name: celery-beat
@@ -46,8 +54,13 @@ services:
     env_file:
       - './backend/.env'
     command: bash -c "celery -A core.celery beat --loglevel=info"
+    networks:
+      - dev_network
     depends_on:
       - redis
 
 volumes:
   redis_data:
+
+networks:
+  dev_network:
