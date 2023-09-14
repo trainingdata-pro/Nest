@@ -120,12 +120,6 @@ class AssessorSchema(BaseAPISchema):
                     description='Filtering by skill ID. Example: host.com/?skills=1,2'
                 ),
                 openapi.Parameter(
-                    name='is_free_resource',
-                    in_=openapi.IN_QUERY,
-                    type=openapi.TYPE_BOOLEAN,
-                    description='Filtering free resources.'
-                ),
-                openapi.Parameter(
                     name='second_manager',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
@@ -177,6 +171,24 @@ class AssessorSchema(BaseAPISchema):
         return self.swagger_auto_schema(
             operation_summary='Send / return assessor to vacation',
             operation_description='Send / return a specific assessor to vacation.',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique assessor ID'
+                )
+            ],
+            responses={
+                200: serializers.AssessorSerializer(),
+                **self.get_responses(400, 401, 403, 404)
+            }
+        )
+
+    def free_resource(self):
+        return self.swagger_auto_schema(
+            operation_summary='Send / return assessor to free resources',
+            operation_description='Send / return a specific assessor to free resources.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',

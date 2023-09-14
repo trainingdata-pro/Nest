@@ -14,7 +14,7 @@ def _get_assessors_for_update() -> QuerySet[Assessor]:
 
 
 def _update_assessor_status(assessors_list: QuerySet[Assessor]) -> None:
-    assessors_list.update(state=AssessorState.WORK, vacation_date=None)
+    assessors_list.update(state=AssessorState.AVAILABLE, vacation_date=None)
 
 
 def _get_new_vacation_history(assessors_list: QuerySet[Assessor]) -> List[History]:
