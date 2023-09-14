@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from apps.users import Code
-from apps.users.utils import create_code
+from apps.users.utils import get_code
 from .common import base_test_config as config
 
 
@@ -46,7 +46,7 @@ class AuthenticationTest(APITestCase):
 
     def test_user_activation(self):
         url = reverse('activate')
-        code = create_code()
+        code = get_code()
         correct = {'code': code}
         wrong = {'code': 'wrong_code'}
         Code.objects.create(code=code, user=self.not_active_user)
@@ -84,4 +84,3 @@ class AuthenticationTest(APITestCase):
         url = reverse('token_refresh')
         response = self.client.post(url, {'refresh': 'invalid_refresh_token_123'})
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
