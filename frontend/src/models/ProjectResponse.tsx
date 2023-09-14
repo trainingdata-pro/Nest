@@ -5,7 +5,6 @@ export interface Project {
     name: string
     manager: IManager[],
     assessors_count: number,
-    backlog: string,
     asana_id: number,
     speed_per_hour: number,
     price_for_assessor: number,
