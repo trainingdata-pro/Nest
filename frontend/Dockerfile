@@ -4,9 +4,11 @@
 FROM node:lts-slim as builder
 
 COPY package.json package-lock.json ./
-RUN npm install && mkdir /frontend && mv ./node_modules ./frontend
 
-WORKDIR /frontend
+RUN npm install && mkdir /react-frontend && mv ./node_modules ./react-frontend
+
+WORKDIR /react-frontend
+
 COPY . .
 
 RUN npm run build
@@ -15,8 +17,17 @@ RUN npm run build
 # FINAL #
 #########
 FROM nginx:1.19.2-alpine
-COPY --from=builder /frontend/build /usr/share/nginx/html
+
+COPY --from=builder /react-frontend/build /usr/share/nginx/html
+
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
+
+RUN mkdir /etc/nginx/cert
+COPY nginx/cert/privkey.pem /etc/nginx/cert/privkey.pem
+COPY nginx/cert/fullchain.pem /etc/nginx/cert/fullchain.pem
+
 EXPOSE 80
+EXPOSE 443
+
 CMD ["nginx", "-g", "daemon off;"]

@@ -98,7 +98,7 @@ const SignInPage = () => {
                                             message: "Укажите корпоративную почту"
                                         },
                                     })} autoComplete="new-email" type="text" className="h-[60px] pl-[40px] w-full bg-[#F4F8F7] rounded-[8px] "
-                                           placeholder="Username"/>
+                                           placeholder="Email"/>
 
                                 </div>
                                 <Error>{errors.email && errors.email?.message}</Error>
