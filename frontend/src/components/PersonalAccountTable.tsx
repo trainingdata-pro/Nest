@@ -19,6 +19,8 @@ const PersonalAccountTable = () => {
     const {store} = useContext(Context)
     const navigation = useNavigate()
     const statusObject = {
+        "new": "Новый",
+        "pilot": "Пилот",
         "active": "Активный",
         "pause": "На паузе",
         "completed": "Завершенный"
@@ -41,7 +43,7 @@ const PersonalAccountTable = () => {
             {
                 accessorKey: 'manager',
                 header: 'Владелец',
-                cell: info => {return info.row.original.manager.map((manager) =><div key={manager.id}> {manager.last_name}</div>)},
+                cell: info => {return info.row.original.manager.map((manager) =><div key={manager.id}> {manager.last_name} {manager.first_name}</div>)},
                 enableSorting: false,
 
             },
@@ -122,7 +124,7 @@ const PersonalAccountTable = () => {
                     </SideBar>
                 <div className="h-full w-full">
                     <div className="flex justify-end my-2">
-                        <button className="bg-black rounded-md text-white px-4 py-2"
+                        <button className="bg-[#5970F6] rounded-md text-white px-4 py-2"
                                 onClick={() => {
                                     setProjectId(0)
                                     setShowSidebar(true)
