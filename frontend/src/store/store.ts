@@ -3,7 +3,6 @@ import AuthService from "../services/AuthService";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 import {API_URL} from "../http";
-import ManagerService from "../services/ManagerService";
 import Cookies from 'universal-cookie';
 
 interface UserData {
@@ -61,7 +60,6 @@ export default class Store {
                 localStorage.setItem('token', res.data.access)
                 const decodeJwt: Token = jwtDecode(res.data.access)
                 this.cookies.set('refresh', res.data.refresh, {path: '/', maxAge: decodeJwt.exp})
-                console.log(decodeJwt)
                 const managerId = decodeJwt.user_id
                 const user_data = decodeJwt.user_data
                 this.setUserData(user_data)
@@ -86,12 +84,9 @@ export default class Store {
             const response = await axios.post(`${API_URL}/api/token/refresh/`, {'refresh': this.cookies.get('refresh')})
             localStorage.removeItem('token')
             localStorage.setItem('token', response.data.access)
-
             const decodeJwt: Token = jwtDecode(response.data.access)
             const managerId = decodeJwt.user_id
-            console.log(decodeJwt)
             const user_data = decodeJwt.user_data
-            await ManagerService.fetch_manager(managerId).then(res => console.log(res.data))
             this.setUserId(managerId)
             this.setUserData(user_data)
             this.setAuth(true)

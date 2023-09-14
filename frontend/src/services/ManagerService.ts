@@ -1,6 +1,6 @@
-import $api, {API_URL} from "../http";
-import axios, {AxiosResponse} from "axios";
-import {IManager, IUser} from "../models/ManagerResponse";
+import $api from "../http";
+import {AxiosResponse} from "axios";
+import {IManager} from "../models/ManagerResponse";
 
 interface UsersResponse {
     results: IManager[]

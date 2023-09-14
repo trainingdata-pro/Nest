@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useMemo, useState} from 'react';
+import React, {useContext, useMemo, useState} from 'react';
 import {
     ColumnDef,
 } from "@tanstack/react-table";
@@ -13,11 +13,14 @@ import Table from "./UI/Table";
 import ProjectForm from "./ProjectForm";
 import SideBar from "./UI/Dialog";
 import ManagerService from "../services/ManagerService";
+import { PencilSquareIcon } from '@heroicons/react/24/solid';
 
 const PersonalAccountTable = () => {
     const {store} = useContext(Context)
     const navigation = useNavigate()
     const statusObject = {
+        "new": "Новый",
+        "pilot": "Пилот",
         "active": "Активный",
         "pause": "На паузе",
         "completed": "Завершенный"
@@ -26,25 +29,21 @@ const PersonalAccountTable = () => {
     const columns = useMemo<ColumnDef<Project>[]>(() => {
         return [
             {
+                accessorKey: 'asana_id',
+                header: 'Asana ID',
+                cell: info => info.getValue(),
+                size: 200,
+            },
+            {
                 accessorKey: 'name',
                 header: 'Название проекта',
-                cell: info => {
-                    return <div
-                        onClick={() => {
-                            setProjectId(info.row.original.id)
-                            setShowSidebar(true)
-                        }}>{info.row.original.name}</div>
-                },
+                cell: info => info.getValue(),
                 size: 200,
             },
             {
                 accessorKey: 'manager',
                 header: 'Владелец',
-                cell: (info) => {
-                    return <div>{info.row.original.manager.map(manager => {
-                        return <div className="rounded-full bg-black text-white text-center py-1 px-3 mb-1" key={manager.id}>{manager.last_name} {manager.first_name}</div>
-                    })}</div>
-                },
+                cell: info => {return info.row.original.manager.map((manager) =><div key={manager.id}> {manager.last_name} {manager.first_name}</div>)},
                 enableSorting: false,
 
             },
@@ -53,16 +52,8 @@ const PersonalAccountTable = () => {
                 header: 'Количество исполнителей',
                 cell: info =>
                     // @ts-ignore
-                    <div onClick={() => navigation(`/dashboard/projects/${info.row.original.id}/assessors`)}>{info.getValue()}</div>
+                    <div className="cursor-pointer" onClick={() => navigation(`/dashboard/projects/${info.row.original.id}/assessors`)}>{info.getValue()}</div>
                 ,
-                size: 30,
-                enableSorting: false
-
-            },
-            {
-                accessorKey: 'backlog',
-                header: 'Беклог проекта',
-                cell: info => info.getValue(),
                 size: 30,
                 enableSorting: false
 
@@ -75,7 +66,19 @@ const PersonalAccountTable = () => {
                 size: 100,
                 enableGlobalFilter: false
 
-            }
+            },
+            {
+                accessorKey: 'id',
+                header: 'Статус проекта',
+                cell: info => <PencilSquareIcon className="cursor-pointer h-6 w-6 text-gray-500" onClick={() => {
+                    setProjectId(info.row.original.id)
+                    setShowSidebar(true)
+                }} />,
+                size: 100,
+                enableSorting: false
+
+            },
+
         ];
     }, [])
 
@@ -110,7 +113,7 @@ const PersonalAccountTable = () => {
     }
     return (
         <>
-            <div className="flex container pt-20 h-full pr-8 pl-8 items-center">
+            <div className="container pt-20 h-full pr-8 pl-8 items-center">
                 <SideBar isOpen={showSidebar} setIsOpen={setShowSidebar}>
                     <div className="w-[30rem]">
                     <ProjectForm projectId={projectsId}
@@ -121,14 +124,14 @@ const PersonalAccountTable = () => {
                     </SideBar>
                 <div className="h-full w-full">
                     <div className="flex justify-end my-2">
-                        <button className="bg-black rounded-md text-white px-4 py-2"
+                        <button className="bg-[#5970F6] rounded-md text-white px-4 py-2"
                                 onClick={() => {
                                     setProjectId(0)
                                     setShowSidebar(true)
                                 }}>Добавить проект
                         </button>
                     </div>
-                    <div className="rounded-md border border-b-gray-400 bg-white">
+                    <div className="rounded-t-[20px] border border-b-gray-400 bg-white">
                         <Table data={data} columns={columns} pages={true}/>
                     </div>
                 </div>

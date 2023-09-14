@@ -1,4 +1,4 @@
-import $api, {API_URL} from "../http";
+import {API_URL} from "../http";
 import axios, {AxiosResponse} from "axios";
 import {AuthResponse} from "../models/AuthResponse";
 import {ISignUp} from "../pages/SignUpPage";

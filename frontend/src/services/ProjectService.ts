@@ -1,7 +1,7 @@
 import {AxiosResponse} from "axios";
 import $api from "../http";
 import {Project} from "../models/ProjectResponse";
-import {Assessor, AssessorResponse} from "../models/AssessorResponse";
+import {AssessorResponse} from "../models/AssessorResponse";
 
 interface ProjectResponse {
     count: number,

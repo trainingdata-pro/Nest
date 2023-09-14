@@ -1,6 +1,6 @@
 import React, {Dispatch, SetStateAction, useContext, useEffect, useState} from 'react';
-import {Controller, useForm} from 'react-hook-form'
-import ProjectService, {Tag} from "../services/ProjectService";
+import {useForm} from 'react-hook-form'
+import ProjectService from "../services/ProjectService";
 import {Context} from "../index";
 import ManagerService from '../services/ManagerService';
 import Select from "react-select";
@@ -53,6 +53,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
                     setValue('speed_per_hour', res.data.speed_per_hour)
                     setValue('price_for_assessor', res.data.price_for_assessor)
                     setValue('price_for_costumer', res.data.price_for_costumer)
+                    setValue('asana_id', res.data.asana_id)
                     setValue('unloading_value', res.data.unloading_value)
                     setValue('unloading_regularity', res.data.unloading_regularity)
                     setValue('status', statusList.filter(item => item.value === res.data.status)[0])
@@ -67,7 +68,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
 
     useEffect(() => {
         ManagerService.fetch_managers().then(res => {
-            setManagers(res.data.results.filter(manager => manager.teamlead == store.user_data.teamlead).map((manager: IManager) => {
+            setManagers(res.data.results.filter(manager => manager.teamlead === store.user_data.teamlead).map((manager: IManager) => {
                 return {
                     value: manager.id, label: `${manager.last_name} ${manager.first_name}`
                 }
@@ -83,6 +84,8 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
     const [managers, setManagers] = useState<SelectProps[]>([])
 
     const statusList = [
+        {value: 'new', label: 'Новый'},
+        {value: 'pilot', label: 'Пилот'},
         {value: 'active', label: 'Активный'},
         {value: 'pause', label: 'На паузе'},
         {value: 'completed', label: 'Завершен'}
@@ -162,45 +165,70 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
             <div>
                 <form className="grid columns-1" onSubmit={handleSubmit(onSubmit)}>
                     <FormSection>
-                        <MyLabel required={true}>Название проекта</MyLabel>
+                        <div className="flex justify-between">
+                        <MyLabel required={true}>Название проекта: </MyLabel>
+                            <Error>{errors.name && errors.name?.message}</Error>
+                        </div>
                         <MyInput placeholder="Название проекта" register={{...register('name', {required: 'Обязательное поле'})}}
                                  type="text"/>
-                        <Error>{errors.name && errors.name?.message}</Error>
+
                     </FormSection>
                     <FormSection>
-                        <MyLabel required={true}>Менеджер проекта</MyLabel>
-                        <Select
+                        <div className="flex justify-between">
+                        <MyLabel required={true}>Менеджер проекта: </MyLabel>
+                            <Error>{errors.manager && errors.manager?.message}</Error>
+                        </div>
+                            <Select
                             options={managers}
                             value={watch('manager')}
-                            isDisabled={true}
+                            isDisabled={!store.user_data.is_teamlead}
                             isMulti
                             {...register('manager', {required: 'Обязательное поле'})}
                             onChange={handleSelectChange}
                         />
-                        <Error>{errors.manager && errors.manager?.message}</Error>
+
                     </FormSection>
                     <FormSection>
-                        <MyLabel required={false}>Скорость в час</MyLabel>
+                        <div className="flex justify-between">
+                        <MyLabel required={false}>Скорость в час: </MyLabel>
+                            <Error>{errors.speed_per_hour && errors.speed_per_hour?.message}</Error>
+                        </div>
                         <MyInput placeholder="Скорость в час" type="text" register={{...register('speed_per_hour')}}/>
                     </FormSection>
                     <FormSection>
-                        <MyLabel required={false}>Цена за единицу для асессора</MyLabel>
+                        <div className="flex justify-between">
+                        <MyLabel required={false}>Цена за единицу для асессора: </MyLabel>
+                        </div>
                         <MyInput placeholder="Цена за единицу для асессора" type="text" register={{...register('price_for_assessor')}}/>
                     </FormSection>
                     <FormSection>
-                        <MyLabel required={false}>Цена за единицу для заказчика</MyLabel>
+                        <div className="flex justify-between">
+                        <MyLabel required={false}>Цена за единицу для заказчика: </MyLabel>
+                        </div>
                         <MyInput placeholder="Цена за единицу для заказчика" type="text" register={{...register('price_for_costumer')}}/>
                     </FormSection>
                     <FormSection>
-                        <MyLabel required={false}>Объем выгрузок</MyLabel>
+                        <div className="flex justify-between">
+                        <MyLabel required={false}>Объем выгрузок: </MyLabel>
+                        </div>
                         <MyInput placeholder="Объем выгрузок" type="text" register={{...register('unloading_value')}}/>
                     </FormSection>
                     <FormSection>
-                        <MyLabel required={false}>Регулярность выгрузок</MyLabel>
+                        <div className="flex justify-between">
+                        <MyLabel required={true}>Asana ID: </MyLabel>
+                        </div>
+                        <MyInput placeholder="Asana ID" type="text" register={{...register('asana_id')}}/>
+                    </FormSection>
+                    <FormSection>
+                        <div className="flex justify-between">
+                        <MyLabel required={false}>Регулярность выгрузок: </MyLabel>
+                        </div>
                         <MyInput placeholder="Регулярность выгрузок" type="text" register={{...register("unloading_regularity")}}/>
                     </FormSection>
                     <FormSection>
-                        <MyLabel required={true}>Статус</MyLabel>
+                        <div className="flex justify-between">
+                        <MyLabel required={true}>Статус: </MyLabel>
+                        </div>
                         <Select
                             {...register('status', {required: 'Обязательное поле'})}
                             options={statusList}
@@ -210,24 +238,28 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
                         <Error>{errors.status && errors.status?.message}</Error>
                     </FormSection>
                     <FormSection>
-                        <MyLabel required={true}>Тег</MyLabel>
+                        <div className="flex justify-between">
+                        <MyLabel>Тег: </MyLabel>
+                        </div>
                         <Select
                             options={tags}
                             isMulti
                             value={watch('tag')}
-                            {...register('tag', {required:'Привет'})}
+                            {...register('tag')}
                             onChange={handleSelectTagChange}
                         />
-                        <Error>{errors.tag && errors.tag?.message}</Error>
                     </FormSection>
                     <FormSection>
+                        <div className="flex justify-between">
                         <MyLabel required={true}>Дата старта проекта</MyLabel>
+                            <Error>{errors.date_of_creation && errors.date_of_creation?.message}</Error>
+
+                        </div>
                         <MyInput placeholder="Дата старта проекта"
                                  register={{...register('date_of_creation', {required: true})}} type="text"/>
-                        <Error>{errors.date_of_creation && errors.date_of_creation?.message}</Error>
                     </FormSection>
                     <FormSection>
-                        {Object.keys(serverError).map((key:any) => <Error>{serverError[key]}</Error>)}
+                        {Object.keys(serverError).map((key:any, index) => <Error key={index}>{key}: {serverError[key]}</Error>)}
                     </FormSection>
                     <button type="submit"
                             className="bg-black text-white rounded-md mt-2 pt-2 py-2">{projectId === 0 ? 'Добавить' : 'Сохранить'}

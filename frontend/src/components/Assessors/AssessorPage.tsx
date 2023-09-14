@@ -6,7 +6,7 @@ import {useForm} from "react-hook-form";
 import {Context} from "../../index";
 import {PencilSquareIcon} from "@heroicons/react/24/outline";
 import {CheckIcon} from "@heroicons/react/24/solid";
-import {IManager, IUser} from "../../models/ManagerResponse";
+import {IManager} from "../../models/ManagerResponse";
 
 
 interface AssessorPatch {
