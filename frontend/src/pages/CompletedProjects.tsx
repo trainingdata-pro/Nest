@@ -9,18 +9,26 @@ import {useNavigate} from "react-router-dom";
 
 const CompletedProjects = () => {
     const statusObject = {
+        "new": "Новый",
+        "pilot": "Пилот",
         "active": "Активный",
         "pause": "На паузе",
         "completed": "Завершенный"
     }
     const {store} = useContext(Context)
     const navigation = useNavigate()
-    useEffect(()=>{
+    useEffect(() => {
         ProjectService.fetchCompletedProjects(store.user_id).then(res => setCompletedProjects(res.data.results))
     }, [])
     const [completedProjects, setCompletedProjects] = useState<Project[]>([])
     const columns = useMemo<ColumnDef<Project>[]>(() => {
         return [
+            {
+                accessorKey: 'asana_id',
+                header: 'Asana ID',
+                cell: info => info.getValue(),
+                size: 200,
+            },
             {
                 accessorKey: 'name',
                 header: 'Название проекта',
@@ -42,23 +50,16 @@ const CompletedProjects = () => {
                 accessorKey: 'assessors_count',
                 header: 'Количество исполнителей',
                 cell: info =>
-                    <div onClick={() => navigation(`/dashboard/projects/${info.row.original.id}/assessors`)}>{info.row.original.assessors_count}</div>
+                    <div
+                        onClick={() => navigation(`/dashboard/projects/${info.row.original.id}/assessors`)}>{info.row.original.assessors_count}</div>
                 ,
                 size: 30,
                 enableSorting: false
 
             },
             {
-                accessorKey: 'backlog',
-                header: 'Беклог проекта',
-                cell: info => info.getValue(),
-                size: 30,
-                enableSorting: false
-
-            },
-            {
                 accessorKey: 'date_of_creation',
-                header: 'Статус проекта',
+                header: 'Дата старта',
                 cell: info => info.getValue(),
                 size: 100,
                 enableGlobalFilter: false
@@ -66,7 +67,7 @@ const CompletedProjects = () => {
             },
             {
                 accessorKey: 'date_of_completion',
-                header: 'Статус проекта',
+                header: 'Дата завершения',
                 cell: info => info.getValue(),
                 size: 100,
                 enableGlobalFilter: false
@@ -79,7 +80,11 @@ const CompletedProjects = () => {
             <Header/>
             <div className="flex container pt-20 h-full pr-8 pl-8 items-center">
                 <div className="h-full w-full">
-                    <Table data={completedProjects} pages={true} columns={columns}/></div></div>
+                    <div className="rounded-t-[20px] border border-b-gray-400 bg-white">
+                        <Table data={completedProjects} pages={true} columns={columns}/>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

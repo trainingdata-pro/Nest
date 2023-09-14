@@ -1,15 +1,7 @@
 import React, {useMemo, useState} from 'react';
 import {NavLink, useParams} from "react-router-dom";
-import {
-    ColumnDef, ColumnFiltersState, createColumnHelper,
-    flexRender,
-    getCoreRowModel, getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel, SortingState,
-    useReactTable
-} from "@tanstack/react-table";
+import {ColumnDef, createColumnHelper} from "@tanstack/react-table";
 import {Assessor} from "../models/AssessorResponse";
-import AssessorService from "../services/AssessorService";
 import Table from "./UI/Table";
 import ProjectService from "../services/ProjectService";
 import {Project} from "../models/ProjectResponse";

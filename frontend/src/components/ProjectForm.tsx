@@ -1,6 +1,6 @@
 import React, {Dispatch, SetStateAction, useContext, useEffect, useState} from 'react';
-import {Controller, useForm} from 'react-hook-form'
-import ProjectService, {Tag} from "../services/ProjectService";
+import {useForm} from 'react-hook-form'
+import ProjectService from "../services/ProjectService";
 import {Context} from "../index";
 import ManagerService from '../services/ManagerService';
 import Select from "react-select";
@@ -68,7 +68,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
 
     useEffect(() => {
         ManagerService.fetch_managers().then(res => {
-            setManagers(res.data.results.filter(manager => manager.teamlead == store.user_data.teamlead).map((manager: IManager) => {
+            setManagers(res.data.results.filter(manager => manager.teamlead === store.user_data.teamlead).map((manager: IManager) => {
                 return {
                     value: manager.id, label: `${manager.last_name} ${manager.first_name}`
                 }

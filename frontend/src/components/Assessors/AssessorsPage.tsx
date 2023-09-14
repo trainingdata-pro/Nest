@@ -5,7 +5,6 @@ import {NavLink, useNavigate} from "react-router-dom";
 import {Assessor} from "../../models/AssessorResponse";
 import AssessorService from "../../services/AssessorService";
 import AddAssessorForm from "../AddAssessorForm";
-import SideBar from "../UI/Dialog";
 import Dialog from "../UI/Dialog";
 
 const AssessorsPage = () => {

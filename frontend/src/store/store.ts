@@ -3,7 +3,6 @@ import AuthService from "../services/AuthService";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 import {API_URL} from "../http";
-import ManagerService from "../services/ManagerService";
 import Cookies from 'universal-cookie';
 
 interface UserData {
