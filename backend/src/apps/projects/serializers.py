@@ -20,7 +20,8 @@ class ProjectTagSerializer(serializers.ModelSerializer):
 
 class CreateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
     manager = serializers.PrimaryKeyRelatedField(
-        queryset=BaseUser.objects.filter(status=UserStatus.MANAGER)
+        queryset=BaseUser.objects.filter(status=UserStatus.MANAGER),
+        many=True
     )
 
     class Meta:
