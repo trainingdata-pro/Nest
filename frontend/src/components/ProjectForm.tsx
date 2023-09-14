@@ -172,7 +172,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
                         <Select
                             options={managers}
                             value={watch('manager')}
-                            isDisabled={true}
+                            isDisabled={!store.user_data.is_teamlead}
                             isMulti
                             {...register('manager', {required: 'Обязательное поле'})}
                             onChange={handleSelectChange}
@@ -210,12 +210,12 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
                         <Error>{errors.status && errors.status?.message}</Error>
                     </FormSection>
                     <FormSection>
-                        <MyLabel required={true}>Тег</MyLabel>
+                        <MyLabel>Тег</MyLabel>
                         <Select
                             options={tags}
                             isMulti
                             value={watch('tag')}
-                            {...register('tag', {required:'Привет'})}
+                            {...register('tag')}
                             onChange={handleSelectTagChange}
                         />
                         <Error>{errors.tag && errors.tag?.message}</Error>
