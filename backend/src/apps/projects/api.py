@@ -46,8 +46,8 @@ class ProjectAPIViewSet(BaseAPIViewSet):
     serializer_class = {
         'retrieve': serializers.ProjectSerializer,
         'list': serializers.ProjectSerializer,
-        'create': serializers.CreateProjectSerializer,
-        'partial_update': serializers.CreateProjectSerializer
+        'create': serializers.CreateUpdateProjectSerializer,
+        'partial_update': serializers.CreateUpdateProjectSerializer
 
     }
     http_method_names = ['get', 'post', 'patch', 'delete']
