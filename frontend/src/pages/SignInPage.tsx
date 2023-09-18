@@ -34,7 +34,7 @@ const SignInPage = () => {
                     <form className="flex h-[100%] justify-center items-center" onSubmit={handleSubmit(onSubmit)}>
                         <div className="w-[85%]">
                             <h1 className="text-[32px] font-bold mb-28">Добро пожаловать</h1>
-                            <React.Fragment>
+                            <div className="my-2">
                                 <div className='flex relative items-center'>
                                     <EnvelopeIcon className="absolute ml-[10px] h-6 w-6 text-gray-500"/>
                                     <input {...register('email', {
@@ -47,8 +47,8 @@ const SignInPage = () => {
 
                                 </div>
                                 <Error>{errors.email && errors.email?.message}</Error>
-                            </React.Fragment>
-                            <React.Fragment>
+                            </div>
+                            <div className="my-2">
                                 <div className='flex relative items-center'>
                                     <LockClosedIcon className="absolute ml-[10px] h-6 w-6 text-gray-500"/>
                                     <input {...register('password')} type="password"
@@ -56,7 +56,7 @@ const SignInPage = () => {
                                            placeholder="Password"/>
                                 </div>
                                 <Error>{errors.password && errors.password?.message}</Error>
-                            </React.Fragment>
+                            </div>
                             <Error>{store.authError}</Error>
                             <div className="w-full flex justify-end mt-3 my-6">
                                 <p className="text-black cursor-pointer underline">Забыли пароль?</p>

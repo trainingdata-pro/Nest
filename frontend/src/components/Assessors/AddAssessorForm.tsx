@@ -1,16 +1,13 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {useForm} from "react-hook-form";
-import AssessorService from "../services/AssessorService";
-import {Project} from "../models/ProjectResponse";
-import ProjectService from "../services/ProjectService";
-import {Context} from "../index";
-import MyLabel from "./UI/MyLabel";
-import MyInput from "./UI/MyInput";
-import Error from "./UI/Error";
+import AssessorService from "../../services/AssessorService";
+import ProjectService from "../../services/ProjectService";
+import {Context} from "../../index";
+import MyLabel from "../UI/MyLabel";
+import MyInput from "../UI/MyInput";
+import Error from "../UI/Error";
 import Select from "react-select";
-import {SelectProps} from "./ProjectForm";
-import {Assessor} from "../models/AssessorResponse";
-import {da} from "date-fns/locale";
+import {SelectProps} from "../ProjectForm";
 
 
 interface FormProps {

@@ -1,28 +1,12 @@
 # API (Python+Django+DRF)
 
-## Pre installation
+## Backend installation
 
 ### 1. Set global environment variables
 ```bash
 cp .env.example .env
 ```
-### 2. Create virtual local-environment
+### 2. Start with docker compose
 ```bash
-python -m venv venv && source venv/bin/activate
-```
-### 3. Install dependencies
-```bash
-python pip install -r requirements.txt
-```
-### 4. Move to the working directory
-```bash
-cd src/
-```
-### 5. Make database migrations
-```bash
-python manage.py migrate
-``` 
-### 6. Simple start
-```bash
-python manage.py runserver
+docker compose -f ../docker-compose-dev.yml up -d --build
 ```

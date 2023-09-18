@@ -18,9 +18,10 @@ class ProjectTagSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CreateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
+class CreateUpdateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
     manager = serializers.PrimaryKeyRelatedField(
-        queryset=BaseUser.objects.filter(status=UserStatus.MANAGER)
+        queryset=BaseUser.objects.filter(status=UserStatus.MANAGER),
+        many=True
     )
 
     class Meta:
@@ -121,7 +122,7 @@ class ProjectSimpleSerializer(serializers.ModelSerializer):
 
 class CreateProjectWorkingHoursSerializer(GetUserMixin, serializers.ModelSerializer):
     assessor = serializers.PrimaryKeyRelatedField(
-        queryset=Assessor.objects.filter(state=AssessorState.WORK)
+        queryset=Assessor.objects.filter(state__in=AssessorState.work_states())
     )
     project = serializers.PrimaryKeyRelatedField(
         queryset=Project.objects.exclude(status=ProjectStatuses.COMPLETED)

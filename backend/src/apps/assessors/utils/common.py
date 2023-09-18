@@ -6,7 +6,7 @@ from apps.projects.models import Project
 
 
 def is_team_lead(project: Project, manager: BaseUser) -> bool:
-    return project.manager.filter(operational_manager=manager).exists()
+    return project.manager.filter(manager_profile__teamlead=manager).exists()
 
 
 def check_project_permission(projects: QuerySet[Project], manager: BaseUser) -> None:

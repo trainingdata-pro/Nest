@@ -29,7 +29,8 @@ class CreateUpdateAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
     )
     projects = serializers.PrimaryKeyRelatedField(
         queryset=Project.objects.exclude(status=ProjectStatuses.COMPLETED),
-        many=True
+        many=True,
+        required=False
     )
 
     def __init__(self, instance=None, *args, **kwargs):
@@ -50,31 +51,28 @@ class CreateUpdateAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
     def validate(self, attrs: Dict) -> Dict:
         current_manager = self.get_user()
         manager = attrs.get('manager')
-        if manager is not None:
+        if manager is None:
+            if not self.instance:
+                raise ValidationError(
+                    {'manager': ['Укажите ответственного менеджера.']}
+                )
+        else:
+            if self.instance.manager is not None and self.instance.manager != manager:
+                raise ValidationError(
+                    {'manager': ['Невозможно поменять руководителя.']}
+                )
+
             if manager.manager_profile.is_teamlead:
                 raise ValidationError(
                     {'manager': ['Операционный менеджер не может быть ответственным менеджером '
                                  'исполнителя.']}
                 )
-            else:
-                if current_manager.manager_profile.is_teamlead:
-                    if manager.teamlead != current_manager:
-                        raise ValidationError(
-                            {'manager': [f'Менеджер {manager.full_name} не в вашей команде.']}
-                        )
-                else:
-                    if current_manager.pk != manager.pk:
-                        raise ValidationError(
-                            {'manager': ['Вы не можете выбрать другого менеджера.']}
-                        )
-        else:
-            if (self.instance
-                    and current_manager.pk == self.instance.manager.pk
-                    and self.instance.second_manager.exists()):
-                raise ValidationError(
-                    {'manager': ['Невозможно убрать исполнителя из команды, т.к. он '
-                                 'работает у других менеджеров как свободный ресурс.']}
-                )
+
+            if current_manager.manager_profile.is_teamlead:
+                if manager.manager_profile.teamlead != current_manager:
+                    raise ValidationError(
+                        {'manager': [f'Менеджер {manager.full_name} не в вашей команде.']}
+                    )
 
         projects = attrs.get('projects')
         if projects:
@@ -91,80 +89,39 @@ class CreateUpdateAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
                         {'status': ['Укажите статус исполнителя.']}
                     )
 
-        is_free_resource = attrs.get('is_free_resource')
-        if is_free_resource is True:
-            free_resource_weekday_hours = attrs.get('free_resource_weekday_hours')
-            if free_resource_weekday_hours is None:
-                raise ValidationError(
-                    {'free_resource_weekday_hours': ['Укажите время работы в рабочие дни.']}
-                )
-            free_resource_day_off_hours = attrs.get('free_resource_day_off_hours')
-            if free_resource_day_off_hours is None:
-                raise ValidationError(
-                    {'free_resource_day_off_hours': ['Укажите время работы в выходные дни.']}
-                )
-
         return super().validate(attrs)
-
-    @staticmethod
-    def _update_if_free_resource(validated_data: Dict, instance: Assessor = None) -> Dict:
-        if validated_data.get('is_free_resource') is False:
-            if instance is not None and instance.second_manager.exists():
-                raise ValidationError(
-                    {'is_free_resource': ['Нельзя удалить исполнителя из свободных ресурсов, '
-                                          'т.к. он работает у других менеджеров.']}
-                )
-            validated_data['free_resource_weekday_hours'] = None
-            validated_data['free_resource_day_off_hours'] = None
-
-        return validated_data
-
-    @staticmethod
-    def _create_assessor_without_team(instance: Assessor) -> Assessor:
-        raise ValidationError(
-            'В спецификации не сказано, что делать с ассессором без менеджера, '
-            'так что передай параметр manager.'
-        )
-        # instance.is_free_resource = True
-        # instance.free_resource_weekday_hours = None
-        # instance.free_resource_day_off_hours = None
-        # instance.status = AssessorStatus.RESERVED
-        #
-        # return instance
 
     def create(self, validated_data: Dict) -> Assessor:
         skills = validated_data.pop('skills', None)
         projects = validated_data.pop('projects', None)
-        assessor = Assessor(**validated_data)
-        if assessor.manager is None:
-            assessor = self._create_assessor_without_team(assessor)
-
-        assessor.save()
-
+        assessor = Assessor.objects.create(**validated_data)
         if skills is not None:
             assessor.skills.set(skills)
 
         if projects is not None and assessor.manager is not None:
             assessor.projects.set(projects)
+            assessor.state = AssessorState.BUSY
+        else:
+            assessor.state = AssessorState.AVAILABLE
 
+        assessor.save()
         history.new_assessor_history(assessor)
-
         return assessor
 
     def update(self, instance: Assessor, validated_data: Dict) -> Assessor:
-        validated_data = self._update_if_free_resource(validated_data, instance)
         assessor = super().update(instance, validated_data)
-        if assessor.manager is None:
-            assessor = self._create_assessor_without_team(assessor)
-            assessor.save()
+        if assessor.projects.exists():
+            assessor.state = AssessorState.BUSY
+        else:
+            assessor.state = AssessorState.AVAILABLE
 
+        assessor.save()
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
             updated_assessor=assessor,
             old_projects=set(self.projects_before_update),
             old_second_managers=set(self.second_managers_before_update)
         )
-
         return assessor
 
 
@@ -207,14 +164,13 @@ class CheckAssessorSerializer(serializers.ModelSerializer):
             'middle_name',
             'manager',
             'projects',
-            'is_free_resource',
             'state'
         ]
 
 
 class CreateUpdateAssessorCredentialsSerializer(GetUserMixin, serializers.ModelSerializer):
     assessor = serializers.PrimaryKeyRelatedField(
-        queryset=Assessor.objects.filter(state=AssessorState.WORK)
+        queryset=Assessor.objects.filter(state__in=AssessorState.work_states())
     )
 
     class Meta:
@@ -300,7 +256,7 @@ class AssessorVacationSerializer(serializers.ModelSerializer):
                     {'vacation': ['Исполнитель в черном списке.']}
                 )
         else:
-            if assessor.state == AssessorState.WORK:
+            if assessor.state in AssessorState.work_states():
                 raise ValidationError(
                     {'vacation': ['Исполнитель уже работает.']}
                 )
@@ -315,7 +271,7 @@ class AssessorVacationSerializer(serializers.ModelSerializer):
             assessor.state = AssessorState.VACATION
             assessor.vacation_date = vacation_date
         else:
-            assessor.state = AssessorState.WORK
+            assessor.state = AssessorState.AVAILABLE
             assessor.vacation_date = None
 
         assessor.save()
@@ -323,91 +279,282 @@ class AssessorVacationSerializer(serializers.ModelSerializer):
         return assessor
 
 
-class UpdateFreeResourceSerializer(serializers.ModelSerializer):
-    def __init__(self, instance=None, *args, **kwargs):
-        super().__init__(instance=instance, *args, **kwargs)
-        if instance:
-            self.projects_before_update = [pr.pk for pr in instance.projects.all()]
-            self.second_managers_before_update = [man.pk for man in instance.second_manager.all()]
-            self.instance_before_update = copy(instance)
+class AssessorFreeResourceSerializer(serializers.ModelSerializer):
+    REASON = {
+        'free_time': 'Есть свободное время',
+        'project_reduction': 'Сокращение проекта',
+        'project_mismatch': 'Не подходит текущему проекту'
+    }
+
+    free_resource = serializers.BooleanField()
+    reason = serializers.ChoiceField(choices=tuple(REASON.items()), required=False)
 
     class Meta:
         model = Assessor
-        fields = ['second_manager', 'manager']
-
-    def get_manager(self) -> ManagerProfile:
-        return self.context.get('request').user.manager
-
-    @staticmethod
-    def _second_manager_validation_error(message: str) -> None:
-        raise ValidationError(
-            {'second_manager': [message]}
-        )
-
-    @staticmethod
-    def _manager_validation_error(message: str) -> None:
-        raise ValidationError(
-            {'manager': [message]}
-        )
-
-    def _check_second_manager(self, second_managers: List[ManagerProfile]) -> None:
-        current_manager = self.get_manager()
-        for manager in second_managers:
-            if self.instance.manager is None:
-                self._second_manager_validation_error(f'Исполнитель {self.instance.full_name} находится '
-                                                      f'без команды и ему не могут быть назначены доп. '
-                                                      f'менеджеры.')
-            elif manager.is_teamlead:
-                self._second_manager_validation_error(f'Операционный менеджер {manager.full_name} не может '
-                                                      'быть менеджером свободного ресурса.')
-            elif current_manager.is_teamlead and manager.teamlead != current_manager:
-                self._second_manager_validation_error(f'Менеджер {manager.full_name} не из вашей команды.')
-            elif self.instance.manager == manager:
-                self._second_manager_validation_error('Вы не можете быть дополнительным менеджером '
-                                                      'своего исполнителя.')
-
-    def _check_manager(self, new_manager: ManagerProfile = None) -> None:
-        current_manager = self.get_manager()
-        if self.instance.manager and new_manager is not None:
-            self._manager_validation_error(f'У исполнителя {self.instance.full_name} уже есть основной '
-                                           f'менеджер. Вы можете выбрать его только в качестве свободного '
-                                           f'ресурса.')
-        elif self.instance.manager is None:
-            if new_manager.is_teamlead:
-                self._manager_validation_error('Вы не можете быть менеджером исполнителя. Выберите менеджера '
-                                               'из вашей команды.')
-            elif current_manager.is_teamlead and new_manager.teamlead != current_manager:
-                self._manager_validation_error('Выберите менеджера из вашей команды.')
+        fields = [
+            'free_resource',
+            'reason',
+            'free_resource_weekday_hours',
+            'free_resource_day_off_hours'
+        ]
 
     def validate(self, attrs: Dict) -> Dict:
-        if self.instance.is_free_resource is False:
-            self._second_manager_validation_error('Исполнитель не является свободным ресурсом.')
+        assessor = self.instance
+        if not assessor.manager:
+            raise ValidationError(
+                {'vacation': ['У исполнителя нет руководителя.']}
+            )
 
-        manager = attrs.get('manager')
-        if manager is not None:
-            self._check_manager(manager)
+        if assessor.state == AssessorState.FIRED:
+            raise ValidationError(
+                {'free_resource': ['Исполнитель уволен.']}
+            )
 
-        second_manager = attrs.get('second_manager')
-        if second_manager is not None:
-            self._check_second_manager(second_manager)
+        if assessor.state == AssessorState.BLACKLIST:
+            raise ValidationError(
+                {'free_resource': ['Исполнитель в черном списке.']}
+            )
+
+        if assessor.state == AssessorState.VACATION:
+            raise ValidationError(
+                {'free_resource': ['Исполнитель в отпуске.']}
+            )
+
+        free_resource = attrs.get('free_resource')
+        if free_resource is None:
+            raise ValidationError(
+                {'free_resource': ['Это обязательное поле.']}
+            )
+
+        if free_resource:
+            if assessor.state == AssessorState.FREE_RESOURCE:
+                raise ValidationError(
+                    {'free_resource': ['Исполнитель уже находится в свободных ресурсах.']}
+                )
+
+            reason = attrs.get('reason')
+            if reason is None:
+                raise ValidationError(
+                    {'reason': ['Укажите причину.']}
+                )
+
+            free_resource_weekday_hours = attrs.get('free_resource_weekday_hours')
+            if not free_resource_weekday_hours:
+                raise ValidationError(
+                    {'free_resource_weekday_hours': ['Это обязательное поле.']}
+                )
+
+            free_resource_day_off_hours = attrs.get('free_resource_day_off_hours')
+            if not free_resource_day_off_hours:
+                raise ValidationError(
+                    {'free_resource_day_off_hours': ['Это обязательное поле.']}
+                )
+        else:
+            if assessor.state == AssessorState.AVAILABLE or assessor.state == AssessorState.BUSY:
+                raise ValidationError(
+                    {'free_resource': ['Исполнитель уже работает.']}
+                )
 
         return super().validate(attrs)
 
-    def update(self, instance: Assessor, validated_data: Dict) -> Assessor:
-        manager = validated_data.get('manager')
-        if manager is not None:
-            instance.manager = manager
-            instance.is_free_resource = False
-            instance.free_resource_weekday_hours = None
-            instance.free_resource_day_off_hours = None
+    def save(self, **kwargs) -> Assessor:
+        assessor = self.instance
+        free_resource = self.validated_data.get('free_resource')
+        reason_key = self.validated_data.get('reason')
+        reason = self.REASON.get(reason_key) if reason_key is not None else None
+        if free_resource:
+            weekday_hours = self.validated_data.get('free_resource_weekday_hours')
+            day_off_hours = self.validated_data.get('free_resource_day_off_hours.')
+            assessor.state = AssessorState.FREE_RESOURCE
+            assessor.free_resource_weekday_hours = weekday_hours
+            assessor.free_resource_day_off_hours = day_off_hours
         else:
-            instance = super().update(instance, validated_data)
+            assessor.free_resource_weekday_hours = None
+            assessor.free_resource_day_off_hours = None
+            if assessor.projects.exists():
+                assessor.state = AssessorState.BUSY
+            else:
+                assessor.state = AssessorState.AVAILABLE
 
-        history.updated_assessor_history(
-            old_assessor=self.instance_before_update,
-            updated_assessor=instance,
-            old_projects=set(self.projects_before_update),
-            old_second_managers=set(self.second_managers_before_update)
+        assessor.save()
+        history.free_resource_history(assessor, free_resource=free_resource, reason=reason)
+        return assessor
+
+
+class UnpinAssessorSerializer(serializers.ModelSerializer):
+    REASON = {
+        'project': 'Не смог работать со спецификой проекта',
+        'work': 'Не сработались',
+        'transfer': 'Передача проекта другому менеджеру'
+    }
+    reason = serializers.ChoiceField(choices=tuple(REASON.items()))
+    manager = serializers.PrimaryKeyRelatedField(
+        queryset=BaseUser.objects.filter(status=UserStatus.MANAGER),
+        required=False
+    )
+
+    class Meta:
+        model = Assessor
+        fields = ['reason', 'manager']
+
+    @staticmethod
+    def _error(error: str) -> None:
+        raise ValidationError(
+            {'detail': [error]}
         )
 
+    def validate(self, attrs: Dict) -> Dict:
+        if self.instance.state == AssessorState.FREE_RESOURCE:
+            self._error('Исполнитель находится в свободных ресурсах.')
+        if self.instance.state == AssessorState.VACATION:
+            self._error('Исполнитель находится в отпуске.')
+        if self.instance.state == AssessorState.FIRED:
+            self._error('Исполнитель уволен.')
+        if self.instance.projects.filter(manager=self.instance.manager).exists():
+            self._error('У исполнителя есть активные проекты текущего менеджера.')
+        if self.instance.manager is None:
+            self._error('У исполнителя нет руководителя.')
+
+        if attrs.get('reason') is None:
+            raise ValidationError(
+                {'reason': ['Укажите причину.']}
+            )
+
+        manager = attrs.get('manager')
+        if manager and manager.manager_profile.is_teamlead:
+            raise ValidationError(
+                {'manager': ['Операционный менеджер не может быть ответственным менеджером '
+                             'исполнителя.']}
+            )
+
+        return super().validate(attrs)
+
+    def _add_to_free_resource(self) -> Assessor:
+        self.instance.manager = None
+        self.instance.state = AssessorState.FREE_RESOURCE
+        self.instance.status = None
+        return self.instance
+
+    def _add_to_new_team(self, new_manager: BaseUser):
+        self.instance.manager = new_manager
+        if self.instance.projects.exists():
+            self.instance.state = AssessorState.BUSY
+        else:
+            self.instance.state = AssessorState.AVAILABLE
+        return self.instance
+
+    def save(self, **kwargs) -> Assessor:
+        reason_key = self.validated_data.get('reason')
+        reason = self.REASON.get(reason_key) if reason_key is not None else None
+        old_manager = self.instance.manager
+        new_manager = self.validated_data.get('manager')
+        if new_manager is None:
+            instance = self._add_to_free_resource()
+            history.unpin_with_free_resources_history(
+                assessor=instance,
+                manager=old_manager,
+                reason=reason
+            )
+        else:
+            instance = self._add_to_new_team(new_manager)
+            history.unpin_with_new_manager(
+                assessor=instance,
+                old_manager=old_manager,
+                new_manager=new_manager,
+                reason=reason
+            )
+
+        instance.save()
         return instance
+
+
+class UpdateFreeResourceSerializer(serializers.ModelSerializer):
+    pass
+
+    #     def __init__(self, instance=None, *args, **kwargs):
+    #         super().__init__(instance=instance, *args, **kwargs)
+    #         if instance:
+    #             self.projects_before_update = [pr.pk for pr in instance.projects.all()]
+    #             self.second_managers_before_update = [man.pk for man in instance.second_manager.all()]
+    #             self.instance_before_update = copy(instance)
+    #
+    class Meta:
+        model = Assessor
+        fields = ['second_manager', 'manager']
+#
+#     def get_manager(self) -> ManagerProfile:
+#         return self.context.get('request').user.manager
+#
+#     @staticmethod
+#     def _second_manager_validation_error(message: str) -> None:
+#         raise ValidationError(
+#             {'second_manager': [message]}
+#         )
+#
+#     @staticmethod
+#     def _manager_validation_error(message: str) -> None:
+#         raise ValidationError(
+#             {'manager': [message]}
+#         )
+#
+#     def _check_second_manager(self, second_managers: List[ManagerProfile]) -> None:
+#         current_manager = self.get_manager()
+#         for manager in second_managers:
+#             if self.instance.manager is None:
+#                 self._second_manager_validation_error(f'Исполнитель {self.instance.full_name} находится '
+#                                                       f'без команды и ему не могут быть назначены доп. '
+#                                                       f'менеджеры.')
+#             elif manager.is_teamlead:
+#                 self._second_manager_validation_error(f'Операционный менеджер {manager.full_name} не может '
+#                                                       'быть менеджером свободного ресурса.')
+#             elif current_manager.is_teamlead and manager.teamlead != current_manager:
+#                 self._second_manager_validation_error(f'Менеджер {manager.full_name} не из вашей команды.')
+#             elif self.instance.manager == manager:
+#                 self._second_manager_validation_error('Вы не можете быть дополнительным менеджером '
+#                                                       'своего исполнителя.')
+#
+#     def _check_manager(self, new_manager: ManagerProfile = None) -> None:
+#         current_manager = self.get_manager()
+#         if self.instance.manager and new_manager is not None:
+#             self._manager_validation_error(f'У исполнителя {self.instance.full_name} уже есть основной '
+#                                            f'менеджер. Вы можете выбрать его только в качестве свободного '
+#                                            f'ресурса.')
+#         elif self.instance.manager is None:
+#             if new_manager.is_teamlead:
+#                 self._manager_validation_error('Вы не можете быть менеджером исполнителя. Выберите менеджера '
+#                                                'из вашей команды.')
+#             elif current_manager.is_teamlead and new_manager.teamlead != current_manager:
+#                 self._manager_validation_error('Выберите менеджера из вашей команды.')
+#
+#     def validate(self, attrs: Dict) -> Dict:
+#         if self.instance.is_free_resource is False:
+#             self._second_manager_validation_error('Исполнитель не является свободным ресурсом.')
+#
+#         manager = attrs.get('manager')
+#         if manager is not None:
+#             self._check_manager(manager)
+#
+#         second_manager = attrs.get('second_manager')
+#         if second_manager is not None:
+#             self._check_second_manager(second_manager)
+#
+#         return super().validate(attrs)
+#
+#     def update(self, instance: Assessor, validated_data: Dict) -> Assessor:
+#         manager = validated_data.get('manager')
+#         if manager is not None:
+#             instance.manager = manager
+#             instance.is_free_resource = False
+#             instance.free_resource_weekday_hours = None
+#             instance.free_resource_day_off_hours = None
+#         else:
+#             instance = super().update(instance, validated_data)
+#
+#         history.updated_assessor_history(
+#             old_assessor=self.instance_before_update,
+#             updated_assessor=instance,
+#             old_projects=set(self.projects_before_update),
+#             old_second_managers=set(self.second_managers_before_update)
+#         )
+#
+#         return instance

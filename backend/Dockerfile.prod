@@ -52,6 +52,3 @@ RUN chmod -R 755 $APP_HOME
 USER assessors
 
 WORKDIR $APP_HOME/src
-
-RUN python manage.py migrate --noinput
-RUN python manage.py collectstatic --no-input

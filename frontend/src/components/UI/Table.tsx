@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
     ColumnFiltersState,
     flexRender,
@@ -9,19 +9,20 @@ import {
 } from "@tanstack/react-table";
 import Icon from "@mdi/react";
 import {mdiSort, mdiSortAscending, mdiSortDescending} from "@mdi/js";
-import {Project} from "../../models/ProjectResponse";
+interface TableProps {
+    data: any[],
+    columns: any[],
+    pages: boolean
+}
 
-// @ts-ignore
-const Table = ({data, columns, pages}) => {
+const Table = ({data, columns, pages}: TableProps) => {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [globalFilter, setGlobalFilter] = React.useState('')
-    const [showAddProject, setShowAddProject] = useState(false)
     const table = useReactTable({
         data,
         columns,
-        // Pipeline
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         onSortingChange: setSorting,
@@ -33,6 +34,7 @@ const Table = ({data, columns, pages}) => {
             columnFilters,
             globalFilter,
         },
+
         onColumnFiltersChange: setColumnFilters,
         onGlobalFilterChange: setGlobalFilter,
         getFilteredRowModel: getFilteredRowModel(),
@@ -133,6 +135,7 @@ const Table = ({data, columns, pages}) => {
                                 ))}
                             </select>
                         </div>
+
                         <div className="flex w-[120px] items-center justify-center text-sm font-medium">
                                              <span className="flex items-center gap-1">
                                                  <div>Страница</div>
