@@ -213,7 +213,8 @@ class AssessorSchema(BaseAPISchema):
             operation_summary='Remove from a team',
             operation_description='Remove a specific assessor from a team.\n'
                                   'If a manager is specified, the assessor will be assigned '
-                                  'to him, otherwise assessor will be added to free resources.\n'
+                                  'to him, otherwise assessor will be added to free resources '
+                                  'as assessor without a team.\n'
                                   'Reasons:\n'
                                   '- project (Не смог работать со спецификой проекта)\n'
                                   '- work (Не сработались)\n'
