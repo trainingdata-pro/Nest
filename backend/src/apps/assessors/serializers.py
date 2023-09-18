@@ -51,31 +51,28 @@ class CreateUpdateAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
     def validate(self, attrs: Dict) -> Dict:
         current_manager = self.get_user()
         manager = attrs.get('manager')
-        if manager is not None:
+        if manager is None:
+            if not self.instance:
+                raise ValidationError(
+                    {'manager': ['Укажите ответственного менеджера.']}
+                )
+        else:
+            if self.instance.manager is not None and self.instance.manager != manager:
+                raise ValidationError(
+                    {'manager': ['Невозможно поменять руководителя.']}
+                )
+
             if manager.manager_profile.is_teamlead:
                 raise ValidationError(
                     {'manager': ['Операционный менеджер не может быть ответственным менеджером '
                                  'исполнителя.']}
                 )
-            else:
-                if current_manager.manager_profile.is_teamlead:
-                    if manager.teamlead != current_manager:
-                        raise ValidationError(
-                            {'manager': [f'Менеджер {manager.full_name} не в вашей команде.']}
-                        )
-                else:
-                    if current_manager.pk != manager.pk:
-                        raise ValidationError(
-                            {'manager': ['Вы не можете выбрать другого менеджера.']}
-                        )
-        else:
-            if (self.instance
-                    and current_manager.pk == self.instance.manager.pk
-                    and self.instance.second_manager.exists()):
-                raise ValidationError(
-                    {'manager': ['Невозможно убрать исполнителя из команды, т.к. он '
-                                 'работает у других менеджеров как свободный ресурс.']}
-                )
+
+            if current_manager.manager_profile.is_teamlead:
+                if manager.manager_profile.teamlead != current_manager:
+                    raise ValidationError(
+                        {'manager': [f'Менеджер {manager.full_name} не в вашей команде.']}
+                    )
 
         projects = attrs.get('projects')
         if projects:
@@ -92,56 +89,12 @@ class CreateUpdateAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
                         {'status': ['Укажите статус исполнителя.']}
                     )
 
-        # is_free_resource = attrs.get('is_free_resource')
-        # if is_free_resource is True:
-        #     free_resource_weekday_hours = attrs.get('free_resource_weekday_hours')
-        #     if free_resource_weekday_hours is None:
-        #         raise ValidationError(
-        #             {'free_resource_weekday_hours': ['Укажите время работы в рабочие дни.']}
-        #         )
-        #     free_resource_day_off_hours = attrs.get('free_resource_day_off_hours')
-        #     if free_resource_day_off_hours is None:
-        #         raise ValidationError(
-        #             {'free_resource_day_off_hours': ['Укажите время работы в выходные дни.']}
-        #         )
-
         return super().validate(attrs)
-
-    @staticmethod
-    def _update_if_free_resource(validated_data: Dict, instance: Assessor = None) -> Dict:
-        if validated_data.get('is_free_resource') is False:
-            if instance is not None and instance.second_manager.exists():
-                raise ValidationError(
-                    {'is_free_resource': ['Нельзя удалить исполнителя из свободных ресурсов, '
-                                          'т.к. он работает у других менеджеров.']}
-                )
-            validated_data['free_resource_weekday_hours'] = None
-            validated_data['free_resource_day_off_hours'] = None
-
-        return validated_data
-
-    @staticmethod
-    def _create_assessor_without_team(instance: Assessor) -> Assessor:
-        raise ValidationError(
-            'В спецификации не сказано, что делать с ассессором без менеджера, '
-            'так что передай параметр manager.'
-        )
-        # instance.is_free_resource = True
-        # instance.free_resource_weekday_hours = None
-        # instance.free_resource_day_off_hours = None
-        # instance.status = AssessorStatus.RESERVED
-        #
-        # return instance
 
     def create(self, validated_data: Dict) -> Assessor:
         skills = validated_data.pop('skills', None)
         projects = validated_data.pop('projects', None)
-        assessor = Assessor(**validated_data)
-        if assessor.manager is None:
-            assessor = self._create_assessor_without_team(assessor)
-
-        assessor.save()
-
+        assessor = Assessor.objects.create(**validated_data)
         if skills is not None:
             assessor.skills.set(skills)
 
@@ -156,12 +109,7 @@ class CreateUpdateAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
         return assessor
 
     def update(self, instance: Assessor, validated_data: Dict) -> Assessor:
-        validated_data = self._update_if_free_resource(validated_data, instance)
         assessor = super().update(instance, validated_data)
-        if assessor.manager is None:
-            assessor = self._create_assessor_without_team(assessor)
-            assessor.save()
-
         if assessor.projects.exists():
             assessor.state = AssessorState.BUSY
         else:
@@ -332,11 +280,6 @@ class AssessorVacationSerializer(serializers.ModelSerializer):
 
 
 class AssessorFreeResourceSerializer(serializers.ModelSerializer):
-    # REASON = (
-    #     ('free_time', 'Есть свободное время'),
-    #     ('project_reduction', 'Сокращение проекта'),
-    #     ('project_mismatch', 'Не подходит текущему проекту')
-    # )
     REASON = {
         'free_time': 'Есть свободное время',
         'project_reduction': 'Сокращение проекта',
@@ -436,6 +379,93 @@ class AssessorFreeResourceSerializer(serializers.ModelSerializer):
         assessor.save()
         history.free_resource_history(assessor, free_resource=free_resource, reason=reason)
         return assessor
+
+
+class UnpinAssessorSerializer(serializers.ModelSerializer):
+    REASON = {
+        'project': 'Не смог работать со спецификой проекта',
+        'work': 'Не сработались',
+        'transfer': 'Передача проекта другому менеджеру'
+    }
+    reason = serializers.ChoiceField(choices=tuple(REASON.items()))
+    manager = serializers.PrimaryKeyRelatedField(
+        queryset=BaseUser.objects.filter(status=UserStatus.MANAGER),
+        required=False
+    )
+
+    class Meta:
+        model = Assessor
+        fields = ['reason', 'manager']
+
+    @staticmethod
+    def _error(error: str) -> None:
+        raise ValidationError(
+            {'detail': [error]}
+        )
+
+    def validate(self, attrs: Dict) -> Dict:
+        if self.instance.state == AssessorState.FREE_RESOURCE:
+            self._error('Исполнитель находится в свободных ресурсах.')
+        if self.instance.state == AssessorState.VACATION:
+            self._error('Исполнитель находится в отпуске.')
+        if self.instance.state == AssessorState.FIRED:
+            self._error('Исполнитель уволен.')
+        if self.instance.projects.filter(manager=self.instance.manager).exists():
+            self._error('У исполнителя есть активные проекты текущего менеджера.')
+        if self.instance.manager is None:
+            self._error('У исполнителя нет руководителя.')
+
+        if attrs.get('reason') is None:
+            raise ValidationError(
+                {'reason': ['Укажите причину.']}
+            )
+
+        manager = attrs.get('manager')
+        if manager and manager.manager_profile.is_teamlead:
+            raise ValidationError(
+                {'manager': ['Операционный менеджер не может быть ответственным менеджером '
+                             'исполнителя.']}
+            )
+
+        return super().validate(attrs)
+
+    def _add_to_free_resource(self) -> Assessor:
+        self.instance.manager = None
+        self.instance.state = AssessorState.FREE_RESOURCE
+        self.instance.status = None
+        return self.instance
+
+    def _add_to_new_team(self, new_manager: BaseUser):
+        self.instance.manager = new_manager
+        if self.instance.projects.exists():
+            self.instance.state = AssessorState.BUSY
+        else:
+            self.instance.state = AssessorState.AVAILABLE
+        return self.instance
+
+    def save(self, **kwargs) -> Assessor:
+        reason_key = self.validated_data.get('reason')
+        reason = self.REASON.get(reason_key) if reason_key is not None else None
+        old_manager = self.instance.manager
+        new_manager = self.validated_data.get('manager')
+        if new_manager is None:
+            instance = self._add_to_free_resource()
+            history.unpin_with_free_resources_history(
+                assessor=instance,
+                manager=old_manager,
+                reason=reason
+            )
+        else:
+            instance = self._add_to_new_team(new_manager)
+            history.unpin_with_new_manager(
+                assessor=instance,
+                old_manager=old_manager,
+                new_manager=new_manager,
+                reason=reason
+            )
+
+        instance.save()
+        return instance
 
 
 class UpdateFreeResourceSerializer(serializers.ModelSerializer):

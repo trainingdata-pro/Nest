@@ -35,6 +35,7 @@ class SkillsAPIViewSet(viewsets.ModelViewSet):
 @method_decorator(name='partial_update', decorator=schemas.assessor_schema.partial_update())
 @method_decorator(name='vacation', decorator=schemas.assessor_schema.vacation())
 @method_decorator(name='free_resource', decorator=schemas.assessor_schema.free_resource())
+@method_decorator(name='unpin', decorator=schemas.assessor_schema.unpin())
 # @method_decorator(name='blacklist', decorator=schemas.assessor_schema.blacklist())
 # @method_decorator(name='fire', decorator=schemas.assessor_schema.fire())
 class AssessorAPIViewSet(BaseAPIViewSet):
@@ -65,6 +66,11 @@ class AssessorAPIViewSet(BaseAPIViewSet):
             IsAuthenticated,
             permissions.IsManager,
             permissions.AssessorPermission
+        ),
+        'unpin': (
+            IsAuthenticated,
+            permissions.IsManager,
+            permissions.AssessorPermission
         )
     }
     serializer_class = {
@@ -73,7 +79,8 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         'create': serializers.CreateUpdateAssessorSerializer,
         'partial_update': serializers.CreateUpdateAssessorSerializer,
         'vacation': serializers.AssessorVacationSerializer,
-        'free_resource': serializers.AssessorFreeResourceSerializer
+        'free_resource': serializers.AssessorFreeResourceSerializer,
+        'unpin': serializers.UnpinAssessorSerializer,
         # 'blacklist': fired_serializers.BlackListAssessorSerializer,
         # 'fire': fired_serializers.FireAssessorSerializer
     }
@@ -138,6 +145,10 @@ class AssessorAPIViewSet(BaseAPIViewSet):
 
     @action(detail=True, methods=['patch'])
     def free_resource(self, request: Request, **kwargs) -> Response:
+        return self._update(request, **kwargs)
+
+    @action(detail=True, methods=['patch'])
+    def unpin(self, request: Request, **kwargs) -> Response:
         return self._update(request, **kwargs)
 
     # def _fire(self, request: Request, **kwargs) -> Response:

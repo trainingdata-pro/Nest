@@ -188,7 +188,36 @@ class AssessorSchema(BaseAPISchema):
     def free_resource(self):
         return self.swagger_auto_schema(
             operation_summary='Send / return assessor to free resources',
-            operation_description='Send / return a specific assessor to free resources.',
+            operation_description='Send / return a specific assessor to free resources.\n'
+                                  'Reason is required only when adding to free resources.\n'
+                                  'Reasons:\n'
+                                  '- free_time (Есть свободное время)\n'
+                                  '- project_reduction (Сокращение проекта)\n'
+                                  '- project_mismatch (Не подходит текущему проекту)',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique assessor ID'
+                )
+            ],
+            responses={
+                200: serializers.AssessorSerializer(),
+                **self.get_responses(400, 401, 403, 404)
+            }
+        )
+
+    def unpin(self):
+        return self.swagger_auto_schema(
+            operation_summary='Remove from a team',
+            operation_description='Remove a specific assessor from a team.\n'
+                                  'If a manager is specified, the assessor will be assigned '
+                                  'to him, otherwise assessor will be added to free resources.\n'
+                                  'Reasons:\n'
+                                  '- project (Не смог работать со спецификой проекта)\n'
+                                  '- work (Не сработались)\n'
+                                  '- transfer (Передача проекта другому менеджеру)',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
