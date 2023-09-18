@@ -42,8 +42,6 @@ RUN pip install --no-cache /wheels/*
 
 COPY . $APP_HOME
 
-RUN mkdir -p $APP_HOME/src/static
-
 # set ownership and permissions
 RUN chown -R assessors:assessors $APP_HOME
 RUN chmod -R 755 $APP_HOME
