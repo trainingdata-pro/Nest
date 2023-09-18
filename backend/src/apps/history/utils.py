@@ -47,7 +47,25 @@ class HistoryManager:
         self.perform_create(histories)
 
     def free_resource_history(self, assessor: Assessor, free_resource: bool, reason: str = None) -> None:
-        updates = self.free_resource_event(free_resource, reason)
+        updates = self.free_resource_event(free_resource, free_resource_reason=reason)
+        histories = self.create_history_objects(assessor, updates)
+        self.perform_create(histories)
+
+    def unpin_with_free_resources_history(self, assessor: Assessor, manager: BaseUser, reason: str) -> None:
+        updates = self.remove_from_team_event(manager, reason)
+        update_2 = self.free_resource_event(free_resource=True)
+        updates.extend(update_2)
+        histories = self.create_history_objects(assessor, updates)
+        self.perform_create(histories)
+
+    def unpin_with_new_manager(self,
+                               assessor: Assessor,
+                               old_manager: BaseUser,
+                               new_manager: BaseUser,
+                               reason: str) -> None:
+        updates = self.remove_from_team_event(old_manager, reason)
+        update_2 = self.add_to_team_event(new_manager)
+        updates.extend(update_2)
         histories = self.create_history_objects(assessor, updates)
         self.perform_create(histories)
 
@@ -90,12 +108,34 @@ class HistoryManager:
             }
         ]
 
-    def free_resource_event(self, free_resource: bool, reason: str = None) -> List[Dict]:
+    def free_resource_event(self, free_resource: bool, **reason) -> List[Dict]:
         event = HistoryEvents.ADD_TO_FREE_RESOURCE if free_resource else HistoryEvents.REMOVE_FROM_FREE_RESOURCE
         return [
             {
                 'event': event,
-                'description': self.__create_description(event, free_resource_reason=reason)
+                'description': self.__create_description(event, **reason)
+            }
+        ]
+
+    def remove_from_team_event(self, manager: BaseUser, reason: str) -> List[Dict]:
+        event = HistoryEvents.REMOVE_FROM_MANAGER
+        return [
+            {
+                'event': event,
+                'description': self.__create_description(
+                    HistoryEvents.REMOVE_FROM_MANAGER,
+                    manager=manager,
+                    unpin_reason=reason
+                )
+            }
+        ]
+
+    def add_to_team_event(self, new_manager: BaseUser) -> List[Dict]:
+        event = HistoryEvents.ADD_MANAGER
+        return [
+            {
+                'event': event,
+                'description': self.__create_description(event, manager=new_manager)
             }
         ]
 
@@ -132,7 +172,7 @@ class HistoryManager:
                 }
             )
 
-        if assessor.is_free_resource:
+        if assessor.state == AssessorState.FREE_RESOURCE:
             event = HistoryEvents.ADD_TO_FREE_RESOURCE
             data.append(
                 {
@@ -151,23 +191,23 @@ class HistoryManager:
         data = []
         new_projects = set(updated_assessor.projects.values_list('pk', flat=True))
         new_second_managers = set(updated_assessor.second_manager.values_list('pk', flat=True))
-        if old_assessor.manager != updated_assessor.manager:
-            if old_assessor.manager is not None:
-                event = HistoryEvents.REMOVE_FROM_MANAGER
-                data.append(
-                    {
-                        'event': event,
-                        'description': self.get_description(event, manager=old_assessor.manager)
-                    }
-                )
-            if updated_assessor.manager is not None:
-                event = HistoryEvents.ADD_MANAGER
-                data.append(
-                    {
-                        'event': event,
-                        'description': self.get_description(event, manager=updated_assessor.manager)
-                    }
-                )
+        # if old_assessor.manager != updated_assessor.manager:
+        #     if old_assessor.manager is not None:
+        #         event = HistoryEvents.REMOVE_FROM_MANAGER
+        #         data.append(
+        #             {
+        #                 'event': event,
+        #                 'description': self.get_description(event, manager=old_assessor.manager)
+        #             }
+        #         )
+        #     if updated_assessor.manager is not None:
+        #         event = HistoryEvents.ADD_MANAGER
+        #         data.append(
+        #             {
+        #                 'event': event,
+        #                 'description': self.get_description(event, manager=updated_assessor.manager)
+        #             }
+        #         )
 
         # if old_assessor.is_free_resource != updated_assessor.is_free_resource:
         #     if updated_assessor.is_free_resource is True:
@@ -265,7 +305,8 @@ class HistoryManager:
                              project: Iterable[str] = None,
                              second_manager: Iterable[BaseUser] = None,
                              fired_item: Union[Fired, BlackList] = None,
-                             free_resource_reason: str = None) -> str:
+                             free_resource_reason: str = None,
+                             unpin_reason: str = None) -> str:
         projects = ', '.join(project) if project is not None else None
         second_managers = ', '.join([
             f'{manager.full_name} (@{manager.username})' for manager in second_manager
@@ -289,13 +330,15 @@ class HistoryManager:
         elif event == HistoryEvents.ADD_MANAGER:
             description = f'Закреплен за менеджером {manager_info}'
         elif event == HistoryEvents.REMOVE_FROM_MANAGER:
-            description = f'Откреплен от менеджера {manager_info}'
+            description = f'Откреплен от менеджера {manager_info} по причине "{unpin_reason}"'
         elif event == HistoryEvents.ADD_PROJECT:
             description = f'Назначен на проект(ы): {projects}'
         elif event == HistoryEvents.REMOVE_PROJECT:
             description = f'Удален с проекта(ов): {projects}'
         elif event == HistoryEvents.ADD_TO_FREE_RESOURCE:
-            description = f'Добавлен в свободные ресурсы по причине "{free_resource_reason}"'
+            description = f'Добавлен в свободные ресурсы'
+            if free_resource_reason is not None:
+                description += f' по причине "{free_resource_reason}"'
         elif event == HistoryEvents.REMOVE_FROM_FREE_RESOURCE:
             description = 'Удален из свободных ресурсов'
         elif event == HistoryEvents.ADD_ADDITIONAL_MANAGER:
