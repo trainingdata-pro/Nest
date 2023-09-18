@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from django.db import models
 
 from core.utils.validators import allowed_chars_validator, only_manager_validator
@@ -14,10 +16,16 @@ class AssessorStatus(models.TextChoices):
 
 
 class AssessorState(models.TextChoices):
-    WORK = ('work', 'Работает')
+    AVAILABLE = ('available', 'Доступен')
+    BUSY = ('busy', 'Занят')
+    FREE_RESOURCE = ('free_resource', 'Свободный ресурс')
     VACATION = ('vacation', 'Отпуск')
     BLACKLIST = ('blacklist', 'Черный список')
-    FIRED = ('fired', 'Уволен по собственному желанию')
+    FIRED = ('fired', 'Уволен')
+
+    @classmethod
+    def work_states(cls) -> Tuple:
+        return cls.AVAILABLE.value, cls.BUSY.value, cls.FREE_RESOURCE.value
 
 
 class FreeResourceHours(models.TextChoices):
@@ -116,9 +124,8 @@ class Assessor(models.Model):
     )
     state = models.CharField(
         verbose_name='состояние',
-        max_length=10,
-        choices=AssessorState.choices,
-        default=AssessorState.WORK
+        max_length=15,
+        choices=AssessorState.choices
     )
     date_of_registration = models.DateField(
         auto_now_add=True,
@@ -128,12 +135,6 @@ class Assessor(models.Model):
         verbose_name='дата выхода из отпуска',
         blank=True,
         null=True
-    )
-
-    # TODO ?????
-    is_free_resource = models.BooleanField(
-        default=False,
-        verbose_name='св. ресурс'
     )
     free_resource_weekday_hours = models.CharField(
         max_length=5,
