@@ -130,7 +130,7 @@ class GetAllAssessorForProject(generics.ListAPIView):
         project_pk = self.kwargs.get('pk')
         return (Assessor.objects
                 .filter(projects__in=[project_pk])
-                .select_related('manager__user')
+                .select_related('manager')
                 .prefetch_related('projects__manager', 'second_manager')
                 .order_by('last_name'))
 
