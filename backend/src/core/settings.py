@@ -100,18 +100,18 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'postgres'),
-        'USER': os.getenv('POSTGRES_USER', 'postgres'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
-        'HOST': os.getenv('POSTGRES_HOST', 'postgres'),
-        'PORT': os.getenv('POSTGRES_PORT', 5432),
-    }
     # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3'
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': os.getenv('POSTGRES_DB', 'postgres'),
+    #     'USER': os.getenv('POSTGRES_USER', 'postgres'),
+    #     'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
+    #     'HOST': os.getenv('POSTGRES_HOST', 'postgres'),
+    #     'PORT': os.getenv('POSTGRES_PORT', 5432),
     # }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3'
+    }
 }
 
 # Password validation
@@ -171,7 +171,7 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
 
     'ALGORITHM': 'HS256',

@@ -251,24 +251,6 @@ class AssessorSchema(BaseAPISchema):
             }
         )
 
-    def blacklist(self):
-        return self.swagger_auto_schema(
-            operation_summary='Add assessor to blacklist',
-            operation_description='Add a specific assessor to blacklist',
-            manual_parameters=[
-                openapi.Parameter(
-                    name='id',
-                    type=openapi.TYPE_INTEGER,
-                    in_=openapi.IN_PATH,
-                    description='Unique assessor ID'
-                )
-            ],
-            responses={
-                200: serializers.AssessorSerializer(),
-                **self.get_responses(400, 401, 403, 404)
-            }
-        )
-
 
 class CheckAssessorSchema(BaseAPISchema):
     def get(self):

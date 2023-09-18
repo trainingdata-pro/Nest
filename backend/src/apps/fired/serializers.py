@@ -1,5 +1,7 @@
-from typing import Dict
+from itertools import chain
+from typing import Dict, Union
 
+from django.db.models import QuerySet
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -25,30 +27,64 @@ class BlackListReasonSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class FireAssessorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Fired
-        fields = ['reason']
+class FireAssessorSerializer(serializers.Serializer):
+    date = serializers.DateField(required=False)
+    reason = serializers.PrimaryKeyRelatedField(
+        queryset=QuerySet(chain(FiredReason.objects.all(), BlackListReason.objects.all())),
+        required=True
+    )
 
     @staticmethod
-    def __create(assessor: Assessor, reason: str) -> Fired:
-        fired = Fired.objects.create(assessor=assessor, reason=reason)
-        return fired
-
-    def create(self, validated_data: Dict):
-        assessor = self.context.get('assessor')
-        manager = assessor.manager
-        reason = validated_data.get('reason')
-        fired_assessor = remove_assessor(assessor, state=AssessorState.FIRED)
-        fired_item = self.__create(fired_assessor, reason=reason)
-
-        history.fired_assessor_history(
-            assessor=fired_assessor,
-            manager=manager,
-            fired_item=fired_item
+    def _error(error: str) -> None:
+        raise ValidationError(
+            {'detail': [error]}
         )
 
-        return fired_assessor
+    def validate(self, attrs: Dict) -> Dict:
+        assessor = self.context.get('assessor')
+        if assessor.projects.exists():
+            self._error('У исполнителя есть активные проекты.')
+        if assessor.state == AssessorState.FREE_RESOURCE:
+            self._error('Исполнитель находится в свободных ресурсах.')
+        if assessor.state == AssessorState.FIRED:
+            self._error('Исполнитель уволен.')
+        if assessor.state == AssessorState.BLACKLIST:
+            self._error('Исполнитель в черном списке.')
+        if assessor.state == AssessorState.VACATION:
+            self._error('Исполнитель в отпуске.')
+        if assessor.manager is None:
+            self._error('У исполнителя нет руководителя.')
+
+        reason = attrs.get('reason')
+        if reason is None:
+            raise ValidationError(
+                {'reason': ['Это обязательное поле.']}
+            )
+
+        return super().validate(attrs)
+
+    @staticmethod
+    def _create(assessor: Assessor, reason: str) -> Union[Fired, BlackList]:
+        pass
+        # fired = Fired.objects.create(assessor=assessor, reason=reason)
+        # return fired
+
+    def save(self, **kwargs) -> Assessor:
+        print(self.validated_data.get('reason'))
+        # assessor = self.context.get('assessor')
+        # self._check_assessor(assessor)
+        # manager = assessor.manager
+        # reason = self.validated_data.get('reason')
+        # fired_assessor = remove_assessor(assessor, state=AssessorState.FIRED)
+        # fired_item = self._create(fired_assessor, reason=reason)
+        #
+        # history.fired_assessor_history(
+        #     assessor=fired_assessor,
+        #     manager=manager,
+        #     fired_item=fired_item
+        # )
+
+        return self.instance
 
 
 class FiredSerializer(serializers.ModelSerializer):
@@ -94,7 +130,7 @@ class BackToTeamSerializer(GetUserMixin, serializers.Serializer):
         if manager is None:
             manager = self.get_user()
         assessor.manager = manager
-        assessor.state = AssessorState.WORK
+        assessor.state = AssessorState.AVAILABLE
         assessor.save()
         instance.delete()
 
@@ -105,32 +141,32 @@ class BackToTeamSerializer(GetUserMixin, serializers.Serializer):
 
         return assessor
 
-
-class BlackListAssessorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BlackList
-        fields = ['reason']
-
-    @staticmethod
-    def __create(assessor: Assessor, reason: str) -> BlackList:
-        bl = BlackList.objects.create(assessor=assessor, reason=reason)
-        return bl
-
-    def create(self, validated_data: Dict):
-        assessor = self.context.get('assessor')
-        manager = assessor.manager
-        reason = validated_data.get('reason')
-        bl_assessor = remove_assessor(assessor, state=AssessorState.BLACKLIST)
-        fired_item = self.__create(bl_assessor, reason=reason)
-
-        history.fired_assessor_history(
-            assessor=bl_assessor,
-            manager=manager,
-            fired_item=fired_item,
-            blacklist=True
-        )
-
-        return bl_assessor
+#
+# class BlackListAssessorSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = BlackList
+#         fields = ['reason']
+#
+#     @staticmethod
+#     def __create(assessor: Assessor, reason: str) -> BlackList:
+#         bl = BlackList.objects.create(assessor=assessor, reason=reason)
+#         return bl
+#
+#     def create(self, validated_data: Dict):
+#         assessor = self.context.get('assessor')
+#         manager = assessor.manager
+#         reason = validated_data.get('reason')
+#         bl_assessor = remove_assessor(assessor, state=AssessorState.BLACKLIST)
+#         fired_item = self.__create(bl_assessor, reason=reason)
+#
+#         history.fired_assessor_history(
+#             assessor=bl_assessor,
+#             manager=manager,
+#             fired_item=fired_item,
+#             blacklist=True
+#         )
+#
+#         return bl_assessor
 
 
 class BlackListSerializer(serializers.ModelSerializer):

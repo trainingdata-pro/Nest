@@ -3,10 +3,25 @@ from django.db import models
 from apps.assessors.models import Assessor
 
 
-class BaseReasonModel(models.Model):
+# class BaseReasonModel(models.Model):
+#     title = models.CharField(
+#         verbose_name='причина',
+#         max_length=255
+#     )
+#
+#     class Meta:
+#         abstract = True
+#
+#     def __str__(self):
+#         return str(self.title)
+
+class ReasonModel(models.Model):
     title = models.CharField(
         verbose_name='причина',
         max_length=255
+    )
+    blacklist_reason = models.BooleanField(
+
     )
 
     class Meta:
