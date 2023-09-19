@@ -130,13 +130,12 @@ class AssessorAPIViewSet(BaseAPIViewSet):
 
         return Response(response.data, status=status.HTTP_201_CREATED)
 
-    def _update(self, request: Request, context=None, **kwargs) -> Response:
+    def _update(self, request: Request, **kwargs) -> Response:
         instance = self.get_object()
         serializer = self.get_serializer(
             instance,
             data=request.data,
-            partial=True,
-            context=context
+            partial=True
         )
         serializer.is_valid(raise_exception=True)
         assessor = serializer.save()
@@ -161,7 +160,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
 
     @action(detail=True, methods=['patch'])
     def fire(self, request: Request, **kwargs) -> Response:
-        return self._update(request, context={'assessor': self.get_object()}, **kwargs)
+        return self._update(request, **kwargs)
 
 
 @method_decorator(name='get', decorator=schemas.check_assessor_schema.get())

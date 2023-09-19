@@ -1,7 +1,6 @@
-from itertools import chain
-from typing import Dict, Union
+import datetime
+from typing import Dict
 
-from django.db.models import QuerySet
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -9,28 +8,22 @@ from apps.history.utils import history
 from apps.assessors.models import Assessor, AssessorState
 from apps.assessors.serializers import AssessorSerializer
 from apps.users.models import BaseUser
+from core.utils.common import current_date, str_date
 from core.utils.mixins import GetUserMixin
 from core.utils.users import UserStatus
-from .models import FiredReason, BlackListReason, Fired, BlackList
-from .utils import remove_assessor
+from .models import Reason, Fired, BlackList
 
 
-class FiredReasonSerializer(serializers.ModelSerializer):
+class ReasonSerializer(serializers.ModelSerializer):
     class Meta:
-        model = FiredReason
-        fields = '__all__'
-
-
-class BlackListReasonSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BlackListReason
+        model = Reason
         fields = '__all__'
 
 
 class FireAssessorSerializer(serializers.Serializer):
     date = serializers.DateField(required=False)
     reason = serializers.PrimaryKeyRelatedField(
-        queryset=QuerySet(chain(FiredReason.objects.all(), BlackListReason.objects.all())),
+        queryset=Reason.objects.all(),
         required=True
     )
 
@@ -41,7 +34,7 @@ class FireAssessorSerializer(serializers.Serializer):
         )
 
     def validate(self, attrs: Dict) -> Dict:
-        assessor = self.context.get('assessor')
+        assessor = self.instance
         if assessor.projects.exists():
             self._error('У исполнителя есть активные проекты.')
         if assessor.state == AssessorState.FREE_RESOURCE:
@@ -61,35 +54,64 @@ class FireAssessorSerializer(serializers.Serializer):
                 {'reason': ['Это обязательное поле.']}
             )
 
+        date = attrs.get('date')
+        if date is not None:
+            now = current_date()
+            if date <= now:
+                raise ValidationError(
+                    {'date': ['Дата должна быть больше текущей.']}
+                )
+
         return super().validate(attrs)
 
     @staticmethod
-    def _create(assessor: Assessor, reason: str) -> Union[Fired, BlackList]:
-        pass
-        # fired = Fired.objects.create(assessor=assessor, reason=reason)
-        # return fired
+    def _fire(assessor: Assessor, reason: Reason) -> Fired:
+        assessor.state = AssessorState.FIRED
+        fired = Fired.objects.create(assessor=assessor, reason=reason)
+        return fired
+
+    @staticmethod
+    def _blacklist(assessor: Assessor, reason: Reason) -> BlackList:
+        assessor.state = AssessorState.BLACKLIST
+        blacklist = BlackList.objects.create(assessor=assessor, reason=reason)
+        return blacklist
+
+    def _create(self, assessor: Assessor, reason: Reason, date: datetime.date = None) -> Assessor:
+        to_blacklist = False
+        if reason.blacklist_reason:
+            to_blacklist = True
+            item = self._blacklist(assessor, reason)
+        else:
+            item = self._fire(assessor, reason)
+
+        if date is not None:
+            date = str_date(date)
+
+        history.fired_assessor_history(
+            assessor=assessor,
+            manager=assessor.manager,
+            fired_item=item,
+            blacklist=to_blacklist,
+            date_to_return=date
+        )
+
+        assessor.manager = None
+        assessor.status = None
+        assessor.save()
+        return assessor
 
     def save(self, **kwargs) -> Assessor:
-        print(self.validated_data.get('reason'))
-        # assessor = self.context.get('assessor')
-        # self._check_assessor(assessor)
-        # manager = assessor.manager
-        # reason = self.validated_data.get('reason')
-        # fired_assessor = remove_assessor(assessor, state=AssessorState.FIRED)
-        # fired_item = self._create(fired_assessor, reason=reason)
-        #
-        # history.fired_assessor_history(
-        #     assessor=fired_assessor,
-        #     manager=manager,
-        #     fired_item=fired_item
-        # )
-
-        return self.instance
+        instance = self._create(
+            assessor=self.instance,
+            reason=self.validated_data.get('reason'),
+            date=self.validated_data.get('date')
+        )
+        return instance
 
 
 class FiredSerializer(serializers.ModelSerializer):
     assessor = AssessorSerializer(read_only=True)
-    reason = FiredReasonSerializer(read_only=True)
+    reason = ReasonSerializer(read_only=True)
 
     class Meta:
         model = Fired
@@ -141,37 +163,10 @@ class BackToTeamSerializer(GetUserMixin, serializers.Serializer):
 
         return assessor
 
-#
-# class BlackListAssessorSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = BlackList
-#         fields = ['reason']
-#
-#     @staticmethod
-#     def __create(assessor: Assessor, reason: str) -> BlackList:
-#         bl = BlackList.objects.create(assessor=assessor, reason=reason)
-#         return bl
-#
-#     def create(self, validated_data: Dict):
-#         assessor = self.context.get('assessor')
-#         manager = assessor.manager
-#         reason = validated_data.get('reason')
-#         bl_assessor = remove_assessor(assessor, state=AssessorState.BLACKLIST)
-#         fired_item = self.__create(bl_assessor, reason=reason)
-#
-#         history.fired_assessor_history(
-#             assessor=bl_assessor,
-#             manager=manager,
-#             fired_item=fired_item,
-#             blacklist=True
-#         )
-#
-#         return bl_assessor
-
 
 class BlackListSerializer(serializers.ModelSerializer):
     assessor = AssessorSerializer(read_only=True)
-    reason = BlackListReasonSerializer(read_only=True)
+    reason = ReasonSerializer(read_only=True)
 
     class Meta:
         model = BlackList

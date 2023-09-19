@@ -236,7 +236,10 @@ class AssessorSchema(BaseAPISchema):
     def fire(self):
         return self.swagger_auto_schema(
             operation_summary='Fire assessor',
-            operation_description='Fire a specific assessor',
+            operation_description='If the reason has blacklist=True, then '
+                                  'the assessor will be added to the blacklist. '
+                                  'The "date" parameter is optional (the date '
+                                  'when you can return to the assessor)',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
