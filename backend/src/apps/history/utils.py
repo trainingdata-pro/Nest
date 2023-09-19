@@ -31,8 +31,14 @@ class HistoryManager:
                                assessor: Assessor,
                                manager: BaseUser,
                                fired_item: Union[Fired, BlackList],
-                               blacklist: bool = False) -> None:
-        updates = self.fired_event(manager=manager, fired_item=fired_item, blacklist=blacklist)
+                               blacklist: bool = False,
+                               date_to_return: str = None) -> None:
+        updates = self.fired_event(
+            manager=manager,
+            fired_item=fired_item,
+            blacklist=blacklist,
+            date_to_return=date_to_return
+        )
         histories = self.create_history_objects(assessor, updates)
         self.perform_create(histories)
 
@@ -72,12 +78,18 @@ class HistoryManager:
     def fired_event(self,
                     manager: BaseUser,
                     fired_item: Union[Fired, BlackList],
-                    blacklist: bool = True) -> List[Dict]:
+                    blacklist: bool = True,
+                    date_to_return: str = None) -> List[Dict]:
         event = HistoryEvents.BLACKLIST if blacklist else HistoryEvents.LEFT
         return [
             {
                 'event': event,
-                'description': self.get_description(event, manager=manager, fired_item=fired_item)
+                'description': self.get_description(
+                    event,
+                    manager=manager,
+                    fired_item=fired_item,
+                    date_to_return=date_to_return
+                )
             }
         ]
 
@@ -86,7 +98,7 @@ class HistoryManager:
         return [
             {
                 'event': event,
-                'description': self.__create_description(event)
+                'description': self.get_description(event)
             }
         ]
 
@@ -95,7 +107,7 @@ class HistoryManager:
         return [
             {
                 'event': event,
-                'description': self.__create_description(event, manager=manager)
+                'description': self.get_description(event, manager=manager)
             }
         ]
 
@@ -104,7 +116,7 @@ class HistoryManager:
         return [
             {
                 'event': event,
-                'description': self.__create_description(event, manager=manager)
+                'description': self.get_description(event, manager=manager)
             }
         ]
 
@@ -113,7 +125,7 @@ class HistoryManager:
         return [
             {
                 'event': event,
-                'description': self.__create_description(event, **reason)
+                'description': self.get_description(event, **reason)
             }
         ]
 
@@ -122,7 +134,7 @@ class HistoryManager:
         return [
             {
                 'event': event,
-                'description': self.__create_description(
+                'description': self.get_description(
                     HistoryEvents.REMOVE_FROM_MANAGER,
                     manager=manager,
                     unpin_reason=reason
@@ -135,7 +147,7 @@ class HistoryManager:
         return [
             {
                 'event': event,
-                'description': self.__create_description(event, manager=new_manager)
+                'description': self.get_description(event, manager=new_manager)
             }
         ]
 
@@ -191,37 +203,6 @@ class HistoryManager:
         data = []
         new_projects = set(updated_assessor.projects.values_list('pk', flat=True))
         new_second_managers = set(updated_assessor.second_manager.values_list('pk', flat=True))
-        # if old_assessor.manager != updated_assessor.manager:
-        #     if old_assessor.manager is not None:
-        #         event = HistoryEvents.REMOVE_FROM_MANAGER
-        #         data.append(
-        #             {
-        #                 'event': event,
-        #                 'description': self.get_description(event, manager=old_assessor.manager)
-        #             }
-        #         )
-        #     if updated_assessor.manager is not None:
-        #         event = HistoryEvents.ADD_MANAGER
-        #         data.append(
-        #             {
-        #                 'event': event,
-        #                 'description': self.get_description(event, manager=updated_assessor.manager)
-        #             }
-        #         )
-
-        # if old_assessor.is_free_resource != updated_assessor.is_free_resource:
-        #     if updated_assessor.is_free_resource is True:
-        #         event = HistoryEvents.ADD_TO_FREE_RESOURCE
-        #     else:
-        #         event = HistoryEvents.REMOVE_FROM_FREE_RESOURCE
-        #
-        #     data.append(
-        #         {
-        #             'event': event,
-        #             'description': self.get_description(event)
-        #         }
-        #     )
-
         if new_second_managers != old_second_managers:
             removed_id = [manager_id for manager_id in old_second_managers if manager_id not in new_second_managers]
             if removed_id:
@@ -268,31 +249,31 @@ class HistoryManager:
                     }
                 )
 
-        if updated_assessor.state != old_assessor.state:
-            if updated_assessor.state == AssessorState.BLACKLIST:
-                event = HistoryEvents.BLACKLIST
-                blacklist_item = BlackList.objects.get(assessor=updated_assessor)
-                data.append(
-                    {
-                        'event': event,
-                        'description': self.get_description(event,
-                                                            manager=old_assessor.manager,
-                                                            fired_item=blacklist_item)
-                    }
-                )
-            elif updated_assessor.state == AssessorState.FIRED:
-                event = HistoryEvents.LEFT
-                fired_item = Fired.objects.get(assessor=updated_assessor)
-                data.append(
-                    {
-                        'event': event,
-                        'description': self.get_description(event,
-                                                            manager=old_assessor.manager,
-                                                            fired_item=fired_item)
-                    }
-                )
-            elif updated_assessor.state in AssessorState.work_states():
-                data.extend(self.returned_event(manager=updated_assessor.manager))
+        # if updated_assessor.state != old_assessor.state:
+        #     if updated_assessor.state == AssessorState.BLACKLIST:
+        #         event = HistoryEvents.BLACKLIST
+        #         blacklist_item = BlackList.objects.get(assessor=updated_assessor)
+        #         data.append(
+        #             {
+        #                 'event': event,
+        #                 'description': self.get_description(event,
+        #                                                     manager=old_assessor.manager,
+        #                                                     fired_item=blacklist_item)
+        #             }
+        #         )
+        #     elif updated_assessor.state == AssessorState.FIRED:
+        #         event = HistoryEvents.LEFT
+        #         fired_item = Fired.objects.get(assessor=updated_assessor)
+        #         data.append(
+        #             {
+        #                 'event': event,
+        #                 'description': self.get_description(event,
+        #                                                     manager=old_assessor.manager,
+        #                                                     fired_item=fired_item)
+        #             }
+        #         )
+        #     elif updated_assessor.state in AssessorState.work_states():
+        #         data.extend(self.returned_event(manager=updated_assessor.manager))
 
         return data
 
@@ -306,7 +287,8 @@ class HistoryManager:
                              second_manager: Iterable[BaseUser] = None,
                              fired_item: Union[Fired, BlackList] = None,
                              free_resource_reason: str = None,
-                             unpin_reason: str = None) -> str:
+                             unpin_reason: str = None,
+                             date_to_return: str = None) -> str:
         projects = ', '.join(project) if project is not None else None
         second_managers = ', '.join([
             f'{manager.full_name} (@{manager.username})' for manager in second_manager
@@ -318,8 +300,9 @@ class HistoryManager:
             description = f'Добавлен в ЧС менеджером {manager_info} по ' \
                           f'причине "{fired_item.reason}"'
         elif event == HistoryEvents.LEFT:
+            date = date_to_return if date_to_return else '-'
             description = f'Уволен по собственному желанию менеджером {manager_info} ' \
-                          f'по причине "{fired_item.reason}"'
+                          f'по причине "{fired_item.reason}". Дата возможного возврата: {date}'
         elif event == HistoryEvents.RETURNED:
             description = f'Удален из уволенных по собственному желанию ' \
                           f'и закреплен за менеджером {manager_info}'
