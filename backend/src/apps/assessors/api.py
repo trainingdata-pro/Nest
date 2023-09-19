@@ -36,8 +36,7 @@ class SkillsAPIViewSet(viewsets.ModelViewSet):
 @method_decorator(name='vacation', decorator=schemas.assessor_schema.vacation())
 @method_decorator(name='free_resource', decorator=schemas.assessor_schema.free_resource())
 @method_decorator(name='unpin', decorator=schemas.assessor_schema.unpin())
-# @method_decorator(name='blacklist', decorator=schemas.assessor_schema.blacklist())
-# @method_decorator(name='fire', decorator=schemas.assessor_schema.fire())
+@method_decorator(name='fire', decorator=schemas.assessor_schema.fire())
 class AssessorAPIViewSet(BaseAPIViewSet):
     permission_classes = {
         'retrieve': (
@@ -71,6 +70,11 @@ class AssessorAPIViewSet(BaseAPIViewSet):
             IsAuthenticated,
             permissions.IsManager,
             permissions.AssessorPermission
+        ),
+        'fire': (
+            IsAuthenticated,
+            permissions.IsManager,
+            permissions.AssessorPermission
         )
     }
     serializer_class = {
@@ -81,8 +85,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         'vacation': serializers.AssessorVacationSerializer,
         'free_resource': serializers.AssessorFreeResourceSerializer,
         'unpin': serializers.UnpinAssessorSerializer,
-        # 'blacklist': fired_serializers.BlackListAssessorSerializer,
-        # 'fire': fired_serializers.FireAssessorSerializer
+        'fire': fired_serializers.FireAssessorSerializer
     }
     http_method_names = ['get', 'post', 'patch']
     filterset_class = filters.AssessorFilter
@@ -127,17 +130,22 @@ class AssessorAPIViewSet(BaseAPIViewSet):
 
         return Response(response.data, status=status.HTTP_201_CREATED)
 
-    def _update(self, request: Request, *args, **kwargs) -> Response:
+    def _update(self, request: Request, context=None, **kwargs) -> Response:
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer = self.get_serializer(
+            instance,
+            data=request.data,
+            partial=True,
+            context=context
+        )
         serializer.is_valid(raise_exception=True)
         assessor = serializer.save()
         response = serializers.AssessorSerializer(assessor)
 
         return Response(response.data, status=status.HTTP_200_OK)
 
-    def partial_update(self, request: Request, *args, **kwargs) -> Response:
-        return self._update(request, *args, **kwargs)
+    def partial_update(self, request: Request, **kwargs) -> Response:
+        return self._update(request, **kwargs)
 
     @action(detail=True, methods=['patch'])
     def vacation(self, request: Request, **kwargs) -> Response:
@@ -151,25 +159,9 @@ class AssessorAPIViewSet(BaseAPIViewSet):
     def unpin(self, request: Request, **kwargs) -> Response:
         return self._update(request, **kwargs)
 
-    # def _fire(self, request: Request, **kwargs) -> Response:
-    #     instance = self.get_object()
-    #     serializer = self.get_serializer(
-    #         data=request.data,
-    #         context={'assessor': instance}
-    #     )
-    #     serializer.is_valid(raise_exception=True)
-    #     assessor = serializer.save()
-    #     response = serializers.AssessorSerializer(assessor)
-    #
-    #     return Response(response.data, status=status.HTTP_200_OK)
-    #
-    # @action(detail=True, methods=['patch'])
-    # def blacklist(self, request: Request, **kwargs) -> Response:
-    #     return self._fire(request, **kwargs)
-    #
-    # @action(detail=True, methods=['patch'])
-    # def fire(self, request: Request, **kwargs) -> Response:
-    #     return self._fire(request, **kwargs)
+    @action(detail=True, methods=['patch'])
+    def fire(self, request: Request, **kwargs) -> Response:
+        return self._update(request, context={'assessor': self.get_object()}, **kwargs)
 
 
 @method_decorator(name='get', decorator=schemas.check_assessor_schema.get())
