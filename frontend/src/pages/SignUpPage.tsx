@@ -48,7 +48,7 @@ const SignInPage = () => {
                     <form className="flex h-[100%] justify-center items-center" onSubmit={handleSubmit(onSubmit)}>
                         <div className="w-[85%]">
                             <h1 className="text-[32px] font-bold mb-10">Регистрация</h1>
-                            <section className="flex justify-between">
+                            <section className="flex justify-between my-2">
                                 <div>
                                     <div className='items-center'>
                                         <input {...register('last_name', {
@@ -56,7 +56,7 @@ const SignInPage = () => {
                                                 value: /^[А-ЯЁа-яёA-Za-z]+$/,
                                                 message: "Поле должно содержать символы: A-z,А-я"
                                             },
-                                        })} type="text" className="py-[19px] pl-[5px] bg-[#F4F8F7] rounded-[8px] "
+                                        })} type="text" className="py-[12px] pl-[5px] bg-[#F4F8F7] rounded-[8px] "
                                                placeholder="Фамилия"/>
 
                                     </div>
@@ -69,7 +69,7 @@ const SignInPage = () => {
                                                 value: /^[А-ЯЁа-яёA-Za-z]+$/,
                                                 message: "Поле должно содержать символы: A-z,А-я"
                                             },
-                                        })} type="text" className="py-[19px] pl-[5px] bg-[#F4F8F7] rounded-[8px] "
+                                        })} type="text" className="py-[12px] pl-[5px] bg-[#F4F8F7] rounded-[8px] "
                                                placeholder="Имя"/>
 
                                     </div>
@@ -82,14 +82,14 @@ const SignInPage = () => {
                                                 value: /^[А-ЯЁа-яёA-Za-z]+$/,
                                                 message: "Поле должно содержать символы: A-z,А-я"
                                             },
-                                        })} type="text" className="py-[19px] pl-[5px] bg-[#F4F8F7] rounded-[8px] "
+                                        })} type="text" className="py-[12px] pl-[5px] bg-[#F4F8F7] rounded-[8px] "
                                                placeholder="Отчество"/>
 
                                     </div>
                                     <Error>{errors.middle_name && errors.middle_name?.message}</Error>
                                 </div>
                             </section>
-                            <React.Fragment>
+                            <div className="my-2">
                                 <div className='flex relative items-center'>
                                     <EnvelopeIcon className="absolute ml-[10px] h-6 w-6 text-gray-500"/>
                                     <input {...register('email', {
@@ -97,13 +97,13 @@ const SignInPage = () => {
                                             value: /^[a-zA-Z0-9._-]+@trainingdata.pro$/,
                                             message: "Укажите корпоративную почту"
                                         },
-                                    })} autoComplete="new-email" type="text" className="h-[60px] pl-[40px] w-full bg-[#F4F8F7] rounded-[8px] "
+                                    })} autoComplete="new-email" type="text" className="py-[12px] pl-[40px] w-full bg-[#F4F8F7] rounded-[8px] "
                                            placeholder="Email"/>
 
                                 </div>
                                 <Error>{errors.email && errors.email?.message}</Error>
-                            </React.Fragment>
-                            <React.Fragment>
+                            </div>
+                            <div className="my-2">
                                 <div className='flex relative items-center'>
                                     <svg className="absolute ml-[10px] h-6 w-6 text-gray-500"
                                          xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"
@@ -114,38 +114,39 @@ const SignInPage = () => {
                                     </svg>
                                     <input {...register('username', {
                                         pattern: {
-                                            value: /^[A-Za-z\d_]{5,32}$/,
-                                            message: "Никнейм должен содержать символы: A-z, _ Длина: 5-32 символа"
+                                            value: /^@[A-Za-z\d_]{5,32}$/,
+                                            message: "Никнейм должен содержать символы:@, A-z, _ Длина: 5-32 символа"
                                         }
                                     })} type="text"
-                                           className="h-[60px] pl-[40px] w-full bg-[#F4F8F7] rounded-[8px] "
+                                           autoComplete="new-username"
+                                           className="py-[12px] pl-[40px] w-full bg-[#F4F8F7] rounded-[8px] "
                                            placeholder="Ник в ТГ"/>
                                 </div>
                                 <Error>{errors.username && errors.username?.message}</Error>
-                            </React.Fragment>
-                            <React.Fragment>
+                            </div>
+                            <div className="my-2">
                                 <div className='flex relative items-center'>
                                     <LockClosedIcon className="absolute ml-[10px] h-6 w-6 text-gray-500"/>
                                     <input {...register('password', {
                                         pattern: {
                                             value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/,
-                                            message: "Пароль не соответсвует требованиям"
+                                            message: "Пароль должен содержать минимум 8 символов, Буквы A-z, и один из спецсиволов !@#$%^&*"
                                         }
                                     })} type="password"
-                                           className="h-[60px] pl-[40px] w-full bg-[#F4F8F7] rounded-[8px] "
+                                           className="py-[12px] pl-[40px] w-full bg-[#F4F8F7] rounded-[8px] "
                                            placeholder="Пароль"/>
                                 </div>
                                 <Error>{errors.password && errors.password?.message}</Error>
-                            </React.Fragment>
-                            <React.Fragment>
+                            </div>
+                            <div className="my-2">
                                 <div className='flex relative items-center'>
                                     <LockClosedIcon className="absolute ml-[10px] h-6 w-6 text-gray-500"/>
                                     <input {...register('password2')} type="password"
-                                           className="h-[60px] pl-[40px] w-full bg-[#F4F8F7] rounded-[8px] "
+                                           className="py-[12px] pl-[40px] w-full bg-[#F4F8F7] rounded-[8px] "
                                            placeholder="Повторите пароль"/>
                                 </div>
                                 <Error>{watch('password') !== watch('password2') ? 'Пароли не совпадают' : ''}</Error>
-                            </React.Fragment>
+                            </div>
                             <button disabled={isLoading}
                                     className="flex justify-center bg-[#5970F6] py-3 text-white w-full items-center rounded-[8px]"
                                     type="submit">{!isLoading ? "Регистрация" :

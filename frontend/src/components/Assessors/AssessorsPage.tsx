@@ -4,7 +4,7 @@ import {createColumnHelper} from "@tanstack/react-table";
 import {NavLink, useNavigate} from "react-router-dom";
 import {Assessor} from "../../models/AssessorResponse";
 import AssessorService from "../../services/AssessorService";
-import AddAssessorForm from "../AddAssessorForm";
+import AddAssessorForm from "./AddAssessorForm";
 import Dialog from "../UI/Dialog";
 
 const AssessorsPage = () => {
@@ -13,7 +13,6 @@ const AssessorsPage = () => {
         "full": "Занят",
         "partial": "Частичная загруженность"
     }
-    const navigation = useNavigate()
     const columnHelper = createColumnHelper<Assessor>()
     useEffect(() => {
         AssessorService.fetchManagersAssessors().then(res => setAssessors(res.data.results))

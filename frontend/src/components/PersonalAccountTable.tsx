@@ -1,4 +1,4 @@
-import React, {useContext, useMemo, useState} from 'react';
+import React, {HTMLProps, useContext, useMemo, useState} from 'react';
 import {
     ColumnDef,
 } from "@tanstack/react-table";
@@ -11,10 +11,31 @@ import {observer} from "mobx-react-lite";
 import Loader from "./UI/Loader";
 import Table from "./UI/Table";
 import ProjectForm from "./ProjectForm";
-import SideBar from "./UI/Dialog";
 import ManagerService from "../services/ManagerService";
 import { PencilSquareIcon } from '@heroicons/react/24/solid';
+import Dialog from "./UI/Dialog";
+function IndeterminateCheckbox({
+                                   indeterminate,
+                                   className = '',
+                                   ...rest
+                               }: { indeterminate?: boolean } & HTMLProps<HTMLInputElement>) {
+    const ref = React.useRef<HTMLInputElement>(null!)
 
+    React.useEffect(() => {
+        if (typeof indeterminate === 'boolean') {
+            ref.current.indeterminate = !rest.checked && indeterminate
+        }
+    }, [ref, indeterminate])
+
+    return (
+        <input
+            type="checkbox"
+            ref={ref}
+            className={className + ' cursor-pointer'}
+            {...rest}
+        />
+    )
+}
 const PersonalAccountTable = () => {
     const {store} = useContext(Context)
     const navigation = useNavigate()
@@ -28,6 +49,31 @@ const PersonalAccountTable = () => {
     const [projectsId, setProjectId] = useState(0)
     const columns = useMemo<ColumnDef<Project>[]>(() => {
         return [
+            {
+                id: 'select',
+                header: ({ table }) => (
+                    <IndeterminateCheckbox
+                        {...{
+                            checked: table.getIsAllRowsSelected(),
+                            indeterminate: table.getIsSomeRowsSelected(),
+                            onChange: table.getToggleAllRowsSelectedHandler(),
+                        }}
+                    />
+                ),
+                cell: ({ row }) => (
+                    <div className="px-1">
+                        <IndeterminateCheckbox
+                            {...{
+                                checked: row.getIsSelected(),
+                                disabled: !row.getCanSelect(),
+                                indeterminate: row.getIsSomeSelected(),
+                                onChange: row.getToggleSelectedHandler(),
+                            }}
+                        />
+                    </div>
+                ),
+                size: 30
+            },
             {
                 accessorKey: 'asana_id',
                 header: 'Asana ID',
@@ -69,7 +115,7 @@ const PersonalAccountTable = () => {
             },
             {
                 accessorKey: 'id',
-                header: 'Статус проекта',
+                header: '',
                 cell: info => <PencilSquareIcon className="cursor-pointer h-6 w-6 text-gray-500" onClick={() => {
                     setProjectId(info.row.original.id)
                     setShowSidebar(true)
@@ -113,15 +159,15 @@ const PersonalAccountTable = () => {
     }
     return (
         <>
-            <div className="container pt-20 h-full pr-8 pl-8 items-center">
-                <SideBar isOpen={showSidebar} setIsOpen={setShowSidebar}>
+            <div className="container pt-20 h-full items-center">
+                <Dialog isOpen={showSidebar} setIsOpen={setShowSidebar}>
                     <div className="w-[30rem]">
                     <ProjectForm projectId={projectsId}
                                         projects={data}
                                      setNewData={setData}
                                      closeSidebar={setShowSidebar}/>
                     </div>
-                    </SideBar>
+                    </Dialog>
                 <div className="h-full w-full">
                     <div className="flex justify-end my-2">
                         <button className="bg-[#5970F6] rounded-md text-white px-4 py-2"

@@ -7,6 +7,7 @@ import {Context} from "../../index";
 import {PencilSquareIcon} from "@heroicons/react/24/outline";
 import {CheckIcon} from "@heroicons/react/24/solid";
 import {IManager} from "../../models/ManagerResponse";
+import Header from "../Header/Header";
 
 
 interface AssessorPatch {
@@ -85,20 +86,7 @@ const AssessorPage = () => {
     const [isLoading, setIsLoading] = useState(false)
     return (
         <div>
-            <header className="fixed h-20 w-screen border-b border-gray-200 bg-white">
-                <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
-                    <div
-                        className="inline-flex items-center border border-b-black hover:bg-gray-200 justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 py-2 px-4"
-                    >
-                        <NavLink
-                            to='/dashboard/main'>Service Desk</NavLink>
-                    </div>
-
-                    <div className="border border-black ml-3 h-10 py-2 px-4">
-                        {assessor?.last_name} {assessor?.first_name}
-                    </div>
-                </div>
-            </header>
+            <Header/>
             <div className="container pt-24">
                 <table className="w-full border border-black">
                     <thead className="border border-black">
