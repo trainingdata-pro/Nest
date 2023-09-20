@@ -108,10 +108,7 @@ class FiredSchema(BaseAPISchema):
     def back(self):
         return self.swagger_auto_schema(
             operation_summary='Return assessor to a team',
-            operation_description='Return assessor to a team.\n'
-                                  'The "manager" field is required for operational managers. '
-                                  'Otherwise, the user who made the request will be assigned '
-                                  'as the responsible manager.',
+            operation_description='Return assessor to a team.\n',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',

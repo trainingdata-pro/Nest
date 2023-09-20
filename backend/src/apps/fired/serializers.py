@@ -118,52 +118,6 @@ class FiredSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class BackToTeamSerializer(GetUserMixin, serializers.Serializer):
-    manager = serializers.PrimaryKeyRelatedField(
-        queryset=BaseUser.objects.filter(status=UserStatus.MANAGER)
-    )
-
-    def validate(self, attrs: Dict) -> Dict:
-        current_manager = self.get_user()
-        manager = attrs.get('manager')
-        if manager is None:
-            if current_manager.manager_profile.is_teamlead:
-                raise ValidationError(
-                    {'manager': ['Выберите ответственного менеджера.']}
-                )
-        else:
-            if manager.manager_profile.is_teamlead:
-                raise ValidationError(
-                    {'manager': ['Операционный менеджер не может быть '
-                                 'ответственным менеджером исполнителя.']}
-                )
-
-            if (current_manager.manager_profile.is_teamlead
-                    and manager.manager_profile.teamlead.pk != current_manager.pk):
-                raise ValidationError(
-                    {'manager': [f'Менеджер {manager.full_name} не в вашей команде.']}
-                )
-
-        return super().validate(attrs)
-
-    def update(self, instance: Fired, validated_data: Dict) -> Assessor:
-        assessor = instance.assessor
-        manager = validated_data.get('manager')
-        if manager is None:
-            manager = self.get_user()
-        assessor.manager = manager
-        assessor.state = AssessorState.AVAILABLE
-        assessor.save()
-        instance.delete()
-
-        history.returned_history(
-            assessor=assessor,
-            manager=manager
-        )
-
-        return assessor
-
-
 class BlackListSerializer(serializers.ModelSerializer):
     assessor = AssessorSerializer(read_only=True)
     reason = ReasonSerializer(read_only=True)
@@ -171,3 +125,48 @@ class BlackListSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlackList
         fields = '__all__'
+
+
+class BackToTeamSerializer(GetUserMixin, serializers.Serializer):
+    manager = serializers.PrimaryKeyRelatedField(
+        queryset=BaseUser.objects.filter(status=UserStatus.MANAGER),
+        required=True
+    )
+
+    @staticmethod
+    def _error(error: str) -> None:
+        raise ValidationError(
+            {'manager': [error]}
+        )
+
+    @staticmethod
+    def _back_to_team(fired: Fired, manager: BaseUser) -> Assessor:
+        assessor = fired.assessor
+        assessor.manager = manager
+        assessor.state = AssessorState.AVAILABLE
+        assessor.save()
+        fired.delete()
+        return assessor
+
+    def validate(self, attrs: Dict) -> Dict:
+        manager = attrs.get('manager')
+        if manager is None:
+            self._error('Укажите ответственного менеджера.')
+        else:
+            if manager.manager_profile.is_teamlead:
+                self._error('Операционный менеджер не может быть '
+                            'ответственным менеджером исполнителя.')
+
+            current_user = self.get_user()
+            if current_user.manager_profile.is_teamlead and manager.manager_profile.teamlead.pk != current_user.pk:
+                self._error(f'Менеджер {manager.full_name} не в вашей команде.')
+
+        return super().validate(attrs)
+
+    def update(self, instance: Fired, validated_data: Dict) -> Assessor:
+        assessor = self._back_to_team(fired=instance, manager=validated_data.get('manager'))
+        history.returned_history(
+            assessor=assessor,
+            manager=assessor.manager
+        )
+        return assessor
