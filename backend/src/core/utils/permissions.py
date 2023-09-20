@@ -38,6 +38,13 @@ class AssessorPermission(BasePermission):
                 or request.user.pk == obj.manager.manager_profile.teamlead.pk)
 
 
+class AssessorPermissionExtended(BasePermission):
+    def has_object_permission(self, request: Request, view: APIView, obj: Assessor) -> bool:
+        return (request.user.pk == obj.manager.pk
+                or request.user.pk == obj.manager.manager_profile.teamlead.pk
+                or request.user in obj.second_manager.all())
+
+
 class ProjectWHPermission(BasePermission):
     def has_object_permission(self, request: Request, view: APIView, obj: ProjectWorkingHours) -> bool:
         return (request.user.pk == obj.assessor.manager.pk

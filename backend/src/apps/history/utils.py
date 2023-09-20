@@ -16,8 +16,8 @@ class HistoryManager:
     def updated_assessor_history(self,
                                  old_assessor: Assessor,
                                  updated_assessor: Assessor,
-                                 old_projects: Set[int],
-                                 old_second_managers: Set[int]) -> None:
+                                 old_projects: Union[Set[int], None],
+                                 old_second_managers: Union[Set[int], None]) -> None:
         updates = self._check_updated(
             old_assessor=old_assessor,
             updated_assessor=updated_assessor,
@@ -198,12 +198,12 @@ class HistoryManager:
     def _check_updated(self,
                        old_assessor: Assessor,
                        updated_assessor: Assessor,
-                       old_projects: Set[int],
-                       old_second_managers: Set[int]) -> List[Dict]:
+                       old_projects: Union[Set[int], None],
+                       old_second_managers: Union[Set[int], None]) -> List[Dict]:
         data = []
         new_projects = set(updated_assessor.projects.values_list('pk', flat=True))
         new_second_managers = set(updated_assessor.second_manager.values_list('pk', flat=True))
-        if new_second_managers != old_second_managers:
+        if old_second_managers is not None and new_second_managers != old_second_managers:
             removed_id = [manager_id for manager_id in old_second_managers if manager_id not in new_second_managers]
             if removed_id:
                 event = HistoryEvents.REMOVE_ADDITIONAL_MANAGER
@@ -226,7 +226,7 @@ class HistoryManager:
                     }
                 )
 
-        if new_projects != old_projects:
+        if old_projects is not None and new_projects != old_projects:
             removed_id = [project_id for project_id in old_projects if project_id not in new_projects]
             if removed_id:
                 event = HistoryEvents.REMOVE_PROJECT
@@ -246,6 +246,24 @@ class HistoryManager:
                     {
                         'event': event,
                         'description': self.get_description(event, project=added)
+                    }
+                )
+
+        if old_assessor.manager != updated_assessor.manager:
+            # if old_assessor.manager is not None:
+            #     event = HistoryEvents.REMOVE_FROM_MANAGER
+            #     data.append(
+            #         {
+            #             'event': event,
+            #             'description': self.get_description(event, manager=old_assessor.manager)
+            #         }
+            #     )
+            if updated_assessor.manager is not None:
+                event = HistoryEvents.ADD_MANAGER
+                data.append(
+                    {
+                        'event': event,
+                        'description': self.get_description(event, manager=updated_assessor.manager)
                     }
                 )
 
