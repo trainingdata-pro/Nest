@@ -1,9 +1,12 @@
+from copy import copy
 from typing import Dict
 
+from django.db.models import Q
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from apps.assessors.models import Assessor, AssessorState
+from apps.history.utils import history
 from apps.users.models import BaseUser
 from apps.users.serializers import UserSerializer
 from core.utils.common import current_date
@@ -27,17 +30,6 @@ class CreateUpdateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = '__all__'
-
-    def _check_if_completed(self, project: Project) -> Project:
-        date_of_completion = self.validated_data.get('date_of_completion')
-        if project.status == ProjectStatuses.COMPLETED:
-            if date_of_completion is None and project.date_of_completion is None:
-                project.date_of_completion = current_date()
-        else:
-            project.date_of_completion = None
-
-        project.save()
-        return project
 
     def validate(self, attrs: Dict) -> Dict:
         owners = attrs.get('manager')
@@ -99,6 +91,40 @@ class CreateUpdateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
         project = self._check_if_completed(project)
 
         return project
+
+    def _check_if_completed(self, project: Project) -> Project:
+        date_of_completion = self.validated_data.get('date_of_completion')
+        if project.status == ProjectStatuses.COMPLETED:
+            if date_of_completion is None and project.date_of_completion is None:
+                project.date_of_completion = current_date()
+        else:
+            project.date_of_completion = None
+
+        project.save()
+        self._remove_assessors_from_completed_project(project)
+        return project
+
+    @staticmethod
+    def _remove_assessors_from_completed_project(project: Project) -> None:
+        managers = project.manager.all()
+        assessors = project.assessors.all()
+        if assessors:
+            for instance in assessors:
+                instance_before_update = copy(instance)
+                projects_before_update = [pr.pk for pr in instance.projects.all()]
+                second_managers_before_update = [man.pk for man in instance.second_manager.all()]
+                instance.projects.remove(project)
+                for manager in managers:
+                    if (not instance.projects.filter(manager__in=[manager]).exists()
+                            and manager in instance.second_manager.all()):
+                        instance.second_manager.remove(manager)
+
+                history.updated_assessor_history(
+                    old_assessor=instance_before_update,
+                    updated_assessor=instance,
+                    old_projects=projects_before_update,
+                    old_second_managers=second_managers_before_update
+                )
 
 
 class ProjectSerializer(serializers.ModelSerializer):
