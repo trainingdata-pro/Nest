@@ -8,6 +8,7 @@ import MyInput from "../UI/MyInput";
 import Error from "../UI/Error";
 import Select from "react-select";
 import {SelectProps} from "../ProjectForm";
+import {useLocation, useNavigate, useParams} from "react-router-dom";
 
 
 interface FormProps {
@@ -32,6 +33,8 @@ const AddAssessorForm = ({assessors, setAssessors, showSidebar, setShowSidebar}:
         showSidebar: any,
         setShowSidebar: any,
     }) => {
+        const location = useLocation()
+    console.log(location)
         const {store} = useContext(Context)
         const {register,setValue, watch, reset, getValues, formState: {errors}, handleSubmit} = useForm<FormProps>({
             defaultValues:{
@@ -62,10 +65,12 @@ const AddAssessorForm = ({assessors, setAssessors, showSidebar, setShowSidebar}:
         }
 
         const statusObject = [
-            {value: "free", label: "Свободен"},
-            {value: "full", label: "Занят"},
-            {value: "partial", label: "Частичная загруженность"}
-
+            {value: "available", label: "Доступен"},
+            {value: "busy", label: "Занят"},
+            {value: "free_resource", label: "Свободный ресурс"},
+            {value: "vacation", label: "Отпуск"},
+            {value: "blacklist", label: "Черный список"},
+            {value: "fired", label: "Уволен"}
         ]
         const handleSelectChangeStatus = (value: any) => {
             setValue('status', value);
