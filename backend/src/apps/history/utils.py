@@ -337,7 +337,7 @@ class HistoryManager:
         elif event == HistoryEvents.REMOVE_PROJECT:
             description = f'Удален с проекта(ов): {projects}'
         elif event == HistoryEvents.ADD_TO_FREE_RESOURCE:
-            description = f'Добавлен в свободные ресурсы'
+            description = 'Добавлен в свободные ресурсы'
             if free_resource_reason is not None:
                 description += f' по причине "{free_resource_reason}"'
         elif event == HistoryEvents.REMOVE_FROM_FREE_RESOURCE:

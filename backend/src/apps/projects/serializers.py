@@ -1,7 +1,6 @@
 from copy import copy
 from typing import Dict
 
-from django.db.models import Q
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
