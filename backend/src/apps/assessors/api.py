@@ -33,6 +33,7 @@ class SkillsAPIViewSet(viewsets.ModelViewSet):
 @method_decorator(name='list', decorator=schemas.assessor_schema.list())
 @method_decorator(name='create', decorator=schemas.assessor_schema.create())
 @method_decorator(name='partial_update', decorator=schemas.assessor_schema.partial_update())
+@method_decorator(name='projects', decorator=schemas.assessor_schema.projects())
 @method_decorator(name='vacation', decorator=schemas.assessor_schema.vacation())
 @method_decorator(name='free_resource', decorator=schemas.assessor_schema.free_resource())
 @method_decorator(name='unpin', decorator=schemas.assessor_schema.unpin())
@@ -55,6 +56,11 @@ class AssessorAPIViewSet(BaseAPIViewSet):
             IsAuthenticated,
             permissions.IsManager,
             permissions.AssessorPermission
+        ),
+        'projects': (
+            IsAuthenticated,
+            permissions.IsManager,
+            permissions.AssessorPermissionExtended
         ),
         'vacation': (
             IsAuthenticated,
@@ -82,6 +88,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         'retrieve': serializers.AssessorSerializer,
         'create': serializers.CreateUpdateAssessorSerializer,
         'partial_update': serializers.CreateUpdateAssessorSerializer,
+        'projects': serializers.AssessorProjectsSerializer,
         'vacation': serializers.AssessorVacationSerializer,
         'free_resource': serializers.AssessorFreeResourceSerializer,
         'unpin': serializers.UnpinAssessorSerializer,
@@ -144,6 +151,10 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         return Response(response.data, status=status.HTTP_200_OK)
 
     def partial_update(self, request: Request, **kwargs) -> Response:
+        return self._update(request, **kwargs)
+
+    @action(detail=True, methods=['patch'])
+    def projects(self, request: Request, **kwargs) -> Response:
         return self._update(request, **kwargs)
 
     @action(detail=True, methods=['patch'])
@@ -252,8 +263,8 @@ class AssessorCredentialsAPIViewSet(BaseAPIViewSet):
 @method_decorator(name='partial_update', decorator=schemas.fr_schema.partial_update())
 class FreeResourcesAPIViewSet(BaseAPIViewSet):
     permission_classes = {
-        'retrieve': (IsAuthenticated,),
-        'list': (IsAuthenticated,),
+        'retrieve': (IsAuthenticated, permissions.IsManager),
+        'list': (IsAuthenticated, permissions.IsManager),
         'partial_update': (IsAuthenticated, permissions.IsManager)
     }
     serializer_class = {
@@ -272,9 +283,10 @@ class FreeResourcesAPIViewSet(BaseAPIViewSet):
     def get_queryset(self) -> QuerySet[Assessor]:
         queryset = (Assessor.objects
                     .filter(Q(state=AssessorState.FREE_RESOURCE) | Q(manager=None))
+                    .exclude(second_manager__in=[self.request.user])
                     .select_related('manager')
                     .prefetch_related('projects')
-                    .order_by('manager__last_name'))
+                    .order_by('last_name'))
 
         return queryset
 
