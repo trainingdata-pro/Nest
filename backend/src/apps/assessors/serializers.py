@@ -68,6 +68,13 @@ class CreateUpdateAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
                         {'manager': [f'Менеджер {manager.full_name} не в вашей команде.']}
                     )
 
+        email = attrs.get('email')
+        if email is not None:
+            if Assessor.objects.filter(email=email).exists():
+                raise ValidationError(
+                    {'email': ['Данный адрес электронной почты уже используется.']}
+                )
+
         return super().validate(attrs)
 
     def create(self, validated_data: Dict) -> Assessor:
