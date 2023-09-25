@@ -9,7 +9,11 @@ import Dialog from "./UI/Dialog";
 import AddAssessorForm from "./Assessors/AddAssessorForm";
 import Header from './Header/Header';
 import ProjectForm from "./ProjectForm";
-
+const statusObject = {
+    "full":"Полная загрузка",
+    "partial": "Частичная загрузка",
+    "reserved": "Зарезервирован",
+    }
 const ProjectAssessors = () => {
         const columnHelper = createColumnHelper<Assessor>()
         const columns: ColumnDef<Assessor>[] = [
@@ -52,42 +56,49 @@ const ProjectAssessors = () => {
                 header: () => 'Рабочее время',
                 columns: [
                     columnHelper.accessor('working_hours.monday', {
+                        id: 'ПН',
                         header: "ПН",
                         cell: info => info.row.original.working_hours?.monday ? info.row.original.working_hours?.monday : 0,
                         enableSorting: false,
                         size: 20
                     }),
                     columnHelper.accessor('working_hours.tuesday', {
+                        id: 'ВТ',
                         header: "ВТ",
                         cell: info => info.row.original.working_hours?.tuesday ? info.row.original.working_hours?.tuesday : 0,
                         enableSorting: false,
                         size: 20
                     }),
                     columnHelper.accessor('working_hours.thursday', {
+                        id: 'СР',
                         header: "СР",
                         cell: info => info.row.original.working_hours?.wednesday ? info.row.original.working_hours?.wednesday : 0,
                         enableSorting: false,
                         size: 20
                     }),
                     columnHelper.accessor('working_hours.friday', {
+                        id: 'ЧТ',
                         header: "ЧТ",
                         cell: info => info.row.original.working_hours?.thursday ? info.row.original.working_hours?.thursday : 0,
                         enableSorting: false,
                         size: 20
                     }),
                     columnHelper.accessor('working_hours.saturday', {
+                        id: 'ПТ',
                         header: "ПТ",
                         cell: info => info.row.original.working_hours?.friday ? info.row.original.working_hours?.friday : 0,
                         enableSorting: false,
                         size: 20
                     }),
                     columnHelper.accessor('working_hours.sunday', {
+                        id: 'СБ',
                         header: "СБ",
                         cell: info => info.row.original.working_hours?.saturday ? info.row.original.working_hours?.saturday : 0,
                         enableSorting: false,
                         size: 20
                     }),
                     columnHelper.accessor('working_hours.monday', {
+                        id: 'ВС',
                         header: "ВС",
                         cell: info => info.row.original.working_hours?.sunday ? info.row.original.working_hours?.sunday : 0,
                         enableSorting: false,
@@ -124,7 +135,8 @@ const ProjectAssessors = () => {
                     columnHelper.accessor('status', {
                         header: "",
                         cell: info => {
-                            return 'Полная загрузка'
+                            // @ts-ignore
+                            return statusObject[info.row.original.status]
                         },
                         enableSorting: false
                     })

@@ -34,7 +34,7 @@ function SideBar({children, isOpen, setIsOpen}: {
                             leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                             leaveTo="opacity-0 sm:translate-y-0 sm:scale-95"
                         >
-                            <Dialog.Panel className="relative rounded-lg bg-white text-left shadow-xl transition-all max-w-2xl">
+                            <Dialog.Panel className="relative rounded-lg bg-white text-left shadow-xl transition-all max-w-max">
                                 <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                                         <div className="text-center ">
                                             {children}

@@ -9,6 +9,9 @@ import {CheckIcon} from "@heroicons/react/24/solid";
 import {IManager} from "../../models/ManagerResponse";
 import Header from "../Header/Header";
 import PersonalAssessorInfoTable from "./PersonalAssessorInfoTable";
+import Dialog from "../UI/Dialog";
+import TableLog from "./LoginAndPassword";
+import {observer} from "mobx-react-lite";
 
 
 export interface AssessorPatch {
@@ -36,15 +39,26 @@ const AssessorPage = () => {
     }, [])
 
 
-    const [assessor, setAssessor] = useState<Assessor>({} as Assessor)
-
-
+    const [assessor, setAssessor] = useState<Assessor>()
+    const [isShowLoginAndPassword, setIsShowLoginAndPassword] = useState(false)
+    if (!assessor){
+        return <div>Загрузка......</div>
+    }
     return (
         <div>
+            <Dialog isOpen={isShowLoginAndPassword} setIsOpen={setIsShowLoginAndPassword}>
+                <TableLog/>
+            </Dialog>
             <Header/>
+            <div className="container pt-24">
+                <button>Управление</button>
+                <button>История</button>
+                <button onClick={() => setIsShowLoginAndPassword(true)}>Логины и пароли</button>
+
+            </div>
             <PersonalAssessorInfoTable data={assessor}/>
         </div>
     )
 };
 
-export default AssessorPage;
+export default observer(AssessorPage);

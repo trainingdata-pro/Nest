@@ -1,13 +1,21 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {PencilSquareIcon} from "@heroicons/react/24/outline";
 import {CheckIcon} from "@heroicons/react/24/solid";
 import {useForm} from "react-hook-form";
 import {AssessorPatch} from "./AssessorPage";
 import {Assessor} from "../../models/AssessorResponse";
 
-const PersonalAssessorInfoTable = ({data}: {
-    data: Assessor
-}) => {
+const PersonalAssessorInfoTable = ({data}: any) => {
+
+    useEffect(() => {
+        setValue("last_name", data.last_name)
+        setValue("first_name", data.first_name)
+        setValue("middle_name", data.middle_name)
+        setValue("username", data.username)
+        setValue("manager", data.manager.last_name)
+        setValue("email", data.email)
+        setValue("country", data.country)
+    }, []);
     const {
         watch,
         register,
@@ -18,17 +26,18 @@ const PersonalAssessorInfoTable = ({data}: {
         getValues,
         handleSubmit
     } = useForm<AssessorPatch>()
-    function Submit(data:any) {
-        if (editable) {
+
+    function Submit(data: any) {
+        if (!editable) {
             setEditable(false)
         } else {
-            console.log(data)
             setEditable(true)
         }
     }
+
     const [editable, setEditable] = useState(true)
     return (
-        <div className="container pt-24">
+        <div className="container">
             <table className="w-full border border-black">
                 <thead className="border border-black">
                 <tr>
