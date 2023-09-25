@@ -1,5 +1,5 @@
 from copy import copy
-from typing import List, Dict, Union
+from typing import Dict
 
 from django.db.models import QuerySet
 from rest_framework import serializers
@@ -8,7 +8,7 @@ from rest_framework.exceptions import ValidationError
 from apps.history.utils import history
 from apps.projects.models import ProjectStatuses, Project, ProjectWorkingHours
 from apps.projects.serializers import ProjectSerializer, ProjectWorkingHoursSimpleSerializer
-from apps.users.models import BaseUser, ManagerProfile
+from apps.users.models import BaseUser
 from apps.users.serializers import UserSerializer
 from core.utils.common import current_date
 from core.utils.mixins import GetUserMixin
@@ -67,6 +67,13 @@ class CreateUpdateAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
                     raise ValidationError(
                         {'manager': [f'Менеджер {manager.full_name} не в вашей команде.']}
                     )
+
+        email = attrs.get('email')
+        if email is not None:
+            if Assessor.objects.filter(email=email).exists():
+                raise ValidationError(
+                    {'email': ['Данный адрес электронной почты уже используется.']}
+                )
 
         return super().validate(attrs)
 

@@ -84,7 +84,6 @@ class Assessor(models.Model):
     )
     email = models.EmailField(
         verbose_name='эл. почта',
-        unique=True,
         blank=True,
         null=True,
         validators=[assessor_email_validator]
