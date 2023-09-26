@@ -29,6 +29,10 @@ class AssessorState(models.TextChoices):
         return cls.AVAILABLE.value, cls.BUSY.value, cls.FREE_RESOURCE.value
 
     @classmethod
+    def fired_states(cls) -> Tuple:
+        return cls.BLACKLIST.value, cls.FIRED.value
+
+    @classmethod
     def get_value(cls, key: str) -> str:
         for state in cls.choices:
             if state[0] == key:
