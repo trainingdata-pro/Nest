@@ -364,7 +364,7 @@ class HistoryManager2:
 
 
 class HistoryManager:
-    def new_assessor_history(self, assessor: Assessor, user: BaseUser) -> None:
+    def new_assessor_history(self, assessor: Assessor, user: str) -> None:
         updates = self._get_updates_for_new_assessor(assessor, user=user)
         histories = self.create_history_objects(assessor, updates)
         self.perform_create(histories)
@@ -372,7 +372,7 @@ class HistoryManager:
     def updated_assessor_history(self,
                                  old_assessor: Assessor,
                                  new_assessor: Assessor,
-                                 user: BaseUser,
+                                 user: str,
                                  old_projects: Optional[List[int]] = None,
                                  old_second_managers: Optional[List[int]] = None,
                                  completed_project: bool = False,
@@ -391,7 +391,17 @@ class HistoryManager:
         histories = self.create_history_objects(new_assessor, updates)
         self.perform_create(histories)
 
-    def _get_updates_for_new_assessor(self, assessor: Assessor, user: BaseUser) -> List[Dict]:
+    def return_from_vacation_system_updates(self) -> List[Dict]:
+        return [
+            {
+                'attribute': HistoryAttribute.STATE,
+                'old_value': AssessorState.get_value(AssessorState.VACATION),
+                'new_value': AssessorState.get_value(AssessorState.AVAILABLE),
+                **self.__get_base_action_data(user='-')
+            }
+        ]
+
+    def _get_updates_for_new_assessor(self, assessor: Assessor, user: str) -> List[Dict]:
         updates = [
             {
                 'attribute': HistoryAttribute.FULL_NAME,
@@ -419,7 +429,7 @@ class HistoryManager:
     def _get_updates_for_existing_assessor(self,
                                            old_assessor: Assessor,
                                            new_assessor: Assessor,
-                                           user: BaseUser,
+                                           user: str,
                                            old_projects: Optional[List[int]] = None,
                                            old_second_managers: Optional[List[int]] = None,
                                            completed_project: bool = False,
@@ -576,15 +586,15 @@ class HistoryManager:
 
         return updates
 
-    def _get_new_assessor_base_action_data(self, user: BaseUser) -> Dict:
+    def _get_new_assessor_base_action_data(self, user: str) -> Dict:
         action = HistoryAction.CREATED
         return self.__get_base_action_data(user, action=action)
 
     @staticmethod
-    def __get_base_action_data(user: BaseUser, action: Optional[str] = None) -> Dict:
+    def __get_base_action_data(user: str, action: Optional[str] = None) -> Dict:
         return {
             'action': action,
-            'user': user.full_name
+            'user': user
         }
 
     @staticmethod

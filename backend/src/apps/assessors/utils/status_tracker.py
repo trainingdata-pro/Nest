@@ -20,10 +20,9 @@ def _update_assessor_status(assessors_list: QuerySet[Assessor]) -> None:
 def _get_new_vacation_history(assessors_list: QuerySet[Assessor]) -> List[History]:
     histories = []
     for assessor in assessors_list:
-        pass
-        # updates = history.vacation_event(assessor.manager, to_vacation=False)
-        # history_obj = history.create_history_objects(assessor, updates)
-        # histories.extend(history_obj)
+        updates = history.return_from_vacation_system_updates()
+        history_obj = history.create_history_objects(assessor, updates)
+        histories.extend(history_obj)
 
     return histories
 
