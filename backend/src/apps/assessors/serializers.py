@@ -1,7 +1,6 @@
 from copy import copy
 from typing import Dict, List
 
-from django.db.models import QuerySet
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -88,7 +87,7 @@ class CreateUpdateAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
 
         history.new_assessor_history(
             assessor=assessor,
-            user=self.get_user()
+            user=self.get_user().full_name
         )
         return assessor
 
@@ -104,7 +103,7 @@ class CreateUpdateAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
             new_assessor=assessor,
-            user=self.get_user()
+            user=self.get_user().full_name
         )
         return assessor
 
@@ -145,7 +144,7 @@ class AssessorProjectsSerializer(GetUserMixin, serializers.ModelSerializer):
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
             new_assessor=assessor,
-            user=self.get_user(),
+            user=self.get_user().full_name,
             old_projects=self.projects_before_update,
             state_reason=validated_data.get('reason')
         )
@@ -311,7 +310,7 @@ class AssessorVacationSerializer(GetUserMixin, serializers.ModelSerializer):
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
             new_assessor=assessor,
-            user=self.get_user()
+            user=self.get_user().full_name
         )
         return assessor
 
@@ -422,7 +421,7 @@ class AssessorFreeResourceSerializer(GetUserMixin, serializers.ModelSerializer):
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
             new_assessor=assessor,
-            user=self.get_user(),
+            user=self.get_user().full_name,
             state_reason=reason
         )
         return assessor
@@ -494,7 +493,7 @@ class UnpinAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
             new_assessor=instance,
-            user=self.get_user(),
+            user=self.get_user().full_name,
             unpin_reason=reason
         )
         return instance
@@ -590,7 +589,7 @@ class UpdateFreeResourceSerializer(GetUserMixin, serializers.ModelSerializer):
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
             new_assessor=assessor,
-            user=self.get_user(),
+            user=self.get_user().full_name,
             old_projects=self.projects_before_update
         )
         return assessor

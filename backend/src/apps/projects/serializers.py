@@ -115,7 +115,7 @@ class CreateUpdateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
                 history.updated_assessor_history(
                     old_assessor=instance_before_update,
                     new_assessor=instance,
-                    user=self.get_user(),
+                    user=self.get_user().full_name,
                     old_projects=projects_before_update,
                     completed_project=True
                 )
