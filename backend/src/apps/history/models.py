@@ -3,25 +3,31 @@ from django.db import models
 from apps.assessors.models import Assessor
 
 
-class HistoryEvents(models.TextChoices):
-    CREATED = ('created', 'Добавлен в систему')
-    BLACKLIST = ('blacklist', 'Добавлен в ЧС')
-    LEFT = ('left', 'Уволен по собственному желанию')
-    RETURNED = ('returned', 'Возвращен в команду из уволенных')
-    TO_VACATION = ('to_vacation', 'Отправлен в отпуск')
-    FROM_VACATION = ('from_vacation', 'Вернулся из отпуска')
+class HistoryAction(models.TextChoices):
+    CREATED = ('created', 'Создать исполнителя')
+    TO_TEAM = ('to_team', 'Забрать в команду')
+    RENT = ('rent', 'Арендовать')
 
-    ADD_MANAGER = ('add_manager', 'Закреплен за менеджером')
-    REMOVE_FROM_MANAGER = ('remove_from_manager', 'Удален из команды')
+    ADD_PROJECT = ('add_project', 'Добавить проект')
+    REMOVE_PROJECT = ('remove_project', 'Удалить с проекта')
+    COMPLETE_PROJECT = ('complete_project', 'Завершить проект')
 
-    ADD_PROJECT = ('add_project', 'Добавлен на проект')
-    REMOVE_PROJECT = ('remove_project', 'Снят с проекта')
+    FIRE = ('left', 'Уволить')
+    UNPIN = ('unpin', 'Открепить от себя')
 
-    ADD_TO_FREE_RESOURCE = ('add_to_free_resource', 'Добавлен в свободные ресурсы')
-    REMOVE_FROM_FREE_RESOURCE = ('remove_from_free_resource', 'Удален из свободных ресурсов')
+    ADD_TO_FREE_RESOURCE = ('add_to_free_resource', 'Отправить в свободные ресурсы')
+    REMOVE_FROM_FREE_RESOURCE = ('remove_from_free_resource', 'Вернуть из свободных ресурсов')
 
-    ADD_ADDITIONAL_MANAGER = ('add_additional_manager', 'Добавлен доп. менеджер')
-    REMOVE_ADDITIONAL_MANAGER = ('remove_additional_manager', 'Удален доп. менеджер')
+    TO_VACATION = ('to_vacation', 'Отправить в отпуск')
+    FROM_VACATION = ('from_vacation', 'Вернуть из отпуска')
+
+
+class HistoryAttribute(models.TextChoices):
+    FULL_NAME = ('full_name', 'ФИО')
+    USERNAME = ('username', 'Никнейм в Telegram')
+    MANAGER = ('manager', 'Руководитель')
+    PROJECT = ('project', 'Проект')
+    STATE = ('state', 'Состояние')
 
 
 class History(models.Model):
@@ -30,12 +36,33 @@ class History(models.Model):
         verbose_name='исполнитель',
         on_delete=models.PROTECT
     )
-    event = models.CharField(
-        max_length=100,
-        choices=HistoryEvents.choices,
-        verbose_name='событие'
+    action = models.CharField(
+        max_length=30,
+        choices=HistoryAction.choices,
+        verbose_name='действие',
+        null=True
     )
-    description = models.TextField(verbose_name='Описание')
+    attribute = models.CharField(
+        max_length=10,
+        choices=HistoryAttribute.choices,
+        verbose_name='атрибут'
+    )
+    old_value = models.TextField(
+        verbose_name='старое значение',
+        null=True
+    )
+    new_value = models.TextField(
+        verbose_name='новое значение',
+        null=True
+    )
+    reason = models.TextField(
+        verbose_name='причина',
+        null=True
+    )
+    user = models.CharField(
+        max_length=155,
+        verbose_name='пользователь'
+    )
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -45,4 +72,4 @@ class History(models.Model):
         ordering = ['-timestamp']
 
     def __str__(self):
-        return self.event
+        return str(self.attribute)

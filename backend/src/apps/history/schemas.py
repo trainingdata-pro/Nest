@@ -1,7 +1,7 @@
 from drf_yasg import openapi
 
 from core.utils.schemas import BaseAPISchema
-from .models import HistoryEvents
+from .models import HistoryAction
 
 
 class HistorySchema(BaseAPISchema):
@@ -24,7 +24,7 @@ class HistorySchema(BaseAPISchema):
                     description='Case-independent filtering by event.\n'
                                 'Example: host.com/?event=created.\n\n'
                                 f'Available events:\n'
-                                f'{", ".join([f"{item[0]} - {item[1]}" for item in HistoryEvents.choices])}'
+                                f'{", ".join([f"{item[0]} - {item[1]}" for item in HistoryAction.choices])}'
                 ),
                 openapi.Parameter(
                     name='ordering',
