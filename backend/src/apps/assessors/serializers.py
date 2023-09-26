@@ -590,7 +590,8 @@ class UpdateFreeResourceSerializer(GetUserMixin, serializers.ModelSerializer):
             old_assessor=self.instance_before_update,
             new_assessor=assessor,
             user=self.get_user().full_name,
-            old_projects=self.projects_before_update
+            old_projects=self.projects_before_update,
+            use_none_action_for_state=True
         )
         return assessor
 
@@ -608,4 +609,6 @@ class UpdateFreeResourceSerializer(GetUserMixin, serializers.ModelSerializer):
         for project in projects:
             instance.projects.add(project)
         instance.state = AssessorState.BUSY
+        instance.free_resource_weekday_hours = None
+        instance.free_resource_day_off_hours = None
         return instance

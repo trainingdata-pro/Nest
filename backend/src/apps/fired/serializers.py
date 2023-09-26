@@ -1,5 +1,6 @@
 import datetime
-from typing import Dict
+from copy import copy
+from typing import Dict, Optional
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -8,7 +9,7 @@ from apps.history.services import history
 from apps.assessors.models import Assessor, AssessorState
 from apps.assessors.serializers import AssessorSerializer
 from apps.users.models import BaseUser
-from core.utils.common import current_date, str_date
+from core.utils.common import current_date
 from core.utils.mixins import GetUserMixin
 from core.utils.users import UserStatus
 from .models import Reason, Fired, BlackList
@@ -20,12 +21,17 @@ class ReasonSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class FireAssessorSerializer(serializers.Serializer):
+class FireAssessorSerializer(GetUserMixin, serializers.Serializer):
     date = serializers.DateField(required=False)
     reason = serializers.PrimaryKeyRelatedField(
         queryset=Reason.objects.all(),
         required=True
     )
+
+    def __init__(self, instance=None, *args, **kwargs):
+        super().__init__(instance=instance, *args, **kwargs)
+        if instance:
+            self.instance_before_update = copy(instance)
 
     @staticmethod
     def _error(error: str) -> None:
@@ -65,46 +71,56 @@ class FireAssessorSerializer(serializers.Serializer):
         return super().validate(attrs)
 
     @staticmethod
-    def _fire(assessor: Assessor, reason: Reason) -> Fired:
+    def _fire(assessor: Assessor, reason: Reason, possible_return_date: Optional[datetime.date] = None) -> Fired:
         assessor.state = AssessorState.FIRED
-        fired = Fired.objects.create(assessor=assessor, reason=reason)
+        fired = Fired.objects.create(
+            assessor=assessor,
+            reason=reason,
+            possible_return_date=possible_return_date
+        )
         return fired
 
     @staticmethod
     def _blacklist(assessor: Assessor, reason: Reason) -> BlackList:
         assessor.state = AssessorState.BLACKLIST
-        blacklist = BlackList.objects.create(assessor=assessor, reason=reason)
+        blacklist = BlackList.objects.create(
+            assessor=assessor,
+            reason=reason
+        )
         return blacklist
 
-    def _create(self, assessor: Assessor, reason: Reason, date: datetime.date = None) -> Assessor:
-        to_blacklist = False
+    def _create(self,
+                assessor: Assessor,
+                reason: Reason,
+                possible_return_date: Optional[datetime.date] = None) -> Assessor:
         if reason.blacklist_reason:
-            to_blacklist = True
-            item = self._blacklist(assessor, reason)
+            self._blacklist(
+                assessor=assessor,
+                reason=reason
+            )
         else:
-            item = self._fire(assessor, reason)
-
-        if date is not None:
-            date = str_date(date)
-
-        history.fired_assessor_history(
-            assessor=assessor,
-            manager=assessor.manager,
-            fired_item=item,
-            blacklist=to_blacklist,
-            date_to_return=date
-        )
-
+            self._fire(
+                assessor=assessor,
+                reason=reason,
+                possible_return_date=possible_return_date
+            )
         assessor.manager = None
         assessor.status = None
         assessor.save()
+        history.updated_assessor_history(
+            old_assessor=self.instance_before_update,
+            new_assessor=assessor,
+            user=self.get_user().full_name,
+            unpin_reason=reason.title,
+            use_none_action_for_state=True
+        )
         return assessor
 
     def save(self, **kwargs) -> Assessor:
         instance = self._create(
             assessor=self.instance,
             reason=self.validated_data.get('reason'),
-            date=self.validated_data.get('date')
+            possible_return_date=self.validated_data.get('date')
         )
         return instance
 
@@ -132,6 +148,11 @@ class BackToTeamSerializer(GetUserMixin, serializers.Serializer):
         queryset=BaseUser.objects.filter(status=UserStatus.MANAGER),
         required=True
     )
+
+    def __init__(self, instance=None, *args, **kwargs):
+        super().__init__(instance=instance, *args, **kwargs)
+        if instance:
+            self.instance_before_update = copy(instance.assessor)
 
     @staticmethod
     def _error(error: str) -> None:
@@ -165,8 +186,10 @@ class BackToTeamSerializer(GetUserMixin, serializers.Serializer):
 
     def update(self, instance: Fired, validated_data: Dict) -> Assessor:
         assessor = self._back_to_team(fired=instance, manager=validated_data.get('manager'))
-        history.returned_history(
-            assessor=assessor,
-            manager=assessor.manager
+        history.updated_assessor_history(
+            old_assessor=self.instance_before_update,
+            new_assessor=assessor,
+            user=self.get_user().full_name,
+            use_none_action_for_state=True
         )
         return assessor
