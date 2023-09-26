@@ -4,7 +4,7 @@ from apps.assessors.models import Assessor, AssessorState
 from apps.fired.models import Fired, BlackList
 from apps.projects.models import Project
 from apps.users.models import BaseUser
-from .models import History, HistoryEvents
+from .models import History, HistoryEvent
 
 
 class HistoryManager:
@@ -80,7 +80,7 @@ class HistoryManager:
                     fired_item: Union[Fired, BlackList],
                     blacklist: bool = True,
                     date_to_return: str = None) -> List[Dict]:
-        event = HistoryEvents.BLACKLIST if blacklist else HistoryEvents.LEFT
+        event = HistoryEvent.BLACKLIST if blacklist else HistoryEvent.LEFT
         return [
             {
                 'event': event,
@@ -94,7 +94,7 @@ class HistoryManager:
         ]
 
     def created_event(self) -> List[Dict]:
-        event = HistoryEvents.CREATED
+        event = HistoryEvent.CREATED
         return [
             {
                 'event': event,
@@ -103,7 +103,7 @@ class HistoryManager:
         ]
 
     def returned_event(self, manager: BaseUser) -> List[Dict]:
-        event = HistoryEvents.RETURNED
+        event = HistoryEvent.RETURNED
         return [
             {
                 'event': event,
@@ -112,7 +112,7 @@ class HistoryManager:
         ]
 
     def vacation_event(self, manager: BaseUser, to_vacation: bool) -> List[Dict]:
-        event = HistoryEvents.TO_VACATION if to_vacation else HistoryEvents.FROM_VACATION
+        event = HistoryEvent.TO_VACATION if to_vacation else HistoryEvent.FROM_VACATION
         return [
             {
                 'event': event,
@@ -121,7 +121,7 @@ class HistoryManager:
         ]
 
     def free_resource_event(self, free_resource: bool, **reason) -> List[Dict]:
-        event = HistoryEvents.ADD_TO_FREE_RESOURCE if free_resource else HistoryEvents.REMOVE_FROM_FREE_RESOURCE
+        event = HistoryEvent.ADD_TO_FREE_RESOURCE if free_resource else HistoryEvent.REMOVE_FROM_FREE_RESOURCE
         return [
             {
                 'event': event,
@@ -130,12 +130,12 @@ class HistoryManager:
         ]
 
     def remove_from_team_event(self, manager: BaseUser, reason: str) -> List[Dict]:
-        event = HistoryEvents.REMOVE_FROM_MANAGER
+        event = HistoryEvent.REMOVE_FROM_MANAGER
         return [
             {
                 'event': event,
                 'description': self.get_description(
-                    HistoryEvents.REMOVE_FROM_MANAGER,
+                    HistoryEvent.REMOVE_FROM_MANAGER,
                     manager=manager,
                     unpin_reason=reason
                 )
@@ -143,7 +143,7 @@ class HistoryManager:
         ]
 
     def add_to_team_event(self, new_manager: BaseUser) -> List[Dict]:
-        event = HistoryEvents.ADD_MANAGER
+        event = HistoryEvent.ADD_MANAGER
         return [
             {
                 'event': event,
@@ -166,7 +166,7 @@ class HistoryManager:
     def _check_new(self, assessor: Assessor) -> List[Dict]:
         data = self.created_event()
         if assessor.manager:
-            event = HistoryEvents.ADD_MANAGER
+            event = HistoryEvent.ADD_MANAGER
             data.append(
                 {
                     'event': event,
@@ -175,7 +175,7 @@ class HistoryManager:
             )
 
         if assessor.projects.exists():
-            event = HistoryEvents.ADD_PROJECT
+            event = HistoryEvent.ADD_PROJECT
             projects = assessor.projects.values_list('name', flat=True)
             data.append(
                 {
@@ -185,7 +185,7 @@ class HistoryManager:
             )
 
         if assessor.state == AssessorState.FREE_RESOURCE:
-            event = HistoryEvents.ADD_TO_FREE_RESOURCE
+            event = HistoryEvent.ADD_TO_FREE_RESOURCE
             data.append(
                 {
                     'event': event,
@@ -206,7 +206,7 @@ class HistoryManager:
         if old_second_managers is not None and new_second_managers != old_second_managers:
             removed_id = [manager_id for manager_id in old_second_managers if manager_id not in new_second_managers]
             if removed_id:
-                event = HistoryEvents.REMOVE_ADDITIONAL_MANAGER
+                event = HistoryEvent.REMOVE_ADDITIONAL_MANAGER
                 removed = BaseUser.objects.filter(pk__in=removed_id)
                 data.append(
                     {
@@ -217,7 +217,7 @@ class HistoryManager:
 
             added_id = [manager_id for manager_id in new_second_managers if manager_id not in old_second_managers]
             if added_id:
-                event = HistoryEvents.ADD_ADDITIONAL_MANAGER
+                event = HistoryEvent.ADD_ADDITIONAL_MANAGER
                 added = BaseUser.objects.filter(pk__in=added_id)
                 data.append(
                     {
@@ -229,7 +229,7 @@ class HistoryManager:
         if old_projects is not None and new_projects != old_projects:
             removed_id = [project_id for project_id in old_projects if project_id not in new_projects]
             if removed_id:
-                event = HistoryEvents.REMOVE_PROJECT
+                event = HistoryEvent.REMOVE_PROJECT
                 removed = Project.objects.filter(pk__in=removed_id).values_list('name', flat=True)
                 data.append(
                     {
@@ -240,7 +240,7 @@ class HistoryManager:
 
             added_id = [project_id for project_id in new_projects if project_id not in old_projects]
             if added_id:
-                event = HistoryEvents.ADD_PROJECT
+                event = HistoryEvent.ADD_PROJECT
                 added = Project.objects.filter(pk__in=added_id).values_list('name', flat=True)
                 data.append(
                     {
@@ -259,7 +259,7 @@ class HistoryManager:
             #         }
             #     )
             if updated_assessor.manager is not None:
-                event = HistoryEvents.ADD_MANAGER
+                event = HistoryEvent.ADD_MANAGER
                 data.append(
                     {
                         'event': event,
@@ -312,39 +312,39 @@ class HistoryManager:
             f'{manager.full_name} (@{manager.username})' for manager in second_manager
         ]) if second_manager is not None else None
         manager_info = f'{manager.full_name}' if manager else None
-        if event == HistoryEvents.CREATED:
+        if event == HistoryEvent.CREATED:
             description = 'Добавлен в систему'
-        elif event == HistoryEvents.BLACKLIST:
+        elif event == HistoryEvent.BLACKLIST:
             description = f'Добавлен в ЧС менеджером {manager_info} по ' \
                           f'причине "{fired_item.reason}"'
-        elif event == HistoryEvents.LEFT:
+        elif event == HistoryEvent.LEFT:
             date = date_to_return if date_to_return else '-'
             description = f'Уволен по собственному желанию менеджером {manager_info} ' \
                           f'по причине "{fired_item.reason}". Дата возможного возврата: {date}'
-        elif event == HistoryEvents.RETURNED:
+        elif event == HistoryEvent.RETURNED:
             description = f'Удален из уволенных по собственному желанию ' \
                           f'и закреплен за менеджером {manager_info}'
-        elif event == HistoryEvents.TO_VACATION:
+        elif event == HistoryEvent.TO_VACATION:
             description = f'Отправлен в отпуск менеджером {manager.full_name}'
-        elif event == HistoryEvents.FROM_VACATION:
+        elif event == HistoryEvent.FROM_VACATION:
             description = f'Вернулся из отпуска в команду менеджера {manager.full_name}'
-        elif event == HistoryEvents.ADD_MANAGER:
+        elif event == HistoryEvent.ADD_MANAGER:
             description = f'Закреплен за менеджером {manager_info}'
-        elif event == HistoryEvents.REMOVE_FROM_MANAGER:
+        elif event == HistoryEvent.REMOVE_FROM_MANAGER:
             description = f'Откреплен от менеджера {manager_info} по причине "{unpin_reason}"'
-        elif event == HistoryEvents.ADD_PROJECT:
+        elif event == HistoryEvent.ADD_PROJECT:
             description = f'Назначен на проект(ы): {projects}'
-        elif event == HistoryEvents.REMOVE_PROJECT:
+        elif event == HistoryEvent.REMOVE_PROJECT:
             description = f'Удален с проекта(ов): {projects}'
-        elif event == HistoryEvents.ADD_TO_FREE_RESOURCE:
+        elif event == HistoryEvent.ADD_TO_FREE_RESOURCE:
             description = 'Добавлен в свободные ресурсы'
             if free_resource_reason is not None:
                 description += f' по причине "{free_resource_reason}"'
-        elif event == HistoryEvents.REMOVE_FROM_FREE_RESOURCE:
+        elif event == HistoryEvent.REMOVE_FROM_FREE_RESOURCE:
             description = 'Удален из свободных ресурсов'
-        elif event == HistoryEvents.ADD_ADDITIONAL_MANAGER:
+        elif event == HistoryEvent.ADD_ADDITIONAL_MANAGER:
             description = f'Взят из свободных ресурсов менеджером {second_managers} (доп. менеджер)'
-        elif event == HistoryEvents.REMOVE_ADDITIONAL_MANAGER:
+        elif event == HistoryEvent.REMOVE_ADDITIONAL_MANAGER:
             description = f'Откреплен доп. менеджер {second_managers}'
         else:
             raise ValueError('Invalid event.')
