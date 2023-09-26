@@ -63,7 +63,10 @@ class History(models.Model):
         max_length=155,
         verbose_name='пользователь'
     )
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='дата/время'
+    )
 
     class Meta:
         db_table = 'history'
