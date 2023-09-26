@@ -12,7 +12,3 @@ def get_code() -> str:
 
 def current_date() -> datetime.date:
     return datetime.datetime.now().date()
-
-
-def str_date(date: datetime.date) -> str:
-    return date.strftime('%d-%m-%Y')
