@@ -230,7 +230,7 @@ class HistoryManager:
                     action = HistoryAction.TO_VACATION
                 elif old_assessor.state == AssessorState.VACATION:
                     action = HistoryAction.FROM_VACATION
-                elif new_assessor.state == AssessorState.FIRED or new_assessor.state == AssessorState.BLACKLIST:
+                elif new_assessor.state in AssessorState.fired_states():
                     action = HistoryAction.FIRE
                 elif old_assessor.state == AssessorState.FIRED:
                     action = HistoryAction.TO_TEAM
