@@ -5,7 +5,6 @@ from django.db import models
 
 from core.utils.validators import allowed_chars_validator, only_manager_validator
 from apps.projects.models import Project
-from apps.users.models import BaseUser
 
 from apps.assessors.utils.validators import assessor_username_validator, assessor_email_validator
 
