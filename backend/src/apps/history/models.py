@@ -16,7 +16,7 @@ class HistoryAction(models.TextChoices):
     UNPIN = ('unpin', 'Открепить от себя')
 
     ADD_TO_FREE_RESOURCE = ('add_to_free_resource', 'Отправить в свободные ресурсы')
-    REMOVE_FROM_FREE_RESOURCE = ('remove_from_free_resource', 'Вернуть из свободных ресурсов')
+    RETURN_FROM_FREE_RESOURCE = ('return_from_free_resource', 'Вернуть из свободных ресурсов')
 
     TO_VACATION = ('to_vacation', 'Отправить в отпуск')
     FROM_VACATION = ('from_vacation', 'Вернуть из отпуска')
