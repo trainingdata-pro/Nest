@@ -14,12 +14,17 @@ class HistoryAdmin(admin.ModelAdmin):
     list_display = [
         'pk',
         'assessor',
-        'event',
         'timestamp',
-        'description'
+        'attribute',
+        'old_value',
+        'new_value',
+        'action',
+        'reason',
+        'user'
     ]
     list_display_links = ['assessor']
-    list_filter = ['event']
+    list_filter = ['action', 'user']
+    readonly_fields = ['timestamp']
 
 
 admin.site.register(History, HistoryAdmin)

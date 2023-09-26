@@ -46,6 +46,11 @@ class Fired(BaseStateModel):
         verbose_name='причина',
         on_delete=models.PROTECT
     )
+    possible_return_date = models.DateField(
+        verbose_name='дата примерного возвращения',
+        null=True,
+        blank=True
+    )
 
     class Meta:
         db_table = 'fired'

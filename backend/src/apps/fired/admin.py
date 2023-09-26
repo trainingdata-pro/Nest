@@ -13,7 +13,7 @@ class ReasonAdmin(admin.ModelAdmin):
     list_filter = ['blacklist_reason']
 
 
-class StateAdmin(admin.ModelAdmin):
+class BlackListStateAdmin(admin.ModelAdmin):
     list_display = [
         'pk',
         'assessor',
@@ -23,6 +23,16 @@ class StateAdmin(admin.ModelAdmin):
     list_display_links = ['assessor']
 
 
+class FiredStateAdmin(BlackListStateAdmin):
+    list_display = [
+        'pk',
+        'assessor',
+        'reason',
+        'date',
+        'possible_return_date'
+    ]
+
+
 admin.site.register(Reason, ReasonAdmin)
-admin.site.register(BlackList, StateAdmin)
-admin.site.register(Fired, StateAdmin)
+admin.site.register(BlackList, BlackListStateAdmin)
+admin.site.register(Fired, FiredStateAdmin)

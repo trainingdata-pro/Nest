@@ -5,7 +5,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from apps.assessors.models import Assessor, AssessorState
-from apps.history.utils import history
+from apps.history.services import history
 from apps.users.models import BaseUser
 from apps.users.serializers import UserSerializer
 from core.utils.common import current_date
@@ -69,7 +69,6 @@ class CreateUpdateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
             raise ValidationError(
                 {'date_of_completion': 'Дата завершения не может быть больше текущей даты.'}
             )
-
         return super().validate(attrs)
 
     def create(self, validated_data: Dict) -> Project:
@@ -77,18 +76,15 @@ class CreateUpdateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
         tag = validated_data.pop('tag', None)
         project = Project.objects.create(**validated_data)
         project.manager.set(project_manager)
-
         if tag:
             project.tag.set(tag)
 
         project = self._check_if_completed(project)
-
         return project
 
     def update(self, instance: Project, validated_data: Dict) -> Project:
         project = super().update(instance, validated_data)
         project = self._check_if_completed(project)
-
         return project
 
     def _check_if_completed(self, project: Project) -> Project:
@@ -103,15 +99,13 @@ class CreateUpdateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
         self._remove_assessors_from_completed_project(project)
         return project
 
-    @staticmethod
-    def _remove_assessors_from_completed_project(project: Project) -> None:
+    def _remove_assessors_from_completed_project(self, project: Project) -> None:
         managers = project.manager.all()
         assessors = project.assessors.all()
         if assessors:
             for instance in assessors:
                 instance_before_update = copy(instance)
                 projects_before_update = [pr.pk for pr in instance.projects.all()]
-                second_managers_before_update = [man.pk for man in instance.second_manager.all()]
                 instance.projects.remove(project)
                 for manager in managers:
                     if (not instance.projects.filter(manager__in=[manager]).exists()
@@ -120,9 +114,10 @@ class CreateUpdateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
 
                 history.updated_assessor_history(
                     old_assessor=instance_before_update,
-                    updated_assessor=instance,
+                    new_assessor=instance,
+                    user=self.get_user().full_name,
                     old_projects=projects_before_update,
-                    old_second_managers=second_managers_before_update
+                    completed_project=True
                 )
 
 
@@ -140,9 +135,11 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class ProjectSimpleSerializer(serializers.ModelSerializer):
+    manager = UserSerializer(read_only=True, many=True)
+
     class Meta:
         model = Project
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'manager']
 
 
 class CreateProjectWorkingHoursSerializer(GetUserMixin, serializers.ModelSerializer):
@@ -156,6 +153,14 @@ class CreateProjectWorkingHoursSerializer(GetUserMixin, serializers.ModelSeriali
     class Meta:
         model = ProjectWorkingHours
         fields = '__all__'
+
+    def validate(self, attrs: Dict) -> Dict:
+        manager = self.get_user()
+        assessor = attrs.get('assessor')
+        project = attrs.get('project')
+        self._check_assessor_permission(manager, assessor)
+        self._check_project_permission(assessor, project)
+        return super().validate(attrs)
 
     @staticmethod
     def _check_assessor_permission(manager: BaseUser, assessor: Assessor) -> None:
@@ -172,15 +177,6 @@ class CreateProjectWorkingHoursSerializer(GetUserMixin, serializers.ModelSeriali
             raise ValidationError(
                 {'project': ['На текущий момент исполнитель не работает над данным проектом.']}
             )
-
-    def validate(self, attrs: Dict) -> Dict:
-        manager = self.get_user()
-        assessor = attrs.get('assessor')
-        project = attrs.get('project')
-        self._check_assessor_permission(manager, assessor)
-        self._check_project_permission(assessor, project)
-
-        return super().validate(attrs)
 
 
 class UpdateProjectWorkingHoursSerializer(GetUserMixin, serializers.ModelSerializer):
