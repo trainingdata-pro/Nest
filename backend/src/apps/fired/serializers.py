@@ -4,7 +4,7 @@ from typing import Dict
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from apps.history.utils import history
+from apps.history.services import history
 from apps.assessors.models import Assessor, AssessorState
 from apps.assessors.serializers import AssessorSerializer
 from apps.users.models import BaseUser
