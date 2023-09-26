@@ -12,6 +12,7 @@ import PersonalAssessorInfoTable from "./PersonalAssessorInfoTable";
 import Dialog from "../UI/Dialog";
 import TableLog from "./LoginAndPassword";
 import {observer} from "mobx-react-lite";
+import AssessorProjects from "./AssessorProjects";
 
 
 export interface AssessorPatch {
@@ -57,6 +58,7 @@ const AssessorPage = () => {
 
             </div>
             <PersonalAssessorInfoTable data={assessor}/>
+            <AssessorProjects/>
         </div>
     )
 };

@@ -164,7 +164,10 @@ const ProjectAssessors = () => {
         useMemo(() => {
             ProjectService.fetchProject(id).then(res => setProject(res.data))
             ProjectService.fetchProjectAssessors(id)
-                .then(res => setData(res.data.results))
+                .then(res => {
+                    setData(res.data.results)
+                    console.log(res.data)
+                })
                 .catch(e => console.log(e))
         }, [])
         const [addToProject, setAddToProject] = useState(false)

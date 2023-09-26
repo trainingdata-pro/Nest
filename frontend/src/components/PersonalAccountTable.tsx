@@ -49,31 +49,31 @@ const PersonalAccountTable = () => {
     const [projectsId, setProjectId] = useState(0)
     const columns = useMemo<ColumnDef<Project>[]>(() => {
         return [
-            {
-                id: 'select',
-                header: ({ table }) => (
-                    <IndeterminateCheckbox
-                        {...{
-                            checked: table.getIsAllRowsSelected(),
-                            indeterminate: table.getIsSomeRowsSelected(),
-                            onChange: table.getToggleAllRowsSelectedHandler(),
-                        }}
-                    />
-                ),
-                cell: ({ row }) => (
-                    <div className="px-1">
-                        <IndeterminateCheckbox
-                            {...{
-                                checked: row.getIsSelected(),
-                                disabled: !row.getCanSelect(),
-                                indeterminate: row.getIsSomeSelected(),
-                                onChange: row.getToggleSelectedHandler(),
-                            }}
-                        />
-                    </div>
-                ),
-                size: 30
-            },
+            // {
+            //     id: 'select',
+            //     header: ({ table }) => (
+            //         <IndeterminateCheckbox
+            //             {...{
+            //                 checked: table.getIsAllRowsSelected(),
+            //                 indeterminate: table.getIsSomeRowsSelected(),
+            //                 onChange: table.getToggleAllRowsSelectedHandler(),
+            //             }}
+            //         />
+            //     ),
+            //     cell: ({ row }) => (
+            //         <div className="px-1">
+            //             <IndeterminateCheckbox
+            //                 {...{
+            //                     checked: row.getIsSelected(),
+            //                     disabled: !row.getCanSelect(),
+            //                     indeterminate: row.getIsSomeSelected(),
+            //                     onChange: row.getToggleSelectedHandler(),
+            //                 }}
+            //             />
+            //         </div>
+            //     ),
+            //     size: 30
+            // },
             {
                 accessorKey: 'asana_id',
                 header: 'Asana ID',
