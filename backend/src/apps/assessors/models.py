@@ -1,5 +1,6 @@
 from typing import Tuple
 
+from django.contrib.auth import get_user_model
 from django.db import models
 
 from core.utils.validators import allowed_chars_validator, only_manager_validator
@@ -26,6 +27,13 @@ class AssessorState(models.TextChoices):
     @classmethod
     def work_states(cls) -> Tuple:
         return cls.AVAILABLE.value, cls.BUSY.value, cls.FREE_RESOURCE.value
+
+    @classmethod
+    def get_value(cls, key: str) -> str:
+        for state in cls.choices:
+            if state[0] == key:
+                return state[1]
+        return '-'
 
 
 class FreeResourceHours(models.TextChoices):
@@ -95,7 +103,7 @@ class Assessor(models.Model):
         null=True
     )
     manager = models.ForeignKey(
-        BaseUser,
+        get_user_model(),
         on_delete=models.PROTECT,
         verbose_name='менеджер',
         related_name='assessors',
@@ -117,7 +125,7 @@ class Assessor(models.Model):
         null=True
     )
     skills = models.ManyToManyField(
-        to=Skill,
+        Skill,
         verbose_name='навыки',
         blank=True
     )
@@ -150,7 +158,7 @@ class Assessor(models.Model):
         blank=True
     )
     second_manager = models.ManyToManyField(
-        BaseUser,
+        get_user_model(),
         blank=True,
         related_name='extra',
         verbose_name='доп. менеджеры'
