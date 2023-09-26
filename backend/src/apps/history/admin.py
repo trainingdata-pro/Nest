@@ -24,6 +24,7 @@ class HistoryAdmin(admin.ModelAdmin):
     ]
     list_display_links = ['assessor']
     list_filter = ['action', 'user']
+    readonly_fields = ['timestamp']
 
 
 admin.site.register(History, HistoryAdmin)
