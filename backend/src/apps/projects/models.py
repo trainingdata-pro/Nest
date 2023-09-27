@@ -165,3 +165,34 @@ class ProjectWorkingHours(models.Model):
         return (int(self.monday) + int(self.tuesday) + int(self.wednesday)
                 + int(self.thursday) + int(self.friday) + int(self.saturday)
                 + int(self.sunday))
+
+
+class Status(models.TextChoices):
+    FULL = ('full', 'Полная загрузка')
+    PARTIAL = ('partial', 'Частичная загрузка')
+    RESERVED = ('reserved', 'Зарезервирован')
+
+
+class WorkLoadStatus(models.Model):
+    assessor = models.ForeignKey(
+        to='assessors.Assessor',
+        on_delete=models.PROTECT,
+        verbose_name='исполнитель',
+        related_name='workload_status'
+    )
+    project = models.ForeignKey(
+        to=Project,
+        on_delete=models.PROTECT,
+        verbose_name='проект'
+    )
+    status = models.CharField(
+        verbose_name='статус',
+        max_length=10,
+        choices=Status.choices
+    )
+
+    class Meta:
+        db_table = 'workload_statuses'
+        verbose_name = 'статус загрузки'
+        verbose_name_plural = 'статусы загрузки'
+        ordering = ['id']

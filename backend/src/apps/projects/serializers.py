@@ -11,7 +11,13 @@ from apps.users.serializers import UserSerializer
 from core.utils.common import current_date
 from core.utils.mixins import GetUserMixin
 from core.utils.users import UserStatus
-from .models import ProjectTag, Project, ProjectStatuses, ProjectWorkingHours
+from .models import (
+    ProjectTag,
+    Project,
+    ProjectStatuses,
+    ProjectWorkingHours,
+    WorkLoadStatus
+)
 
 
 class ProjectTagSerializer(serializers.ModelSerializer):
@@ -201,3 +207,23 @@ class ProjectWorkingHoursSimpleSerializer(ProjectWorkingHoursSerializer):
     class Meta:
         model = ProjectWorkingHours
         exclude = ['assessor']
+
+
+class CreateWorkLoadStatusSerializer(CreateProjectWorkingHoursSerializer):
+    class Meta:
+        model = WorkLoadStatus
+        fields = '__all__'
+
+
+class UpdateWorkLoadStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkLoadStatus
+        exclude = ['assessor', 'project']
+
+
+class WorkLoadStatusSerializer(serializers.ModelSerializer):
+    project = ProjectSimpleSerializer(read_only=True)
+
+    class Meta:
+        model = WorkLoadStatus
+        fields = '__all__'

@@ -108,12 +108,6 @@ class AssessorSchema(BaseAPISchema):
                     description='Filtering by project ID. Example: host.com/?projects=1,2'
                 ),
                 openapi.Parameter(
-                    name='status',
-                    in_=openapi.IN_QUERY,
-                    type=openapi.TYPE_STRING,
-                    description='Filtering by status.'
-                ),
-                openapi.Parameter(
                     name='skills',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,

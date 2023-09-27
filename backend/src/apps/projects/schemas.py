@@ -1,7 +1,7 @@
 from drf_yasg import openapi
 
 from core.utils.schemas import BaseAPISchema
-from . import serializers
+from .models import Status
 
 
 class ProjectSchema(BaseAPISchema):
@@ -17,10 +17,7 @@ class ProjectSchema(BaseAPISchema):
                     description='Unique project ID'
                 )
             ],
-            responses={
-                200: serializers.ProjectSerializer(),
-                **self.get_responses(401, 404)
-            }
+            responses={**self.get_responses(401, 404)}
         )
 
     def list(self):
@@ -83,10 +80,7 @@ class ProjectSchema(BaseAPISchema):
             operation_description='The "manager" field is required if the user who '
                                   'creates the project is an operational manager.\n\n'
                                   'Statuses: new, pilot, active, pause, completed',
-            responses={
-                201: serializers.ProjectSerializer(),
-                **self.get_responses(400, 401)
-            }
+            responses={**self.get_responses(400, 401)}
         )
 
     def partial_update(self):
@@ -101,10 +95,7 @@ class ProjectSchema(BaseAPISchema):
                     description='Unique project ID'
                 )
             ],
-            responses={
-                200: serializers.ProjectSerializer(),
-                **self.get_responses(400, 401, 403, 404)
-            }
+            responses={**self.get_responses(400, 401, 403, 404)}
         )
 
     def destroy(self):
@@ -178,10 +169,7 @@ class ProjectWorkingHoursSchema(BaseAPISchema):
                     description='Unique project working hours ID'
                 )
             ],
-            responses={
-                200: serializers.ProjectWorkingHoursSerializer(),
-                **self.get_responses(401, 404)
-            }
+            responses={**self.get_responses(401, 404)}
         )
 
     def list(self):
@@ -215,10 +203,7 @@ class ProjectWorkingHoursSchema(BaseAPISchema):
     def create(self):
         return self.swagger_auto_schema(
             operation_summary='Create project working hours',
-            responses={
-                201: serializers.ProjectWorkingHoursSerializer(),
-                **self.get_responses(400, 401, 403)
-            }
+            responses={**self.get_responses(400, 401, 403)}
         )
 
     def partial_update(self):
@@ -233,10 +218,83 @@ class ProjectWorkingHoursSchema(BaseAPISchema):
                     description='Unique project working hours ID'
                 )
             ],
-            responses={
-                200: serializers.ProjectWorkingHoursSerializer(),
-                **self.get_responses(400, 401, 403, 404)
-            }
+            responses={**self.get_responses(400, 401, 403, 404)}
+        )
+
+
+class WorkLoadStatusSchema(BaseAPISchema):
+    def retrieve(self):
+        return self.swagger_auto_schema(
+            operation_summary='Get workload status',
+            operation_description='Get a specific workload status',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique workload status ID'
+                )
+            ],
+            responses={**self.get_responses(401, 404)}
+        )
+
+    def list(self):
+        return self.swagger_auto_schema(
+            operation_summary='List workload statuses',
+            operation_description='Get list of workload statuses',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='assessor',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by assessor ID. Example: host.com/?assessor=1,2'
+                ),
+                openapi.Parameter(
+                    name='project',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by project ID. Example: host.com/?project=1,2'
+                ),
+                openapi.Parameter(
+                    name='status',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by status. Example: host.com/?status=full\n\n'
+                                f'Available statuses:\n'
+                                f'{", ".join([f"{item[0]} - {item[1]}" for item in Status.choices])}'
+                ),
+                openapi.Parameter(
+                    name='ordering',
+                    type=openapi.TYPE_STRING,
+                    in_=openapi.IN_QUERY,
+                    description='Which field to use when ordering the results. '
+                                'Available fields: pk'
+                )
+            ],
+            responses={**self.get_responses(401)}
+        )
+
+    def create(self):
+        return self.swagger_auto_schema(
+            operation_summary='Create workload status',
+            operation_description='Available statuses:\n'
+                                  f'{", ".join([f"{item[0]} - {item[1]}" for item in Status.choices])}',
+            responses={**self.get_responses(400, 401, 403)}
+        )
+
+    def partial_update(self):
+        return self.swagger_auto_schema(
+            operation_summary='Update workload status',
+            operation_description='Update workload status',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique workload status ID'
+                )
+            ],
+            responses={**self.get_responses(400, 401, 403, 404)}
         )
 
 
@@ -244,3 +302,4 @@ project_schema = ProjectSchema(tags=['projects'])
 project_schema2 = AssessorsForProjectSchema(tags=['projects'])
 tags_schema = TagsSchema(tags=['projects'])
 project_wh_schema = ProjectWorkingHoursSchema(tags=['projects'])
+workload_schema = WorkLoadStatusSchema(tags=['projects'])

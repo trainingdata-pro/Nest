@@ -12,8 +12,8 @@ from apps.users.models import BaseUser
 from core.utils import permissions
 from core.utils.mixins import BaseAPIViewSet
 from core.utils.users import UserStatus
-from .filters import ProjectFilter, ProjectWorkingHoursFilter
-from .models import Project, ProjectTag, ProjectWorkingHours
+from .filters import ProjectFilter, ProjectWorkingHoursFilter, WorkLoadStatusFilter
+from .models import Project, ProjectTag, ProjectWorkingHours, WorkLoadStatus
 from . import serializers, schemas
 
 
@@ -117,7 +117,7 @@ class ProjectAPIViewSet(BaseAPIViewSet):
 class GetAllAssessorForProject(generics.ListAPIView):
     queryset = Assessor.objects.all()
     serializer_class = AssessorSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, permissions.IsManager)
     ordering_fields = [
         'pk',
         'username',
@@ -150,8 +150,14 @@ class TagsApiView(generics.ListAPIView):
 class ProjectWorkingHoursAPIViewSet(BaseAPIViewSet):
     queryset = ProjectWorkingHours.objects.filter().select_related('assessor', 'project')
     permission_classes = {
-        'retrieve': (IsAuthenticated,),
-        'list': (IsAuthenticated,),
+        'retrieve': (
+            IsAuthenticated,
+            permissions.IsManager
+        ),
+        'list': (
+            IsAuthenticated,
+            permissions.IsManager
+        ),
         'create': (
             IsAuthenticated,
             permissions.IsManager
@@ -159,7 +165,7 @@ class ProjectWorkingHoursAPIViewSet(BaseAPIViewSet):
         'partial_update': (
             IsAuthenticated,
             permissions.IsManager,
-            permissions.ProjectWHPermission
+            permissions.ProjectRelatedPermission
         )
     }
     serializer_class = {
@@ -175,8 +181,8 @@ class ProjectWorkingHoursAPIViewSet(BaseAPIViewSet):
     def create(self, request: Request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        project = serializer.save()
-        response = serializers.ProjectWorkingHoursSerializer(project)
+        project_wh = serializer.save()
+        response = serializers.ProjectWorkingHoursSerializer(project_wh)
 
         return Response(response.data, status=status.HTTP_201_CREATED)
 
@@ -188,7 +194,64 @@ class ProjectWorkingHoursAPIViewSet(BaseAPIViewSet):
             partial=True
         )
         serializer.is_valid(raise_exception=True)
-        project = serializer.save()
-        response = serializers.ProjectWorkingHoursSerializer(project)
+        project_wh = serializer.save()
+        response = serializers.ProjectWorkingHoursSerializer(project_wh)
+
+        return Response(response.data, status=status.HTTP_200_OK)
+
+
+@method_decorator(name='retrieve', decorator=schemas.workload_schema.retrieve())
+@method_decorator(name='list', decorator=schemas.workload_schema.list())
+@method_decorator(name='create', decorator=schemas.workload_schema.create())
+@method_decorator(name='partial_update', decorator=schemas.workload_schema.partial_update())
+class WorkLoadStatusAPIViewSet(BaseAPIViewSet):
+    queryset = WorkLoadStatus.objects.filter().select_related('assessor', 'project')
+    permission_classes = {
+        'retrieve': (
+            IsAuthenticated,
+            permissions.IsManager
+        ),
+        'list': (
+            IsAuthenticated,
+            permissions.IsManager
+        ),
+        'create': (
+            IsAuthenticated,
+            permissions.IsManager
+        ),
+        'partial_update': (
+            IsAuthenticated,
+            permissions.IsManager,
+            permissions.ProjectRelatedPermission
+        )
+    }
+    serializer_class = {
+        'retrieve': serializers.WorkLoadStatusSerializer,
+        'list': serializers.WorkLoadStatusSerializer,
+        'create': serializers.CreateWorkLoadStatusSerializer,
+        'partial_update': serializers.UpdateWorkLoadStatusSerializer
+    }
+    http_method_names = ['get', 'post', 'patch']
+    filterset_class = WorkLoadStatusFilter
+    ordering_fields = ['pk']
+
+    def create(self, request: Request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        workload = serializer.save()
+        response = serializers.WorkLoadStatusSerializer(workload)
+
+        return Response(response.data, status=status.HTTP_201_CREATED)
+
+    def partial_update(self, request: Request, *args, **kwargs) -> Response:
+        instance = self.get_object()
+        serializer = self.get_serializer(
+            instance,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        workload = serializer.save()
+        response = serializers.WorkLoadStatusSerializer(workload)
 
         return Response(response.data, status=status.HTTP_200_OK)

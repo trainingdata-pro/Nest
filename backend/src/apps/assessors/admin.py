@@ -19,15 +19,11 @@ class AssessorAdmin(admin.ModelAdmin):
         'middle_name',
         'country',
         'manager',
-        # 'is_free_resource',
-        'status',
         'state',
         'all_projects'
     ]
     list_filter = [
-        # 'is_free_resource',
         'manager',
-        'projects',
         'state'
     ]
     list_display_links = ['username']
