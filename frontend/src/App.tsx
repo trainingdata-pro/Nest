@@ -11,6 +11,7 @@ import ProjectAssessors from "./components/ProjectAssessors";
 import AssessorsPage from "./components/Assessors/AssessorsPage";
 import AssessorPage from './components/Assessors/AssessorPage';
 import CompletedProjects from "./pages/CompletedProjects";
+import BlackList from "./components/BlackList/BlackList";
 
 function App() {
     const {store} = useContext(Context)
@@ -40,6 +41,7 @@ function App() {
                      <Route path={'/dashboard/assessors'} element={<AssessorsPage/>}/>
                      <Route path={'/assessor/:id'} element={<AssessorPage/>}/>
                      <Route path={'/dashboard/projects/free'} element={<CompletedProjects/>} />
+                     <Route path={'/assessors/blacklist'} element={<BlackList/>} />
                      <Route path="*" element={<Navigate to="/dashboard/projects" replace/>}/> // TODO: redirect 404
                  </Routes>}
              </BrowserRouter>
