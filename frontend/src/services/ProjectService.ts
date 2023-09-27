@@ -5,6 +5,7 @@ import {AssessorResponse} from "../models/AssessorResponse";
 
 interface ProjectResponse {
     count: number,
+    next: string | null,
     results: Project[]
 }
 export interface Tag {
@@ -15,8 +16,8 @@ interface TagResult {
     results: Tag[]
 }
 export default class ProjectService {
-    static fetchProjects(managerID:string | number): Promise<AxiosResponse<ProjectResponse>> {
-        return $api.get<ProjectResponse>(`/api/projects/?manager=${managerID}`)
+    static fetchProjects(managerID:string | number, page: string | number = 1, pageLimit: string | number = 10): Promise<AxiosResponse<ProjectResponse>> {
+        return $api.get<ProjectResponse>(`/api/projects/?manager=${managerID}&page=${page}&page_size=${pageLimit}`)
     }
     static fetchCompletedProjects(managerID:string | number): Promise<AxiosResponse<ProjectResponse>> {
         return $api.get<ProjectResponse>(`/api/projects/?manager=${managerID}&status=completed`)
