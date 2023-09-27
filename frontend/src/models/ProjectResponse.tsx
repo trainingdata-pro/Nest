@@ -11,7 +11,7 @@ export interface Project {
     price_for_costumer: number,
     unloading_value: number,
     unloading_regularity: number,
-    status: string,
+    status: Status,
     tag: Tag[],
     date_of_creation: string,
     date_of_completion: string,
@@ -20,6 +20,4 @@ interface Tag {
     id: number,
     name: string
 }
-type Status = {
-    status: "paused" | "active" | "completed"
-}
+type Status = "new" | "pilot" |"pause" | "active" | "completed"

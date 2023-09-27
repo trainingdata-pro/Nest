@@ -1,184 +1,111 @@
-import React, {HTMLProps, useContext, useMemo, useState} from 'react';
-import {
-    ColumnDef,
-} from "@tanstack/react-table";
+import React, {useContext, useEffect, useState} from 'react';
+
 
 import {Context} from '../index';
 import ProjectService from '../services/ProjectService';
-import {useNavigate} from "react-router-dom";
 import {Project} from "../models/ProjectResponse";
 import {observer} from "mobx-react-lite";
 import Loader from "./UI/Loader";
-import Table from "./UI/Table";
 import ProjectForm from "./ProjectForm";
-import ManagerService from "../services/ManagerService";
-import { PencilSquareIcon } from '@heroicons/react/24/solid';
 import Dialog from "./UI/Dialog";
-function IndeterminateCheckbox({
-                                   indeterminate,
-                                   className = '',
-                                   ...rest
-                               }: { indeterminate?: boolean } & HTMLProps<HTMLInputElement>) {
-    const ref = React.useRef<HTMLInputElement>(null!)
+import NewTable from "./NewTable";
+import Select from "react-select";
 
-    React.useEffect(() => {
-        if (typeof indeterminate === 'boolean') {
-            ref.current.indeterminate = !rest.checked && indeterminate
-        }
-    }, [ref, indeterminate])
-
-    return (
-        <input
-            type="checkbox"
-            ref={ref}
-            className={className + ' cursor-pointer'}
-            {...rest}
-        />
-    )
-}
+const options = [
+    {value: '1', label: '10'},
+    {value: '2', label: '20'},
+    {value: '3', label: '30'},
+    {value: '4', label: '40'},
+    {value: '5', label: '50'}
+]
 const PersonalAccountTable = () => {
     const {store} = useContext(Context)
-    const navigation = useNavigate()
-    const statusObject = {
-        "new": "Новый",
-        "pilot": "Пилот",
-        "active": "Активный",
-        "pause": "На паузе",
-        "completed": "Завершенный"
-    }
+
+
     const [projectsId, setProjectId] = useState(0)
-    const columns = useMemo<ColumnDef<Project>[]>(() => {
-        return [
-            // {
-            //     id: 'select',
-            //     header: ({ table }) => (
-            //         <IndeterminateCheckbox
-            //             {...{
-            //                 checked: table.getIsAllRowsSelected(),
-            //                 indeterminate: table.getIsSomeRowsSelected(),
-            //                 onChange: table.getToggleAllRowsSelectedHandler(),
-            //             }}
-            //         />
-            //     ),
-            //     cell: ({ row }) => (
-            //         <div className="px-1">
-            //             <IndeterminateCheckbox
-            //                 {...{
-            //                     checked: row.getIsSelected(),
-            //                     disabled: !row.getCanSelect(),
-            //                     indeterminate: row.getIsSomeSelected(),
-            //                     onChange: row.getToggleSelectedHandler(),
-            //                 }}
-            //             />
-            //         </div>
-            //     ),
-            //     size: 30
-            // },
-            {
-                accessorKey: 'asana_id',
-                header: 'Asana ID',
-                cell: info => info.getValue(),
-                size: 200,
-            },
-            {
-                accessorKey: 'name',
-                header: 'Название проекта',
-                cell: info => info.getValue(),
-                size: 200,
-            },
-            {
-                accessorKey: 'manager',
-                header: 'Владелец',
-                cell: info => {return info.row.original.manager.map((manager) =><div key={manager.id}> {manager.last_name} {manager.first_name}</div>)},
-                enableSorting: false,
-
-            },
-            {
-                accessorKey: 'assessors_count',
-                header: 'Количество исполнителей',
-                cell: info =>
-                    // @ts-ignore
-                    <div className="cursor-pointer" onClick={() => navigation(`/dashboard/projects/${info.row.original.id}/assessors`)}>{info.getValue()}</div>
-                ,
-                size: 30,
-                enableSorting: false
-
-            },
-            {
-                accessorKey: 'status',
-                header: 'Статус проекта',
-                // @ts-ignore
-                cell: info => statusObject[info.row.original.status],
-                size: 100,
-                enableGlobalFilter: false
-
-            },
-            {
-                accessorKey: 'id',
-                header: '',
-                cell: info => <PencilSquareIcon className="cursor-pointer h-6 w-6 text-gray-500" onClick={() => {
-                    setProjectId(info.row.original.id)
-                    setShowSidebar(true)
-                }} />,
-                size: 100,
-                enableSorting: false
-
-            },
-
-        ];
-    }, [])
-
     const [isLoading, setIsLoading] = useState(false)
     const [showSidebar, setShowSidebar] = useState(false)
-    useMemo(async () => {
-        if (store.user_id) {
-            setIsLoading(true)
-            if (!store.user_data.is_teamlead){
-            await ProjectService.fetchProjects(store.user_id)
-                .then(res => {
-                    setData(res.data.results.filter(project => project.status !== 'completed'))
+    const [currentPage, setCurrentPage] = useState(1)
+    const [pageLimit, setPageLimit] = useState(10)
+    useEffect(() => {
+        setIsLoading(true)
+        ProjectService.fetchProjects(store.user_id, currentPage, pageLimit).then(res => {
+            setData(res.data.results)
+            setCountPages(Math.ceil(res.data.count / pageLimit))
+        })
+        setIsLoading(false)
+    }, [store.user_data, currentPage, pageLimit])
 
-                })
-                .catch(e => console.log(e))}
-            else{
-                await ManagerService.fetch_managers().then(res => {
-                    console.log(res.data)
-                    const ids = res.data.results.filter(manager => manager.teamlead.id === store.user_id).map(man =>man.id)
-
-                    ProjectService.fetchProjects(ids.join(',')).then(res => setData(res.data.results))
-
-                })
-            }
-            setIsLoading(false)
-        }
-
-    }, [store.user_data])
     const [data, setData] = useState<Project[]>([])
+    const [countPages, setCountPages] = useState(1)
+
     if (isLoading) {
         return <Loader width={"16"}/>
     }
+
     return (
         <>
             <div className="container pt-20 h-full items-center">
                 <Dialog isOpen={showSidebar} setIsOpen={setShowSidebar}>
                     <div className="w-[30rem]">
-                    <ProjectForm projectId={projectsId}
-                                        projects={data}
+                        <ProjectForm projectId={projectsId}
+                                     projects={data}
                                      setNewData={setData}
                                      closeSidebar={setShowSidebar}/>
                     </div>
-                    </Dialog>
-                <div className="h-full w-full">
-                    <div className="flex justify-end my-2">
-                        <button className="bg-[#5970F6] rounded-md text-white px-4 py-2"
-                                onClick={() => {
-                                    setProjectId(0)
-                                    setShowSidebar(true)
-                                }}>Добавить проект
-                        </button>
-                    </div>
-                    <div className="rounded-t-[20px] border border-b-gray-400 bg-white">
-                        <Table data={data} columns={columns} pages={true}/>
+                </Dialog>
+                <div className="h-full w-full px-6">
+
+                    <div className="flex-col container items-center">
+                        <div className="flex justify-between my-2">
+                            <div>Всего активных проектов: {data.length}</div>
+                            <button className="bg-[#5970F6] rounded-md text-white px-4 py-2"
+                                    onClick={() => {
+                                        setProjectId(0)
+                                        setShowSidebar(true)
+                                    }}>Добавить проект
+                            </button>
+                        </div>
+                        <div className='rounded-[20px] bg-white overflow-hidden pb-4'>
+                            <NewTable data={data} setProjectId={setProjectId} setShowSidebar={setShowSidebar}/>
+                            <div className="flex px-2 justify-between space-y-2 border-t dark:border-neutral-500">
+                                <div className="flex items-center justify-center text-sm font-medium">
+                                     <span className="items-center gap-1 text-[18px]">
+                                         Страница {data.length !== 0 ? currentPage : 0} из {countPages}
+                                     </span>
+                                </div>
+                                <div className="text-[18px] flex items-center space-x-2 mr-2">
+                                    <button
+                                        className={currentPage === 1 ? "border rounded p-1 text-gray-300 px-2" : "border rounded p-1 px-2"}
+                                        disabled={currentPage === 1}
+                                        onClick={() => setCurrentPage(currentPage - 1)}>
+                                        {'<'}
+                                    </button>
+                                    <div className="flex items-center space-x-2">
+                                        <p className="text-sm font-medium">Размер страницы</p>
+                                        <select
+                                            className="flex items-center justify-between rounded-md border border-input bg-transparent px-3 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 h-8 w-[70px]"
+                                            value={pageLimit}
+                                            onChange={e => {
+                                                setCurrentPage(1)
+                                                setPageLimit(Number(e.target.value))
+                                            }}
+                                        >
+                                            {[10, 20, 30, 40, 50].map(pageSize => (
+                                                <option key={pageSize} value={pageSize}>
+                                                    {pageSize}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <button
+                                        className={currentPage === countPages ? "border rounded p-1 text-gray-300 px-2" : "border rounded p-1 px-2"}
+                                        disabled={currentPage === countPages}
+                                        onClick={() => setCurrentPage(currentPage + 1)}>{'>'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
