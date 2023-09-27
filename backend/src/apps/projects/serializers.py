@@ -103,6 +103,7 @@ class CreateUpdateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
 
         project.save()
         self._remove_assessors_from_completed_project(project)
+        self._remove_related(project)
         return project
 
     def _remove_assessors_from_completed_project(self, project: Project) -> None:
@@ -125,6 +126,11 @@ class CreateUpdateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
                     old_projects=projects_before_update,
                     completed_project=True
                 )
+
+    @staticmethod
+    def _remove_related(project: Project) -> None:
+        ProjectWorkingHours.objects.filter(project=project).delete()
+        WorkLoadStatus.objects.filter(project=project).delete()
 
 
 class ProjectSerializer(serializers.ModelSerializer):
