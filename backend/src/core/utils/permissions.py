@@ -32,6 +32,13 @@ class ProjectIsActive(BasePermission):
         return True
 
 
+class ProjectRelatedPermission(BasePermission):
+    def has_object_permission(self, request: Request, view: APIView, obj: ProjectWorkingHours) -> bool:
+        return (request.user.pk == obj.assessor.manager.pk
+                or request.user.pk == obj.assessor.manager.manager_profile.teamlead.pk
+                or request.user.pk in obj.assessor.second_manager.values_list('pk', flat=True))
+
+
 class AssessorPermission(BasePermission):
     def has_object_permission(self, request: Request, view: APIView, obj: Assessor) -> bool:
         return (request.user.pk == obj.manager.pk
@@ -43,13 +50,6 @@ class AssessorPermissionExtended(BasePermission):
         return (request.user.pk == obj.manager.pk
                 or request.user.pk == obj.manager.manager_profile.teamlead.pk
                 or request.user in obj.second_manager.all())
-
-
-class ProjectWHPermission(BasePermission):
-    def has_object_permission(self, request: Request, view: APIView, obj: ProjectWorkingHours) -> bool:
-        return (request.user.pk == obj.assessor.manager.pk
-                or request.user.pk == obj.assessor.manager.manager_profile.teamlead.pk
-                or request.user.pk in obj.assessor.second_manager.values_list('pk', flat=True))
 
 
 class IsCurrentManager(BasePermission):
