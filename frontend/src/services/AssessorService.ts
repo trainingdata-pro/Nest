@@ -33,6 +33,9 @@ export default class AssessorService{
     static patchCredentials(credId: string, data:any){
         return $api.patch(`/api/credentials/${credId}/`, data)
     }
+    static fetchAssessorHistory(id: string | number){
+        return $api.get(`/api/history/?assessor=${id}`)
+    }
     static getBlackList(){
         return $api.get('/api/blacklist/')
     }

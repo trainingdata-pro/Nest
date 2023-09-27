@@ -1,6 +1,4 @@
 import React, {useContext, useEffect, useState} from 'react';
-
-
 import {Context} from '../index';
 import ProjectService from '../services/ProjectService';
 import {Project} from "../models/ProjectResponse";
@@ -9,28 +7,21 @@ import Loader from "./UI/Loader";
 import ProjectForm from "./ProjectForm";
 import Dialog from "./UI/Dialog";
 import NewTable from "./NewTable";
-import Select from "react-select";
 
-const options = [
-    {value: '1', label: '10'},
-    {value: '2', label: '20'},
-    {value: '3', label: '30'},
-    {value: '4', label: '40'},
-    {value: '5', label: '50'}
-]
+
+
 const PersonalAccountTable = () => {
     const {store} = useContext(Context)
-
-
     const [projectsId, setProjectId] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
     const [showSidebar, setShowSidebar] = useState(false)
     const [currentPage, setCurrentPage] = useState(1)
     const [pageLimit, setPageLimit] = useState(10)
+
     useEffect(() => {
         setIsLoading(true)
         ProjectService.fetchProjects(store.user_id, currentPage, pageLimit).then(res => {
-            setData(res.data.results)
+            setData(res.data.results.filter(project => project.status !== 'completed'))
             setCountPages(Math.ceil(res.data.count / pageLimit))
         })
         setIsLoading(false)
