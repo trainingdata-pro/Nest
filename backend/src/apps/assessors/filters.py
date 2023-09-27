@@ -20,9 +20,7 @@ class AssessorFilter(FilteringMixin, filters.FilterSet):
     middle_name = filters.CharFilter(lookup_expr='icontains')
     manager = filters.NumberFilter()
     projects = filters.CharFilter(method='filter_projects')
-    status = filters.BooleanFilter(lookup_expr='iexact')
     skills = filters.CharFilter(method='filter_skills')
-    # is_free_resource = filters.BooleanFilter()
     second_manager = filters.CharFilter(method='filter_second_manager')
 
     class Meta:
@@ -34,9 +32,7 @@ class AssessorFilter(FilteringMixin, filters.FilterSet):
             'middle_name',
             'manager',
             'projects',
-            'status',
             'skills',
-            # 'is_free_resource',
             'second_manager'
         ]
 

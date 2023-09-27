@@ -9,12 +9,6 @@ from apps.projects.models import Project
 from apps.assessors.utils.validators import assessor_username_validator, assessor_email_validator
 
 
-class AssessorStatus(models.TextChoices):
-    FULL = ('full', 'Полная загрузка')
-    PARTIAL = ('partial', 'Частичная загрузка')
-    RESERVED = ('reserved', 'Зарезервирован')
-
-
 class AssessorState(models.TextChoices):
     AVAILABLE = ('available', 'Доступен')
     BUSY = ('busy', 'Занят')
@@ -119,13 +113,6 @@ class Assessor(models.Model):
         blank=True,
         verbose_name='проекты',
         related_name='assessors'
-    )
-    status = models.CharField(
-        verbose_name='статус',
-        max_length=10,
-        choices=AssessorStatus.choices,
-        blank=True,
-        null=True
     )
     skills = models.ManyToManyField(
         Skill,
