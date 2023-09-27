@@ -1,10 +1,20 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Table from "../UI/Table";
 import {PencilSquareIcon} from "@heroicons/react/24/solid";
 import {Project} from "../../models/ProjectResponse";
+import AssessorService from "../../services/AssessorService";
+import ProjectService from "../../services/ProjectService";
 
-const AssessorProjects = () => {
+const AssessorProjects = ({assessorId}: { assessorId: string | number | undefined }) => {
     const [data, setData] = useState<Project[]>([])
+    useEffect(()=> {
+        if (assessorId){
+            ProjectService.fetchProjectsByAssessorID(assessorId).then(res => console.log(res.data))
+            AssessorService.fetchWorkloadStatus(assessorId).then(res => console.log(res.data))
+            AssessorService.fetchWorkingHours(assessorId).then(res => console.log(res.data))
+        }
+
+    }, [])
     return (
         <table className="min-w-full text-center">
             <thead className="">

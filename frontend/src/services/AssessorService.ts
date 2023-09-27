@@ -39,4 +39,10 @@ export default class AssessorService{
     static getBlackList(){
         return $api.get('/api/blacklist/')
     }
+    static fetchWorkloadStatus(assessorID: string | number) {
+        return $api.get(`/api/workload_status/?assessor=${assessorID}`)
+    }
+    static fetchWorkingHours(assessorID: string | number) {
+        return $api.get(`/api/working_hours/?assessor=${assessorID}`)
+    }
 }

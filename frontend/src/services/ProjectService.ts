@@ -39,6 +39,6 @@ export default class ProjectService {
         return $api.get<AssessorResponse>(`/api/projects/${id}/assessors/`,)
     }
     static fetchProjectsByAssessorID(id: string | number){
-        return $api.get(`/api/working_hours/?assessor=${id}`)
+        return $api.get(`/api/projects/?assessor=${id}`)
     }
 }

@@ -64,7 +64,7 @@ const AssessorPage = () => {
             </div>
             <div className='space-y-2'>
             <PersonalAssessorInfoTable data={assessor}/>
-            <AssessorProjects/>
+            <AssessorProjects assessorId={id}/>
             </div>
         </div>
     )
