@@ -1,7 +1,7 @@
 from drf_yasg import openapi
 
 from core.utils.schemas import BaseAPISchema
-from .models import HistoryAction
+from .models import HistoryAction, HistoryAttribute
 
 
 class HistorySchema(BaseAPISchema):
@@ -18,23 +18,32 @@ class HistorySchema(BaseAPISchema):
                     description='Unique assessor ID'
                 ),
                 openapi.Parameter(
-                    name='event',
+                    name='action',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by event.\n'
+                    description='Case-independent filtering by action.\n'
                                 'Example: host.com/?event=created.\n\n'
                                 f'Available events:\n'
                                 f'{", ".join([f"{item[0]} - {item[1]}" for item in HistoryAction.choices])}'
+                ),
+                openapi.Parameter(
+                    name='attribute',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Case-independent filtering by attribute.\n'
+                                'Example: host.com/?attribute=project.\n\n'
+                                f'Available attributes:\n'
+                                f'{", ".join([f"{item[0]} - {item[1]}" for item in HistoryAttribute.choices])}'
                 ),
                 openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results. '
-                                'Available fields: event, timestamp.\n\n'
+                                'Available fields: action, attribute, timestamp.\n\n'
                                 'Examples:\n'
                                 'host.com/?ordering=-timestamp\n'
-                                'host.com/?ordering=event'
+                                'host.com/?ordering=action'
                 )
             ],
             responses={**self.get_responses(401)}
