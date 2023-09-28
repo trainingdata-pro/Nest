@@ -33,12 +33,11 @@ export default class ProjectService {
     }
     static patchProject(id:any,data: any): Promise<AxiosResponse<Project>> {
         return $api.patch<Project>(`/api/projects/${id}/`, data)
-
     }
     static fetchProjectAssessors(id:any): Promise<AxiosResponse<AssessorResponse>> {
         return $api.get<AssessorResponse>(`/api/projects/${id}/assessors/`,)
     }
-    static fetchProjectsByAssessorID(id: string | number){
-        return $api.get(`/api/projects/?assessor_id=${id}`)
+    static fetchProjectsByAssessorID(id: string | number): Promise<AxiosResponse<ProjectResponse>>{
+        return $api.get<ProjectResponse>(`/api/projects/?assessor_id=${id}`)
     }
 }
