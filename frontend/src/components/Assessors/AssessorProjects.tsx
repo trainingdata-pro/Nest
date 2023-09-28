@@ -6,49 +6,61 @@ import AssessorService from "../../services/AssessorService";
 import ProjectService from "../../services/ProjectService";
 
 const AssessorProjects = ({assessorId}: { assessorId: string | number | undefined }) => {
-    const [data, setData] = useState<Project[]>([])
-    useEffect(()=> {
-        if (assessorId){
-            ProjectService.fetchProjectsByAssessorID(assessorId).then(res => console.log(res.data))
-            AssessorService.fetchWorkloadStatus(assessorId).then(res => console.log(res.data))
-            AssessorService.fetchWorkingHours(assessorId).then(res => console.log(res.data))
-        }
 
+    useEffect(() => {
+        if (assessorId) {
+            ProjectService.fetchProjectsByAssessorID(assessorId).then(res => setProjects(res.data.results))
+            AssessorService.fetchWorkloadStatus(assessorId).then(res => setWorkload(res.data.results))
+            AssessorService.fetchWorkingHours(assessorId).then(res => {
+                setWorkingHours(res.data.results)
+                console.log(res.data.results)
+            })
+        }
     }, [])
+
+    function getCurrentWorkingHours(projectId: string | number, workingHours: any[]) {
+        return workingHours.filter(workingHours => workingHours.project.id === projectId)[0]
+    }
+
+    const [projects, setProjects] = useState<Project[]>([])
+    const [workload, setWorkload] = useState<any>([])
+    const [workingHours, setWorkingHours] = useState<any>([])
     return (
         <table className="min-w-full text-center">
-            <thead className="">
-            <tr className="bg-[#E7EAFF]">
-                <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]">Название проекта</th>
-                <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]">Менеджер проекта</th>
-                <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]">Статус</th>
-                <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]">Количество рабочих часов</th>
-                <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]">Всего</th>
+            <thead className="bg-[#E7EAFF]">
+            <tr className="">
+                <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]" rowSpan={2}>Название проекта</th>
+                <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]" rowSpan={2}>Менеджер проекта</th>
+                <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]" rowSpan={2}>Статус</th>
+                <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]" colSpan={7}>Количество рабочих
+                    часов
+                </th>
+                <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]" rowSpan={2}>Всего</th>
+            </tr>
+            <tr>
+                <th>ПН</th>
+                <th>ВТ</th>
+                <th>СР</th>
+                <th>ЧТ</th>
+                <th>ПТ</th>
+                <th>СБ</th>
+                <th>ВС</th>
             </tr>
             </thead>
             <tbody>
-
+            {projects.map(project => <tr key={project.id}>
+                <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{project.name}</td>
+                <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{project.manager[0].last_name}</td>
+                <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{workload.filter((workload: any) => workload.project.id === project.id)[0]?.status}</td>
+                {Object.keys(getCurrentWorkingHours(project.id, workingHours)).filter(wh => wh !== 'project' && wh !== 'assessor' && wh !== 'id' && wh !== 'total').map((key, index) =>
+                    <td key={index} className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">
+                        {workingHours.filter((workingHours: any) => workingHours.project.id === project.id)[0][key]}
+                    </td>)}
+                <td className="whitespace-nowrap px-[5px] py-[20px]">
+                    {workingHours.filter((workingHours: any) => workingHours.project.id === project.id)[0]?.total}
+                </td>
+            </tr>)}
             </tbody>
-            {/*{data.length !== 0 ? <tbody> {data.map(project => <tr key={project.id} className="text-center border-t dark:border-neutral-500">*/}
-            {/*    <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{project.asana_id}</td>*/}
-            {/*    <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{project.name}</td>*/}
-            {/*    <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{project.manager.map(manager => <span key={manager.id}>{manager.last_name} {manager.first_name}</span>)}</td>*/}
-            {/*    <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px] cursor-pointer" onClick={() => navigation(`/dashboard/projects/${project.id}/assessors`)}>{project.assessors_count}</td>*/}
-            {/*    <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{statusObject[project.status]}</td>*/}
-            {/*    <td className="whitespace-nowrap px-[5px] py-[20px] flex justify-center">*/}
-            {/*        <PencilSquareIcon className="cursor-pointer h-6 w-6 text-gray-500" onClick={() => {*/}
-            {/*            setProjectId(project.id)*/}
-            {/*            setShowSidebar(true)*/}
-            {/*        }}/>*/}
-            {/*    </td>*/}
-            {/*</tr>) }</tbody>: <tbody>*/}
-            {/*<tr>*/}
-            {/*    <td className="p-4 border-b align-middle [&amp;:has([role=checkbox])]:pr-0 h-24 text-center"*/}
-            {/*        colSpan={20}>Нет результатов*/}
-            {/*    </td>*/}
-            {/*</tr>*/}
-            {/*</tbody>}*/}
-
         </table>
     );
 };

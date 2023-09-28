@@ -1,9 +1,12 @@
 import {IManager} from "./ManagerResponse";
 import {Project} from "./ProjectResponse";
 
-interface Skill {
+export interface Skill {
     id: number,
     title: string
+}
+export interface SkillResponse {
+    results: Skill[]
 }
 
 export interface Assessor {

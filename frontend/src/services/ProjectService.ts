@@ -17,7 +17,7 @@ interface TagResult {
 }
 export default class ProjectService {
     static fetchProjects(managerID:string | number, page: string | number = 1, pageLimit: string | number = 10): Promise<AxiosResponse<ProjectResponse>> {
-        return $api.get<ProjectResponse>(`/api/projects/?manager=${managerID}&page=${page}&page_size=${pageLimit}`)
+        return $api.get<ProjectResponse>(`/api/projects/?manager=${managerID}&page=${page}&page_size=${pageLimit}&status=new,pilot,active,pause`)
     }
     static fetchCompletedProjects(managerID:string | number): Promise<AxiosResponse<ProjectResponse>> {
         return $api.get<ProjectResponse>(`/api/projects/?manager=${managerID}&status=completed`)
@@ -39,6 +39,6 @@ export default class ProjectService {
         return $api.get<AssessorResponse>(`/api/projects/${id}/assessors/`,)
     }
     static fetchProjectsByAssessorID(id: string | number){
-        return $api.get(`/api/projects/?assessor=${id}`)
+        return $api.get(`/api/projects/?assessor_id=${id}`)
     }
 }

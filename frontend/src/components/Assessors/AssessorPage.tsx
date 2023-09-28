@@ -14,6 +14,7 @@ import TableLog from "./LoginAndPassword";
 import {observer} from "mobx-react-lite";
 import AssessorProjects from "./AssessorProjects";
 import AssessorHistory from "./AssessorHistory";
+import Skills from "./Skills";
 
 
 export interface AssessorPatch {
@@ -65,6 +66,7 @@ const AssessorPage = () => {
             <div className='space-y-2'>
             <PersonalAssessorInfoTable data={assessor}/>
             <AssessorProjects assessorId={id}/>
+            <Skills assessor={assessor}/>
             </div>
         </div>
     )

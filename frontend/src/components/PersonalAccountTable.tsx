@@ -17,11 +17,12 @@ const PersonalAccountTable = () => {
     const [showSidebar, setShowSidebar] = useState(false)
     const [currentPage, setCurrentPage] = useState(1)
     const [pageLimit, setPageLimit] = useState(10)
-
+    const [totalProjects, setTotalProjects] = useState<number>(0)
     useEffect(() => {
         setIsLoading(true)
         ProjectService.fetchProjects(store.user_id, currentPage, pageLimit).then(res => {
-            setData(res.data.results.filter(project => project.status !== 'completed'))
+            setData(res.data.results)
+            setTotalProjects(res.data.count)
             setCountPages(Math.ceil(res.data.count / pageLimit))
         })
         setIsLoading(false)
@@ -49,7 +50,7 @@ const PersonalAccountTable = () => {
 
                     <div className="flex-col container items-center">
                         <div className="flex justify-between my-2">
-                            <div>Всего активных проектов: {data.length}</div>
+                            <div>Всего активных проектов: {totalProjects}</div>
                             <button className="bg-[#5970F6] rounded-md text-white px-4 py-2"
                                     onClick={() => {
                                         setProjectId(0)

@@ -1,6 +1,6 @@
 import {AxiosResponse} from "axios";
 import $api from "../http";
-import {Assessor, AssessorResponse} from "../models/AssessorResponse";
+import {Assessor, AssessorResponse, SkillResponse} from "../models/AssessorResponse";
 export type ILoginAndPassword = {
     id: number,
     assessor: Assessor,
@@ -45,4 +45,13 @@ export default class AssessorService{
     static fetchWorkingHours(assessorID: string | number) {
         return $api.get(`/api/working_hours/?assessor=${assessorID}`)
     }
+    static fetchSkills():Promise<AxiosResponse<SkillResponse>>{
+        return $api.get<SkillResponse>('/api/skills/')
+    }
+    static patchAssessor(assessorId: string | number, data:any){
+        return $api.patch(`/api/assessors/${assessorId}/`, data)
+    }
+//     static fetchAssessorSkills(id: string | number):Promise<AxiosResponse<SkillResponse>>{
+//         return $api.get<SkillResponse>(`/api/skills/${id}/`)
+//     }
 }
