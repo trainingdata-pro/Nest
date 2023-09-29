@@ -307,7 +307,7 @@ class ExportProjectsSchema(BaseAPISchema):
             operation_description='Returns unique celery task ID',
             manual_parameters=[
                 openapi.Parameter(
-                    name=f'type',
+                    name='type',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
                     required=True,

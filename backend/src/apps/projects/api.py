@@ -1,12 +1,11 @@
 import os.path
-import time
 from typing import Iterable, Union
 
 from celery.result import AsyncResult
 from django.conf import settings
 from django.db.models import Count, QuerySet
 from django.db.models.query import EmptyQuerySet
-from django.http import FileResponse, Http404
+from django.http import FileResponse
 from django.utils.decorators import method_decorator
 from rest_framework import status, generics
 from rest_framework.exceptions import ValidationError
