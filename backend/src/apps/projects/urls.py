@@ -8,8 +8,15 @@ router.register('projects', api.ProjectAPIViewSet, basename='project')
 router.register('working_hours', api.ProjectWorkingHoursAPIViewSet, basename='project-working-hours')
 router.register('workload_status', api.WorkLoadStatusAPIViewSet, basename='workload-status')
 
+_export = [
+    path('', api.ExportProjectsInfoAPIView.as_view()),
+    path('status/<str:task_id>/', api.GetExportResultAPIView.as_view()),
+    path('download/<str:filename>/', api.DownloadReportAPIView.as_view())
+]
+
 urlpatterns = [
     path('', include(router.urls)),
+    path('export/', include(_export)),
     path('projects/<int:pk>/assessors/', api.GetAllAssessorForProject.as_view()),
-    path('tags/', api.TagsApiView.as_view())
+    path('tags/', api.TagsApiView.as_view()),
 ]
