@@ -1,6 +1,12 @@
 import {AxiosResponse} from "axios";
 import $api from "../http";
-import {Assessor, AssessorResponse} from "../models/AssessorResponse";
+import {
+    Assessor,
+    AssessorResponse,
+    SkillResponse,
+    WorkingHoursResponse,
+    WorkloadStatusResponse
+} from "../models/AssessorResponse";
 export type ILoginAndPassword = {
     id: number,
     assessor: Assessor,
@@ -33,7 +39,25 @@ export default class AssessorService{
     static patchCredentials(credId: string, data:any){
         return $api.patch(`/api/credentials/${credId}/`, data)
     }
+    static fetchAssessorHistory(id: string | number){
+        return $api.get(`/api/history/?assessor=${id}`)
+    }
     static getBlackList(){
         return $api.get('/api/blacklist/')
     }
+    static fetchWorkloadStatus(assessorID: string | number):Promise<AxiosResponse<WorkloadStatusResponse>> {
+        return $api.get<WorkloadStatusResponse>(`/api/workload_status/?assessor=${assessorID}`)
+    }
+    static fetchWorkingHours(assessorID: string | number): Promise<AxiosResponse<WorkingHoursResponse>> {
+        return $api.get<WorkingHoursResponse>(`/api/working_hours/?assessor=${assessorID}`)
+    }
+    static fetchSkills():Promise<AxiosResponse<SkillResponse>>{
+        return $api.get<SkillResponse>('/api/skills/')
+    }
+    static patchAssessor(assessorId: string | number, data:any){
+        return $api.patch(`/api/assessors/${assessorId}/`, data)
+    }
+//     static fetchAssessorSkills(id: string | number):Promise<AxiosResponse<SkillResponse>>{
+//         return $api.get<SkillResponse>(`/api/skills/${id}/`)
+//     }
 }

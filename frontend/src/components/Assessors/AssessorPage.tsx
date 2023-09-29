@@ -13,6 +13,8 @@ import Dialog from "../UI/Dialog";
 import TableLog from "./LoginAndPassword";
 import {observer} from "mobx-react-lite";
 import AssessorProjects from "./AssessorProjects";
+import AssessorHistory from "./AssessorHistory";
+import Skills from "./Skills";
 
 
 export interface AssessorPatch {
@@ -42,23 +44,30 @@ const AssessorPage = () => {
 
     const [assessor, setAssessor] = useState<Assessor>()
     const [isShowLoginAndPassword, setIsShowLoginAndPassword] = useState(false)
+    const [isShowHistory, setIsShowHistory] = useState(false)
     if (!assessor){
         return <div>Загрузка......</div>
     }
     return (
         <div>
+            <Dialog isOpen={isShowHistory} setIsOpen={setIsShowHistory}>
+                <AssessorHistory assessorId={id}/>
+            </Dialog>
             <Dialog isOpen={isShowLoginAndPassword} setIsOpen={setIsShowLoginAndPassword}>
                 <TableLog/>
             </Dialog>
             <Header/>
             <div className="container pt-24">
                 <button>Управление</button>
-                <button>История</button>
+                <button onClick={() => setIsShowHistory(true)}>История</button>
                 <button onClick={() => setIsShowLoginAndPassword(true)}>Логины и пароли</button>
 
             </div>
+            <div className='space-y-2'>
             <PersonalAssessorInfoTable data={assessor}/>
-            <AssessorProjects/>
+            <AssessorProjects assessorId={id}/>
+            <Skills assessor={assessor}/>
+            </div>
         </div>
     )
 };
