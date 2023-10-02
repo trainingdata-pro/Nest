@@ -1,34 +1,31 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {Context} from '../index';
 import ProjectService from '../services/ProjectService';
-import {Project} from "../models/ProjectResponse";
 import {observer} from "mobx-react-lite";
 import Loader from "./UI/Loader";
 import ProjectForm from "./ProjectForm";
 import Dialog from "./UI/Dialog";
 import NewTable from "./NewTable";
-
-
+import {useQuery} from "react-query";
 
 const PersonalAccountTable = () => {
     const {store} = useContext(Context)
-    const [projectsId, setProjectId] = useState(0)
-    const [isLoading, setIsLoading] = useState(false)
-    const [showSidebar, setShowSidebar] = useState(false)
     const [currentPage, setCurrentPage] = useState(1)
     const [pageLimit, setPageLimit] = useState(10)
-    const [totalProjects, setTotalProjects] = useState<number>(0)
-    useEffect(() => {
-        setIsLoading(true)
-        ProjectService.fetchProjects(store.user_id, currentPage, pageLimit).then(res => {
-            setData(res.data.results)
-            setTotalProjects(res.data.count)
-            setCountPages(Math.ceil(res.data.count / pageLimit))
-        })
-        setIsLoading(false)
-    }, [store.user_data, currentPage, pageLimit])
+    const {
+        data,
+        isLoading,
+    } = useQuery(['projects', currentPage, pageLimit], () => ProjectService.fetchProjects(store.user_id, currentPage, pageLimit),{
+        onSuccess: (data) => {
+            setTotalProjects(data.count)
+            setCountPages(Math.ceil(data.count/pageLimit))
+        },
+        keepPreviousData: true
+    })
 
-    const [data, setData] = useState<Project[]>([])
+    const [projectsId, setProjectId] = useState(0)
+    const [showSidebar, setShowSidebar] = useState(false)
+    const [totalProjects, setTotalProjects] = useState<number>(0)
     const [countPages, setCountPages] = useState(1)
 
     if (isLoading) {
@@ -41,8 +38,7 @@ const PersonalAccountTable = () => {
                 <Dialog isOpen={showSidebar} setIsOpen={setShowSidebar}>
                     <div className="w-[30rem]">
                         <ProjectForm projectId={projectsId}
-                                     projects={data}
-                                     setNewData={setData}
+                                     projects={data?.results}
                                      closeSidebar={setShowSidebar}/>
                     </div>
                 </Dialog>
@@ -59,11 +55,11 @@ const PersonalAccountTable = () => {
                             </button>
                         </div>
                         <div className='rounded-[20px] bg-white overflow-hidden pb-4'>
-                            <NewTable data={data} setProjectId={setProjectId} setShowSidebar={setShowSidebar}/>
+                            <NewTable data={data?.results} setProjectId={setProjectId} setShowSidebar={setShowSidebar}/>
                             <div className="flex px-2 justify-between space-y-2 border-t dark:border-neutral-500">
                                 <div className="flex items-center justify-center text-sm font-medium">
                                      <span className="items-center gap-1 text-[18px]">
-                                         Страница {data.length !== 0 ? currentPage : 0} из {countPages}
+                                         Страница {data?.results.length !== 0 ? currentPage : 0} из {countPages}
                                      </span>
                                 </div>
                                 <div className="text-[18px] flex items-center space-x-2 mr-2">

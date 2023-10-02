@@ -46,19 +46,19 @@ const AddAssessorForm = ({assessors, setAssessors, showSidebar, setShowSidebar}:
         const {store} = useContext(Context)
 
         const {id} = useParams()
-        useEffect(() => {
-            ProjectService.fetchProjects(store.user_id.toString()).then(res => {
-                setProjects(res.data.results.filter(d => d.manager.map(manager => manager.id === store.user_id)).map(result => {
-                    return {value: result.id, label: result.name}
-                }))
-                if (id) {
-                    const currentProject = res.data.results.filter(project => project.id.toString() === id)[0]
-                    setValue('projects', {label: currentProject.name, value: currentProject.id})
-                }
-
-
-            })
-        }, [])
+        // useEffect(() => {
+        //     ProjectService.fetchProjects(store.user_id.toString()).then(res => {
+        //         setProjects(res.data.results.filter(d => d.manager.map(manager => manager.id === store.user_id)).map(result => {
+        //             return {value: result.id, label: result.name}
+        //         }))
+        //         if (id) {
+        //             const currentProject = res.data.results.filter(project => project.id.toString() === id)[0]
+        //             setValue('projects', {label: currentProject.name, value: currentProject.id})
+        //         }
+        //
+        //
+        //     })
+        // }, [])
         const {register, setValue, watch, reset, getValues, formState: {errors}, handleSubmit} = useForm<FormProps>({
             defaultValues: {
                 manager: store.user_id,
@@ -106,6 +106,9 @@ const AddAssessorForm = ({assessors, setAssessors, showSidebar, setShowSidebar}:
         const handleSelectChangeStatus = (value: any) => {
             setValue('status', value);
         };
+    const handleSelectCountryStatus = (value: any) => {
+        setValue('country', value);
+    };
         const handleSelectChangeProject = (value: any) => {
             setValue('projects', value);
         };
@@ -198,7 +201,7 @@ const AddAssessorForm = ({assessors, setAssessors, showSidebar, setShowSidebar}:
                         {...register('country')}
                         options={countryObject}
                         value={watch('country')}
-                        onChange={handleSelectChangeStatus}
+                        onChange={handleSelectCountryStatus}
                     />
                 </FormSection>
                 <FormSection>

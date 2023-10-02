@@ -57,14 +57,13 @@ const AssessorPage = () => {
                 <TableLog/>
             </Dialog>
             <Header/>
-            <div className="container pt-24">
-                <button>Управление</button>
-                <button onClick={() => setIsShowHistory(true)}>История</button>
-                <button onClick={() => setIsShowLoginAndPassword(true)}>Логины и пароли</button>
-
+            <div className="container pt-20 space-x-2 flex justify-end mb-2">
+                <button className='bg-[#5970F6] rounded-md text-white px-4 py-2'>Управление</button>
+                <button className='bg-[#5970F6] rounded-md text-white px-4 py-2' onClick={() => setIsShowHistory(true)}>История</button>
+                <button className='bg-[#5970F6] rounded-md text-white px-4 py-2' onClick={() => setIsShowLoginAndPassword(true)}>Логины и пароли</button>
             </div>
-            <div className='space-y-2'>
-            <PersonalAssessorInfoTable data={assessor}/>
+            <div className='space-y-4'>
+            <PersonalAssessorInfoTable data={assessor} assessorId={id}/>
             <AssessorProjects assessorId={id}/>
             <Skills assessor={assessor}/>
             </div>
