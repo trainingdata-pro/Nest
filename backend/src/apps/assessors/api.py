@@ -31,7 +31,7 @@ class SkillsAPIViewSet(viewsets.ModelViewSet):
 
 @method_decorator(name='retrieve', decorator=schemas.assessor_schema.retrieve())
 @method_decorator(name='list', decorator=schemas.assessor_schema.list())
-@method_decorator(name='create', decorator=schemas.assessor_schema.create())
+@method_decorator(name='create', decorator=schemas.assessor_schema.create_instance())
 @method_decorator(name='partial_update', decorator=schemas.assessor_schema.partial_update())
 @method_decorator(name='projects', decorator=schemas.assessor_schema.projects())
 @method_decorator(name='vacation', decorator=schemas.assessor_schema.vacation())
@@ -107,27 +107,18 @@ class AssessorAPIViewSet(BaseAPIViewSet):
     def get_queryset(self) -> QuerySet[Assessor]:
         user = self.request.user
         if user.is_superuser:
-            return (Assessor.objects.all()
-                    .select_related('manager')
-                    .prefetch_related('projects__manager', 'second_manager')
-                    .order_by('manager__last_name', 'last_name')
-                    .distinct())
+            queryset = Assessor.objects.all()
         else:
             if user.manager_profile.is_teamlead:
                 team = BaseUser.objects.filter(status=UserStatus.MANAGER, manager_profile__teamlead=user)
-                return (Assessor.objects
-                        .filter(manager__in=team)
-                        .select_related('manager')
-                        .prefetch_related('projects__manager', 'second_manager')
-                        .order_by('manager__last_name', 'last_name')
-                        .distinct())
+                queryset = Assessor.objects.filter(manager__in=team)
+            else:
+                queryset = Assessor.objects.filter(Q(manager=user) | Q(second_manager__in=[user]))
 
-            return (Assessor.objects
-                    .filter(Q(manager=user) | Q(second_manager__in=[user]))
-                    .select_related('manager')
-                    .prefetch_related('projects__manager', 'second_manager')
-                    .order_by('last_name')
-                    .distinct())
+        return (queryset.select_related('manager')
+                .prefetch_related('projects__manager', 'second_manager')
+                .order_by('manager__last_name', 'last_name')
+                .distinct())
 
     def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
@@ -207,7 +198,7 @@ class AssessorCheckAPIView(generics.ListAPIView):
 
 @method_decorator(name='retrieve', decorator=schemas.credentials_schema.retrieve())
 @method_decorator(name='list', decorator=schemas.credentials_schema.list())
-@method_decorator(name='create', decorator=schemas.credentials_schema.create())
+@method_decorator(name='create', decorator=schemas.credentials_schema.create_instance())
 @method_decorator(name='partial_update', decorator=schemas.credentials_schema.partial_update())
 @method_decorator(name='destroy', decorator=schemas.credentials_schema.destroy())
 class AssessorCredentialsAPIViewSet(BaseAPIViewSet):
