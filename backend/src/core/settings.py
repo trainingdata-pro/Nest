@@ -167,6 +167,8 @@ REST_FRAMEWORK = {
 
 VALID_EMAIL_DOMAINS = ['trainingdata.pro']
 
+FILE_STORAGE_DAYS = 1
+
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST = os.environ.get('EMAIL_HOST')
@@ -193,9 +195,14 @@ CELERY_TIMEZONE = TIME_ZONE
 
 # CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CELERY_BEAT_SCHEDULE = {
-    'every_day_task': {
+    'update_status_task': {
         'task': 'apps.assessors.tasks.update_assessor_status',
         'schedule': crontab(hour='00', minute='00')
+        # 'schedule': crontab(minute='*/1')
+    },
+    'remove_files_task': {
+        'task': 'apps.projects.tasks.remove_old_files',
+        'schedule': crontab(hour='01', minute='00')
     }
 }
 
