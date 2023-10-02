@@ -31,7 +31,7 @@ class SkillsAPIViewSet(viewsets.ModelViewSet):
 
 @method_decorator(name='retrieve', decorator=schemas.assessor_schema.retrieve())
 @method_decorator(name='list', decorator=schemas.assessor_schema.list())
-@method_decorator(name='create', decorator=schemas.assessor_schema.create_instance())
+@method_decorator(name='create', decorator=schemas.assessor_schema.create())
 @method_decorator(name='partial_update', decorator=schemas.assessor_schema.partial_update())
 @method_decorator(name='projects', decorator=schemas.assessor_schema.projects())
 @method_decorator(name='vacation', decorator=schemas.assessor_schema.vacation())
@@ -198,7 +198,7 @@ class AssessorCheckAPIView(generics.ListAPIView):
 
 @method_decorator(name='retrieve', decorator=schemas.credentials_schema.retrieve())
 @method_decorator(name='list', decorator=schemas.credentials_schema.list())
-@method_decorator(name='create', decorator=schemas.credentials_schema.create_instance())
+@method_decorator(name='create', decorator=schemas.credentials_schema.create())
 @method_decorator(name='partial_update', decorator=schemas.credentials_schema.partial_update())
 @method_decorator(name='destroy', decorator=schemas.credentials_schema.destroy())
 class AssessorCredentialsAPIViewSet(BaseAPIViewSet):
@@ -272,14 +272,12 @@ class FreeResourcesAPIViewSet(BaseAPIViewSet):
     ]
 
     def get_queryset(self) -> QuerySet[Assessor]:
-        queryset = (Assessor.objects
-                    .filter(Q(state=AssessorState.FREE_RESOURCE) | Q(manager=None))
-                    .exclude(second_manager__in=[self.request.user])
-                    .select_related('manager')
-                    .prefetch_related('projects')
-                    .order_by('last_name'))
-
-        return queryset
+        return (Assessor.objects
+                .filter(Q(state=AssessorState.FREE_RESOURCE) | Q(manager=None))
+                .exclude(second_manager__in=[self.request.user])
+                .select_related('manager')
+                .prefetch_related('projects')
+                .order_by('last_name'))
 
     def update(self, request: Request, *args, **kwargs) -> Response:
         partial = kwargs.pop('partial', False)
