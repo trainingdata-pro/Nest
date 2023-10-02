@@ -93,10 +93,6 @@ class ProjectExport:
         path_to_file = writer.write(data=data, filename=filename)
         return path_to_file
 
-    @staticmethod
-    def delete_file(path: str) -> None:
-        os.remove(path)
-
     def _get_projects(self, team: Iterable[int]) -> QuerySet[Project]:
         return self.model.objects.filter(
             status=ProjectStatuses.COMPLETED,
@@ -153,4 +149,4 @@ class ProjectExport:
 
     @staticmethod
     def _date_to_str(date: datetime.date) -> str:
-        return date.strftime('%d-%M-%Y')
+        return date.strftime('%d-%m-%Y')
