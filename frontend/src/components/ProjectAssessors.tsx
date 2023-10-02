@@ -162,7 +162,7 @@ const ProjectAssessors = () => {
         const [project, setProject] = useState<Project>({} as Project)
         const {id} = useParams()
         useMemo(() => {
-            ProjectService.fetchProject(id).then(res => setProject(res.data))
+            // ProjectService.fetchProject(id).then(res => setProject(res.data))
             ProjectService.fetchProjectAssessors(id)
                 .then(res => {
                     setData(res.data.results)

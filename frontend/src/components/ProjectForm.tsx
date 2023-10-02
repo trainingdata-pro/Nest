@@ -11,6 +11,7 @@ import {IManager} from "../models/ManagerResponse";
 import {observer} from "mobx-react-lite";
 import MyLabel from "./UI/MyLabel";
 import Error from "./UI/Error";
+import {useMutation, useQuery, useQueryClient} from "react-query";
 
 export interface SelectProps {
     value: string | number,
@@ -31,56 +32,45 @@ interface ProjectFormProps {
     tag: SelectProps[] | null,
     date_of_creation: string
 }
-
+interface MyParams {
+    id: number| string;
+    data: any; // Замените на тип ваших данных
+}
 export const FormSection =({children}: {children:React.ReactNode}) => {
     return <div className="mb-2">{children}</div>
 }
-const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
+const ProjectForm = ({projectId, closeSidebar, projects}: {
     projectId: number | string,
-    setNewData: Dispatch<SetStateAction<Project[]>>,
     closeSidebar: any,
-    projects: Project[]
+    projects: Project[] |undefined
 }) => {
     const {store} = useContext(Context)
-    useEffect(() => {
-        if (projectId) {
-            if (projectId !== 0) {
-                ProjectService.fetchProject(projectId).then(res => {
-                        setValue('name', res.data.name)
-                    setValue('manager', res.data.manager.map(manager => {
-                        return {value: manager.id, label: `${manager.last_name} ${manager.first_name}`}
-                    }))
-                    setValue('speed_per_hour', res.data.speed_per_hour)
-                    setValue('price_for_assessor', res.data.price_for_assessor)
-                    setValue('price_for_costumer', res.data.price_for_costumer)
-                    setValue('asana_id', res.data.asana_id)
-                    setValue('unloading_value', res.data.unloading_value)
-                    setValue('unloading_regularity', res.data.unloading_regularity)
-                    setValue('status', statusList.filter(item => item.value === res.data.status)[0])
-                    setValue('tag', res.data.tag.map(tag => {
-                        return {value: tag.id, label: tag.name}
-                    }))
-                    setValue('date_of_creation',res.data.date_of_creation)
-                })
+    const tagsQuery = useQuery(['tags'], () => ProjectService.fetchProjectTags())
+    const currentProject = useQuery(['currentProject', projectId], ({queryKey}) => {
+        if (queryKey[1] !== 0){
+            return ProjectService.fetchProject(queryKey[1])
+        }
+    }, {
+        onSuccess: (data) => {
+            if (data){
+                setValue('name', data.name)
+                setValue('manager', data.manager.map(manager => {
+                    return {value: manager.id, label: `${manager.last_name} ${manager.first_name}`}
+                }))
+                setValue('speed_per_hour', data.speed_per_hour)
+                setValue('price_for_assessor', data.price_for_assessor)
+                setValue('price_for_costumer', data.price_for_costumer)
+                setValue('asana_id', data.asana_id)
+                setValue('unloading_value', data.unloading_value)
+                setValue('unloading_regularity', data.unloading_regularity)
+                setValue('status', statusList.filter(item => item.value === data.status)[0])
+                setValue('tag', data.tag.map(tag => {
+                    return {value: tag.id, label: tag.name}
+                }))
+                setValue('date_of_creation', data.date_of_creation)
             }
-    }}, [projectId])
-
-
-    useEffect(() => {
-        ManagerService.fetch_managers().then(res => {
-            setManagers(res.data.results.filter(manager => manager.teamlead === store.user_data.teamlead).map((manager: IManager) => {
-                return {
-                    value: manager.id, label: `${manager.last_name} ${manager.first_name}`
-                }
-            }))
-        })
-        ProjectService.fetchProjectTags().then((res) => {
-            setTags(res.data.results.map((tag) => {
-                return {value: tag.id, label: tag.name}
-            }))
-        })
-    }, [])
-    const [tags, setTags] = useState<SelectProps[]>([])
+        }
+    })
     const [managers, setManagers] = useState<SelectProps[]>([])
 
     const statusList = [
@@ -109,38 +99,29 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
         }
     })
     const [serverError, setServerError] = useState([])
+    const queryClient = useQueryClient();
+    const patchProject = useMutation((params:MyParams) => ProjectService.patchProject(params.id, params.data), {
+        onSuccess: () => {
+            // Инвалидация и обновление
+            queryClient.invalidateQueries('projects');
+        },
+    });
+    const postProject = useMutation((data:any) => ProjectService.postProject(data), {
+        onSuccess: () => {
+            // Инвалидация и обновление
+            queryClient.invalidateQueries('projects');
+        },
+    });
+
     async function onSubmit() {
         const formValue = getValues()
         const requestData1 = {...formValue, manager: formValue.manager?.map(manager =>manager.value)}
         const requestData2 = {...requestData1, status: formValue.status.value}
         const requestData3 = {...requestData2, tag: formValue.tag?.map(tag =>tag.value)}
-
-        if (projectId === 0) {
-            await ProjectService.addProject(requestData3).then((res) => {
-                setNewData([res.data,...projects])
-                closeSidebar(false)
-            }).catch(e=> {
-                const errJson = JSON.parse(e.request.response)
-                setServerError(errJson)
-            })
-
+        if (projectId!==0){
+            patchProject.mutate({id: projectId, data: requestData3})
         } else {
-            await ProjectService.patchProject(projectId, requestData3).then((res) => {
-                const index = projects.findIndex(project => project.id === projectId)
-                let pr = [...projects]
-                if (res.data.status === 'completed'){
-                    pr[index] = res.data
-                    setNewData([...pr.filter(project => project.status !== 'completed')])
-                } else {
-                    pr[index] = res.data
-                    setNewData([...pr])
-                }
-
-                closeSidebar(false)
-            }).catch(e=> {
-                const errJson = JSON.parse(e.request.response)
-                setServerError(errJson)
-            })
+            postProject.mutate(requestData3)
         }
     }
 
@@ -183,6 +164,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
                             value={watch('manager')}
                             isDisabled={!store.user_data.is_teamlead}
                             isMulti
+                            isSearchable={false}
                             {...register('manager', {required: 'Обязательное поле'})}
                             onChange={handleSelectChange}
                         />
@@ -232,6 +214,7 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
                         <Select
                             {...register('status', {required: 'Обязательное поле'})}
                             options={statusList}
+                            isSearchable={false}
                             value={watch('status')}
                             onChange={handleSelectChangeStatus}
                         />
@@ -242,8 +225,13 @@ const ProjectForm = ({projectId, setNewData, closeSidebar, projects}: {
                         <MyLabel>Тег: </MyLabel>
                         </div>
                         <Select
-                            options={tags}
+                            options={tagsQuery.data?.results.map(tag => {
+                                return{
+                                    label: tag.name,
+                                    value: tag.id
+                            }})}
                             isMulti
+                            isSearchable={false}
                             value={watch('tag')}
                             {...register('tag')}
                             onChange={handleSelectTagChange}

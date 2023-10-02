@@ -54,9 +54,24 @@ export default class AssessorService{
     static fetchSkills():Promise<AxiosResponse<SkillResponse>>{
         return $api.get<SkillResponse>('/api/skills/')
     }
-    static patchAssessor(assessorId: string | number, data:any){
+    static patchAssessor(assessorId: string | number|undefined, data:any){
         return $api.patch(`/api/assessors/${assessorId}/`, data)
     }
+    static patchWorkloadStatus(workloadId: string | number, status: string ){
+        return $api.patch(`/api/workload_status/${workloadId}/`, {
+            status: status
+        })
+    }
+    static createWorkloadStatus(data: any ){
+        return $api.post(`/api/workload_status/`, data)
+    }
+    static patchWorkingHours(workingHoursId: string | number, data:any ){
+        return $api.patch(`/api/working_hours/${workingHoursId}/`, data)
+    }
+    static createWorkingHours(data: any ){
+        return $api.post(`/api/working_hours/`, data)
+    }
+
 //     static fetchAssessorSkills(id: string | number):Promise<AxiosResponse<SkillResponse>>{
 //         return $api.get<SkillResponse>(`/api/skills/${id}/`)
 //     }

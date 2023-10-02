@@ -24,7 +24,7 @@ export interface WorkingHours {
     friday: number,
     saturday: number,
     sunday: number
-    assessor: number
+    assessor: number | string | undefined
 }
 
 export interface WorkingHoursResponse {
@@ -37,9 +37,10 @@ export interface WorkloadStatus {
         name: string,
         manager: IManager[],
     }
-    status: string,
+    status: Status,
     assessor: number
 }
+type Status = 'full' | 'partial' | 'reserved'
 export interface IAssessorProjects extends Project{
     workingHours: WorkingHours,
     workloadStatus: WorkloadStatus

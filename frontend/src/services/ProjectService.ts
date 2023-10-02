@@ -15,25 +15,20 @@ export interface Tag {
 interface TagResult {
     results: Tag[]
 }
+
 export default class ProjectService {
-    static fetchProjects(managerID:string | number, page: string | number = 1, pageLimit: string | number = 10): Promise<AxiosResponse<ProjectResponse>> {
-        return $api.get<ProjectResponse>(`/api/projects/?manager=${managerID}&page=${page}&page_size=${pageLimit}&status=new,pilot,active,pause`)
-    }
+    static fetchProjects = (user_id: number | string, page = 1, pageLimit = 10) => $api.get<ProjectResponse>(`/api/projects/?manager=${user_id}&page=${page}&page_size=${pageLimit}&status=new,pilot,active,pause`).then((res) => res.data)
+
     static fetchCompletedProjects(managerID:string | number): Promise<AxiosResponse<ProjectResponse>> {
         return $api.get<ProjectResponse>(`/api/projects/?manager=${managerID}&status=completed`)
     }
-    static fetchProject(projectId: any): Promise<AxiosResponse<Project>>{
-        return $api.get<Project>(`/api/projects/${projectId}/`)
-    }
-    static addProject(data: any): Promise<AxiosResponse<Project>> {
-        return $api.post<Project>(`/api/projects/`, data)
-    }
-    static fetchProjectTags(): Promise<AxiosResponse<TagResult>> {
-        return $api.get<TagResult>('/api/tags/')
-    }
-    static patchProject(id:any,data: any): Promise<AxiosResponse<Project>> {
-        return $api.patch<Project>(`/api/projects/${id}/`, data)
-    }
+    static fetchProject = (projectId: string | number) => $api.get<Project>(`/api/projects/${projectId}/`).then((res) => res.data)
+    static postProject = (data: any) => $api.post<Project>(`/api/projects/`, data).then((res) => res.data)
+    static fetchProjectTags = () => $api.get<TagResult>('/api/tags/').then((res) => res.data)
+
+
+    static patchProject = (id:any,data: any) => $api.patch<Project>(`/api/projects/${id}/`, data).then((res) => res.data)
+
     static fetchProjectAssessors(id:any): Promise<AxiosResponse<AssessorResponse>> {
         return $api.get<AssessorResponse>(`/api/projects/${id}/assessors/`,)
     }
