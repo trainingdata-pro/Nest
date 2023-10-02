@@ -25,6 +25,13 @@ class ProjectStatuses(models.TextChoices):
     PAUSE = ('pause', 'На паузе')
     COMPLETED = ('completed', 'Завершен')
 
+    @classmethod
+    def get_value(cls, key: str) -> str:
+        for state in cls.choices:
+            if state[0] == key:
+                return state[1]
+        return '-'
+
 
 class Project(models.Model):
     asana_id = models.BigIntegerField(
@@ -41,31 +48,31 @@ class Project(models.Model):
         blank=True
     )
     speed_per_hour = models.IntegerField(
-        verbose_name='Скорость в час',
+        verbose_name='скорость в час',
         validators=[not_negative_value_validator],
         blank=True,
         null=True
     )
     price_for_assessor = models.FloatField(
-        verbose_name='Цена за единицу для ассессора',
+        verbose_name='цена за единицу для ассессора',
         validators=[not_negative_value_validator],
         blank=True,
         null=True
     )
     price_for_costumer = models.FloatField(
-        verbose_name='Цена за единицу для заказчика',
+        verbose_name='цена за единицу для заказчика',
         validators=[not_negative_value_validator],
         blank=True,
         null=True
     )
     unloading_value = models.CharField(
-        verbose_name='Объем выгрузок',
+        verbose_name='объем выгрузок',
         max_length=255,
         blank=True,
         null=True
     )
     unloading_regularity = models.IntegerField(
-        verbose_name='Регулярность выгрузок',
+        verbose_name='регулярность выгрузок',
         validators=[not_negative_value_validator],
         blank=True,
         null=True

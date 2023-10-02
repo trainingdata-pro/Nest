@@ -233,3 +233,12 @@ class WorkLoadStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkLoadStatus
         fields = '__all__'
+
+
+class ExportProjectsSerializer(serializers.Serializer):
+    task_id = serializers.CharField(required=False, max_length=255)
+
+
+class DownloadStatusSerializer(serializers.Serializer):
+    status = serializers.CharField(max_length=50, required=False)
+    filename = serializers.CharField(max_length=50, allow_null=True, required=False)

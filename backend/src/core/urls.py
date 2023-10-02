@@ -8,7 +8,13 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAdminUser
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .settings import DEBUG, STATIC_URL, STATIC_ROOT
+from .settings import (
+    DEBUG,
+    STATIC_URL,
+    STATIC_ROOT,
+    MEDIA_URL,
+    MEDIA_ROOT
+)
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -49,6 +55,5 @@ urlpatterns = [
 
 if DEBUG:
     urlpatterns += static(STATIC_URL, document_root=STATIC_ROOT)
-    urlpatterns += [
-        path('__debug__/', include('debug_toolbar.urls')),
-    ]
+    urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT)
+    urlpatterns += [path('__debug__/', include('debug_toolbar.urls'))]
