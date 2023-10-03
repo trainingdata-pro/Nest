@@ -191,8 +191,8 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
 
-    'TOKEN_OBTAIN_SERIALIZER': 'core.utils.serializers.CustomTokenObtainPairSerializer',
-    'TOKEN_REFRESH_SERIALIZER': 'core.utils.serializers.CustomRefreshTokenSerializer',
+    'TOKEN_OBTAIN_SERIALIZER': 'core.serializers.CustomTokenObtainPairSerializer',
+    'TOKEN_REFRESH_SERIALIZER': 'core.serializers.CustomRefreshTokenSerializer',
 }
 
 SWAGGER_SETTINGS = {
