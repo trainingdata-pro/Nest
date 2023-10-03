@@ -9,7 +9,7 @@ from django.db.models import QuerySet
 import pandas
 from rest_framework.exceptions import ValidationError
 
-from core.utils.common import get_code, current_date
+from core.utils import get_code, current_date
 from ..models import Project, ProjectStatuses
 
 CSV_TYPE = 'csv'
@@ -93,10 +93,6 @@ class ProjectExport:
         path_to_file = writer.write(data=data, filename=filename)
         return path_to_file
 
-    @staticmethod
-    def delete_file(path: str) -> None:
-        os.remove(path)
-
     def _get_projects(self, team: Iterable[int]) -> QuerySet[Project]:
         return self.model.objects.filter(
             status=ProjectStatuses.COMPLETED,
@@ -153,4 +149,4 @@ class ProjectExport:
 
     @staticmethod
     def _date_to_str(date: datetime.date) -> str:
-        return date.strftime('%d-%M-%Y')
+        return date.strftime('%d-%m-%Y')

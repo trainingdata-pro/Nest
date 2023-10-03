@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from core.utils.common import current_date
-from core.utils.validators import not_negative_value_validator, day_hours_validator
+from core.utils import current_date
+from core.validators import not_negative_value_validator, day_hours_validator
 
 
 class ProjectTag(models.Model):
@@ -34,8 +34,9 @@ class ProjectStatuses(models.TextChoices):
 
 
 class Project(models.Model):
-    asana_id = models.BigIntegerField(
-        verbose_name='asana ID',
+    asana_id = models.CharField(
+        max_length=50,
+        verbose_name='asana ID'
     )
     name = models.CharField(
         max_length=255,

@@ -1,10 +1,10 @@
 import re
 from typing import Union
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
-from core.settings import VALID_EMAIL_DOMAINS
 from .users import UserStatus
 
 
@@ -40,7 +40,7 @@ def day_hours_validator(value: Union[int, float]) -> None:
 
 def email_domain_validator(email: str) -> None:
     domain = email.split('@')[-1]
-    if domain.lower() not in VALID_EMAIL_DOMAINS:
+    if domain.lower() not in settings.VALID_EMAIL_DOMAINS:
         raise ValidationError(
             'Используйте корпоративную электронную почту.'
         )

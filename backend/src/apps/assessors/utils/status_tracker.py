@@ -3,8 +3,8 @@ from typing import List
 from django.db.models import QuerySet
 
 from apps.history.models import History
-from apps.history.services import history
-from core.utils.common import current_date
+from apps.history.services.history_service import history
+from core.utils import current_date
 from ..models import Assessor, AssessorState
 
 

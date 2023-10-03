@@ -18,36 +18,48 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-q#cm-@xnl4)mrxs2mzmzeldzo^-o!5j!a_vc*@lr+wqf%4d0x8')
 
-DEBUG = bool(os.environ.get('DEBUG', False))
+DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+MAIN_HOST = 'http://127.0.0.1:3000'
+
+ALLOWED_HOSTS = [MAIN_HOST]
 
 # Application definition
-INSTALLED_APPS = [
+DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
-    # apps
-    'apps.assessors.apps.AssessorsConfig',
-    'apps.authapp.apps.AuthappConfig',
-    'apps.fired.apps.FiredConfig',
-    'apps.history.apps.HistoryConfig',
-    'apps.projects.apps.ProjectsConfig',
-    'apps.users.apps.UsersConfig',
-    # other
+    'django.contrib.staticfiles'
+]
+
+THIRD_PARTY_APP = [
     'rest_framework',
     'drf_yasg',
     'django_filters',
     'corsheaders',
     'debug_toolbar',
     'django_celery_beat'
+]
+
+PROJECT_APPS = [
+    'apps.assessors.apps.AssessorsConfig',
+    'apps.authapp.apps.AuthappConfig',
+    'apps.fired.apps.FiredConfig',
+    'apps.history.apps.HistoryConfig',
+    'apps.projects.apps.ProjectsConfig',
+    'apps.users.apps.UsersConfig'
+]
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APP + PROJECT_APPS
+
+INTERNAL_IPS = [
+    '127.0.0.1'
 ]
 
 MIDDLEWARE = [
@@ -64,22 +76,7 @@ MIDDLEWARE = [
 
 AUTH_USER_MODEL = 'users.BaseUser'
 
-MAIN_HOST = 'https://assessors-test.trainingdata.solutions'
-
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    MAIN_HOST
-]
-CORS_ALLOW_CREDENTIALS = True
-
-CSRF_TRUSTED_ORIGINS = [MAIN_HOST]
-
-INTERNAL_IPS = [
-    '127.0.0.1'
-]
-
-ROOT_URLCONF = 'core.urls'
+ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
@@ -97,7 +94,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'core.wsgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
@@ -108,10 +105,6 @@ DATABASES = {
         'HOST': os.getenv('POSTGRES_HOST', 'postgres'),
         'PORT': os.getenv('POSTGRES_PORT', 5432),
     }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3'
-    # }
 }
 
 # Password validation
@@ -152,11 +145,33 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+VALID_EMAIL_DOMAINS = ['trainingdata.pro']
+
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST = os.environ.get('EMAIL_HOST')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+
+FILE_STORAGE_DAYS = 1
+
+RESET_PASSWORD_TOKEN_EXPIRATION_DAY = 1
+
+CORS_ALLOWED_ORIGINS = [
+    'http://127.0.0.1:3000',
+    MAIN_HOST
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [MAIN_HOST]
+
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'core.utils.pagination.Pagination',
+    'DEFAULT_PAGINATION_CLASS': 'core.pagination.Pagination',
     'PAGE_SIZE': 50,
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication'
     ],
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
@@ -165,13 +180,6 @@ REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }
 
-VALID_EMAIL_DOMAINS = ['trainingdata.pro']
-
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST = os.environ.get('EMAIL_HOST')
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
@@ -183,23 +191,9 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
 
-    'TOKEN_OBTAIN_SERIALIZER': 'core.utils.serializers.CustomTokenObtainPairSerializer',
-    'TOKEN_REFRESH_SERIALIZER': 'core.utils.serializers.CustomRefreshTokenSerializer',
+    'TOKEN_OBTAIN_SERIALIZER': 'core.serializers.CustomTokenObtainPairSerializer',
+    'TOKEN_REFRESH_SERIALIZER': 'core.serializers.CustomRefreshTokenSerializer',
 }
-
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/1')
-CELERY_TIMEZONE = TIME_ZONE
-
-# CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
-CELERY_BEAT_SCHEDULE = {
-    'every_day_task': {
-        'task': 'apps.assessors.tasks.update_assessor_status',
-        'schedule': crontab(hour='00', minute='00')
-    }
-}
-
-RESET_PASSWORD_TOKEN_EXPIRATION_DAY = 1
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
@@ -217,7 +211,17 @@ SWAGGER_SETTINGS = {
     }
 }
 
-if DEBUG:
-    UI_URL = 'http://127.0.0.1:3000'
-else:
-    UI_URL = MAIN_HOST
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/1')
+CELERY_TIMEZONE = TIME_ZONE
+
+CELERY_BEAT_SCHEDULE = {
+    'update_status_task': {
+        'task': 'apps.assessors.tasks.update_assessor_status',
+        'schedule': crontab(hour='00', minute='00')
+    },
+    'remove_files_task': {
+        'task': 'apps.projects.tasks.remove_old_files',
+        'schedule': crontab(hour='01', minute='00')
+    }
+}

@@ -42,7 +42,7 @@ services:
     build: ./backend
     env_file:
       - './backend/.env'
-    command: bash -c "celery -A core.celery worker --loglevel=info"
+    command: bash -c "celery -A config.celery worker --loglevel=info"
     depends_on:
       - redis
     networks:
@@ -53,7 +53,7 @@ services:
     build: ./backend
     env_file:
       - './backend/.env'
-    command: bash -c "celery -A core.celery beat --loglevel=info"
+    command: bash -c "celery -A config.celery beat --loglevel=info"
     networks:
       - dev_network
     depends_on:

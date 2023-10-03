@@ -5,14 +5,16 @@ from typing import Dict, Optional
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from apps.history.services import history
+from apps.history.services.history_service import history
 from apps.assessors.models import Assessor, AssessorState
 from apps.assessors.serializers import AssessorSerializer
+from apps.assessors.services.assessor_service import assessors_service
 from apps.users.models import BaseUser
-from core.utils.common import current_date
-from core.utils.mixins import GetUserMixin
-from core.utils.users import UserStatus
+from core.utils import current_date
+from core.mixins import GetUserMixin
+from core.users import UserStatus
 from .models import Reason, Fired, BlackList
+from .services.fired_service import fired_service, blacklist_service
 
 
 class ReasonSerializer(serializers.ModelSerializer):
@@ -32,12 +34,6 @@ class FireAssessorSerializer(GetUserMixin, serializers.Serializer):
         super().__init__(instance=instance, *args, **kwargs)
         if instance:
             self.instance_before_update = copy(instance)
-
-    @staticmethod
-    def _error(error: str) -> None:
-        raise ValidationError(
-            {'detail': [error]}
-        )
 
     def validate(self, attrs: Dict) -> Dict:
         assessor = self.instance
@@ -70,43 +66,36 @@ class FireAssessorSerializer(GetUserMixin, serializers.Serializer):
 
         return super().validate(attrs)
 
-    @staticmethod
-    def _fire(assessor: Assessor, reason: Reason, possible_return_date: Optional[datetime.date] = None) -> Fired:
-        assessor.state = AssessorState.FIRED
-        fired = Fired.objects.create(
-            assessor=assessor,
-            reason=reason,
-            possible_return_date=possible_return_date
+    def save(self, **kwargs) -> Assessor:
+        return self._save(
+            assessor=self.instance,
+            reason=self.validated_data.get('reason'),
+            possible_return_date=self.validated_data.get('date')
         )
-        return fired
 
     @staticmethod
-    def _blacklist(assessor: Assessor, reason: Reason) -> BlackList:
-        assessor.state = AssessorState.BLACKLIST
-        blacklist = BlackList.objects.create(
-            assessor=assessor,
-            reason=reason
+    def _error(error: str) -> None:
+        raise ValidationError(
+            {'detail': [error]}
         )
-        return blacklist
 
-    def _create(self,
-                assessor: Assessor,
-                reason: Reason,
-                possible_return_date: Optional[datetime.date] = None) -> Assessor:
+    def _save(self,
+              assessor: Assessor,
+              reason: Reason,
+              possible_return_date: Optional[datetime.date] = None) -> Assessor:
         if reason.blacklist_reason:
-            self._blacklist(
+            blacklist_service.blacklist(
                 assessor=assessor,
                 reason=reason
             )
         else:
-            self._fire(
+            fired_service.fire(
                 assessor=assessor,
                 reason=reason,
                 possible_return_date=possible_return_date
             )
-        assessor.manager = None
-        assessor.status = None
-        assessor.save()
+
+        assessors_service.fire(assessor)
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
             new_assessor=assessor,
@@ -115,14 +104,6 @@ class FireAssessorSerializer(GetUserMixin, serializers.Serializer):
             use_none_action_for_state=True
         )
         return assessor
-
-    def save(self, **kwargs) -> Assessor:
-        instance = self._create(
-            assessor=self.instance,
-            reason=self.validated_data.get('reason'),
-            possible_return_date=self.validated_data.get('date')
-        )
-        return instance
 
 
 class FiredSerializer(serializers.ModelSerializer):
@@ -154,21 +135,6 @@ class BackToTeamSerializer(GetUserMixin, serializers.Serializer):
         if instance:
             self.instance_before_update = copy(instance.assessor)
 
-    @staticmethod
-    def _error(error: str) -> None:
-        raise ValidationError(
-            {'manager': [error]}
-        )
-
-    @staticmethod
-    def _back_to_team(fired: Fired, manager: BaseUser) -> Assessor:
-        assessor = fired.assessor
-        assessor.manager = manager
-        assessor.state = AssessorState.AVAILABLE
-        assessor.save()
-        fired.delete()
-        return assessor
-
     def validate(self, attrs: Dict) -> Dict:
         manager = attrs.get('manager')
         if manager is None:
@@ -185,7 +151,12 @@ class BackToTeamSerializer(GetUserMixin, serializers.Serializer):
         return super().validate(attrs)
 
     def update(self, instance: Fired, validated_data: Dict) -> Assessor:
-        assessor = self._back_to_team(fired=instance, manager=validated_data.get('manager'))
+        assessor = assessors_service.to_new_team(
+            instance=instance.assessor,
+            manager=validated_data.get('manager'),
+            state=AssessorState.AVAILABLE
+        )
+        blacklist_service.remove_item(instance)
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
             new_assessor=assessor,
@@ -193,3 +164,9 @@ class BackToTeamSerializer(GetUserMixin, serializers.Serializer):
             use_none_action_for_state=True
         )
         return assessor
+
+    @staticmethod
+    def _error(error: str) -> None:
+        raise ValidationError(
+            {'manager': [error]}
+        )

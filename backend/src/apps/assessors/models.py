@@ -3,7 +3,7 @@ from typing import Tuple
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from core.utils.validators import allowed_chars_validator, only_manager_validator
+from core.validators import allowed_chars_validator, only_manager_validator
 from apps.projects.models import Project
 
 from apps.assessors.utils.validators import assessor_username_validator, assessor_email_validator
@@ -169,12 +169,6 @@ class Assessor(models.Model):
         if self.middle_name:
             name += f' {self.middle_name}'
         return name
-
-    @property
-    def all_projects(self) -> str:
-        if self.projects.exists():
-            return '; '.join([pr.name for pr in self.projects.all()])
-        return '-'
 
 
 class AssessorCredentials(models.Model):

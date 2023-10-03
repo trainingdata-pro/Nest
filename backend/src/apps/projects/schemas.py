@@ -1,6 +1,6 @@
 from drf_yasg import openapi
 
-from core.utils.schemas import BaseAPISchema
+from core.schemas import BaseAPISchema
 from .models import Status
 from .services.download_service import allowed_types
 from . import serializers

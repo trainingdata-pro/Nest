@@ -19,8 +19,7 @@ class AssessorAdmin(admin.ModelAdmin):
         'middle_name',
         'country',
         'manager',
-        'state',
-        'all_projects'
+        'state'
     ]
     list_filter = [
         'manager',

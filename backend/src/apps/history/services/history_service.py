@@ -2,10 +2,12 @@ from typing import Union, Dict, List, Iterable, Optional
 
 from apps.assessors.models import Assessor, AssessorState
 from apps.projects.models import Project
-from .models import History, HistoryAction, HistoryAttribute
+from apps.history.models import History, HistoryAction, HistoryAttribute
 
 
-class HistoryManager:
+class HistoryService:
+    model = History
+
     def new_assessor_history(self, assessor: Assessor, user: str) -> None:
         updates = self._get_updates_for_new_assessor(assessor, user=user)
         histories = self.create_history_objects(assessor, updates)
@@ -266,9 +268,8 @@ class HistoryManager:
             return '; '.join(data)
         return None
 
-    @staticmethod
-    def create_history_objects(assessor: Assessor, updates: List[Dict]) -> List[History]:
-        return [History(
+    def create_history_objects(self, assessor: Assessor, updates: List[Dict]) -> List[History]:
+        return [self.model(
             assessor=assessor,
             attribute=item.get('attribute'),
             action=item.get('action'),
@@ -278,9 +279,8 @@ class HistoryManager:
             user=item.get('user')
         ) for item in updates]
 
-    @staticmethod
-    def perform_create(histories: List[History]) -> None:
-        History.objects.bulk_create(histories)
+    def perform_create(self, histories: List[History]) -> None:
+        self.model.objects.bulk_create(histories)
 
 
-history = HistoryManager()
+history = HistoryService()

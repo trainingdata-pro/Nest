@@ -1,19 +1,20 @@
 from copy import copy
-from typing import Dict, List
+from typing import Dict
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from apps.history.services import history
+from apps.history.services.history_service import history
 from apps.projects.models import ProjectStatuses, Project, ProjectWorkingHours
 from apps.projects.serializers import ProjectSerializer, ProjectWorkingHoursSimpleSerializer
 from apps.users.models import BaseUser
 from apps.users.serializers import UserSerializer
-from core.utils.common import current_date
-from core.utils.mixins import GetUserMixin
-from core.utils.permissions import check_full_assessor_permission
-from core.utils.users import UserStatus
+from core.utils import current_date
+from core.mixins import GetUserMixin
+from core.permissions import check_full_assessor_permission
+from core.users import UserStatus
 from .models import Assessor, Skill, AssessorCredentials, AssessorState
+from .services.assessor_service import assessors_service
 
 
 class SkillSerializer(serializers.ModelSerializer):
@@ -78,12 +79,12 @@ class CreateUpdateAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
 
     def create(self, validated_data: Dict) -> Assessor:
         skills = validated_data.pop('skills', None)
-        assessor = Assessor.objects.create(
+        assessor = assessors_service.create_assessor(
             state=AssessorState.AVAILABLE,
             **validated_data
         )
         if skills is not None:
-            assessor.skills.set(skills)
+            assessors_service.set_skills(assessor, skills)
 
         history.new_assessor_history(
             assessor=assessor,
@@ -93,12 +94,7 @@ class CreateUpdateAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
 
     def update(self, instance: Assessor, validated_data: Dict) -> Assessor:
         assessor = super().update(instance, validated_data)
-        if assessor.state != AssessorState.FREE_RESOURCE:
-            if assessor.projects.exists():
-                assessor.state = AssessorState.BUSY
-            else:
-                assessor.state = AssessorState.AVAILABLE
-            assessor.save()
+        assessor = assessors_service.check_and_change_state(assessor)
 
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
@@ -131,16 +127,11 @@ class AssessorProjectsSerializer(GetUserMixin, serializers.ModelSerializer):
     def update(self, instance: Assessor, validated_data: Dict) -> Assessor:
         assessor = super().update(instance, validated_data)
         manager = self.get_user()
-        if not assessor.projects.filter(manager__in=[manager]).exists():
-            if manager in assessor.second_manager.all():
-                assessor.second_manager.remove(manager)
-
-        if assessor.state != AssessorState.FREE_RESOURCE and not assessor.projects.exists():
-            assessor.state = AssessorState.AVAILABLE
-        else:
-            assessor.state = AssessorState.BUSY
-        assessor.save()
-
+        assessors_service.check_and_remove_second_managers(
+            instance=assessor,
+            manager=manager
+        )
+        assessors_service.check_and_change_state(assessor)
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
             new_assessor=assessor,
@@ -296,17 +287,14 @@ class AssessorVacationSerializer(GetUserMixin, serializers.ModelSerializer):
         return super().validate(attrs)
 
     def save(self, **kwargs) -> Assessor:
-        assessor = self.instance
-        vacation = self.validated_data.get('vacation')
-        if vacation:
-            vacation_date = self.validated_data.get('vacation_date')
-            assessor.state = AssessorState.VACATION
-            assessor.vacation_date = vacation_date
+        if self.validated_data.get('vacation'):
+            assessor = assessors_service.to_vacation(
+                self.instance,
+                vacation_date=self.validated_data.get('vacation_date')
+            )
         else:
-            assessor.state = AssessorState.AVAILABLE
-            assessor.vacation_date = None
+            assessor = assessors_service.from_vacation(self.instance)
 
-        assessor.save()
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
             new_assessor=assessor,
@@ -399,25 +387,18 @@ class AssessorFreeResourceSerializer(GetUserMixin, serializers.ModelSerializer):
         return super().validate(attrs)
 
     def save(self, **kwargs) -> Assessor:
-        assessor = self.instance
         free_resource = self.validated_data.get('free_resource')
+        if free_resource:
+            assessor = assessors_service.to_free_resources(
+                self.instance,
+                weekday_hours=self.validated_data.get('free_resource_weekday_hours'),
+                day_off_hours=self.validated_data.get('free_resource_day_off_hours')
+            )
+        else:
+            assessor = assessors_service.from_free_resources(self.instance)
+
         reason_key = self.validated_data.get('reason')
         reason = self.REASON.get(reason_key) if reason_key is not None else None
-        if free_resource:
-            weekday_hours = self.validated_data.get('free_resource_weekday_hours')
-            day_off_hours = self.validated_data.get('free_resource_day_off_hours.')
-            assessor.state = AssessorState.FREE_RESOURCE
-            assessor.free_resource_weekday_hours = weekday_hours
-            assessor.free_resource_day_off_hours = day_off_hours
-        else:
-            assessor.free_resource_weekday_hours = None
-            assessor.free_resource_day_off_hours = None
-            if assessor.projects.exists():
-                assessor.state = AssessorState.BUSY
-            else:
-                assessor.state = AssessorState.AVAILABLE
-
-        assessor.save()
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
             new_assessor=assessor,
@@ -481,36 +462,24 @@ class UnpinAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
         return super().validate(attrs)
 
     def save(self, **kwargs) -> Assessor:
-        reason_key = self.validated_data.get('reason')
-        reason = self.REASON.get(reason_key) if reason_key is not None else None
         new_manager = self.validated_data.get('manager')
         if new_manager is None:
-            instance = self._add_to_free_resource()
+            assessor = assessors_service.unpin(self.instance)
         else:
-            instance = self._add_to_new_team(new_manager)
+            assessor = assessors_service.to_new_team(
+                self.instance,
+                manager=new_manager
+            )
 
-        instance.save()
+        reason_key = self.validated_data.get('reason')
+        reason = self.REASON.get(reason_key) if reason_key is not None else None
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
-            new_assessor=instance,
+            new_assessor=assessor,
             user=self.get_user().full_name,
             unpin_reason=reason
         )
-        return instance
-
-    def _add_to_free_resource(self) -> Assessor:
-        self.instance.manager = None
-        self.instance.state = AssessorState.FREE_RESOURCE
-        self.instance.status = None
-        return self.instance
-
-    def _add_to_new_team(self, new_manager: BaseUser):
-        self.instance.manager = new_manager
-        if self.instance.projects.exists():
-            self.instance.state = AssessorState.BUSY
-        else:
-            self.instance.state = AssessorState.AVAILABLE
-        return self.instance
+        return assessor
 
 
 class UpdateFreeResourceSerializer(GetUserMixin, serializers.ModelSerializer):
@@ -574,18 +543,18 @@ class UpdateFreeResourceSerializer(GetUserMixin, serializers.ModelSerializer):
 
     def update(self, instance: Assessor, validated_data: Dict) -> Assessor:
         if instance.manager is None:
-            assessor = self._add_to_new_team(
-                instance=instance,
-                manager=validated_data.get('manager')
+            assessor = assessors_service.to_new_team(
+                instance,
+                manager=validated_data.get('manager'),
+                state=AssessorState.AVAILABLE
             )
         else:
-            assessor = self._add_second_manager(
-                instance=instance,
+            assessor = assessors_service.add_second_manager(
+                instance,
                 manager=validated_data.get('second_manager'),
                 projects=validated_data.get('projects')
             )
 
-        assessor.save()
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
             new_assessor=assessor,
@@ -594,21 +563,3 @@ class UpdateFreeResourceSerializer(GetUserMixin, serializers.ModelSerializer):
             use_none_action_for_state=True
         )
         return assessor
-
-    @staticmethod
-    def _add_to_new_team(instance: Assessor, manager: BaseUser) -> Assessor:
-        instance.manager = manager
-        instance.state = AssessorState.AVAILABLE
-        return instance
-
-    @staticmethod
-    def _add_second_manager(instance: Assessor,
-                            manager: BaseUser,
-                            projects: List[Project]) -> Assessor:
-        instance.second_manager.add(manager)
-        for project in projects:
-            instance.projects.add(project)
-        instance.state = AssessorState.BUSY
-        instance.free_resource_weekday_hours = None
-        instance.free_resource_day_off_hours = None
-        return instance

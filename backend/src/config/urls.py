@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, re_path, include
@@ -7,14 +8,6 @@ from drf_yasg.views import get_schema_view
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAdminUser
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
-from .settings import (
-    DEBUG,
-    STATIC_URL,
-    STATIC_ROOT,
-    MEDIA_URL,
-    MEDIA_ROOT
-)
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -53,7 +46,7 @@ urlpatterns = [
     # path('api/', include(_token))
 ]
 
-if DEBUG:
-    urlpatterns += static(STATIC_URL, document_root=STATIC_ROOT)
-    urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += [path('__debug__/', include('debug_toolbar.urls'))]

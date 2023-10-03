@@ -2,7 +2,7 @@ from django.db.models import Count, QuerySet
 from django_filters import rest_framework as filters
 
 from apps.assessors.models import Assessor
-from core.utils.mixins import FilteringMixin
+from core.mixins import FilteringMixin
 from .models import Project, ProjectWorkingHours, WorkLoadStatus
 
 

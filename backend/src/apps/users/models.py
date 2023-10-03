@@ -6,8 +6,8 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
-from core.utils.users import UserStatus
-from core.utils.validators import (
+from core.users import UserStatus
+from core.validators import (
     email_domain_validator,
     allowed_chars_validator,
     only_manager_validator

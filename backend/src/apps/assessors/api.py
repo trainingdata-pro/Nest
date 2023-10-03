@@ -9,9 +9,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from core.utils.mixins import BaseAPIViewSet
-from core.utils.users import UserStatus
-from core.utils import permissions
+from core.mixins import BaseAPIViewSet
+from core.users import UserStatus
+from core import permissions
 from apps.fired import serializers as fired_serializers
 from apps.users.models import BaseUser
 from .models import AssessorState, Assessor, Skill, AssessorCredentials
@@ -107,27 +107,18 @@ class AssessorAPIViewSet(BaseAPIViewSet):
     def get_queryset(self) -> QuerySet[Assessor]:
         user = self.request.user
         if user.is_superuser:
-            return (Assessor.objects.all()
-                    .select_related('manager')
-                    .prefetch_related('projects__manager', 'second_manager')
-                    .order_by('manager__last_name', 'last_name')
-                    .distinct())
+            queryset = Assessor.objects.all()
         else:
             if user.manager_profile.is_teamlead:
                 team = BaseUser.objects.filter(status=UserStatus.MANAGER, manager_profile__teamlead=user)
-                return (Assessor.objects
-                        .filter(manager__in=team)
-                        .select_related('manager')
-                        .prefetch_related('projects__manager', 'second_manager')
-                        .order_by('manager__last_name', 'last_name')
-                        .distinct())
+                queryset = Assessor.objects.filter(manager__in=team)
+            else:
+                queryset = Assessor.objects.filter(Q(manager=user) | Q(second_manager__in=[user]))
 
-            return (Assessor.objects
-                    .filter(Q(manager=user) | Q(second_manager__in=[user]))
-                    .select_related('manager')
-                    .prefetch_related('projects__manager', 'second_manager')
-                    .order_by('last_name')
-                    .distinct())
+        return (queryset.select_related('manager')
+                .prefetch_related('projects__manager', 'second_manager')
+                .order_by('manager__last_name', 'last_name')
+                .distinct())
 
     def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
@@ -281,14 +272,12 @@ class FreeResourcesAPIViewSet(BaseAPIViewSet):
     ]
 
     def get_queryset(self) -> QuerySet[Assessor]:
-        queryset = (Assessor.objects
-                    .filter(Q(state=AssessorState.FREE_RESOURCE) | Q(manager=None))
-                    .exclude(second_manager__in=[self.request.user])
-                    .select_related('manager')
-                    .prefetch_related('projects')
-                    .order_by('last_name'))
-
-        return queryset
+        return (Assessor.objects
+                .filter(Q(state=AssessorState.FREE_RESOURCE) | Q(manager=None))
+                .exclude(second_manager__in=[self.request.user])
+                .select_related('manager')
+                .prefetch_related('projects')
+                .order_by('last_name'))
 
     def update(self, request: Request, *args, **kwargs) -> Response:
         partial = kwargs.pop('partial', False)
