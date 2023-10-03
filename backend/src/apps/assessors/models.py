@@ -170,12 +170,6 @@ class Assessor(models.Model):
             name += f' {self.middle_name}'
         return name
 
-    @property
-    def all_projects(self) -> str:
-        if self.projects.exists():
-            return '; '.join([pr.name for pr in self.projects.all()])
-        return '-'
-
 
 class AssessorCredentials(models.Model):
     assessor = models.ForeignKey(
