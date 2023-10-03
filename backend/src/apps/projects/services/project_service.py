@@ -1,8 +1,8 @@
 import datetime
-from typing import List, Any, Union, Optional
+from typing import List, Any, Optional
 
 from apps.users.models import BaseUser
-from core.utils.common import current_date
+from core.utils import current_date
 from ..models import (
     Project,
     ProjectTag,

@@ -10,9 +10,9 @@ from apps.assessors.models import Assessor, AssessorState
 from apps.assessors.serializers import AssessorSerializer
 from apps.assessors.services.assessor_service import assessors_service
 from apps.users.models import BaseUser
-from core.utils.common import current_date
-from core.utils.mixins import GetUserMixin
-from core.utils.users import UserStatus
+from core.utils import current_date
+from core.mixins import GetUserMixin
+from core.users import UserStatus
 from .models import Reason, Fired, BlackList
 from .services.fired_service import fired_service, blacklist_service
 

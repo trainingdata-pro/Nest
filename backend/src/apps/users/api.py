@@ -6,8 +6,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.authapp.tasks import send_confirmation_code
-from core.utils.mixins import BaseAPIViewSet
-from core.utils import permissions
+from core.mixins import BaseAPIViewSet
+from core import permissions
 from .filters import UserFilter, ManagerProfileFilter
 from .models import ManagerProfile
 from . import serializers, schemas

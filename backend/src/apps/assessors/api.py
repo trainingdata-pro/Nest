@@ -9,9 +9,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from core.utils.mixins import BaseAPIViewSet
-from core.utils.users import UserStatus
-from core.utils import permissions
+from core.mixins import BaseAPIViewSet
+from core.users import UserStatus
+from core import permissions
 from apps.fired import serializers as fired_serializers
 from apps.users.models import BaseUser
 from .models import AssessorState, Assessor, Skill, AssessorCredentials

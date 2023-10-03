@@ -1,7 +1,7 @@
 from django.db.models import QuerySet
 from django_filters import rest_framework as filters
 
-from core.utils.mixins import FilteringMixin
+from core.mixins import FilteringMixin
 from .models import Assessor, Skill, AssessorCredentials
 
 

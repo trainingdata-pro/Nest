@@ -9,10 +9,10 @@ from apps.projects.models import ProjectStatuses, Project, ProjectWorkingHours
 from apps.projects.serializers import ProjectSerializer, ProjectWorkingHoursSimpleSerializer
 from apps.users.models import BaseUser
 from apps.users.serializers import UserSerializer
-from core.utils.common import current_date
-from core.utils.mixins import GetUserMixin
-from core.utils.permissions import check_full_assessor_permission
-from core.utils.users import UserStatus
+from core.utils import current_date
+from core.mixins import GetUserMixin
+from core.permissions import check_full_assessor_permission
+from core.users import UserStatus
 from .models import Assessor, Skill, AssessorCredentials, AssessorState
 from .services.assessor_service import assessors_service
 

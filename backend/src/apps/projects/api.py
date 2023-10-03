@@ -16,9 +16,9 @@ from rest_framework.response import Response
 from apps.assessors.models import Assessor
 from apps.assessors.serializers import AssessorSerializer
 from apps.users.models import BaseUser
-from core.utils import permissions
-from core.utils.mixins import BaseAPIViewSet
-from core.utils.users import UserStatus
+from core import permissions
+from core.mixins import BaseAPIViewSet
+from core.users import UserStatus
 from .filters import ProjectFilter, ProjectWorkingHoursFilter, WorkLoadStatusFilter
 from .models import Project, ProjectTag, ProjectWorkingHours, WorkLoadStatus
 from .services.download_service import ContentType

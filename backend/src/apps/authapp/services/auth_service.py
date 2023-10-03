@@ -1,5 +1,5 @@
 from apps.users.models import BaseUser
-from core.utils.common import get_code
+from core.utils import get_code
 from ..models import Code, PasswordResetToken
 
 

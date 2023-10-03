@@ -17,12 +17,12 @@ def send_user_confirmation_code(email: str, code: str) -> None:
     """ Send a confirmation code to the user """
     subject = 'Активация аккаунта'
     message = f'Для активации аккаунта, пожалуйста, перейдите по следующий ссылке:\n' \
-              f'{settings.UI_URL}/signup/confirmation/{code}'
+              f'{settings.MAIN_HOST}/signup/confirmation/{code}'
     _send_mail(subject, message, email)
 
 
 def send_reset_password_token(email: str, token: UUID) -> None:
     subject = 'Сброс пароля'
     message = 'Для сброса пароля, пожалуйста, перейдите по следующей ссылке:\n' \
-              f'{settings.UI_URL}/password/reset/{token}'
+              f'{settings.MAIN_HOST}/password/reset/{token}'
     _send_mail(subject, message, email)

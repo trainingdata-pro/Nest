@@ -6,8 +6,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.assessors.serializers import AssessorSerializer
-from core.utils.mixins import BaseAPIViewSet
-from core.utils.permissions import IsManager
+from core.mixins import BaseAPIViewSet
+from core.permissions import IsManager
 from .filters import ReasonFilter
 from .models import BlackList, Fired, Reason
 from .schemas import reason_schema, fired_schema

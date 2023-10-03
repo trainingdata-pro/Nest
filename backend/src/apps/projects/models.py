@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from core.utils.common import current_date
-from core.utils.validators import not_negative_value_validator, day_hours_validator
+from core.utils import current_date
+from core.validators import not_negative_value_validator, day_hours_validator
 
 
 class ProjectTag(models.Model):

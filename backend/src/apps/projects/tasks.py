@@ -5,7 +5,7 @@ from typing import Iterable
 from celery import shared_task
 from django.conf import settings
 
-from core.utils.common import current_date
+from core.utils import current_date
 from .services.download_service import ProjectExport
 
 

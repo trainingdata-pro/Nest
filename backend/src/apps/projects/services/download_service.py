@@ -9,7 +9,7 @@ from django.db.models import QuerySet
 import pandas
 from rest_framework.exceptions import ValidationError
 
-from core.utils.common import get_code, current_date
+from core.utils import get_code, current_date
 from ..models import Project, ProjectStatuses
 
 CSV_TYPE = 'csv'

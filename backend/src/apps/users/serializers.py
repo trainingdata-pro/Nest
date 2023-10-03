@@ -6,7 +6,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from apps.authapp.services.auth_service import auth_service
-from core.utils.users import UserStatus
+from core.users import UserStatus
 from .models import BaseUser, ManagerProfile
 from .services.user_service import user_service, profile_service
 

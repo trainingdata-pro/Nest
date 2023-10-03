@@ -1,6 +1,6 @@
 from drf_yasg import openapi
 
-from core.utils.schemas import BaseAPISchema
+from core.schemas import BaseAPISchema
 from apps.assessors.serializers import AssessorSerializer
 
 from . import serializers

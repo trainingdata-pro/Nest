@@ -1,8 +1,7 @@
 from drf_yasg import openapi
 
 from apps.users.serializers import UserSerializer
-from core.utils.schemas import BaseAPISchema
-from core.utils.serializers import CustomTokenObtainPairSerializer
+from core.schemas import BaseAPISchema
 
 
 class ResetPasswordSchema(BaseAPISchema):
