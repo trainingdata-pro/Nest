@@ -2,7 +2,7 @@ import {AxiosResponse} from "axios";
 import $api from "../http";
 import {
     Assessor,
-    AssessorResponse,
+    AssessorResponse, IFreeResourcesResponse,
     SkillResponse,
     WorkingHoursResponse,
     WorkloadStatusResponse
@@ -75,7 +75,8 @@ export default class AssessorService{
         free_resource_weekday_hours: data.free_resource_weekday_hours,
         free_resource_day_off_hours: data.free_resource_day_off_hours
     }).then((res) => res.data)
-//     static fetchAssessorSkills(id: string | number):Promise<AxiosResponse<SkillResponse>>{
-//         return $api.get<SkillResponse>(`/api/skills/${id}/`)
-//     }
+    static fetchAssessorSkills(id: string | number):Promise<AxiosResponse<SkillResponse>>{
+        return $api.get<SkillResponse>(`/api/skills/${id}/`)
+    }
+    static fetchFreeResource = () => $api.get<IFreeResourcesResponse>('/api/free_resources/').then(res => res.data)
 }
