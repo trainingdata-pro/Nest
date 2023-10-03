@@ -33,12 +33,10 @@ export default class AssessorService{
     static addAssessorProject(id: string | number, data: string[]):Promise<AxiosResponse<Assessor>>{
         return $api.patch<Assessor>(`/api/assessors/${id}/projects/`, {"projects": data})
     }
-    static fetchCredentials(id: string | number):Promise<AxiosResponse<LoginAndPasswordResponse>>{
-        return $api.get<LoginAndPasswordResponse>(`/api/credentials/?assessor=${id}`)
-    }
-    static patchCredentials(credId: string, data:any){
-        return $api.patch(`/api/credentials/${credId}/`, data)
-    }
+    static fetchCredentials = (id: string | number | undefined) => $api.get<LoginAndPasswordResponse>(`/api/credentials/?assessor=${id}`).then((res) => res.data)
+    static patchCredentials = (credId: string | number | undefined, data:any) => $api.patch(`/api/credentials/${credId}/`, data)
+    static postCredentials = (data:any) => $api.post(`/api/credentials/`, data)
+
     static fetchAssessorHistory(id: string | number){
         return $api.get(`/api/history/?assessor=${id}`)
     }
@@ -71,7 +69,12 @@ export default class AssessorService{
     static createWorkingHours(data: any ){
         return $api.post(`/api/working_hours/`, data)
     }
-
+    static addToFreeResource = (assessorId:number| string | undefined, data:any) => $api.patch(`/api/assessors/${assessorId}/free_resource/`, {
+        free_resource: data.free_resource,
+        reason: data.reason,
+        free_resource_weekday_hours: data.free_resource_weekday_hours,
+        free_resource_day_off_hours: data.free_resource_day_off_hours
+    }).then((res) => res.data)
 //     static fetchAssessorSkills(id: string | number):Promise<AxiosResponse<SkillResponse>>{
 //         return $api.get<SkillResponse>(`/api/skills/${id}/`)
 //     }

@@ -15,6 +15,8 @@ import {observer} from "mobx-react-lite";
 import AssessorProjects from "./AssessorProjects";
 import AssessorHistory from "./AssessorHistory";
 import Skills from "./Skills";
+import FreeResourse from "../AssessorManagement/FreeResourse";
+import Management from "../AssessorManagement/Management";
 
 
 export interface AssessorPatch {
@@ -45,20 +47,24 @@ const AssessorPage = () => {
     const [assessor, setAssessor] = useState<Assessor>()
     const [isShowLoginAndPassword, setIsShowLoginAndPassword] = useState(false)
     const [isShowHistory, setIsShowHistory] = useState(false)
+    const [isManagement, setIsManagement] = useState(true)
     if (!assessor){
         return <div>Загрузка......</div>
     }
     return (
         <div>
+            <Dialog isOpen={isManagement} setIsOpen={setIsManagement}>
+                <FreeResourse assessorId={id}/>
+            </Dialog>
             <Dialog isOpen={isShowHistory} setIsOpen={setIsShowHistory}>
                 <AssessorHistory assessorId={id}/>
             </Dialog>
             <Dialog isOpen={isShowLoginAndPassword} setIsOpen={setIsShowLoginAndPassword}>
-                <TableLog/>
+                <TableLog assessorId={id} setIsShowLoginAndPassword={setIsShowLoginAndPassword} assessorName={`${assessor.last_name} ${assessor.first_name} ${assessor?.middle_name}`}/>
             </Dialog>
             <Header/>
             <div className="container pt-20 space-x-2 flex justify-end mb-2">
-                <button className='bg-[#5970F6] rounded-md text-white px-4 py-2'>Управление</button>
+                <button className='bg-[#5970F6] rounded-md text-white px-4 py-2' onClick={() => setIsManagement(true)}>Управление</button>
                 <button className='bg-[#5970F6] rounded-md text-white px-4 py-2' onClick={() => setIsShowHistory(true)}>История</button>
                 <button className='bg-[#5970F6] rounded-md text-white px-4 py-2' onClick={() => setIsShowLoginAndPassword(true)}>Логины и пароли</button>
             </div>

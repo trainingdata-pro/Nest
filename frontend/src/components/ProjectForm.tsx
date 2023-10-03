@@ -102,7 +102,6 @@ const ProjectForm = ({projectId, closeSidebar, projects}: {
     const queryClient = useQueryClient();
     const patchProject = useMutation((params:MyParams) => ProjectService.patchProject(params.id, params.data), {
         onSuccess: () => {
-            // Инвалидация и обновление
             queryClient.invalidateQueries('projects');
         },
     });
@@ -250,7 +249,7 @@ const ProjectForm = ({projectId, closeSidebar, projects}: {
                         {Object.keys(serverError).map((key:any, index) => <Error key={index}>{key}: {serverError[key]}</Error>)}
                     </FormSection>
                     <button type="submit"
-                            className="bg-black text-white rounded-md mt-2 pt-2 py-2">{projectId === 0 ? 'Добавить' : 'Сохранить'}
+                            className="bg-[#5970F6] text-white rounded-md mt-2 pt-2 py-2">{projectId === 0 ? 'Добавить' : 'Сохранить'}
                     </button>
 
                 </form>
