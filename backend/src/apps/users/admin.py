@@ -30,7 +30,7 @@ class BaseUserAdmin(UserAdmin):
         'is_staff',
         'is_superuser'
     )
-    list_display_links = ('username',)
+    list_display_links = ('pk', 'username')
     list_filter = ['status', 'is_staff', 'is_superuser']
     fieldsets = [
         (None, {
