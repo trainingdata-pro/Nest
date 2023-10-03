@@ -41,13 +41,10 @@ const FreeResourcePage = () => {
                 <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{assessor.username}</td>
                 <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{assessor.free_resource_weekday_hours}</td>
                 <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{assessor.free_resource_day_off_hours}</td>
-                <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{assessor}</td>
+                <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{}</td>
 
                 <td className="whitespace-nowrap px-[5px] py-[20px] flex justify-center">
-                    <PencilSquareIcon className="cursor-pointer h-6 w-6 text-gray-500" onClick={() => {
-                        setProjectId(project.id)
-                        setShowSidebar(true)
-                    }}/>
+                    История
                 </td>
             </tr>)}</tbody> : <tbody>
             <tr>
