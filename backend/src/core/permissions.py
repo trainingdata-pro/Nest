@@ -66,3 +66,8 @@ def check_full_assessor_permission(manager: BaseUser, assessor: Assessor) -> Non
         raise ValidationError(
             {'assessor': ['Вы не можете выбрать данного исполнителя.']}
         )
+
+
+class IsAnalyst(BasePermission):
+    def has_permission(self, request: Request, view: APIView) -> bool:
+        return request.user.status == UserStatus.ANALYST

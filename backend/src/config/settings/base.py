@@ -24,9 +24,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-q#cm-@xnl4)mrxs2mzmze
 
 DEBUG = True
 
-MAIN_HOST = 'http://127.0.0.1:3000'
+MAIN_HOST = 'http://localhost:3000'
 
-ALLOWED_HOSTS = [MAIN_HOST]
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 # Application definition
 DJANGO_APPS = [
@@ -44,7 +44,8 @@ THIRD_PARTY_APP = [
     'django_filters',
     'corsheaders',
     'debug_toolbar',
-    'django_celery_beat'
+    'django_celery_beat',
+    'rest_framework.authtoken'
 ]
 
 PROJECT_APPS = [
@@ -122,7 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
     {
-        'NAME': 'core.utils.validators.NoCyrillicValidator'
+        'NAME': 'core.validators.NoCyrillicValidator'
     }
 ]
 
@@ -157,10 +158,7 @@ FILE_STORAGE_DAYS = 1
 
 RESET_PASSWORD_TOKEN_EXPIRATION_DAY = 1
 
-CORS_ALLOWED_ORIGINS = [
-    'http://127.0.0.1:3000',
-    MAIN_HOST
-]
+CORS_ALLOWED_ORIGINS = [MAIN_HOST]
 
 CORS_ALLOW_CREDENTIALS = True
 
