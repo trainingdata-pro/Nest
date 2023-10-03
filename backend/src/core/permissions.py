@@ -70,4 +70,4 @@ def check_full_assessor_permission(manager: BaseUser, assessor: Assessor) -> Non
 
 class IsAnalyst(BasePermission):
     def has_permission(self, request: Request, view: APIView) -> bool:
-        return request.user.status == UserStatus.ANALYST
+        return request.user.status == UserStatus.ANALYST or request.user.is_superuser
