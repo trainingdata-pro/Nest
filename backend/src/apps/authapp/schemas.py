@@ -2,6 +2,7 @@ from drf_yasg import openapi
 
 from apps.users.serializers import UserSerializer
 from core.utils.schemas import BaseAPISchema
+from core.utils.serializers import CustomTokenObtainPairSerializer
 
 
 class ResetPasswordSchema(BaseAPISchema):
@@ -59,7 +60,24 @@ class TokenSchema(BaseAPISchema):
             operation_summary='Create auth token',
             operation_description='Takes a set of user credentials and returns '
                                   'an access and refresh JSON web token pair to '
-                                  'prove the authentication of those credentials.'
+                                  'prove the authentication of those credentials.',
+            responses={
+                201: openapi.Response(
+                    description='',
+                    schema=openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            'access': openapi.Schema(
+                                type=openapi.TYPE_STRING
+                            ),
+                            'refresh': openapi.Schema(
+                                type=openapi.TYPE_STRING
+                            )
+                        }
+                    )
+                ),
+                **self.get_responses(401)
+            }
         )
 
     def refresh(self):
