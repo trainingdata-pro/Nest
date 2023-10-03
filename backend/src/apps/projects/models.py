@@ -34,8 +34,9 @@ class ProjectStatuses(models.TextChoices):
 
 
 class Project(models.Model):
-    asana_id = models.BigIntegerField(
-        verbose_name='asana ID',
+    asana_id = models.CharField(
+        max_length=50,
+        verbose_name='asana ID'
     )
     name = models.CharField(
         max_length=255,
