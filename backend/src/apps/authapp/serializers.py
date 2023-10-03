@@ -6,7 +6,9 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from apps.users.models import BaseUser
+from apps.users.services.user_service import user_service
 from .models import Code, PasswordResetToken
+from .services.auth_service import auth_service, reset_password_service
 
 
 class ConfirmationCodeSerializer(serializers.Serializer):
@@ -22,11 +24,8 @@ class ConfirmationCodeSerializer(serializers.Serializer):
         else:
             confirmation_code = obj.first()
             user = confirmation_code.user
-            user.is_active = True
-            user.save()
-
-            confirmation_code.delete()
-
+            user_service.activate_user(user)
+            auth_service.delete_code(confirmation_code)
             return user
 
 
@@ -42,19 +41,6 @@ class PasswordResetSerializer(serializers.Serializer):
         user_model = get_user_model()
         return user_model.objects.filter(email=email).first()
 
-    def _new_token(self, user: BaseUser) -> PasswordResetToken:
-        self.__remove_unused_token(user)
-        return self.__create_token(user)
-
-    @staticmethod
-    def __remove_unused_token(user: BaseUser) -> None:
-        PasswordResetToken.objects.filter(user=user).delete()
-
-    @staticmethod
-    def __create_token(user: BaseUser) -> PasswordResetToken:
-        token = PasswordResetToken.objects.create(user=user)
-        return token
-
     def validate(self, attrs: Dict) -> Dict:
         attrs = super().validate(attrs)
         email = attrs.get('email')
@@ -63,14 +49,11 @@ class PasswordResetSerializer(serializers.Serializer):
             raise ValidationError(
                 {'email': ['Пользователь с таким электронным адресом не найден.']}
             )
-
         self.user = user
-
         return attrs
 
     def create(self, validated_data) -> Union[PasswordResetToken, None]:
-        token = self._new_token(self.user)
-
+        token = reset_password_service.create_token(self.user)
         return token
 
 
@@ -104,16 +87,15 @@ class PasswordSetSerializer(serializers.Serializer):
         password_validation.validate_password(password, user)
 
         self.obj = token_obj
-
         return attrs
 
     def save(self, **kwargs) -> BaseUser:
         user = self.obj.user
-        password = self.validated_data.get('password')
-        user.set_password(password)
-        user.save()
-        self.obj.delete()
-
+        user_service.set_password(
+            user=user,
+            password=self.validated_data.get('password')
+        )
+        reset_password_service.remove_token(self.obj)
         return user
 
 
@@ -122,8 +104,6 @@ class ChangePasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(max_length=255)
 
     def validate(self, attrs: Dict) -> Dict:
-        attrs = super().validate(attrs)
-
         old_password = attrs.get('old_password')
         if old_password is None:
             raise ValidationError(
@@ -145,11 +125,11 @@ class ChangePasswordSerializer(serializers.Serializer):
         user_model = get_user_model()
         user = user_model(username=self.instance.username)
         password_validation.validate_password(new_password, user)
-
-        return attrs
+        return super().validate(attrs)
 
     def update(self, instance: BaseUser, validated_data: Dict) -> BaseUser:
-        instance.set_password(validated_data.get('new_password'))
-        instance.save()
-
+        user_service.set_password(
+            user=instance,
+            password=validated_data.get('new_password')
+        )
         return instance
