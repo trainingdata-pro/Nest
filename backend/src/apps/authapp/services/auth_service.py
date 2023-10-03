@@ -1,12 +1,20 @@
 from apps.users.models import BaseUser
+from core.utils.common import get_code
 from ..models import Code, PasswordResetToken
 
 
 class AuthService:
     model = Code
 
+    def create_code(self, user: BaseUser) -> Code:
+        instance = self.__create_instance(user=user)
+        return self.__perform_save(instance)
+
     def delete_code(self, instance: Code) -> None:
         return self.__perform_delete(instance)
+
+    def __create_instance(self, **kwargs) -> Code:
+        return self.model(code=get_code(), **kwargs)
 
     @staticmethod
     def __perform_save(instance: Code) -> Code:

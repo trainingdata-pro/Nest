@@ -5,10 +5,10 @@ from django.contrib.auth import password_validation, get_user_model
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from apps.authapp.utils.create import create_user_confirmation_code
+from apps.authapp.services.auth_service import auth_service
 from core.utils.users import UserStatus
 from .models import BaseUser, ManagerProfile
-from .utils.create import create_manager_profile
+from .services.user_service import user_service, profile_service
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -34,17 +34,12 @@ class CreateUserSerializer(serializers.ModelSerializer):
     def create(self, validated_data: Dict) -> BaseUser:
         if validated_data.get('status') != UserStatus.MANAGER:
             raise ValidationError(
-                {'status': 'Неверный статус.'}
+                {'status': ['Неверный статус.']}
             )
 
-        user_model = get_user_model()
-        user = user_model.objects.create_user(
-            is_active=False,
-            **validated_data
-        )
-        create_manager_profile(user)
-        create_user_confirmation_code(user)
-
+        user = user_service.create_user(**validated_data)
+        profile_service.create_profile(user)
+        auth_service.create_code(user)
         return user
 
 

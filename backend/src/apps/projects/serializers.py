@@ -5,12 +5,13 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from apps.assessors.models import Assessor, AssessorState
-from apps.history.services import history
+from apps.history.services.history_service import history
 from apps.users.models import BaseUser
 from apps.users.serializers import UserSerializer
 from core.utils.common import current_date
 from core.utils.mixins import GetUserMixin
 from core.utils.users import UserStatus
+from .services.project_service import project_service
 from .models import (
     ProjectTag,
     Project,
@@ -80,30 +81,31 @@ class CreateUpdateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
     def create(self, validated_data: Dict) -> Project:
         project_manager = validated_data.pop('manager')
         tag = validated_data.pop('tag', None)
-        project = Project.objects.create(**validated_data)
-        project.manager.set(project_manager)
+        project = project_service.create_project(**validated_data)
+        project = project_service.set_manager(project, project_manager)
         if tag:
-            project.tag.set(tag)
+            project = project_service.set_tag(instance=project, tag=tag)
 
-        project = self._check_if_completed(project)
-        return project
+        return self._check_if_completed(project)
 
     def update(self, instance: Project, validated_data: Dict) -> Project:
         project = super().update(instance, validated_data)
-        project = self._check_if_completed(project)
-        return project
+        return self._check_if_completed(project)
 
     def _check_if_completed(self, project: Project) -> Project:
-        date_of_completion = self.validated_data.get('date_of_completion')
-        if project.status == ProjectStatuses.COMPLETED:
-            if date_of_completion is None and project.date_of_completion is None:
-                project.date_of_completion = current_date()
+        if project_service.is_completed(project):
+            project = project_service.set_completion_date(
+                instance=project,
+                date=self.validated_data.get('date_of_completion')
+            )
+            self._remove_assessors_from_completed_project(project)
+            project_service.remove_related(project)
         else:
-            project.date_of_completion = None
+            project = project_service.set_completion_date(
+                instance=project,
+                set_null=True
+            )
 
-        project.save()
-        self._remove_assessors_from_completed_project(project)
-        self._remove_related(project)
         return project
 
     def _remove_assessors_from_completed_project(self, project: Project) -> None:
@@ -126,11 +128,6 @@ class CreateUpdateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
                     old_projects=projects_before_update,
                     completed_project=True
                 )
-
-    @staticmethod
-    def _remove_related(project: Project) -> None:
-        ProjectWorkingHours.objects.filter(project=project).delete()
-        WorkLoadStatus.objects.filter(project=project).delete()
 
 
 class ProjectSerializer(serializers.ModelSerializer):

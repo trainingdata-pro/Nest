@@ -4,7 +4,7 @@ from typing import Dict
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from apps.history.services import history
+from apps.history.services.history_service import history
 from apps.projects.models import ProjectStatuses, Project, ProjectWorkingHours
 from apps.projects.serializers import ProjectSerializer, ProjectWorkingHoursSimpleSerializer
 from apps.users.models import BaseUser
@@ -79,7 +79,7 @@ class CreateUpdateAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
 
     def create(self, validated_data: Dict) -> Assessor:
         skills = validated_data.pop('skills', None)
-        assessor = assessors_service.create_instance(
+        assessor = assessors_service.create_assessor(
             state=AssessorState.AVAILABLE,
             **validated_data
         )

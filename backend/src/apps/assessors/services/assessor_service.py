@@ -9,7 +9,7 @@ from ..models import Assessor, AssessorState, Skill
 class AssessorService:
     model = Assessor
 
-    def create_instance(self, **data) -> Assessor:
+    def create_assessor(self, **data) -> Assessor:
         instance = self.__create_instance(**data)
         return self.__perform_save(instance)
 
@@ -73,9 +73,13 @@ class AssessorService:
         instance = self.__to_new_team(instance, manager, state)
         return self.__perform_save(instance)
 
+    def fire(self, instance: Assessor) -> Assessor:
+        instance.manager = None
+        instance.status = None
+        return self.__perform_save(instance)
+
     def __create_instance(self, **kwargs) -> Assessor:
-        instance = self.model(**kwargs)
-        return instance
+        return self.model(**kwargs)
 
     @staticmethod
     def __perform_save(instance: Assessor) -> Assessor:
