@@ -19,7 +19,7 @@ class UserService:
         return self.__perform_save(user)
 
     def __create_instance(self, **kwargs) -> BaseUser:
-        return self.model.create_user(**kwargs)
+        return self.model.objects.create_user(**kwargs)
 
     @staticmethod
     def __perform_save(instance: BaseUser) -> BaseUser:
