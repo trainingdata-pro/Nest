@@ -58,16 +58,16 @@ export interface Assessor {
     last_name: string,
     first_name: string,
     middle_name: string,
-    status: string,
+    state: string,
     email: string,
     country: string,
     is_free_resource: boolean,
     blacklist: boolean,
     date_of_registration: string,
-    working_hours: AssessorWorkingTime
-
-
+    working_hours: WorkingHours[]
 }
+
+
 
 export interface AssessorWorkingTime {
     id: number,
@@ -77,9 +77,20 @@ export interface AssessorWorkingTime {
     thursday: number,
     friday: number,
     saturday: number,
-    sunday: number
+    sunday: number,
 }
 
 export interface AssessorResponse {
     results: Assessor[]
+}
+
+export interface IFreeResources extends Assessor{
+    "vacation_date": string,
+    "free_resource_weekday_hours": string,
+    "free_resource_day_off_hours": string
+}
+export interface IFreeResourcesResponse {
+    results: IFreeResources[]
+    count: number,
+    next: string | null,
 }

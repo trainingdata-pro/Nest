@@ -34,7 +34,7 @@ const PersonalAccountTable = () => {
 
     return (
         <>
-            <div className="container pt-20 h-full items-center">
+            <div className="pt-20 items-center pb-6">
                 <Dialog isOpen={showSidebar} setIsOpen={setShowSidebar}>
                     <div className="w-[30rem]">
                         <ProjectForm projectId={projectsId}
@@ -42,7 +42,7 @@ const PersonalAccountTable = () => {
                                      closeSidebar={setShowSidebar}/>
                     </div>
                 </Dialog>
-                <div className="h-full w-full px-6">
+                <div className="h-full w-full px-8">
 
                     <div className="flex-col container items-center">
                         <div className="flex justify-between my-2">

@@ -14,7 +14,7 @@ const Header = () => {
                 <Profile setIsOpen={setIsOpen}/>
             </Dialog>
 
-            <header className="fixed container mx-auto left-0 right-0 h-[70px] rounded-b-[20px] border-b border-gray-200 bg-[#5970F6]">
+            <header className="fixed left-0 right-0 h-[70px] rounded-b-[20px] border-b border-gray-200 bg-[#5970F6]">
 
                 <div className="flex mx-auto h-full pr-8 pl-8 items-center">
                     <div className="flex h-full w-full items-center justify-between gap-x-6">
@@ -57,7 +57,7 @@ const Header = () => {
                                     <li>
                                         <NavLink
                                             className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4"
-                                            to='/dashboard/free'>Свободные ресурсы</NavLink>
+                                            to='/assessors/free_resources'>Свободные ресурсы</NavLink>
                                     </li>
                                 </div>
                             </ul>

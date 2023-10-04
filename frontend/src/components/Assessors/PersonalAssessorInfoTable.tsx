@@ -23,7 +23,7 @@ const PersonalAssessorInfoTable = ({data, assessorId}: { data: Assessor, assesso
         setValue("middle_name", data.middle_name)
         setValue("username", data.username)
         setValue("email", data.email)
-        setValue("country", {label: data.country, value: data.country})
+        setValue("country", data.country)
     }, []);
     const {
         watch,
@@ -52,61 +52,56 @@ const PersonalAssessorInfoTable = ({data, assessorId}: { data: Assessor, assesso
 
         }
     }
-    const countryObject:{ label: string; value: string}[] = [
-        {label: "РФ", value: "РФ"},
-        {label: "РБ", value: "РБ"},
-        {label: "ПМР", value: "ПМР"},
-        {label: "Другое", value: "Другое"},
+    const countryObject:string[] = [
+        "РФ",
+        "РБ",
+        "ПМР",
+        "Другое"
 
     ]
 
     const [isDisabled, setIsDisabled] = useState(true)
     return (
-        <div className="container">
+        <div className="">
             <table className="w-full border border-black">
                 <thead className="border border-black">
                 <tr className="bg-[#E7EAFF]">
-                    <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]">Фамилия</th>
-                    <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]">Имя</th>
-                    <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]">Отчество</th>
-                    <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]">Ник в ТГ</th>
-                    <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]">Отвественный менеджер</th>
-                    <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]">Почта</th>
-                    <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]">Страна</th>
-                    <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]"></th>
+                    <th className="border-r dark:border-neutral-500 py-[5px]">Фамилия</th>
+                    <th className="border-r dark:border-neutral-500 py-[5px]">Имя</th>
+                    <th className="border-r dark:border-neutral-500 py-[5px]">Отчество</th>
+                    <th className="border-r dark:border-neutral-500 py-[5px]">Ник в ТГ</th>
+                    <th className="border-r dark:border-neutral-500 py-[5px]">Отвественный менеджер</th>
+                    <th className="border-r dark:border-neutral-500 py-[5px]">Почта</th>
+                    <th className="border-r dark:border-neutral-500 py-[5px]">Страна</th>
+                    <th className="border-r dark:border-neutral-500 py-[5px]"></th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr className='bg-white'>
-                    <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[20px]">
+                    <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
                         <input disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('last_name')}/>
                     </td>
-                    <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[20px]">
+                    <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
                         <input disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('first_name')}/>
                     </td>
-                    <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[20px]">
+                    <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
                         <input disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('middle_name')}/>
                     </td>
-                    <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[20px]">
+                    <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
                         <input disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('username')}/>
                     </td>
-                    <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[20px] text-center">
+                    <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px] text-center">
                         {data.manager.last_name} {data.manager.first_name}
                     </td>
-                    <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[20px]">
+                    <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
                         <input disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('email')}/>
                     </td>
-                    <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[20px]">
-                        <Select
-                            {...register('country')}
-                            isSearchable={false}
-                            isDisabled={isDisabled}
-                            options={countryObject}
-                            value={watch('country')}
-                            onChange={(newValue) => setValue('country', newValue)}
-                        />
+                    <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
+                        <select disabled={isDisabled} {...register('country')}>
+                            {countryObject.map(country => <option key={country} value={country}>{country}</option>)}
+                        </select>
                     </td>
-                    <td className="whitespace-nowrap py-[20px]" onClick={Submit}>
+                    <td className="whitespace-nowrap py-[5px]" onClick={Submit}>
                         {isDisabled ? <PencilSquareIcon className="h-6 w-6 text-black cursor-pointer"/> :
                             <CheckIcon className="h-6 w-6 text-black cursor-pointer"/>}
                     </td>

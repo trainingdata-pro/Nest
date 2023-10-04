@@ -1,122 +1,115 @@
-import {useState, useEffect, useContext} from "react";
-import {
-    createColumnHelper,
-    flexRender,
-    getCoreRowModel,
-    useReactTable,
-} from "@tanstack/react-table";
+import React, {useState, useEffect, useContext} from "react";
 import AssessorService, {ILoginAndPassword} from "../../services/AssessorService";
 import {Context} from "../../index";
 import {observer} from "mobx-react-lite";
+import {useMutation, useQuery, useQueryClient} from "react-query";
+import {useForm} from "react-hook-form";
+import {CheckIcon, PencilSquareIcon} from "@heroicons/react/24/solid";
 
-// @ts-ignore
-const TableCell = observer(({getValue, row, column, table}) => {
-    const {store} = useContext(Context)
-    const initialValue = getValue();
-    const [value, setValue] = useState(initialValue);
-    useEffect(() => {
-        setValue(initialValue);
-    }, [initialValue]);
-    const onBlur = () => {
-        table.options.meta?.updateData(row.index, column.id, value);
-        if (row.original.tool !== value) {
-            AssessorService.patchCredentials(row.original.id, {
-                assessor: row.original.assessor.id,
-                [column.id]: value
-            }).then((res) => console.log(res.data))
+type AssessorCredentials = {
+    assessor: number | string | undefined,
+    tool: string,
+    login: string,
+    password: string
+}
+const CredentialsRow = ({cred, assessorId, setIsAddCredentials}: {
+    cred: ILoginAndPassword,
+    assessorId: string | number | undefined,
+    setIsAddCredentials: any
+}) => {
+    const queryClient = useQueryClient();
+    const [isDisabled, setIsDisabled] = useState(() => !!cred?.id)
+    const {register, getValues} = useForm<AssessorCredentials>({
+        defaultValues: {
+            assessor: assessorId,
+            tool: cred?.tool,
+            login: cred?.login,
+            password: cred?.password
         }
-    };
-    return (
-        <textarea
-            className={`text-center resize-none ${!store.isEditableLoginAndPassword ? "opacity-50" : ""}`}
-            value={value}
-            disabled={!store.isEditableLoginAndPassword}
-            onChange={(e) => setValue(e.target.value)}
-            onBlur={onBlur}
-        />
-    );
-});
-const columnHelper = createColumnHelper<ILoginAndPassword>();
-const columns = [
-    columnHelper.accessor("tool", {
-        header: "Инструмент",
-        cell: TableCell,
-    }),
-    columnHelper.accessor("login", {
-        header: "Логин",
-        cell: TableCell,
-    }),
-    columnHelper.accessor("password", {
-        header: "Пароль",
-        cell: TableCell,
-    }),
-];
-const TableLog = () => {
+    })
+    const getPatchValues = (data: AssessorCredentials) => {
+        if (cred.tool === data.tool){
+            const {tool, ...rest} = data
+            return rest
+        }
+        return data
+    }
+    const patchMutate = useMutation(['credentials', assessorId], () => AssessorService.patchCredentials(assessorId, getPatchValues(getValues())), {
+        onSuccess: () => {
+            queryClient.invalidateQueries('credentials')
+            setIsDisabled(true)
+        }
+    })
+    const postMutate = useMutation(['credentials', assessorId], () => AssessorService.postCredentials(getValues()), {
+        onSuccess: () => {
+            queryClient.invalidateQueries('credentials')
+            setIsDisabled(true)
+            setIsAddCredentials(false)
+        }
+    })
+    return <tr className="text-center border-t dark:border-neutral-500">
+        <td className='whitespace-nowrap border-r dark:border-neutral-500' ><input className='text-center resize-none mx-1 my-1 block' disabled={isDisabled} {...register('tool')}/></td>
+        <td className='whitespace-nowrap border-r dark:border-neutral-500 py-[5px]' ><input className='text-center resize-none mx-1 my-1 block' disabled={isDisabled} {...register('login')}/></td>
+        <td className='whitespace-nowrap border-r dark:border-neutral-500 py-[5px]' ><input className='text-center resize-none mx-1 my-1 block' disabled={isDisabled} {...register('password')}/></td>
+        {cred?.id ?
+            <td className='whitespace-nowrap py-[5px] text-center'>{isDisabled ?
+                <PencilSquareIcon onClick={() => setIsDisabled(false)} className="h-6 w-6 text-black cursor-pointer"/> :
+                <CheckIcon onClick={() => {
+                    patchMutate.mutate()
+
+                }} className="h-6 w-6 text-black cursor-pointer"/>}
+            </td> :
+            <td className='whitespace-nowrappy-[5px] text-center'>
+                <CheckIcon onClick={() => {
+                    postMutate.mutate()
+                }} className="h-6 w-6 text-black cursor-pointer"/>
+            </td>}
+
+    </tr>
+}
+const TableLog = ({assessorId, assessorName = '', setIsShowLoginAndPassword}: {
+    assessorId: number | string | undefined,
+    assessorName: string,
+    setIsShowLoginAndPassword: any
+}) => {
     const {store} = useContext(Context)
-    useEffect(() => {
-        AssessorService.fetchCredentials(1).then(res => {
-            setData(res.data.results)
-            console.log(res.data.results)
-        })
-    }, []);
-    const [data, setData] = useState<ILoginAndPassword[]>([]);
-    const table = useReactTable({
-        data,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        meta: {
-            updateData: (rowIndex: number, columnId: string, value: string) => {
-                setData((old) =>
-                    old.map((row, index) => {
-                        if (index === rowIndex) {
-                            return {
-                                ...old[rowIndex],
-                                [columnId]: value,
-                            };
-                        }
-                        return row;
-                    })
-                );
-            },
-        },
-    });
-    return (
-        <>
-            <div className="rounded-t-[20px] border border-b-gray-400 bg-white">
-                <table className="w-full">
-                    <thead className="">
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <tr key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => (
-                                <th key={header.id} className="bg-[#E7EAFF] px-[15px] py-[10px]">
-                                    {header.isPlaceholder
-                                        ? null
-                                        : flexRender(
-                                            header.column.columnDef.header,
-                                            header.getContext()
-                                        )}
-                                </th>
-                            ))}
-                        </tr>
-                    ))}
+    const {data, isLoading} = useQuery(['credentials'], () => AssessorService.fetchCredentials(assessorId), {
+        keepPreviousData: true
+    })
+
+
+    const [isAddCredentials, setIsAddCredentials] = useState(false)
+
+        return (
+            <>
+                <h1>Логины и пароли</h1>
+                <h2 className='text-[#5970F6] mb-2'>{assessorName}</h2>
+                <div className='rounded-[20px] bg-white overflow-hidden border border-black'>
+                <table className="min-w-full text-center">
+                    <thead>
+                    <tr className="bg-[#E7EAFF]">
+                        <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]">Иснтрумент</th>
+                        <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]">Логин</th>
+                        <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]">Пароль</th>
+                        <th></th>
+                    </tr>
                     </thead>
+                    {isLoading ? 'Загрузка':
                     <tbody>
-                    {table.getRowModel().rows.map((row) => (
-                        <tr key={row.id}>
-                            {row.getVisibleCells().map((cell) => (
-                                <td key={cell.id}>
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
-                    </tbody>
+                    {data?.results.map(cred => <CredentialsRow setIsAddCredentials={setIsAddCredentials} key={cred.id}
+                                                               cred={cred} assessorId={assessorId}/>)}
+                    {isAddCredentials && <CredentialsRow assessorId={assessorId} cred={{} as ILoginAndPassword}
+                                                         setIsAddCredentials={setIsAddCredentials}/>}
+                    </tbody>}
                 </table>
-            </div>
-            <button
-                onClick={() => store.setEditableLoginAndPassword(!store.isEditableLoginAndPassword)}>{store.isEditableLoginAndPassword ? "Сохранить" : "Редактировать"}</button>
-        </>
-    );
+                </div>
+                <div className='flex justify-between'>
+                    <button onClick={() => setIsShowLoginAndPassword(false)} className="bg-[#5970F6] text-white rounded-md mt-2 px-4 py-2">Назад</button>
+                    <button className="bg-[#5970F6] text-white rounded-md mt-2 px-4 py-2" onClick={() => setIsAddCredentials(true)}>Добавить данные</button>
+                </div>
+            </>
+        );
+
 };
 
 export default observer(TableLog);
