@@ -20,69 +20,69 @@ const AssessorsPage = () => {
     const [assessors, setAssessors] = useState<Assessor[]>([])
 
 
-    const columns = [
-        columnHelper.accessor('last_name', {
-            header: 'Фамилия',
-            cell: info => info.getValue(),
-        }),
-        columnHelper.accessor('first_name', {
-            header: 'Имя',
-            cell: info => info.getValue(),
-            enableSorting: false
-        }),
-        columnHelper.accessor('middle_name', {
-            header: 'Отчество',
-            cell: info => info.getValue(),
-            enableSorting: false
-        }),
-        columnHelper.accessor("username", {
-            header: () => 'Ник в ТГ',
-            cell: info => info.getValue(),
-            enableSorting: false
-        }),
-        columnHelper.accessor("projects", {
-            header: () => 'Проекты',
-            cell: (info) => {
-                return <div>{info.row.original.projects.map(project => <div key={project.id} className="rounded-full bg-black text-white text-center py-1 px-3 mb-1">{project.name}</div>)}</div>
-            },
-            enableSorting: false
-        }),
-        columnHelper.accessor('working_hours', {
-            header: "Рабочее время Всего",
-            cell: info => {
-                const hours = [info.row.original.working_hours?.monday ? info.row.original.working_hours?.monday : 0,
-                    info.row.original.working_hours?.tuesday ? info.row.original.working_hours?.tuesday : 0,
-                    info.row.original.working_hours?.wednesday ? info.row.original.working_hours?.wednesday : 0,
-                    info.row.original.working_hours?.thursday ? info.row.original.working_hours?.thursday : 0,
-                    info.row.original.working_hours?.friday ? info.row.original.working_hours?.friday : 0,
-                    info.row.original.working_hours?.saturday ? info.row.original.working_hours?.saturday : 0,
-                    info.row.original.working_hours?.sunday ? info.row.original.working_hours?.sunday : 0]
-                const total = hours.reduce(
-                    (total, currentItem) => (total = total + currentItem), 0)
-                return total
-
-
-            },
-            enableSorting: false
-        }),
-        columnHelper.accessor('status', {
-            header: "Статус",
-            // @ts-ignore
-            cell: info => <div className="text-center">{statusObject[info.row.original.status]}</div>,
-            enableSorting: false,
-            size:155
-
-        }),
-        columnHelper.accessor('skills', {
-            header: "Skills",
-            cell: (info) => {
-                return <div>{info.row.original.skills.map(skill => {
-                    return <div className="rounded-full bg-black text-white text-center py-1 px-3 mb-1" key={skill.id}>{skill.title}</div>
-                })}</div>
-            },
-            enableSorting: false
-        })
-    ]
+    // const columns = [
+    //     columnHelper.accessor('last_name', {
+    //         header: 'Фамилия',
+    //         cell: info => info.getValue(),
+    //     }),
+    //     columnHelper.accessor('first_name', {
+    //         header: 'Имя',
+    //         cell: info => info.getValue(),
+    //         enableSorting: false
+    //     }),
+    //     columnHelper.accessor('middle_name', {
+    //         header: 'Отчество',
+    //         cell: info => info.getValue(),
+    //         enableSorting: false
+    //     }),
+    //     columnHelper.accessor("username", {
+    //         header: () => 'Ник в ТГ',
+    //         cell: info => info.getValue(),
+    //         enableSorting: false
+    //     }),
+    //     columnHelper.accessor("projects", {
+    //         header: () => 'Проекты',
+    //         cell: (info) => {
+    //             return <div>{info.row.original.projects.map(project => <div key={project.id} className="rounded-full bg-black text-white text-center py-1 px-3 mb-1">{project.name}</div>)}</div>
+    //         },
+    //         enableSorting: false
+    //     }),
+    //     columnHelper.accessor('working_hours', {
+    //         header: "Рабочее время Всего",
+    //         cell: info => {
+    //             const hours = [info.row.original.working_hours?.monday ? info.row.original.working_hours?.monday : 0,
+    //                 info.row.original.working_hours?.tuesday ? info.row.original.working_hours?.tuesday : 0,
+    //                 info.row.original.working_hours?.wednesday ? info.row.original.working_hours?.wednesday : 0,
+    //                 info.row.original.working_hours?.thursday ? info.row.original.working_hours?.thursday : 0,
+    //                 info.row.original.working_hours?.friday ? info.row.original.working_hours?.friday : 0,
+    //                 info.row.original.working_hours?.saturday ? info.row.original.working_hours?.saturday : 0,
+    //                 info.row.original.working_hours?.sunday ? info.row.original.working_hours?.sunday : 0]
+    //             const total = hours.reduce(
+    //                 (total, currentItem) => (total = total + currentItem), 0)
+    //             return total
+    //
+    //
+    //         },
+    //         enableSorting: false
+    //     }),
+    //     columnHelper.accessor('state', {
+    //         header: "Статус",
+    //         // @ts-ignore
+    //         cell: info => <div className="text-center">{statusObject[info.row.original.status]}</div>,
+    //         enableSorting: false,
+    //         size:155
+    //
+    //     }),
+    //     columnHelper.accessor('skills', {
+    //         header: "Skills",
+    //         cell: (info) => {
+    //             return <div>{info.row.original.skills.map(skill => {
+    //                 return <div className="rounded-full bg-black text-white text-center py-1 px-3 mb-1" key={skill.id}>{skill.title}</div>
+    //             })}</div>
+    //         },
+    //         enableSorting: false
+    //     })
+    // ]
     const [showSidebar, setShowSidebar] = useState(false)
     return (
         <div>
@@ -106,7 +106,7 @@ const AssessorsPage = () => {
             <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
                 <div className="h-full w-full">
                     <div className="rounded-md pt-20 border border-b-gray-400 bg-white">
-                        <Table data={assessors} columns={columns} pages={true}/>
+                        {/*<Table data={assessors} columns={columns} pages={true}/>*/}
                     </div>
                 </div>
             </div>

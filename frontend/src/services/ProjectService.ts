@@ -21,7 +21,7 @@ export default class ProjectService {
 
     static fetchCompletedProjects = (managerID:string | number) => $api.get<ProjectResponse>(`/api/projects/?manager=${managerID}&status=completed`).then((res) => res.data)
 
-    static fetchProject = (projectId: string | number) => $api.get<Project>(`/api/projects/${projectId}/`).then((res) => res.data)
+    static fetchProject = (projectId: string | number | undefined) => $api.get<Project>(`/api/projects/${projectId}/`).then((res) => res.data)
     static postProject = (data: any) => $api.post<Project>(`/api/projects/`, data).then((res) => res.data)
     static fetchProjectTags = () => $api.get<TagResult>('/api/tags/').then((res) => res.data)
 

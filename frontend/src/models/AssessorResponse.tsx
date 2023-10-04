@@ -64,7 +64,7 @@ export interface Assessor {
     is_free_resource: boolean,
     blacklist: boolean,
     date_of_registration: string,
-    working_hours: AssessorWorkingTime
+    working_hours: WorkingHours[]
 }
 
 
@@ -77,7 +77,7 @@ export interface AssessorWorkingTime {
     thursday: number,
     friday: number,
     saturday: number,
-    sunday: number
+    sunday: number,
 }
 
 export interface AssessorResponse {

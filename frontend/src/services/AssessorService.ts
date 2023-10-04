@@ -18,9 +18,7 @@ export type LoginAndPasswordResponse = {
     results: ILoginAndPassword[]
 }
 export default class AssessorService{
-    static fetchAssessors(projectId: any): Promise<AxiosResponse<AssessorResponse>> {
-        return $api.get<AssessorResponse>(`/api/assessors/?projects=${projectId}`)
-    }
+    static fetchAssessors = (projectId: any) => $api.get<AssessorResponse>(`/api/assessors/?projects=${projectId}`).then(res => res.data)
     static addAssessor(data:any): any {
         return $api.post('/api/assessors/', data)
     }
@@ -43,12 +41,10 @@ export default class AssessorService{
     static getBlackList(){
         return $api.get('/api/blacklist/')
     }
-    static fetchWorkloadStatus(assessorID: string | number):Promise<AxiosResponse<WorkloadStatusResponse>> {
-        return $api.get<WorkloadStatusResponse>(`/api/workload_status/?assessor=${assessorID}`)
-    }
-    static fetchWorkingHours(assessorID: string | number): Promise<AxiosResponse<WorkingHoursResponse>> {
-        return $api.get<WorkingHoursResponse>(`/api/working_hours/?assessor=${assessorID}`)
-    }
+    static fetchWorkloadStatus = (assessorID: string | number | undefined, projectId: string | number| undefined = undefined) => $api.get<WorkloadStatusResponse>(`/api/workload_status/?assessor=${assessorID}&project=${projectId}`).then(res => res.data)
+
+    static fetchWorkingHours = (assessorID: string | number | undefined, projectId: string | number| undefined = undefined) => $api.get<WorkingHoursResponse>(`/api/working_hours/?assessor=${assessorID}&project=${projectId}`).then(res => res.data)
+
     static fetchSkills():Promise<AxiosResponse<SkillResponse>>{
         return $api.get<SkillResponse>('/api/skills/')
     }

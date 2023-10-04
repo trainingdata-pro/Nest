@@ -26,7 +26,7 @@ export interface AssessorPatch {
     middle_name: string,
     email: string,
     country: string,
-    status: string,
+    state: string,
     is_free_resource: boolean,
     free_resource_weekday_hours: number | string,
     free_resource_day_off_hours: number | string,

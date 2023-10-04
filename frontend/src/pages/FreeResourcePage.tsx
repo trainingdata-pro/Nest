@@ -1,9 +1,10 @@
 import React, {useMemo, useState} from 'react';
 import {useNavigate} from "react-router-dom";
 import {PencilSquareIcon} from "@heroicons/react/24/solid";
-import {useQuery} from "react-query";
 import ProjectService from "../services/ProjectService";
 import AssessorService from "../services/AssessorService";
+import Header from "../components/Header/Header";
+import {useQuery} from "react-query";
 
 const FreeResourcePage = () => {
     const header = useMemo(() => ['Фамилия', 'Имя', 'Отчество', 'Ник в ТГ', 'Последний руководитель', 'Последний проект', 'Кол-во рабочих часов(Будние)','Кол-во рабочих часов(выходные)', 'Причина'], [])
@@ -25,6 +26,8 @@ const FreeResourcePage = () => {
     const [countPages, setCountPages] = useState(1)
     return (
         <>
+            <Header/>
+            <div className='pt-20'>
         <table className="min-w-full text-center">
             <thead className="">
             <tr className="bg-[#E7EAFF]">
@@ -38,6 +41,8 @@ const FreeResourcePage = () => {
                 <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{assessor.last_name}</td>
                 <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{assessor.first_name}</td>
                 <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{assessor.middle_name}</td>
+                <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{assessor.username}</td>
+                <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{assessor.username}</td>
                 <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{assessor.username}</td>
                 <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{assessor.free_resource_weekday_hours}</td>
                 <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{assessor.free_resource_day_off_hours}</td>
@@ -91,6 +96,7 @@ const FreeResourcePage = () => {
                 onClick={() => setCurrentPage(currentPage + 1)}>{'>'}
             </button>
         </div>
+    </div>
     </div>
     </>
     );

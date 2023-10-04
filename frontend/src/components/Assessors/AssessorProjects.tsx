@@ -9,34 +9,34 @@ import AssessorProjectRow from "./AssessorProjectRow";
 
 const AssessorProjects = ({assessorId}: { assessorId: string | number | undefined }) => {
 
-    useMemo(async () => {
-        if (assessorId) {
-            const projectsResponse = await ProjectService.fetchProjectsByAssessorID(assessorId)
-                .then(res => {
-                    return res.data.results
-                })
-            const workloadStatus = await AssessorService.fetchWorkloadStatus(assessorId)
-                .then(res => {
-                    return res.data.results
-                })
-            const WorkingHours = await AssessorService.fetchWorkingHours(assessorId)
-                .then(res => {
-                    return res.data.results
-                })
-            let data:IAssessorProjects[] = []
-            projectsResponse.map(project => {
-                const workingHoursForProject = WorkingHours.filter(wh => project.id === wh.project.id)[0]
-                const workloadStatusForProject = workloadStatus.filter(ws => project.id === ws.project.id)[0]
-
-                data = [...data, {
-                    ...project,
-                    workingHours: {...workingHoursForProject},
-                    workloadStatus: {...workloadStatusForProject}
-                }]
-            })
-            setProjects(data)
-        }
-    }, [])
+    // useMemo(async () => {
+    //     if (assessorId) {
+    //         const projectsResponse = await ProjectService.fetchProjectsByAssessorID(assessorId)
+    //             .then(res => {
+    //                 return res.data.results
+    //             })
+    //         const workloadStatus = await AssessorService.fetchWorkloadStatus(assessorId)
+    //             .then(res => {
+    //                 return res.data.results
+    //             })
+    //         const WorkingHours = await AssessorService.fetchWorkingHours(assessorId)
+    //             .then(res => {
+    //                 return res.data.results
+    //             })
+    //         let data:IAssessorProjects[] = []
+    //         projectsResponse.map(project => {
+    //             const workingHoursForProject = WorkingHours.filter(wh => project.id === wh.project.id)[0]
+    //             const workloadStatusForProject = workloadStatus.filter(ws => project.id === ws.project.id)[0]
+    //
+    //             data = [...data, {
+    //                 ...project,
+    //                 workingHours: {...workingHoursForProject},
+    //                 workloadStatus: {...workloadStatusForProject}
+    //             }]
+    //         })
+    //         setProjects(data)
+    //     }
+    // }, [])
 
     const [projects, setProjects] = useState<IAssessorProjects[]>([])
     return (
