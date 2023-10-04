@@ -58,13 +58,14 @@ export interface Assessor {
     last_name: string,
     first_name: string,
     middle_name: string,
-    state: string,
     email: string,
     country: string,
-    is_free_resource: boolean,
-    blacklist: boolean,
+    state: string
     date_of_registration: string,
-    working_hours: WorkingHours[]
+    working_hours: WorkingHours[],
+    vacation_date: string,
+    free_resource_weekday_hours: string,
+    free_resource_day_off_hours: string
 }
 
 
@@ -93,4 +94,18 @@ export interface IFreeResourcesResponse {
     results: IFreeResources[]
     count: number,
     next: string | null,
+}
+
+export interface IHistory {
+    id: number,
+    action: string,
+    old_value: string,
+    new_value: string,
+    reason: string,
+    user: string,
+    timestamp: string
+}
+export interface IHistoryResponse {
+    results: IHistory[],
+    count: number
 }
