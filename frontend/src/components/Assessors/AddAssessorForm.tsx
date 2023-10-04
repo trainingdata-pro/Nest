@@ -6,7 +6,7 @@ import MyLabel from "../UI/MyLabel";
 import MyInput from "../UI/MyInput";
 import Error from "../UI/Error";
 import Select from "react-select";
-import {SelectProps} from "../ProjectForm";
+import {SelectProps} from "../Projects/ProjectForm";
 import {useLocation, useParams} from "react-router-dom";
 import AssessorService from "../../services/AssessorService";
 import {Project} from "../../models/ProjectResponse";
@@ -28,7 +28,13 @@ interface FormProps {
 const FormSection = ({children}: { children: React.ReactNode }) => {
     return <div className="mb-2">{children}</div>
 }
+const countryObject = [
+    {label: "РФ", value: "РФ"},
+    {label: "РБ", value: "РБ"},
+    {label: "ПМР", value: "ПМР"},
+    {label: "Другое", value: "Другое"},
 
+]
 const AddAssessorForm = ({assessors, setAssessors, showSidebar, setShowSidebar}: {
         assessors: any,
         setAssessors: any,
@@ -36,13 +42,7 @@ const AddAssessorForm = ({assessors, setAssessors, showSidebar, setShowSidebar}:
         setShowSidebar: any,
     }) => {
 
-        const countryObject = [
-            {label: "РФ", value: "РФ"},
-            {label: "РБ", value: "РБ"},
-            {label: "ПМР", value: "ПМР"},
-            {label: "Другое", value: "Другое"},
 
-        ]
         const {store} = useContext(Context)
 
         const {id} = useParams()

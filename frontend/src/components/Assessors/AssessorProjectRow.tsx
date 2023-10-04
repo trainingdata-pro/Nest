@@ -1,69 +1,96 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {CheckIcon, PencilSquareIcon} from "@heroicons/react/24/solid";
-import {IAssessorProjects, WorkingHours} from "../../models/AssessorResponse";
+import {IAssessorProjects, PatchWorkingHours, WorkingHours} from "../../models/AssessorResponse";
 import {useForm} from "react-hook-form";
 import Select, {SingleValue} from "react-select";
 import AssessorService from "../../services/AssessorService";
 import {Context} from "../../index";
+import {useMutation, useQuery, useQueryClient} from "react-query";
+import {Project} from "../../models/ProjectResponse";
 type ProjectsProps = {
-    workloadStatus: SingleValue<{ label: string; value: string | number; }> ,
+    workloadStatus: SingleValue<{ label: string; value: string | number}> ,
     workingHours: WorkingHours
+}
+const status = {
+    'full': 'Полная загрузка',
+    'partial' : 'Частичная загрузка',
+    'reserved': 'Зарезервирован'
 }
 const AssessorProjectRow = ({project, assessorId}: { project: IAssessorProjects, assessorId: string|number|undefined }) => {
     const {store} = useContext(Context)
-    const status = {
-        'full': 'Полная загрузка',
-        'partial' : 'Частичная загрузка',
-        'reserved': 'Зарезервирован'
-    }
-    const [currentProject, setCurrentProject] = useState<IAssessorProjects>({...project})
-    useEffect(() => {
-        setValue('workingHours', {...currentProject.workingHours})
-        setValue('workloadStatus', {label: status[currentProject.workloadStatus.status], value: currentProject.workloadStatus.status})
-    }, [])
+
     const {register,setValue,watch, getValues} = useForm<ProjectsProps>()
     const [isDisabled, setIsDisabled] = useState(true)
     const tdClassName = "whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]"
     const handleSelectChangeStatus = (value: any) => {
         setValue('workloadStatus', value);
     };
+    const workloadStatus = useQuery(['workloadStatus', project.id, assessorId], () => AssessorService.fetchWorkloadStatus(assessorId, project.id), {
+        onSuccess: data => {
+            console.log(data)
+            if (data.results.length !== 0) setValue('workloadStatus', {label: status[data.results[0].status], value: data.results[0].status})
+        }
+    })
+    const workingHours = useQuery(['workingHours', project.id, assessorId], () => AssessorService.fetchWorkingHours(assessorId, project.id), {
+        onSuccess: data => {
+            setValue('workingHours', data.results[0] ? data.results[0] : {} as WorkingHours)
+            console.log(data.results[0])
+        }
+    })
+    const queryClient = useQueryClient()
+    const postWorkloadStatus = useMutation(['workloadStatus', project.id, assessorId], (data:{assessor:string|number | undefined, project: string|number, status:any}) => AssessorService.createWorkloadStatus(data),{
+        onSuccess: () => {
+            queryClient.invalidateQueries('workloadStatus')
+        }
+    })
+    const patchWorkloadStatus = useMutation(['workloadStatus', project.id, assessorId], ({id, data}: {id:string|number|undefined,data: any }) => AssessorService.patchWorkloadStatus(id,data),{
+        onSuccess: () => {
+            queryClient.invalidateQueries('workloadStatus')
+        }
+    })
+    const postWorkingHours = useMutation(['workingHours'], (data:WorkingHours) => AssessorService.createWorkingHours(data),{
+        onSuccess: () => {
+            queryClient.invalidateQueries('workingHours')
+        }
+    })
+    const patchWorkingHours = useMutation(['workingHours'], ({id, data}: {id:string|number, data: PatchWorkingHours } ) => AssessorService.patchWorkingHours(id,data),{
+        onSuccess: () => {
+            queryClient.invalidateQueries('workingHours')
+        }
+    })
     function edit() {
         if (isDisabled){
             setIsDisabled(false)
         } else{
-            if (currentProject.workloadStatus?.id){
-                AssessorService.patchWorkloadStatus(currentProject.workloadStatus.id, getValues('workloadStatus.value').toString()).then(
-                    res => setCurrentProject({...currentProject, workloadStatus: res.data})
-                )
+            if (workloadStatus.isSuccess && workloadStatus.data.results.length !== 0 && !!getValues('workloadStatus')){
+                patchWorkloadStatus.mutate({id:workloadStatus.data.results[0].id, data:getValues('workloadStatus.value')})
             } else{
-                AssessorService.createWorkloadStatus({
+                postWorkloadStatus.mutate({
                     "assessor": assessorId,
-                    "project": currentProject.id,
-                    "status": getValues('workloadStatus.value').toString()
-                }).then(
-                    res => setCurrentProject({...currentProject, workloadStatus: res.data})
-                )
+                    "project": project.id,
+                    "status": getValues('workloadStatus.value')
+                })
             }
-            if (currentProject.workingHours?.id){
-                AssessorService.patchWorkingHours(currentProject.workingHours.id, getValues('workingHours')).then(
-                    res => setCurrentProject({...currentProject, workingHours: res.data})
-                )
-            } else {
-                const wHours = getValues('workingHours')
-                let newWHours = {...wHours, project: currentProject.id}
-                newWHours = {...newWHours, assessor: assessorId}
+            if (workingHours.isSuccess && workingHours.data.results.length !== 0){
+                console.log(getValues('workingHours'))
+                const data:WorkingHours = getValues('workingHours')
+                const {id, assessor, total,  project, ...rest} = data
 
-                AssessorService.createWorkingHours(newWHours).then(
-                    res => setCurrentProject({...currentProject, workingHours: res.data})
-                )
+                patchWorkingHours.mutate({id: id, data:rest})
+            } else {
+                let wHours:any = getValues('workingHours')
+                wHours = {...wHours, project: project.id}
+                wHours = {...wHours, assessor: assessorId}
+                postWorkingHours.mutate({...wHours})
+
             }
             setIsDisabled(true)
         }
     }
     return (
         <tr className='border-b border-t border-black'>
-            <td className={tdClassName}>{currentProject.name}</td>
-            <td className={tdClassName}>{currentProject.manager.map(manager => {return <div key={manager.id}>{manager.last_name} {manager.first_name}</div>})}</td>
+            <td className={tdClassName}>{project.name}</td>
+            <td className={tdClassName}>{project.manager.map(manager => {return <div key={manager.id}>{manager.last_name} {manager.first_name}</div>})}</td>
             <td className={tdClassName + ' w-[266px]'}>
                 <Select
                     options={[
@@ -83,9 +110,9 @@ const AssessorProjectRow = ({project, assessorId}: { project: IAssessorProjects,
             <td className={tdClassName}><input defaultValue={0} disabled={isDisabled} className='w-[25px] text-center disabled:opacity-50' {...register('workingHours.friday')} /></td>
             <td className={tdClassName}><input defaultValue={0} disabled={isDisabled} className='w-[25px] text-center disabled:opacity-50' {...register('workingHours.saturday')} /></td>
             <td className={tdClassName}><input defaultValue={0} disabled={isDisabled} className='w-[25px] text-center disabled:opacity-50' {...register('workingHours.sunday')} /></td>
-            <td className={tdClassName}>{currentProject.workingHours?.total ? currentProject.workingHours.total : 0}</td>
-            <td className="whitespace-nowrap px-[5px] py-[20px] flex justify-center">{currentProject.manager.filter(manager => manager.id === store.user_id).length > 0 ? ( isDisabled ? <PencilSquareIcon onClick={edit}
-                                  className="h-6 w-6 text-black cursor-pointer"/> : <CheckIcon onClick={edit} className="h-6 w-6 text-black cursor-pointer"/>): ''}</td>
+            <td className={tdClassName}>{workingHours.data?.results[0]?.total}</td>
+            <td className="whitespace-nowrap px-[5px] py-[20px] flex justify-center">{project.manager.filter(manager => manager.id === store.user_id).length > 0 ? ( isDisabled ? <PencilSquareIcon onClick={edit}
+                                  className="h-6 w-6 text-black cursor-pointer"/> : <CheckIcon onClick={edit} className="h-6 w-6 text-black cursor-pointer"/>): <PencilSquareIcon className="h-6 w-6 text-gray-400"/>}</td>
         </tr>
     );
 };

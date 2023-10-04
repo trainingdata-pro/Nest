@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Assessor, Skill} from "../../models/AssessorResponse";
 import AssessorService from "../../services/AssessorService";
 import Select, {MultiValue} from "react-select";
-import {SelectProps} from "../ProjectForm";
+import {SelectProps} from "../Projects/ProjectForm";
 import {PencilSquareIcon} from "@heroicons/react/24/outline";
 import {CheckIcon} from "@heroicons/react/24/solid";
 import {useForm} from "react-hook-form";

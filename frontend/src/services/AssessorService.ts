@@ -7,6 +7,7 @@ import {
     WorkingHoursResponse,
     WorkloadStatusResponse
 } from "../models/AssessorResponse";
+import {data} from "autoprefixer";
 export type ILoginAndPassword = {
     id: number,
     assessor: Assessor,
@@ -51,7 +52,7 @@ export default class AssessorService{
     static patchAssessor(assessorId: string | number|undefined, data:any){
         return $api.patch(`/api/assessors/${assessorId}/`, data)
     }
-    static patchWorkloadStatus(workloadId: string | number, status: string ){
+    static patchWorkloadStatus(workloadId: string | number | undefined, status: string ){
         return $api.patch(`/api/workload_status/${workloadId}/`, {
             status: status
         })
@@ -75,4 +76,5 @@ export default class AssessorService{
         return $api.get<SkillResponse>(`/api/skills/${id}/`)
     }
     static fetchFreeResource = () => $api.get<IFreeResourcesResponse>('/api/free_resources/').then(res => res.data)
+    static patchVacation = (assessorId: string | number |undefined, data: any) => $api.patch(`/api/assessors/${assessorId}/vacation/`, data).then(res => res.data)
 }

@@ -6,7 +6,7 @@ import {AssessorPatch} from "./AssessorPage";
 import {Assessor} from "../../models/AssessorResponse";
 import AssessorService from "../../services/AssessorService";
 import Select, { SingleValue } from "react-select";
-import {SelectProps} from "../ProjectForm";
+import {SelectProps} from "../Projects/ProjectForm";
 interface PersonalTableProps{
     last_name: string,
     first_name: string,
@@ -62,7 +62,7 @@ const PersonalAssessorInfoTable = ({data, assessorId}: { data: Assessor, assesso
 
     const [isDisabled, setIsDisabled] = useState(true)
     return (
-        <div className="">
+        <div className="z-0">
             <table className="w-full border border-black">
                 <thead className="border border-black">
                 <tr className="bg-[#E7EAFF]">
@@ -85,7 +85,7 @@ const PersonalAssessorInfoTable = ({data, assessorId}: { data: Assessor, assesso
                         <input disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('first_name')}/>
                     </td>
                     <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
-                        <input disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('middle_name')}/>
+                        <input disabled={isDisabled} className="block w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('middle_name')}/>
                     </td>
                     <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
                         <input disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('username')}/>

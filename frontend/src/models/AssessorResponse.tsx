@@ -8,7 +8,7 @@ export interface Skill {
 export interface SkillResponse {
     results: Skill[]
 }
-
+export type PatchWorkingHours = Omit<WorkingHours, "project" | "assessor" | "id" | "total">
 export interface WorkingHours {
     id:number,
     project: {
@@ -42,8 +42,8 @@ export interface WorkloadStatus {
 }
 type Status = 'full' | 'partial' | 'reserved'
 export interface IAssessorProjects extends Project{
-    workingHours: WorkingHours,
-    workloadStatus: WorkloadStatus
+    workingHours?: WorkingHours,
+    workloadStatus?: WorkloadStatus
 }
 export interface WorkloadStatusResponse {
     results: WorkloadStatus[]

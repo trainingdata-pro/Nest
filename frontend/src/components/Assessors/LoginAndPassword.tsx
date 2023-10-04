@@ -88,13 +88,13 @@ const TableLog = ({assessorId, assessorName = '', setIsShowLoginAndPassword}: {
                 <table className="min-w-full text-center">
                     <thead>
                     <tr className="bg-[#E7EAFF]">
-                        <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]">Иснтрумент</th>
-                        <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]">Логин</th>
-                        <th className="border-r dark:border-neutral-500 px-[5px] py-[20px]">Пароль</th>
+                        <th className="border-r dark:border-neutral-500 py-[3px]">Иснтрумент</th>
+                        <th className="border-r dark:border-neutral-500 py-[3px]">Логин</th>
+                        <th className="border-r dark:border-neutral-500 py-[3px]">Пароль</th>
                         <th></th>
                     </tr>
                     </thead>
-                    {isLoading ? 'Загрузка':
+                    {isLoading ? <tbody><tr><td colSpan={20}>Загрузка</td></tr></tbody>:
                     <tbody>
                     {data?.results.map(cred => <CredentialsRow setIsAddCredentials={setIsAddCredentials} key={cred.id}
                                                                cred={cred} assessorId={assessorId}/>)}
