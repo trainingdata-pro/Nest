@@ -27,14 +27,12 @@ const AssessorProjectRow = ({project, assessorId}: { project: IAssessorProjects,
     };
     const workloadStatus = useQuery(['workloadStatus', project.id, assessorId], () => AssessorService.fetchWorkloadStatus(assessorId, project.id), {
         onSuccess: data => {
-            console.log(data)
             if (data.results.length !== 0) setValue('workloadStatus', {label: status[data.results[0].status], value: data.results[0].status})
         }
     })
     const workingHours = useQuery(['workingHours', project.id, assessorId], () => AssessorService.fetchWorkingHours(assessorId, project.id), {
         onSuccess: data => {
             setValue('workingHours', data.results[0] ? data.results[0] : {} as WorkingHours)
-            console.log(data.results[0])
         }
     })
     const queryClient = useQueryClient()

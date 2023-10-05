@@ -5,6 +5,20 @@ import {IManager} from "../models/ManagerResponse";
 interface UsersResponse {
     results: IManager[]
 }
+interface IUser {
+    id: number,
+    username: string,
+    last_name: string,
+    first_name: string,
+    middle_name: string
+    email: string,
+    status: string
+}
+export interface Manager {
+    user: IUser,
+    teamlead: IUser,
+    is_teamlead: boolean}
+
 export default class ManagerService{
     static fetch_manager(id: number | string): Promise<AxiosResponse<IManager>> {
         return $api.get<IManager>(`/api/users/${id}`)
@@ -26,8 +40,6 @@ export default class ManagerService{
             "middle_name": data.middle_name
         })
     }
-    static fetchOperationsManagers() {
-        return $api.get('/api/users/?is_teamlead=true')
-    }
+    static fetchOperationsManagers = () => $api.get('/api/users/?is_teamlead=true').then(res => res.data)
 
 }

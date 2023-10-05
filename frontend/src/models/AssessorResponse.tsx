@@ -109,3 +109,18 @@ export interface IHistoryResponse {
     results: IHistory[],
     count: number
 }
+
+interface IReason {
+    id: number,
+    title: string,
+    blacklist_reason: boolean
+}
+export interface IBlackList {
+    id: number
+    assessor: Assessor,
+    reason: IReason,
+    date: string
+}
+export interface IBlackListResponse {
+    results: IBlackList[]
+}

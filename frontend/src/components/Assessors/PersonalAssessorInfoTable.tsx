@@ -18,12 +18,12 @@ interface PersonalTableProps{
 const PersonalAssessorInfoTable = ({data, assessorId}: { data: Assessor, assessorId: string | number | undefined }) => {
     const [assessor, setAssessor] = useState<PersonalTableProps>({...data})
     useEffect(() => {
-        setValue("last_name", data.last_name)
-        setValue("first_name", data.first_name)
-        setValue("middle_name", data.middle_name)
-        setValue("username", data.username)
-        setValue("email", data.email)
-        setValue("country", data.country)
+        setValue("last_name", data?.last_name)
+        setValue("first_name", data?.first_name)
+        setValue("middle_name", data?.middle_name)
+        setValue("username", data?.username)
+        setValue("email", data?.email)
+        setValue("country", data?.country)
     }, []);
     const {
         watch,
@@ -91,7 +91,7 @@ const PersonalAssessorInfoTable = ({data, assessorId}: { data: Assessor, assesso
                         <input disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('username')}/>
                     </td>
                     <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px] text-center">
-                        {data.manager.last_name} {data.manager.first_name}
+                        {data?.manager.last_name} {data?.manager.first_name}
                     </td>
                     <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
                         <input disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('email')}/>

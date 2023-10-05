@@ -18,11 +18,7 @@ const AssessorsPageRow = ({assessorId, projectId}:{
         "partial": "Частичная загрузка",
         "reserved": "Зарезервирован",
     }
-    const assessor = useQuery(['assessorProject', assessorId], () => AssessorService.fetchAssessor(assessorId), {
-        select: data => {
-            return data.data
-        }
-    })
+    const assessor = useQuery(['assessorProject', assessorId], () => AssessorService.fetchAssessor(assessorId))
     const workload = useQuery(['workload', projectId, assessorId], () => AssessorService.fetchWorkloadStatus(assessorId,projectId),{
         select: (data) => data?.results[0]
     })

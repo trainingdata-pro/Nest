@@ -90,6 +90,7 @@ export default class Store {
             const decodeJwt: Token = jwtDecode(response.data.access)
             const managerId = decodeJwt.user_id
             const user_data = decodeJwt.user_data
+            console.log(user_data)
             this.setUserId(managerId)
             this.setUserData(user_data)
             this.setAuth(true)

@@ -6,7 +6,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement>{
 const MyInput = ({register, placeholder, type, disabled=false, className=''}: InputProps ) => {
     return (
         <input
-            className={`pl-[27px] rounded-md box-border border border-input text-left disabled:opacity-50 py-[8px] px-[12px] w-full ${className}`}
+            className={`pl-[27px] rounded-md box-border border border-input text-left disabled:opacity-50 py-[3px] ${className}`}
             {...register}
             type={type}
             placeholder={placeholder}

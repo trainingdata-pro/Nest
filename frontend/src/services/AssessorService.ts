@@ -2,7 +2,7 @@ import {AxiosResponse} from "axios";
 import $api from "../http";
 import {
     Assessor,
-    AssessorResponse, IFreeResourcesResponse, IHistoryResponse,
+    AssessorResponse, IBlackListResponse, IFreeResourcesResponse, IHistoryResponse,
     SkillResponse,
     WorkingHoursResponse,
     WorkloadStatusResponse
@@ -26,9 +26,7 @@ export default class AssessorService{
     static fetchManagersAssessors(): Promise<AxiosResponse<AssessorResponse>> {
         return $api.get<AssessorResponse>('/api/assessors/')
     }
-    static fetchAssessor(id: any): Promise<AxiosResponse<Assessor>> {
-        return $api.get<Assessor>(`/api/assessors/${id}/`)
-    }
+    static fetchAssessor = (id: any) => $api.get<Assessor>(`/api/assessors/${id}/`).then(res => res.data)
     static addAssessorProject(id: string | number, data: string[]):Promise<AxiosResponse<Assessor>>{
         return $api.patch<Assessor>(`/api/assessors/${id}/projects/`, {"projects": data})
     }
@@ -36,7 +34,7 @@ export default class AssessorService{
     static patchCredentials = (credId: string | number | undefined, data:any) => $api.patch(`/api/credentials/${credId}/`, data)
     static postCredentials = (data:any) => $api.post(`/api/credentials/`, data)
     static fetchAssessorHistory = (id: string | number | undefined, attribute: string) => $api.get<IHistoryResponse>(`/api/history/?attribute=${attribute}&ordering=-timestamp&assessor=${id}`).then(res => res.data)
-    static getBlackList = () => $api.get('/api/blacklist/')
+    static getBlackList = () => $api.get<IBlackListResponse>('/api/blacklist/').then(res => res.data)
     static fetchWorkloadStatus = (assessorID: string | number | undefined, projectId: string | number| undefined = undefined) => $api.get<WorkloadStatusResponse>(`/api/workload_status/?assessor=${assessorID}&project=${projectId}`).then(res => res.data)
 
     static fetchWorkingHours = (assessorID: string | number | undefined, projectId: string | number| undefined = undefined) => $api.get<WorkingHoursResponse>(`/api/working_hours/?assessor=${assessorID}&project=${projectId}`).then(res => res.data)
