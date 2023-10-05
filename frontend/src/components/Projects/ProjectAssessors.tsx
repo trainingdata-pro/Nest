@@ -1,17 +1,17 @@
 import React, {useMemo, useState} from 'react';
 import {NavLink, useParams} from "react-router-dom";
 import {ColumnDef, createColumnHelper} from "@tanstack/react-table";
-import {Assessor, WorkingHours} from "../models/AssessorResponse";
-import Table from "./UI/Table";
-import ProjectService from "../services/ProjectService";
-import {Project} from "../models/ProjectResponse";
-import Dialog from "./UI/Dialog";
-import AddAssessorForm from "./Assessors/AddAssessorForm";
-import Header from './Header/Header';
+import {Assessor, WorkingHours} from "../../models/AssessorResponse";
+import Table from "../UI/Table";
+import ProjectService from "../../services/ProjectService";
+import {Project} from "../../models/ProjectResponse";
+import Dialog from "../UI/Dialog";
+import AddAssessorForm from "../Assessors/AddAssessorForm";
+import Header from '../Header/Header';
 import {useQuery} from "react-query";
 import ProjectForm from "./ProjectForm";
-import AssessorService from "../services/AssessorService";
-import AssessorsPageRow from "./Assessors/AssessorsPageRows";
+import AssessorService from "../../services/AssessorService";
+import AssessorsPageRow from "../Assessors/AssessorsPageRows";
 const statusObject = {
     "full":"Полная загрузка",
     "partial": "Частичная загрузка",
@@ -79,7 +79,7 @@ const ProjectAssessors = () => {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {data?.results.map(assessor => <AssessorsPageRow assessorId={assessor.id} projectId={id}/>)}
+                                {data?.results.map(assessor => <AssessorsPageRow key={assessor.id} assessorId={assessor.id} projectId={id}/>)}
                                 </tbody>
                             </table>
                         </div>

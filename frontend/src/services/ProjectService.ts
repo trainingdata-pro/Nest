@@ -31,7 +31,5 @@ export default class ProjectService {
     static fetchProjectAssessors(id:any): Promise<AxiosResponse<AssessorResponse>> {
         return $api.get<AssessorResponse>(`/api/projects/${id}/assessors/`,)
     }
-    static fetchProjectsByAssessorID(id: string | number): Promise<AxiosResponse<ProjectResponse>>{
-        return $api.get<ProjectResponse>(`/api/projects/?assessor_id=${id}`)
-    }
+    static fetchProjectsByAssessorID = (id: string | number | undefined) => $api.get<ProjectResponse>(`/api/projects/?assessor_id=${id}`).then(res => res.data)
 }

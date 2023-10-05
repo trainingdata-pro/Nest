@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import AssessorService from "../../services/AssessorService";
+import {useQuery} from "react-query";
 
 
 type THistory = {
@@ -16,15 +17,13 @@ const AssessorHistory = ({assessorId}: {
     assessorId: number | string | undefined
 }) => {
 
-    useEffect(()=>{
-        if (assessorId){
-            AssessorService.fetchAssessorHistory(assessorId).then(res => setHistory(res.data.results.reverse()))
-        }
-    }, [assessorId])
-    const [history, setHistory] = useState<THistory[]>([])
+    const userId = 1
+    const {data} = useQuery(['assessorHistory', userId], () => AssessorService.fetchAssessorHistory(userId, 'state'), {
+        onSuccess: data1 => console.log(data1)
+    })
     return (
         <div>
-            {history.map(row => <div>{row.id}</div>)}
+
         </div>
     );
 };

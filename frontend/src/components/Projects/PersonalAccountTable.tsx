@@ -1,10 +1,10 @@
 import React, {useContext, useState} from 'react';
-import {Context} from '../index';
-import ProjectService from '../services/ProjectService';
+import {Context} from '../../index';
+import ProjectService from '../../services/ProjectService';
 import {observer} from "mobx-react-lite";
-import Loader from "./UI/Loader";
+import Loader from "../UI/Loader";
 import ProjectForm from "./ProjectForm";
-import Dialog from "./UI/Dialog";
+import Dialog from "../UI/Dialog";
 import NewTable from "./NewTable";
 import {useQuery} from "react-query";
 

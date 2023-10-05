@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {Project} from "../models/ProjectResponse";
+import {Project} from "../../models/ProjectResponse";
 import {PencilSquareIcon} from "@heroicons/react/24/solid";
 import {useNavigate} from "react-router-dom";
 

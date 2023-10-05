@@ -7,7 +7,7 @@ import SignUpPage from "./pages/SignUpPage";
 import ConfirmationSignUp from "./components/SignUp/ConfirmationSignUp";
 import MainPage from './pages/MainPage';
 import Loader from './components/UI/Loader';
-import ProjectAssessors from "./components/ProjectAssessors";
+import ProjectAssessors from "./components/Projects/ProjectAssessors";
 import AssessorsPage from "./components/Assessors/AssessorsPage";
 import AssessorPage from './components/Assessors/AssessorPage';
 import CompletedProjects from "./pages/CompletedProjects";

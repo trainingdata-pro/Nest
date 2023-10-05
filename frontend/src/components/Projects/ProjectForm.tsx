@@ -1,16 +1,16 @@
 import React, {Dispatch, SetStateAction, useContext, useEffect, useState} from 'react';
 import {useForm} from 'react-hook-form'
-import ProjectService from "../services/ProjectService";
-import {Context} from "../index";
-import ManagerService from '../services/ManagerService';
+import ProjectService from "../../services/ProjectService";
+import {Context} from "../../index";
+import ManagerService from '../../services/ManagerService';
 import Select from "react-select";
-import {Project} from "../models/ProjectResponse";
-import MyInput from "./UI/MyInput";
+import {Project} from "../../models/ProjectResponse";
+import MyInput from "../UI/MyInput";
 import {format} from 'date-fns';
-import {IManager} from "../models/ManagerResponse";
+import {IManager} from "../../models/ManagerResponse";
 import {observer} from "mobx-react-lite";
-import MyLabel from "./UI/MyLabel";
-import Error from "./UI/Error";
+import MyLabel from "../UI/MyLabel";
+import Error from "../UI/Error";
 import {useMutation, useQuery, useQueryClient} from "react-query";
 
 export interface SelectProps {

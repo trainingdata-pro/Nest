@@ -1,6 +1,6 @@
 import React from 'react';
 import Header from "../components/Header/Header";
-import PersonalAccountTable from "../components/PersonalAccountTable";
+import PersonalAccountTable from "../components/Projects/PersonalAccountTable";
 
 const MainPage = () => {
     return (
