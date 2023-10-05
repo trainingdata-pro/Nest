@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from apps.assessors.serializers import AssessorSerializer
 from core.mixins import BaseAPIViewSet
 from core.permissions import IsManager
-from .filters import ReasonFilter
+from .filters import ReasonFilter, FiredFilter, BlackListFilter
 from .models import BlackList, Fired, Reason
 from .schemas import reason_schema, fired_schema
 from . import serializers
@@ -32,6 +32,8 @@ class BlackListAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.BlackListSerializer
     permission_classes = (IsAuthenticated,)
     http_method_names = ['get']
+    filterset_class = BlackListFilter
+    ordering_fields = ['pk']
 
 
 @method_decorator(name='retrieve', decorator=fired_schema.retrieve_fired())
@@ -51,6 +53,8 @@ class FiredAPIViewSet(BaseAPIViewSet):
 
     }
     http_method_names = ['get', 'patch']
+    filterset_class = FiredFilter
+    ordering_fields = ['pk']
 
     @action(detail=True, methods=['patch'])
     def back(self, request: Request, **kwargs) -> Response:
