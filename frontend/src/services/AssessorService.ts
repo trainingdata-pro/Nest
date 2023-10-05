@@ -34,17 +34,11 @@ export default class AssessorService{
     static patchCredentials = (credId: string | number | undefined, data:any) => $api.patch(`/api/credentials/${credId}/`, data)
     static postCredentials = (data:any) => $api.post(`/api/credentials/`, data)
     static fetchAssessorHistory = (id: string | number | undefined, attribute: string) => $api.get<IHistoryResponse>(`/api/history/?attribute=${attribute}&ordering=-timestamp&assessor=${id}`).then(res => res.data)
-    static getBlackList = () => $api.get<IBlackListResponse>('/api/blacklist/').then(res => res.data)
+    static getBlackList = (username: string, fio: string) => $api.get<IBlackListResponse>(`/api/blacklist/?username=${username}&full_name=${fio}`).then(res => res.data)
     static fetchWorkloadStatus = (assessorID: string | number | undefined, projectId: string | number| undefined = undefined) => $api.get<WorkloadStatusResponse>(`/api/workload_status/?assessor=${assessorID}&project=${projectId}`).then(res => res.data)
-
     static fetchWorkingHours = (assessorID: string | number | undefined, projectId: string | number| undefined = undefined) => $api.get<WorkingHoursResponse>(`/api/working_hours/?assessor=${assessorID}&project=${projectId}`).then(res => res.data)
-
-    static fetchSkills():Promise<AxiosResponse<SkillResponse>>{
-        return $api.get<SkillResponse>('/api/skills/')
-    }
-    static patchAssessor(assessorId: string | number|undefined, data:any){
-        return $api.patch(`/api/assessors/${assessorId}/`, data)
-    }
+    static fetchSkills = () => $api.get<SkillResponse>('/api/skills/')
+    static patchAssessor = (assessorId: string | number|undefined, data:any) => $api.patch(`/api/assessors/${assessorId}/`, data)
     static patchWorkloadStatus(workloadId: string | number | undefined, status: string ){
         return $api.patch(`/api/workload_status/${workloadId}/`, {
             status: status

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import AssessorService from "../../services/AssessorService";
 
 import {useQuery} from "react-query";
@@ -6,13 +6,16 @@ import Header from "../Header/Header";
 
 const BlackList = () => {
     const header = ["Фамилия", "Имя", "Отчество", "Ник в ТГ", "Руководитель", "Проект", "Причина"]
-    const blacklist = useQuery(['blacklist'], () => AssessorService.getBlackList())
+    const [fioFilter, setFioFilter] = useState('')
+    const [usernameFilter, setUsernameFilter] = useState('')
+    const blacklist = useQuery(['blacklist', fioFilter, usernameFilter], () => AssessorService.getBlackList(usernameFilter, fioFilter))
     return (
         <>
             <Header/>
             <div className='pt-20 items-center'>
                 <div className="flex justify-between px-8">
-
+                    <input className='border border-black' placeholder='Поиск по ФИО' onChange={(event) => setFioFilter(event.target.value)}/>
+                    <input className='border border-black' placeholder='Поиск по Нику в ТГ' onChange={(event) => setUsernameFilter(event.target.value)}/>
                 </div>
                 <div className='px-8'>
                 <table className="w-full text-center">
