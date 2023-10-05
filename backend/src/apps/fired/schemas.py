@@ -77,6 +77,27 @@ class FiredSchema(BaseAPISchema):
         return self.swagger_auto_schema(
             operation_summary='All blacklist',
             operation_description='Get all blacklist',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='username',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Case-independent filtering by assessor username'
+                ),
+                openapi.Parameter(
+                    name='full_name',
+                    type=openapi.TYPE_STRING,
+                    in_=openapi.IN_QUERY,
+                    description='Case-independent filtering by assessor full name'
+                ),
+                openapi.Parameter(
+                    name='ordering',
+                    type=openapi.TYPE_STRING,
+                    in_=openapi.IN_QUERY,
+                    description='Which field to use when ordering the results. '
+                                'Available fields: pk'
+                )
+            ],
             responses={**self.get_responses(401)}
         )
 
@@ -102,6 +123,27 @@ class FiredSchema(BaseAPISchema):
         return self.swagger_auto_schema(
             operation_summary='List fired assessors',
             operation_description='Get list of fired assessors',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='username',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Case-independent filtering by assessor username'
+                ),
+                openapi.Parameter(
+                    name='full_name',
+                    type=openapi.TYPE_STRING,
+                    in_=openapi.IN_QUERY,
+                    description='Case-independent filtering by assessor full name'
+                ),
+                openapi.Parameter(
+                    name='ordering',
+                    type=openapi.TYPE_STRING,
+                    in_=openapi.IN_QUERY,
+                    description='Which field to use when ordering the results. '
+                                'Available fields: pk'
+                )
+            ],
             responses={**self.get_responses(401)}
         )
 
