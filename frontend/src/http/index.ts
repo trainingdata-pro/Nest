@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "universal-cookie";
 
 // export const API_URL = 'http://localhost:8000'
-export const API_URL = 'https://assessors-test.trainingdata.solutions'
+export const API_URL = 'http://assessors-test.trainingdata.solutions'
 const $api = axios.create({
     withCredentials: true,
     baseURL: API_URL,
