@@ -7,10 +7,12 @@ import SignUpPage from "./pages/SignUpPage";
 import ConfirmationSignUp from "./components/SignUp/ConfirmationSignUp";
 import MainPage from './pages/MainPage';
 import Loader from './components/UI/Loader';
-import ProjectAssessors from "./components/ProjectAssessors";
+import ProjectAssessors from "./components/Projects/ProjectAssessors";
 import AssessorsPage from "./components/Assessors/AssessorsPage";
 import AssessorPage from './components/Assessors/AssessorPage';
 import CompletedProjects from "./pages/CompletedProjects";
+import BlackList from "./components/BlackList/BlackList";
+import FreeResourcePage from "./pages/FreeResourcePage";
 
 function App() {
     const {store} = useContext(Context)
@@ -40,6 +42,8 @@ function App() {
                      <Route path={'/dashboard/assessors'} element={<AssessorsPage/>}/>
                      <Route path={'/assessor/:id'} element={<AssessorPage/>}/>
                      <Route path={'/dashboard/projects/free'} element={<CompletedProjects/>} />
+                     <Route path={'/assessors/blacklist'} element={<BlackList/>} />
+                     <Route path={'/assessors/free_resources'} element={<FreeResourcePage/>}/>
                      <Route path="*" element={<Navigate to="/dashboard/projects" replace/>}/> // TODO: redirect 404
                  </Routes>}
              </BrowserRouter>

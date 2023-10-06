@@ -10,8 +10,7 @@ fired_router = routers.DefaultRouter()
 fired_router.register('', api.FiredAPIViewSet, basename='fired')
 
 reasons_router = routers.DefaultRouter()
-reasons_router.register('blacklist', api.BlackListReasonAPIViewSet, basename='bl-reason')
-reasons_router.register('fired', api.FiredReasonAPIViewSet, basename='fire-reason')
+reasons_router.register('', api.ReasonAPIViewSet, basename='reason')
 
 urlpatterns = [
     path('blacklist/', include(blacklist_router.urls)),

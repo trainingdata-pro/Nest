@@ -1,6 +1,6 @@
 from drf_yasg import openapi
 
-from core.utils.schemas import BaseAPISchema
+from core.schemas import BaseAPISchema
 from . import serializers
 
 
@@ -108,12 +108,6 @@ class AssessorSchema(BaseAPISchema):
                     description='Filtering by project ID. Example: host.com/?projects=1,2'
                 ),
                 openapi.Parameter(
-                    name='status',
-                    in_=openapi.IN_QUERY,
-                    type=openapi.TYPE_STRING,
-                    description='Filtering by status.'
-                ),
-                openapi.Parameter(
                     name='skills',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
@@ -153,6 +147,24 @@ class AssessorSchema(BaseAPISchema):
         return self.swagger_auto_schema(
             operation_summary='Update assessor',
             operation_description='Update assessor',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique assessor ID'
+                )
+            ],
+            responses={
+                200: serializers.AssessorSerializer(),
+                **self.get_responses(400, 401, 403, 404)
+            }
+        )
+
+    def projects(self):
+        return self.swagger_auto_schema(
+            operation_summary='Update assessor projects',
+            operation_description='Update assessor projects',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
@@ -236,7 +248,10 @@ class AssessorSchema(BaseAPISchema):
     def fire(self):
         return self.swagger_auto_schema(
             operation_summary='Fire assessor',
-            operation_description='Fire a specific assessor',
+            operation_description='If the reason has blacklist=True, then '
+                                  'the assessor will be added to the blacklist. '
+                                  'The "date" parameter is optional (the date '
+                                  'when you can return to the assessor)',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
@@ -402,8 +417,10 @@ class FreeResourcesSchema(BaseAPISchema):
 
     def partial_update(self):
         return self.swagger_auto_schema(
-            operation_summary='Take or return free resource',
-            operation_description='Take or return a specific free resource',
+            operation_summary='Take free resource',
+            operation_description='If the assessor does not have a team, then it\'s necessary '
+                                  'to specify the "manager" field, otherwise specify the '
+                                  '"second_manager" and "projects" fields',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',

@@ -14,7 +14,7 @@ class HistoryAPIView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = HistorySerializer
     filterset_class = HistoryFilter
-    ordering_fields = ['event', 'timestamp']
+    ordering_fields = ['action', 'attribute', 'timestamp']
 
     def get_queryset(self) -> QuerySet[History]:
         assessor_id = self.request.query_params.get('assessor')

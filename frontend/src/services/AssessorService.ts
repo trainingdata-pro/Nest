@@ -1,18 +1,61 @@
 import {AxiosResponse} from "axios";
 import $api from "../http";
-import {Assessor, AssessorResponse} from "../models/AssessorResponse";
-
+import {
+    Assessor,
+    AssessorResponse, IBlackListResponse, IFreeResourcesResponse, IHistoryResponse, IReasonResponse,
+    SkillResponse,
+    WorkingHoursResponse,
+    WorkloadStatusResponse
+} from "../models/AssessorResponse";
+import {data} from "autoprefixer";
+export type ILoginAndPassword = {
+    id: number,
+    assessor: Assessor,
+    login: string,
+    tool: string,
+    password: string
+}
+export type LoginAndPasswordResponse = {
+    results: ILoginAndPassword[]
+}
 export default class AssessorService{
-    static fetchAssessors(projectId: any): Promise<AxiosResponse<AssessorResponse>> {
-        return $api.get<AssessorResponse>(`/api/assessors/?projects=${projectId}`)
+    static fetchAssessors = (projectId: any) => $api.get<AssessorResponse>(`/api/assessors/?projects=${projectId}`).then(res => res.data)
+    static addAssessor = (data:any) => $api.post<Assessor>('/api/assessors/', data).then(res => res.data)
+    static fetchManagersAssessors = () => $api.get<AssessorResponse>('/api/assessors/').then(res => res.data)
+    static fetchAssessor = (id: any) => $api.get<Assessor>(`/api/assessors/${id}/`).then(res => res.data)
+    static addAssessorProject = (id: string | number, data: string[]) => $api.patch<Assessor>(`/api/assessors/${id}/projects/`, data).then(res => res.data)
+    static fetchCredentials = (id: string | number | undefined) => $api.get<LoginAndPasswordResponse>(`/api/credentials/?assessor=${id}`).then((res) => res.data)
+    static patchCredentials = (credId: string | number | undefined, data:any) => $api.patch(`/api/credentials/${credId}/`, data)
+    static postCredentials = (data:any) => $api.post(`/api/credentials/`, data)
+    static fetchAssessorHistory = (id: string | number | undefined, attribute: string) => $api.get<IHistoryResponse>(`/api/history/?attribute=${attribute}&ordering=-timestamp&assessor=${id}`).then(res => res.data)
+    static getBlackList = (username: string, fio: string) => $api.get<IBlackListResponse>(`/api/blacklist/?username=${username}&full_name=${fio}`).then(res => res.data)
+    static fetchWorkloadStatus = (assessorID: string | number | undefined, projectId: string | number| undefined = undefined) => $api.get<WorkloadStatusResponse>(`/api/workload_status/?assessor=${assessorID}&project=${projectId}`).then(res => res.data)
+    static fetchWorkingHours = (assessorID: string | number | undefined, projectId: string | number| undefined = undefined) => $api.get<WorkingHoursResponse>(`/api/working_hours/?assessor=${assessorID}&project=${projectId}`).then(res => res.data)
+    static fetchSkills = () => $api.get<SkillResponse>('/api/skills/')
+    static patchAssessor = (assessorId: string | number|undefined, data:any) => $api.patch(`/api/assessors/${assessorId}/`, data)
+    static patchWorkloadStatus(workloadId: string | number | undefined, status: string ){
+        return $api.patch(`/api/workload_status/${workloadId}/`, {
+            status: status
+        })
     }
-    static addAssessor(data:any): any {
-        return $api.post('/api/assessors/', data)
+    static createWorkloadStatus = (data: any ) => $api.post(`/api/workload_status/`, data).then(res => res.data)
+    static patchWorkingHours(workingHoursId: string | number, data:any ){
+        return $api.patch(`/api/working_hours/${workingHoursId}/`, data)
     }
-    static fetchManagersAssessors(): Promise<AxiosResponse<AssessorResponse>> {
-        return $api.get<AssessorResponse>('/api/assessors/')
+    static createWorkingHours(data: any ){
+        return $api.post(`/api/working_hours/`, data)
     }
-    static fetchAssessor(id: any): Promise<AxiosResponse<Assessor>> {
-        return $api.get<Assessor>(`/api/assessors/${id}/`)
+    static addToFreeResource = (assessorId:number| string | undefined, data:any) => $api.patch(`/api/assessors/${assessorId}/free_resource/`, {
+        free_resource: data.free_resource,
+        reason: data.reason,
+        free_resource_weekday_hours: data.free_resource_weekday_hours,
+        free_resource_day_off_hours: data.free_resource_day_off_hours
+    }).then((res) => res.data)
+    static fetchAssessorSkills(id: string | number):Promise<AxiosResponse<SkillResponse>>{
+        return $api.get<SkillResponse>(`/api/skills/${id}/`)
     }
+    static fetchFreeResource = () => $api.get<IFreeResourcesResponse>('/api/free_resources/').then(res => res.data)
+    static patchVacation = (assessorId: string | number |undefined, data: any) => $api.patch(`/api/assessors/${assessorId}/vacation/`, data).then(res => res.data)
+    static fetchReasons = () => $api.get<IReasonResponse>('/api/reasons/').then(res => res.data)
+    static addAssessorToFired = (id: string| number| undefined, data: any) => $api.patch(`/api/assessors/${id}/fire/`, data).then(res => res.data)
 }

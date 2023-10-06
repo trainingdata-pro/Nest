@@ -9,9 +9,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from core.utils.mixins import BaseAPIViewSet
-from core.utils.users import UserStatus
-from core.utils import permissions
+from core.mixins import BaseAPIViewSet
+from core.users import UserStatus
+from core import permissions
 from apps.fired import serializers as fired_serializers
 from apps.users.models import BaseUser
 from .models import AssessorState, Assessor, Skill, AssessorCredentials
@@ -33,6 +33,7 @@ class SkillsAPIViewSet(viewsets.ModelViewSet):
 @method_decorator(name='list', decorator=schemas.assessor_schema.list())
 @method_decorator(name='create', decorator=schemas.assessor_schema.create())
 @method_decorator(name='partial_update', decorator=schemas.assessor_schema.partial_update())
+@method_decorator(name='projects', decorator=schemas.assessor_schema.projects())
 @method_decorator(name='vacation', decorator=schemas.assessor_schema.vacation())
 @method_decorator(name='free_resource', decorator=schemas.assessor_schema.free_resource())
 @method_decorator(name='unpin', decorator=schemas.assessor_schema.unpin())
@@ -55,6 +56,11 @@ class AssessorAPIViewSet(BaseAPIViewSet):
             IsAuthenticated,
             permissions.IsManager,
             permissions.AssessorPermission
+        ),
+        'projects': (
+            IsAuthenticated,
+            permissions.IsManager,
+            permissions.AssessorPermissionExtended
         ),
         'vacation': (
             IsAuthenticated,
@@ -82,6 +88,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         'retrieve': serializers.AssessorSerializer,
         'create': serializers.CreateUpdateAssessorSerializer,
         'partial_update': serializers.CreateUpdateAssessorSerializer,
+        'projects': serializers.AssessorProjectsSerializer,
         'vacation': serializers.AssessorVacationSerializer,
         'free_resource': serializers.AssessorFreeResourceSerializer,
         'unpin': serializers.UnpinAssessorSerializer,
@@ -99,28 +106,19 @@ class AssessorAPIViewSet(BaseAPIViewSet):
 
     def get_queryset(self) -> QuerySet[Assessor]:
         user = self.request.user
-        if user.is_superuser:
-            return (Assessor.objects.all()
-                    .select_related('manager')
-                    .prefetch_related('projects__manager', 'second_manager')
-                    .order_by('manager__last_name', 'last_name')
-                    .distinct())
+        if user.is_superuser or user.status == UserStatus.ANALYST:
+            queryset = Assessor.objects.exclude(state__in=AssessorState.fired_states())
         else:
             if user.manager_profile.is_teamlead:
                 team = BaseUser.objects.filter(status=UserStatus.MANAGER, manager_profile__teamlead=user)
-                return (Assessor.objects
-                        .filter(manager__in=team)
-                        .select_related('manager')
-                        .prefetch_related('projects__manager', 'second_manager')
-                        .order_by('manager__last_name', 'last_name')
-                        .distinct())
+                queryset = Assessor.objects.filter(manager__in=team)
+            else:
+                queryset = Assessor.objects.filter(Q(manager=user) | Q(second_manager__in=[user]))
 
-            return (Assessor.objects
-                    .filter(Q(manager=user) | Q(second_manager__in=[user]))
-                    .select_related('manager')
-                    .prefetch_related('projects__manager', 'second_manager')
-                    .order_by('last_name')
-                    .distinct())
+        return (queryset.select_related('manager')
+                .prefetch_related('projects__manager', 'second_manager')
+                .order_by('manager__last_name', 'last_name')
+                .distinct())
 
     def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
@@ -130,13 +128,12 @@ class AssessorAPIViewSet(BaseAPIViewSet):
 
         return Response(response.data, status=status.HTTP_201_CREATED)
 
-    def _update(self, request: Request, context=None, **kwargs) -> Response:
+    def _update(self, request: Request, **kwargs) -> Response:
         instance = self.get_object()
         serializer = self.get_serializer(
             instance,
             data=request.data,
-            partial=True,
-            context=context
+            partial=True
         )
         serializer.is_valid(raise_exception=True)
         assessor = serializer.save()
@@ -145,6 +142,10 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         return Response(response.data, status=status.HTTP_200_OK)
 
     def partial_update(self, request: Request, **kwargs) -> Response:
+        return self._update(request, **kwargs)
+
+    @action(detail=True, methods=['patch'])
+    def projects(self, request: Request, **kwargs) -> Response:
         return self._update(request, **kwargs)
 
     @action(detail=True, methods=['patch'])
@@ -161,7 +162,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
 
     @action(detail=True, methods=['patch'])
     def fire(self, request: Request, **kwargs) -> Response:
-        return self._update(request, context={'assessor': self.get_object()}, **kwargs)
+        return self._update(request, **kwargs)
 
 
 @method_decorator(name='get', decorator=schemas.check_assessor_schema.get())
@@ -253,8 +254,8 @@ class AssessorCredentialsAPIViewSet(BaseAPIViewSet):
 @method_decorator(name='partial_update', decorator=schemas.fr_schema.partial_update())
 class FreeResourcesAPIViewSet(BaseAPIViewSet):
     permission_classes = {
-        'retrieve': (IsAuthenticated,),
-        'list': (IsAuthenticated,),
+        'retrieve': (IsAuthenticated, permissions.IsManager),
+        'list': (IsAuthenticated, permissions.IsManager),
         'partial_update': (IsAuthenticated, permissions.IsManager)
     }
     serializer_class = {
@@ -271,13 +272,13 @@ class FreeResourcesAPIViewSet(BaseAPIViewSet):
     ]
 
     def get_queryset(self) -> QuerySet[Assessor]:
-        queryset = (Assessor.objects
-                    .filter(Q(state=AssessorState.FREE_RESOURCE) | Q(manager=None))
-                    .select_related('manager')
-                    .prefetch_related('projects')
-                    .order_by('manager__last_name'))
-
-        return queryset
+        return (Assessor.objects
+                .exclude(state__in=AssessorState.fired_states())
+                .filter(Q(state=AssessorState.FREE_RESOURCE) | Q(manager=None))
+                .exclude(second_manager__in=[self.request.user])
+                .select_related('manager')
+                .prefetch_related('projects')
+                .order_by('last_name'))
 
     def update(self, request: Request, *args, **kwargs) -> Response:
         partial = kwargs.pop('partial', False)

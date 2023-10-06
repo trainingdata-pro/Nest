@@ -1,7 +1,7 @@
 from django.db.models import QuerySet
 from django_filters import rest_framework as filters
 
-from core.utils.mixins import FilteringMixin
+from core.mixins import FilteringMixin
 from .models import Assessor, Skill, AssessorCredentials
 
 
@@ -20,9 +20,7 @@ class AssessorFilter(FilteringMixin, filters.FilterSet):
     middle_name = filters.CharFilter(lookup_expr='icontains')
     manager = filters.NumberFilter()
     projects = filters.CharFilter(method='filter_projects')
-    status = filters.BooleanFilter(lookup_expr='iexact')
     skills = filters.CharFilter(method='filter_skills')
-    # is_free_resource = filters.BooleanFilter()
     second_manager = filters.CharFilter(method='filter_second_manager')
 
     class Meta:
@@ -34,21 +32,19 @@ class AssessorFilter(FilteringMixin, filters.FilterSet):
             'middle_name',
             'manager',
             'projects',
-            'status',
             'skills',
-            # 'is_free_resource',
             'second_manager'
         ]
 
-    def filter_projects(self, queryset: QuerySet[Assessor], name: str, value: str):
+    def filter_projects(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
         projects = self.get_id_for_filtering(value)
         return queryset.filter(projects__in=projects).distinct()
 
-    def filter_skills(self, queryset: QuerySet[Assessor], name: str, value: str):
+    def filter_skills(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
         skills = self.get_id_for_filtering(value)
         return queryset.filter(skills__in=skills).distinct()
 
-    def filter_second_manager(self, queryset: QuerySet[Assessor], name: str, value: str):
+    def filter_second_manager(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
         managers = self.get_id_for_filtering(value)
         return queryset.filter(second_manager__in=managers).distinct()
 

@@ -3,29 +3,20 @@ from django.db import models
 from apps.assessors.models import Assessor
 
 
-# class BaseReasonModel(models.Model):
-#     title = models.CharField(
-#         verbose_name='причина',
-#         max_length=255
-#     )
-#
-#     class Meta:
-#         abstract = True
-#
-#     def __str__(self):
-#         return str(self.title)
-
-class ReasonModel(models.Model):
+class Reason(models.Model):
     title = models.CharField(
         verbose_name='причина',
         max_length=255
     )
     blacklist_reason = models.BooleanField(
-
+        verbose_name='для черного списка'
     )
 
     class Meta:
-        abstract = True
+        db_table = 'reasons'
+        verbose_name = 'причина увольнения'
+        verbose_name_plural = 'причины увольнения'
+        ordering = ['id']
 
     def __str__(self):
         return str(self.title)
@@ -49,27 +40,16 @@ class BaseStateModel(models.Model):
         return str(self.assessor)
 
 
-class FiredReason(BaseReasonModel):
-    class Meta:
-        db_table = 'fired_reasons'
-        verbose_name = 'причина увольнения'
-        verbose_name_plural = 'причины увольнения'
-        ordering = ['id']
-
-
-class BlackListReason(BaseReasonModel):
-    class Meta:
-        db_table = 'blacklist_reasons'
-        verbose_name = 'причина добавления в ЧС'
-        verbose_name_plural = 'причины добавления в ЧС'
-        ordering = ['id']
-
-
 class Fired(BaseStateModel):
     reason = models.ForeignKey(
-        FiredReason,
+        Reason,
         verbose_name='причина',
         on_delete=models.PROTECT
+    )
+    possible_return_date = models.DateField(
+        verbose_name='дата примерного возвращения',
+        null=True,
+        blank=True
     )
 
     class Meta:
@@ -81,7 +61,7 @@ class Fired(BaseStateModel):
 
 class BlackList(BaseStateModel):
     reason = models.ForeignKey(
-        BlackListReason,
+        Reason,
         verbose_name='причина',
         on_delete=models.PROTECT
     )

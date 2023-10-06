@@ -1,11 +1,53 @@
 import {IManager} from "./ManagerResponse";
 import {Project} from "./ProjectResponse";
 
-interface Skill {
+export interface Skill {
     id: number,
     title: string
 }
+export interface SkillResponse {
+    results: Skill[]
+}
+export type PatchWorkingHours = Omit<WorkingHours, "project" | "assessor" | "id" | "total">
+export interface WorkingHours {
+    id:number,
+    project: {
+        id: number,
+        name: string,
+        manager: IManager[],
+    }
+    total: number,
+    monday: number,
+    tuesday: number,
+    wednesday: number,
+    thursday: number,
+    friday: number,
+    saturday: number,
+    sunday: number
+    assessor: number | string | undefined
+}
 
+export interface WorkingHoursResponse {
+    results: WorkingHours[]
+}
+export interface WorkloadStatus {
+    id:number,
+    project: {
+        id: number,
+        name: string,
+        manager: IManager[],
+    }
+    status: Status,
+    assessor: number
+}
+type Status = 'full' | 'partial' | 'reserved'
+export interface IAssessorProjects extends Project{
+    workingHours?: WorkingHours,
+    workloadStatus?: WorkloadStatus
+}
+export interface WorkloadStatusResponse {
+    results: WorkloadStatus[]
+}
 export interface Assessor {
     id: number,
     manager: IManager,
@@ -16,16 +58,17 @@ export interface Assessor {
     last_name: string,
     first_name: string,
     middle_name: string,
-    status: string,
     email: string,
     country: string,
-    is_free_resource: boolean,
-    blacklist: boolean,
+    state: string
     date_of_registration: string,
-    working_hours: AssessorWorkingTime
-
-
+    working_hours: WorkingHours[],
+    vacation_date: string,
+    free_resource_weekday_hours: string,
+    free_resource_day_off_hours: string
 }
+
+
 
 export interface AssessorWorkingTime {
     id: number,
@@ -35,9 +78,52 @@ export interface AssessorWorkingTime {
     thursday: number,
     friday: number,
     saturday: number,
-    sunday: number
+    sunday: number,
 }
 
 export interface AssessorResponse {
     results: Assessor[]
+}
+
+export interface IFreeResources extends Assessor{
+    "vacation_date": string,
+    "free_resource_weekday_hours": string,
+    "free_resource_day_off_hours": string
+}
+export interface IFreeResourcesResponse {
+    results: IFreeResources[]
+    count: number,
+    next: string | null,
+}
+
+export interface IHistory {
+    id: number,
+    action: string,
+    old_value: string,
+    new_value: string,
+    reason: string,
+    user: string,
+    timestamp: string
+}
+export interface IHistoryResponse {
+    results: IHistory[],
+    count: number
+}
+
+export interface IReason {
+    id: number,
+    title: string,
+    blacklist_reason: boolean
+}
+export interface IReasonResponse {
+    results: IReason[]
+}
+export interface IBlackList {
+    id: number
+    assessor: Assessor,
+    reason: IReason,
+    date: string
+}
+export interface IBlackListResponse {
+    results: IBlackList[]
 }

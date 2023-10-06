@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from apps.users.serializers import UserSerializer
-from core.utils import permissions
+from core import permissions
 from .models import PasswordResetToken
 from .tasks import reset_password
 from . import schemas, serializers

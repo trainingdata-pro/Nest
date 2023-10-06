@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from core.utils.common import current_date
-from core.utils.validators import not_negative_value_validator, day_hours_validator
+from core.utils import current_date
+from core.validators import not_negative_value_validator, day_hours_validator
 
 
 class ProjectTag(models.Model):
@@ -19,17 +19,22 @@ class ProjectTag(models.Model):
 
 
 class ProjectStatuses(models.TextChoices):
-    NEW = ('new', 'Новый')
-    PILOT = ('pilot', 'Пилот')
     ACTIVE = ('active', 'В работе')
     PAUSE = ('pause', 'На паузе')
     COMPLETED = ('completed', 'Завершен')
 
+    @classmethod
+    def get_value(cls, key: str) -> str:
+        for state in cls.choices:
+            if state[0] == key:
+                return state[1]
+        return '-'
+
 
 class Project(models.Model):
-    asana_id = models.BigIntegerField(
-        verbose_name='asana ID',
-        unique=True
+    asana_id = models.CharField(
+        max_length=50,
+        verbose_name='asana ID'
     )
     name = models.CharField(
         max_length=255,
@@ -42,31 +47,31 @@ class Project(models.Model):
         blank=True
     )
     speed_per_hour = models.IntegerField(
-        verbose_name='Скорость в час',
+        verbose_name='скорость в час',
         validators=[not_negative_value_validator],
         blank=True,
         null=True
     )
     price_for_assessor = models.FloatField(
-        verbose_name='Цена за единицу для ассессора',
+        verbose_name='цена за единицу для ассессора',
         validators=[not_negative_value_validator],
         blank=True,
         null=True
     )
     price_for_costumer = models.FloatField(
-        verbose_name='Цена за единицу для заказчика',
+        verbose_name='цена за единицу для заказчика',
         validators=[not_negative_value_validator],
         blank=True,
         null=True
     )
     unloading_value = models.CharField(
-        verbose_name='Объем выгрузок',
+        verbose_name='объем выгрузок',
         max_length=255,
         blank=True,
         null=True
     )
     unloading_regularity = models.IntegerField(
-        verbose_name='Регулярность выгрузок',
+        verbose_name='регулярность выгрузок',
         validators=[not_negative_value_validator],
         blank=True,
         null=True
@@ -166,3 +171,34 @@ class ProjectWorkingHours(models.Model):
         return (int(self.monday) + int(self.tuesday) + int(self.wednesday)
                 + int(self.thursday) + int(self.friday) + int(self.saturday)
                 + int(self.sunday))
+
+
+class Status(models.TextChoices):
+    FULL = ('full', 'Полная загрузка')
+    PARTIAL = ('partial', 'Частичная загрузка')
+    RESERVED = ('reserved', 'Зарезервирован')
+
+
+class WorkLoadStatus(models.Model):
+    assessor = models.ForeignKey(
+        to='assessors.Assessor',
+        on_delete=models.PROTECT,
+        verbose_name='исполнитель',
+        related_name='workload_status'
+    )
+    project = models.ForeignKey(
+        to=Project,
+        on_delete=models.PROTECT,
+        verbose_name='проект'
+    )
+    status = models.CharField(
+        verbose_name='статус',
+        max_length=10,
+        choices=Status.choices
+    )
+
+    class Meta:
+        db_table = 'workload_statuses'
+        verbose_name = 'статус загрузки'
+        verbose_name_plural = 'статусы загрузки'
+        ordering = ['id']

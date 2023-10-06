@@ -114,8 +114,8 @@ const SignInPage = () => {
                                     </svg>
                                     <input {...register('username', {
                                         pattern: {
-                                            value: /^@[A-Za-z\d_]{5,32}$/,
-                                            message: "Никнейм должен содержать символы:@, A-z, _ Длина: 5-32 символа"
+                                            value: /^[A-Za-z\d_]{5,32}$/,
+                                            message: "Никнейм должен содержать символы:A-z, _ Длина: 5-32 символа"
                                         }
                                     })} type="text"
                                            autoComplete="new-username"

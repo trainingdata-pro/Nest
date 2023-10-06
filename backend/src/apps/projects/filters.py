@@ -2,8 +2,8 @@ from django.db.models import Count, QuerySet
 from django_filters import rest_framework as filters
 
 from apps.assessors.models import Assessor
-from core.utils.mixins import FilteringMixin
-from .models import Project, ProjectWorkingHours
+from core.mixins import FilteringMixin
+from .models import Project, ProjectWorkingHours, WorkLoadStatus
 
 
 class ProjectFilter(FilteringMixin, filters.FilterSet):
@@ -62,3 +62,11 @@ class ProjectWorkingHoursFilter(FilteringMixin, filters.FilterSet):
                        value: str) -> QuerySet[ProjectWorkingHours]:
         projects = self.get_id_for_filtering(value)
         return queryset.filter(project__in=projects)
+
+
+class WorkLoadStatusFilter(ProjectWorkingHoursFilter):
+    status = filters.CharFilter(lookup_expr='iexact')
+
+    class Meta:
+        model = WorkLoadStatus
+        fields = ['assessor', 'project']

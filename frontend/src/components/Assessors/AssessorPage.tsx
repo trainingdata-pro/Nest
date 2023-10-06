@@ -1,23 +1,32 @@
 import React, {useContext, useMemo, useState} from 'react';
-import {NavLink, useParams} from "react-router-dom";
-import {Assessor, AssessorWorkingTime} from "../../models/AssessorResponse";
+import {NavLink, useNavigate, useParams} from "react-router-dom";
 import AssessorService from "../../services/AssessorService";
-import {useForm} from "react-hook-form";
-import {Context} from "../../index";
-import {PencilSquareIcon} from "@heroicons/react/24/outline";
-import {CheckIcon} from "@heroicons/react/24/solid";
-import {IManager} from "../../models/ManagerResponse";
 import Header from "../Header/Header";
+import PersonalAssessorInfoTable from "./PersonalAssessorInfoTable";
+import Dialog from "../UI/Dialog";
+import TableLog from "./LoginAndPassword";
+import {observer} from "mobx-react-lite";
+import AssessorProjects from "./AssessorProjects";
+import AssessorHistory from "./AssessorHistory";
+import Skills from "./Skills";
+import FreeResource from "../AssessorManagement/FreeResource";
+import Vacation from "../AssessorManagement/Vacation";
+import CurrentState from "./CurrentState";
+import {useQuery} from 'react-query';
+import Management from "../AssessorManagement/Management";
+import Fired from "../AssessorManagement/Fired";
+import Loader from "../UI/Loader";
+import VacationReturn from "../AssessorManagement/VacationReturn";
 
 
-interface AssessorPatch {
+export interface AssessorPatch {
     username: string,
     last_name: string,
     first_name: string,
     middle_name: string,
     email: string,
     country: string,
-    status: string,
+    state: string,
     is_free_resource: boolean,
     free_resource_weekday_hours: number | string,
     free_resource_day_off_hours: number | string,
@@ -28,112 +37,66 @@ interface AssessorPatch {
 
 const AssessorPage = () => {
     const id = useParams()["id"]
-    useMemo(async () => {
-        await AssessorService.fetchAssessor(id).then(res => {
-            setAssessor(res.data)
-            setValue('last_name', res.data.last_name)
-            setValue('first_name', res.data.first_name)
-            setValue('middle_name', res.data.middle_name)
-            setValue('username', res.data.username)
-            setValue('manager', `${res.data.manager.last_name} ${res.data.manager.first_name}`)
-            setValue('email', res.data.email)
-            setValue('country', res.data.country)
-
-        })
-    }, [])
-    const [editable, setEditable] = useState(true)
-    const {
-        watch,
-        register,
-        formState: {
-            errors
-        },
-        setValue,
-        getValues,
-        handleSubmit
-    } = useForm<AssessorPatch>()
-    const [assessor, setAssessor] = useState<Assessor>({
-        blacklist: false,
-        country: "",
-        date_of_registration: "",
-        email: "",
-        first_name: "",
-        id: 0,
-        is_free_resource: false,
-        last_name: "",
-        manager: {} as IManager,
-        middle_name: "",
-        projects: [],
-        second_manager: [],
-        skills: [],
-        status: "",
-        username: "",
-        working_hours: {} as AssessorWorkingTime
-    })
-    const {store} = useContext(Context)
-
-    function Submit() {
-        const values = getValues()
-        if (editable) {
-            setEditable(false)
-        } else {
-
-            console.log(values)
-            setEditable(true)
+    const navigate = useNavigate()
+    const assessor = useQuery(['currentAssessor', id], () => AssessorService.fetchAssessor(id), {
+        onError: (err: any) => {
+            if (err.response.status === 404) {
+                navigate(-1)
+            }
         }
-    }
-
-    const [isLoading, setIsLoading] = useState(false)
-    return (
-        <div>
-            <Header/>
-            <div className="container pt-24">
-                <table className="w-full border border-black">
-                    <thead className="border border-black">
-                    <tr>
-                        <th>Фамилия</th>
-                        <th>Имя</th>
-                        <th>Отчество</th>
-                        <th>Ник в ТГ</th>
-                        <th>Отвественный менеджер</th>
-                        <th>Почта</th>
-                        <th>Страна</th>
-                        <th></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td className="text-center">
-                            <input disabled={!editable} className="w-full text-center" {...register('last_name')}/>
-                        </td>
-                        <td className="text-center">
-                            <input disabled={!editable} className="w-full text-center" {...register('first_name')}/>
-                        </td>
-                        <td className="text-center">
-                            <input disabled={!editable} className="w-full text-center" {...register('middle_name')}/>
-                        </td>
-                        <td className="text-center">
-                            <input disabled={!editable} className="w-full text-center" {...register('username')}/>
-                        </td>
-                        <td className="text-center">
-                            <input disabled={!editable} className="w-full text-center" {...register('manager')}/>
-                        </td>
-                        <td className="text-center">
-                            <input disabled={!editable} className="w-full text-center" {...register('email')}/>
-                        </td>
-                        <td className="text-center">
-                            <input disabled={!editable} className="w-full text-center" {...register('country')}/>
-                        </td>
-                        <td className="text-center" onClick={Submit}>
-                            {editable ? <PencilSquareIcon className="h-6 w-6 text-black cursor-pointer"/> :
-                                <CheckIcon className="h-6 w-6 text-black cursor-pointer"/>}
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+    })
+    const [isShowLoginAndPassword, setIsShowLoginAndPassword] = useState(false)
+    const [isShowHistory, setIsShowHistory] = useState(false)
+    const [showAddToFreeResource, setShowAddToFreeResource] = useState(false)
+    const [openVacation, setOpenVacation] = useState(false)
+    const [isOpenFired, setIsOpenFired] = useState(false)
+    const [isReturnVacation, setIsReturnVacation] = useState(false)
+    if (assessor.isLoading) {
+        return <Loader width={50}/>
+    } else {
+        return (
+            <div>
+                <Dialog isOpen={isReturnVacation} setIsOpen={setIsReturnVacation}>
+                    <VacationReturn assessorId={id} setIsReturnVacation={setIsReturnVacation}/>
+                </Dialog>
+                <Dialog isOpen={showAddToFreeResource} setIsOpen={setShowAddToFreeResource}>
+                    <FreeResource assessorId={id}/>
+                </Dialog>
+                <Dialog isOpen={openVacation} setIsOpen={setOpenVacation}>
+                    <Vacation assessorId={id} close={setOpenVacation}/>
+                </Dialog>
+                <Dialog isOpen={isShowHistory} setIsOpen={setIsShowHistory}>
+                    <AssessorHistory assessorId={id}/>
+                </Dialog>
+                <Dialog isOpen={isOpenFired} setIsOpen={setIsOpenFired}>
+                    <Fired assessorId={id} close={setIsOpenFired}/>
+                </Dialog>
+                <Dialog isOpen={isShowLoginAndPassword} setIsOpen={setIsShowLoginAndPassword}>
+                    <TableLog assessorId={id} setIsShowLoginAndPassword={setIsShowLoginAndPassword}
+                              assessorName={`${assessor.data?.last_name} ${assessor.data?.first_name} ${assessor.data?.middle_name}`}/>
+                </Dialog>
+                <Header/>
+                <div className="px-8 pt-20 space-x-2 flex justify-end mb-2">
+                    <Management assessorState={assessor.data?.state} setIsReturnVacation={setIsReturnVacation} setOpenVacation={setOpenVacation} setIsOpenFired={setIsOpenFired}
+                                setShowAddToFreeResource={setShowAddToFreeResource}/>
+                    <button className='bg-[#5970F6] rounded-md text-white px-4 py-2'
+                            onClick={() => setIsShowHistory(true)}>История
+                    </button>
+                    <button className='bg-[#5970F6] rounded-md text-white px-4 py-2'
+                            onClick={() => setIsShowLoginAndPassword(true)}>Логины и пароли
+                    </button>
+                </div>
+                <div className='px-8 space-y-4 pb-6'>
+                    {assessor.isSuccess && <PersonalAssessorInfoTable assessorId={id}/>}
+                    {assessor.isSuccess && <AssessorProjects assessorId={id}/>}
+                    {assessor.isSuccess && <Skills assessor={assessor.data}/>}
+                    <div className='flex justify-between'>
+                        <CurrentState assessorId={id} vacationDate={assessor.data?.vacation_date}/>
+                    </div>
+                </div>
             </div>
-        </div>
-    )
+        )
+    }
 };
 
-export default AssessorPage;
+export default observer(AssessorPage);

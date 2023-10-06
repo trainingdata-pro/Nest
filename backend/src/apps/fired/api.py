@@ -6,11 +6,23 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.assessors.serializers import AssessorSerializer
-from core.utils.mixins import BaseAPIViewSet
-from core.utils.permissions import IsManager
-from .models import BlackList, Fired, BlackListReason, FiredReason
-from .schemas import fired_schema
+from core.mixins import BaseAPIViewSet
+from core.permissions import IsManager
+from .filters import ReasonFilter, FiredFilter, BlackListFilter
+from .models import BlackList, Fired, Reason
+from .schemas import reason_schema, fired_schema
 from . import serializers
+
+
+@method_decorator(name='retrieve', decorator=reason_schema.retrieve())
+@method_decorator(name='list', decorator=reason_schema.list())
+class ReasonAPIViewSet(viewsets.ModelViewSet):
+    queryset = Reason.objects.all()
+    serializer_class = serializers.ReasonSerializer
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['get']
+    filterset_class = ReasonFilter
+    ordering_fields = ['pk', 'title', 'blacklist_reason']
 
 
 @method_decorator(name='retrieve', decorator=fired_schema.retrieve_blacklist())
@@ -20,6 +32,8 @@ class BlackListAPIViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.BlackListSerializer
     permission_classes = (IsAuthenticated,)
     http_method_names = ['get']
+    filterset_class = BlackListFilter
+    ordering_fields = ['pk']
 
 
 @method_decorator(name='retrieve', decorator=fired_schema.retrieve_fired())
@@ -39,6 +53,8 @@ class FiredAPIViewSet(BaseAPIViewSet):
 
     }
     http_method_names = ['get', 'patch']
+    filterset_class = FiredFilter
+    ordering_fields = ['pk']
 
     @action(detail=True, methods=['patch'])
     def back(self, request: Request, **kwargs) -> Response:
@@ -49,21 +65,3 @@ class FiredAPIViewSet(BaseAPIViewSet):
         response = AssessorSerializer(assessor)
 
         return Response(response.data, status=status.HTTP_200_OK)
-
-
-@method_decorator(name='retrieve', decorator=fired_schema.retrieve_fired_reason())
-@method_decorator(name='list', decorator=fired_schema.list_fired_reason())
-class FiredReasonAPIViewSet(viewsets.ModelViewSet):
-    queryset = FiredReason.objects.all()
-    serializer_class = serializers.FiredReasonSerializer
-    permission_classes = (IsAuthenticated,)
-    http_method_names = ['get']
-
-
-@method_decorator(name='retrieve', decorator=fired_schema.retrieve_bl_reason())
-@method_decorator(name='list', decorator=fired_schema.list_bl_reason())
-class BlackListReasonAPIViewSet(viewsets.ModelViewSet):
-    queryset = BlackListReason.objects.all()
-    serializer_class = serializers.BlackListReasonSerializer
-    permission_classes = (IsAuthenticated,)
-    http_method_names = ['get']

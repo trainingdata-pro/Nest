@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ProjectTag, Project, ProjectWorkingHours
+from .models import ProjectTag, Project, ProjectWorkingHours, WorkLoadStatus
 
 
 class ProjectTagAdmin(admin.ModelAdmin):
@@ -23,7 +23,7 @@ class ProjectAdmin(admin.ModelAdmin):
     ]
     list_display_links = ['name']
     list_filter = ['manager', 'status']
-    ordering = ['name']
+    ordering = ['pk']
 
     def get_queryset(self, request):
         return Project.objects.all().prefetch_related('manager')
@@ -43,9 +43,18 @@ class ProjectWorkingHoursAdmin(admin.ModelAdmin):
         'saturday',
         'sunday',
     ]
-    # list_display_links = ['assessor']
+
+
+class WorkLoadStatusAdmin(admin.ModelAdmin):
+    list_display = [
+        'pk',
+        'assessor',
+        'project',
+        'status'
+    ]
 
 
 admin.site.register(ProjectTag, ProjectTagAdmin)
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(ProjectWorkingHours, ProjectWorkingHoursAdmin)
+admin.site.register(WorkLoadStatus, WorkLoadStatusAdmin)
