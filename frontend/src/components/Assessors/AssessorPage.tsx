@@ -82,7 +82,7 @@ const AssessorPage = () => {
                     </button>
                 </div>
                 <div className='px-8 space-y-4 pb-6'>
-                    {assessor.isSuccess && <PersonalAssessorInfoTable data={assessor.data} assessorId={id}/>}
+                    {assessor.isSuccess && <PersonalAssessorInfoTable assessorId={id}/>}
                     <AssessorProjects assessorId={id}/>
                     {assessor.isSuccess && <Skills assessor={assessor.data}/>}
                     <div className='flex justify-between'>

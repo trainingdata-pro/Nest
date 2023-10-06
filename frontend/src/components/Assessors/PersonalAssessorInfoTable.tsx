@@ -7,6 +7,7 @@ import {Assessor} from "../../models/AssessorResponse";
 import AssessorService from "../../services/AssessorService";
 import Select, { SingleValue } from "react-select";
 import {SelectProps} from "../Projects/ProjectForm";
+import {useMutation, useQuery} from "react-query";
 interface PersonalTableProps{
     last_name: string,
     first_name: string,
@@ -15,25 +16,25 @@ interface PersonalTableProps{
     email: string,
     country: string
 }
-const PersonalAssessorInfoTable = ({data, assessorId}: { data: Assessor, assessorId: string | number | undefined }) => {
-    const [assessor, setAssessor] = useState<PersonalTableProps>({...data})
-    useEffect(() => {
-        setValue("last_name", data?.last_name)
-        setValue("first_name", data?.first_name)
-        setValue("middle_name", data?.middle_name)
-        setValue("username", data?.username)
-        setValue("email", data?.email)
-        setValue("country", data?.country)
-    }, []);
+const PersonalAssessorInfoTable = ({assessorId}: {assessorId: string | number | undefined }) => {
+    const assessor = useQuery(['currentAssessorInfo'], () => AssessorService.fetchAssessor(assessorId),{
+        onSuccess: data => {
+            setValue("last_name", data?.last_name)
+            setValue("first_name", data?.first_name)
+            setValue("middle_name", data?.middle_name)
+            setValue("username", data?.username)
+            setValue("email", data?.email)
+            setValue("country", data?.country)
+        }
+    })
+    const patchAssessorInfo = useMutation(['currentAssessorInfo'], ({id, data}: any) => AssessorService.patchAssessor(id, data))
     const {
-        watch,
         register,
         formState: {
             errors
         },
         setValue,
         getValues,
-        handleSubmit
     } = useForm<any>()
     function Submit() {
         let data = getValues()
@@ -41,11 +42,11 @@ const PersonalAssessorInfoTable = ({data, assessorId}: { data: Assessor, assesso
         if (isDisabled) {
             setIsDisabled(false)
         } else {
-            if (data.email === assessor.email){
+            if (data.email === assessor.data?.email){
                 const {email, ...rest} = data
-                AssessorService.patchAssessor(assessorId, rest)
+                patchAssessorInfo.mutate({id: assessorId, data:rest})
             } else {
-                AssessorService.patchAssessor(assessorId, data)
+                patchAssessorInfo.mutate({id: assessorId, data:data})
             }
 
             setIsDisabled(true)
@@ -79,19 +80,19 @@ const PersonalAssessorInfoTable = ({data, assessorId}: { data: Assessor, assesso
                 <tbody>
                 <tr className='bg-white'>
                     <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
-                        <input disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('last_name')}/>
+                        <input placeholder={!getValues('last_name') ? 'Загрузка' : 'Фамилия'} disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('last_name')}/>
                     </td>
                     <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
-                        <input disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('first_name')}/>
+                        <input placeholder={!getValues('first_name') ? 'Загрузка' : 'Имя'} disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('first_name')}/>
                     </td>
                     <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
-                        <input disabled={isDisabled} className="block w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('middle_name')}/>
+                        <input placeholder={!getValues('middle_name') ? 'Загрузка' : 'Отчество'} disabled={isDisabled} className="block w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('middle_name')}/>
                     </td>
                     <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
-                        <input disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('username')}/>
+                        <input placeholder={!getValues('username') ? 'Загрузка' : 'Ник в ТГ'} disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('username')}/>
                     </td>
                     <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px] text-center">
-                        {data?.manager.last_name} {data?.manager.first_name}
+                        {assessor.data?.manager ? `${assessor.data?.manager.last_name} ${assessor.data?.manager.first_name}`: <p className='text-gray-400'>Загрузка</p>}
                     </td>
                     <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
                         <input disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('email')}/>
