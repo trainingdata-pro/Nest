@@ -19,8 +19,6 @@ class ProjectTag(models.Model):
 
 
 class ProjectStatuses(models.TextChoices):
-    NEW = ('new', 'Новый')
-    PILOT = ('pilot', 'Пилот')
     ACTIVE = ('active', 'В работе')
     PAUSE = ('pause', 'На паузе')
     COMPLETED = ('completed', 'Завершен')
