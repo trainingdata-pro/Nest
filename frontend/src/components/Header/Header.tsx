@@ -49,10 +49,10 @@ const Header = () => {
                                             className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4"
                                             to='/assessors/blacklist'>Черный список</NavLink>
                                     </li>
-                                    <li>
+                                    <li onClick={() => alert('Пока не работает')}>
                                         <NavLink
                                             className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4"
-                                            to='/dashboard/assessors'>Мои исполнители</NavLink>
+                                            to=''>Мои исполнители</NavLink>
                                     </li>
                                     <li>
                                         <NavLink

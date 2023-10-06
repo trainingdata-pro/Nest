@@ -1,13 +1,12 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {PencilSquareIcon} from "@heroicons/react/24/outline";
 import {CheckIcon} from "@heroicons/react/24/solid";
 import {useForm} from "react-hook-form";
-import {AssessorPatch} from "./AssessorPage";
-import {Assessor} from "../../models/AssessorResponse";
 import AssessorService from "../../services/AssessorService";
-import Select, { SingleValue } from "react-select";
-import {SelectProps} from "../Projects/ProjectForm";
 import {useMutation, useQuery} from "react-query";
+import {Context} from "../../index";
+import Loader from "../UI/Loader";
+import MiniLoader from "../UI/MiniLoader";
 interface PersonalTableProps{
     last_name: string,
     first_name: string,
@@ -16,6 +15,7 @@ interface PersonalTableProps{
     email: string,
     country: string
 }
+
 const PersonalAssessorInfoTable = ({assessorId}: {assessorId: string | number | undefined }) => {
     const assessor = useQuery(['currentAssessorInfo'], () => AssessorService.fetchAssessor(assessorId),{
         onSuccess: data => {
@@ -27,7 +27,10 @@ const PersonalAssessorInfoTable = ({assessorId}: {assessorId: string | number | 
             setValue("country", data?.country)
         }
     })
-    const patchAssessorInfo = useMutation(['currentAssessorInfo'], ({id, data}: any) => AssessorService.patchAssessor(id, data))
+    const patchAssessorInfo = useMutation(['currentAssessorInfo'], ({id, data}: any) => AssessorService.patchAssessor(id, data),{
+        onError: error => console.log(error)
+    })
+    const {store} = useContext(Context)
     const {
         register,
         formState: {
@@ -88,8 +91,8 @@ const PersonalAssessorInfoTable = ({assessorId}: {assessorId: string | number | 
                     <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
                         <input placeholder={!getValues('middle_name') ? 'Загрузка' : 'Отчество'} disabled={isDisabled} className="block w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('middle_name')}/>
                     </td>
-                    <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
-                        <input placeholder={!getValues('username') ? 'Загрузка' : 'Ник в ТГ'} disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('username')}/>
+                    <td className="text-center whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
+                        {!getValues('username') ? <MiniLoader size={15}/> : <input placeholder={!getValues('username') ? 'Загрузка' : 'Ник в ТГ'} disabled={isDisabled} className="w-full text-center bg-white border border-gray-400 disabled:border-none disabled:opacity-50" {...register('username')}/>}
                     </td>
                     <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px] text-center">
                         {assessor.data?.manager ? `${assessor.data?.manager.last_name} ${assessor.data?.manager.first_name}`: <p className='text-gray-400'>Загрузка</p>}
@@ -99,13 +102,11 @@ const PersonalAssessorInfoTable = ({assessorId}: {assessorId: string | number | 
                     </td>
                     <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
                         <select disabled={isDisabled} {...register('country')}>
+                            <option></option>
                             {countryObject.map(country => <option key={country} value={country}>{country}</option>)}
                         </select>
                     </td>
-                    <td className="whitespace-nowrap py-[5px]" onClick={Submit}>
-                        {isDisabled ? <PencilSquareIcon className="h-6 w-6 text-black cursor-pointer"/> :
-                            <CheckIcon className="h-6 w-6 text-black cursor-pointer"/>}
-                    </td>
+                        <td className="whitespace-nowrap px-[5px] py-[20px] flex justify-center">{assessor.data?.manager.id === store.user_id ? ( isDisabled ? <PencilSquareIcon onClick={Submit} className="h-6 w-6 text-black cursor-pointer"/> : <CheckIcon onClick={Submit} className="h-6 w-6 text-black cursor-pointer"/>): <PencilSquareIcon className="h-6 w-6 text-gray-400"/>}</td>
                 </tr>
                 </tbody>
             </table>

@@ -28,7 +28,8 @@ const CompletedProjects = () => {
                                 {header.map((col, index) => <th key={index} className="border-r dark:border-neutral-500 px-[5px] py-[20px] last:border-none">{col}</th>)}
                             </tr>
                             </thead>
-                            {data?.results.length !== 0 ? <tbody> {data?.results.map(project => <tr key={project.id} className="text-center border-t dark:border-neutral-500">
+                            <tbody>
+                            {data?.results.length !== 0 ?  (data?.results.map(project => <tr key={project.id} className="text-center border-t dark:border-neutral-500">
                                 <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{project.asana_id}</td>
                                 <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{project.name}</td>
                                 <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{project.manager.map(manager => <span key={manager.id}>{manager.last_name} {manager.first_name}</span>)}</td>
@@ -39,13 +40,13 @@ const CompletedProjects = () => {
                                 <td className="whitespace-nowrap px-[5px] py-[20px] flex justify-center">
                                     <button className='disabled:opacity-50 disabled:cursor-default' disabled={!store.user_data.is_teamlead}><PencilSquareIcon className="  h-6 w-6 text-gray-500" /></button>
                                 </td>
-                            </tr>) }</tbody>: <tbody>
+                            </tr>)):
                             <tr>
                                 <td className="p-4 border-b align-middle h-24 text-center"
                                     colSpan={20}>Нет результатов
                                 </td>
-                            </tr>
-                            </tbody>}
+                            </tr>}
+                            </tbody>
 
                         </table>
                     </div>

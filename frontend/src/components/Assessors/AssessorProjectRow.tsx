@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {CheckIcon, PencilSquareIcon} from "@heroicons/react/24/solid";
+import {CheckIcon, PencilSquareIcon} from "@heroicons/react/24/outline";
 import {IAssessorProjects, PatchWorkingHours, WorkingHours} from "../../models/AssessorResponse";
 import {useForm} from "react-hook-form";
 import Select, {SingleValue} from "react-select";
@@ -94,7 +94,7 @@ const AssessorProjectRow = ({project, assessorId}: { project: IAssessorProjects,
                     options={[
                         {label: 'Полная загрузка', value: 'full'},
                         {label: 'Частичная загрузка', value: 'partial'},
-                        {label: 'Свободен', value: 'reserved'}]}
+                        {label: 'Зарезервирован', value: 'reserved'}]}
                     {...register('workloadStatus')}
                     isSearchable={false}
                     value={watch('workloadStatus')}

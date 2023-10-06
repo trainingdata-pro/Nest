@@ -1,11 +1,13 @@
 import React, {useState} from 'react';
 import Dialog from "../UI/Dialog";
 import FreeResourse from "./FreeResource";
+import {useMutation} from "react-query";
+import AssessorService from "../../services/AssessorService";
 
 // @ts-ignore
-const Management = ({setOpenVacation, setShowAddToFreeResource, setIsOpenFired}) => {
+const Management = ({assessorState, setOpenVacation, setShowAddToFreeResource, setIsOpenFired, setIsReturnVacation}) =>
+{
     const [open, setOpen] = useState(false);
-
     return (
         <div className="justify-center w-36">
             <div onMouseLeave={() => setOpen(false)} className="relative">
@@ -20,10 +22,15 @@ const Management = ({setOpenVacation, setShowAddToFreeResource, setIsOpenFired})
                         open ? "block" : "hidden"
                     }`}
                 >
-                    <li onClick={() => setOpenVacation(true)}
-                        className="w-full cursor-pointer border-b border-black text-center py-2 px-2 text-sm hover:bg-gray-100">
-                        Отправить в отпуск
-                    </li>
+                    {assessorState !== 'vacation' ?
+                        <li onClick={() => setOpenVacation(true)}
+                            className="w-full cursor-pointer border-b border-black text-center py-2 px-2 text-sm hover:bg-gray-100">
+                            Отправить в отпуск
+                        </li> :
+                        <li onClick={() => setIsReturnVacation(true)}
+                            className="w-full cursor-pointer border-b border-black text-center py-2 px-2 text-sm hover:bg-gray-100">
+                            Вернуть из отпуска
+                        </li>}
                     <li onClick={() => setShowAddToFreeResource(true)}
                         className="w-full cursor-pointer border-b border-black text-center py-2 text-sm hover:bg-gray-100">
                         Отправить в свободные ресурсы
@@ -31,7 +38,8 @@ const Management = ({setOpenVacation, setShowAddToFreeResource, setIsOpenFired})
                     <li className="w-full cursor-pointer border-b border-black text-center py-2 text-sm hover:bg-gray-100">
                         Открепить от себя
                     </li>
-                    <li onClick={() => setIsOpenFired(true)} className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">
+                    <li onClick={() => setIsOpenFired(true)}
+                        className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">
                         Уволить
                     </li>
                 </ul>

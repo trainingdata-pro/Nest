@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import Datepicker from "react-tailwindcss-datepicker"
 import AssessorService from "../../services/AssessorService";
-import {useMutation} from "react-query";
+import {useMutation, useQueryClient} from "react-query";
 const Vacation = ({assessorId, close}: {
     assessorId: string | number | undefined
     close: any
@@ -10,7 +10,15 @@ const Vacation = ({assessorId, close}: {
         startDate: null,
         endDate: null
     });
-    const mutations = useMutation([], () => AssessorService.patchVacation(assessorId, {vacation: true, vacation_date: value.endDate}))
+    const queryClient = useQueryClient()
+
+    const mutations = useMutation(['currentAssessor', assessorId], () => AssessorService.patchVacation(assessorId, {vacation: true, vacation_date: value.endDate}), {
+        onSuccess: () => {
+            queryClient.invalidateQueries('assessorHistory')
+            queryClient.invalidateQueries(['currentAssessor', assessorId])
+            close(true)
+        }
+    })
     const handleValueChange = (newValue:any) => {
         setValue(newValue);
     }

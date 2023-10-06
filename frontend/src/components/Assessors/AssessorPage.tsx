@@ -16,6 +16,7 @@ import {useQuery} from 'react-query';
 import Management from "../AssessorManagement/Management";
 import Fired from "../AssessorManagement/Fired";
 import Loader from "../UI/Loader";
+import VacationReturn from "../AssessorManagement/VacationReturn";
 
 
 export interface AssessorPatch {
@@ -49,11 +50,15 @@ const AssessorPage = () => {
     const [showAddToFreeResource, setShowAddToFreeResource] = useState(false)
     const [openVacation, setOpenVacation] = useState(false)
     const [isOpenFired, setIsOpenFired] = useState(false)
+    const [isReturnVacation, setIsReturnVacation] = useState(false)
     if (assessor.isLoading) {
         return <Loader width={50}/>
     } else {
         return (
             <div>
+                <Dialog isOpen={isReturnVacation} setIsOpen={setIsReturnVacation}>
+                    <VacationReturn assessorId={id} setIsReturnVacation={setIsReturnVacation}/>
+                </Dialog>
                 <Dialog isOpen={showAddToFreeResource} setIsOpen={setShowAddToFreeResource}>
                     <FreeResource assessorId={id}/>
                 </Dialog>
@@ -72,7 +77,7 @@ const AssessorPage = () => {
                 </Dialog>
                 <Header/>
                 <div className="px-8 pt-20 space-x-2 flex justify-end mb-2">
-                    <Management setOpenVacation={setOpenVacation} setIsOpenFired={setIsOpenFired}
+                    <Management assessorState={assessor.data?.state} setIsReturnVacation={setIsReturnVacation} setOpenVacation={setOpenVacation} setIsOpenFired={setIsOpenFired}
                                 setShowAddToFreeResource={setShowAddToFreeResource}/>
                     <button className='bg-[#5970F6] rounded-md text-white px-4 py-2'
                             onClick={() => setIsShowHistory(true)}>История
@@ -83,22 +88,9 @@ const AssessorPage = () => {
                 </div>
                 <div className='px-8 space-y-4 pb-6'>
                     {assessor.isSuccess && <PersonalAssessorInfoTable assessorId={id}/>}
-                    <AssessorProjects assessorId={id}/>
+                    {assessor.isSuccess && <AssessorProjects assessorId={id}/>}
                     {assessor.isSuccess && <Skills assessor={assessor.data}/>}
                     <div className='flex justify-between'>
-                        <div className='flex'>
-                            <p>Доступен для свободных ресурсов:</p>
-                            <div>
-                                <label>Да</label>
-                                <input className='disabled:bg-blue-500 cursor-default pointer-events-none'
-                                       type="checkbox" checked={assessor.data?.state === 'free_resource'}/>
-                            </div>
-                            <div>
-                                <label>Нет</label>
-                                <input className='disabled:bg-blue-500 cursor-default pointer-events-none'
-                                       type="checkbox" checked={assessor.data?.state !== 'free_resource'}/>
-                            </div>
-                        </div>
                         <CurrentState assessorId={id} vacationDate={assessor.data?.vacation_date}/>
                     </div>
                 </div>

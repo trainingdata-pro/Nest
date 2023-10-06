@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {NavLink, useParams} from "react-router-dom";
 import {ColumnDef, createColumnHelper} from "@tanstack/react-table";
 import {Assessor, WorkingHours} from "../../models/AssessorResponse";
@@ -12,42 +12,50 @@ import {useQuery} from "react-query";
 import ProjectForm from "./ProjectForm";
 import AssessorService from "../../services/AssessorService";
 import AssessorsPageRow from "../Assessors/AssessorsPageRows";
+import ProjectMenu from "./ProjectMenu";
+import DeleteFromProjects from "../AssessorManagement/DeleteFromProjects";
 const statusObject = {
     "full":"Полная загрузка",
     "partial": "Частичная загрузка",
     "reserved": "Зарезервирован",
     }
 const ProjectAssessors = () => {
-        const [project, setProject] = useState<Project>({} as Project)
         const {id} = useParams()
         const {data, isLoading} = useQuery(['projectAssessors'], ()=>AssessorService.fetchAssessors(id))
         const projectName = useQuery(['projectName'], () => ProjectService.fetchProject(id), {
-            select: data => data.name
+
         })
         const [addToProject, setAddToProject] = useState(false)
         const [addAssessor, setAddAssessor] = useState(false)
-
+        const [idDeleteFromProject, setIsDeleteFromProject] = useState(false)
+        const [selectedAssessors, setSelectedAssessors] = useState<any>([])
+        const [assessorsProjects, setAssessorProjects] = useState<any>({})
+    useEffect(()=>{
+        console.log(assessorsProjects)
+    }, [assessorsProjects])
         if (isLoading) return <div>Загрузка</div>
         return (
             <div>
-                <Dialog isOpen={addToProject} setIsOpen={setAddToProject}>
+                <Dialog isOpen={addToProject}  setIsOpen={setAddToProject}>
                     <div></div>
                 </Dialog>
                 <Dialog isOpen={addAssessor} setIsOpen={setAddAssessor}>
-                    <AddAssessorForm assessorId={id} showSidebar={addAssessor}
+                    <AddAssessorForm assessorId={projectName.data?.id} showSidebar={addAssessor}
                                      setShowSidebar={setAddAssessor}/>
                 </Dialog>
-
+                <Dialog isOpen={idDeleteFromProject} setIsOpen={setIsDeleteFromProject}>
+                    <DeleteFromProjects projectId={id} assessorsProjects={assessorsProjects} close={setIsDeleteFromProject}/>
+                </Dialog>
                 <Header/>
 
                 <div className="flex-col container mx-auto pt-[70px] pr-8 pl-8 items-center">
                     <div className="flex justify-between my-2">
                         <div className="flex items-center">
-                            <div className="pl-[15px]">{projectName.data}</div>
+                            <div className="pl-[15px]">{projectName.data?.name}</div>
                         </div>
-                        <div>
-                            <button className="bg-[#5970F6] text-white py-[8px] px-[15px] mx-2 rounded-[8px]">Меню проекта</button>
-                            <button className="bg-[#5970F6] text-white py-[8px] px-[15px] mx-2 rounded-[8px]" onClick={() => setAddToProject(true)}>Добавить на проект</button>
+                        <div className='flex'>
+                            <ProjectMenu setIsDeleteFromProject={setIsDeleteFromProject}/>
+                            <button className="bg-[#5970F6] text-white py-[8px] px-[15px] mx-2 rounded-[8px]" onClick={() => alert('Пока не работает')}>Добавить на проект</button>
                             <button className="bg-[#5970F6] text-white py-[8px] px-[15px] mx-2 rounded-[8px]" onClick={() => setAddAssessor(true)}>Добавить ассессора</button>
                             <button className="border border-[#5970F6] py-[8px] px-[15px] mx-2 rounded-[8px]">Экспорт данных</button>
                         </div>
@@ -79,7 +87,7 @@ const ProjectAssessors = () => {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {data?.results.map(assessor => <AssessorsPageRow key={assessor.id} assessorId={assessor.id} projectId={id}/>)}
+                                {data?.results.map(assessor => <AssessorsPageRow assessorsProjects={assessorsProjects} setAssessorProjects={setAssessorProjects} selectedAssessors={selectedAssessors} setSelectedAssessors={setSelectedAssessors} key={assessor.id} assessorId={assessor.id} projectId={id}/>)}
                                 </tbody>
                             </table>
                         </div>
