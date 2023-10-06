@@ -9,8 +9,6 @@ services:
       - static_volume:/home/assessors/backend/src/static
     expose:
       - 8000
-    ports:
-      - "8000:8000"
     networks:
       - default_network
     depends_on:
