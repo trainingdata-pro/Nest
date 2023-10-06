@@ -20,4 +20,4 @@ interface Tag {
     id: number,
     name: string
 }
-type Status = "new" | "pilot" |"pause" | "active" | "completed"
+type Status = "pause" | "active" | "completed"

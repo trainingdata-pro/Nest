@@ -2,7 +2,7 @@ import {AxiosResponse} from "axios";
 import $api from "../http";
 import {
     Assessor,
-    AssessorResponse, IBlackListResponse, IFreeResourcesResponse, IHistoryResponse,
+    AssessorResponse, IBlackListResponse, IFreeResourcesResponse, IHistoryResponse, IReasonResponse,
     SkillResponse,
     WorkingHoursResponse,
     WorkloadStatusResponse
@@ -20,16 +20,10 @@ export type LoginAndPasswordResponse = {
 }
 export default class AssessorService{
     static fetchAssessors = (projectId: any) => $api.get<AssessorResponse>(`/api/assessors/?projects=${projectId}`).then(res => res.data)
-    static addAssessor(data:any): any {
-        return $api.post('/api/assessors/', data)
-    }
-    static fetchManagersAssessors(): Promise<AxiosResponse<AssessorResponse>> {
-        return $api.get<AssessorResponse>('/api/assessors/')
-    }
+    static addAssessor = (data:any) => $api.post<Assessor>('/api/assessors/', data).then(res => res.data)
+    static fetchManagersAssessors = () => $api.get<AssessorResponse>('/api/assessors/').then(res => res.data)
     static fetchAssessor = (id: any) => $api.get<Assessor>(`/api/assessors/${id}/`).then(res => res.data)
-    static addAssessorProject(id: string | number, data: string[]):Promise<AxiosResponse<Assessor>>{
-        return $api.patch<Assessor>(`/api/assessors/${id}/projects/`, {"projects": data})
-    }
+    static addAssessorProject = (id: string | number, data: string[]) => $api.patch<Assessor>(`/api/assessors/${id}/projects/`, data).then(res => res.data)
     static fetchCredentials = (id: string | number | undefined) => $api.get<LoginAndPasswordResponse>(`/api/credentials/?assessor=${id}`).then((res) => res.data)
     static patchCredentials = (credId: string | number | undefined, data:any) => $api.patch(`/api/credentials/${credId}/`, data)
     static postCredentials = (data:any) => $api.post(`/api/credentials/`, data)
@@ -44,9 +38,7 @@ export default class AssessorService{
             status: status
         })
     }
-    static createWorkloadStatus(data: any ){
-        return $api.post(`/api/workload_status/`, data)
-    }
+    static createWorkloadStatus = (data: any ) => $api.post(`/api/workload_status/`, data).then(res => res.data)
     static patchWorkingHours(workingHoursId: string | number, data:any ){
         return $api.patch(`/api/working_hours/${workingHoursId}/`, data)
     }
@@ -64,4 +56,6 @@ export default class AssessorService{
     }
     static fetchFreeResource = () => $api.get<IFreeResourcesResponse>('/api/free_resources/').then(res => res.data)
     static patchVacation = (assessorId: string | number |undefined, data: any) => $api.patch(`/api/assessors/${assessorId}/vacation/`, data).then(res => res.data)
+    static fetchReasons = () => $api.get<IReasonResponse>('/api/reasons/').then(res => res.data)
+    static addAssessorToFired = (id: string| number| undefined, data: any) => $api.patch(`/api/assessors/${id}/fire/`, data).then(res => res.data)
 }

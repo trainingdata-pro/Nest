@@ -110,10 +110,13 @@ export interface IHistoryResponse {
     count: number
 }
 
-interface IReason {
+export interface IReason {
     id: number,
     title: string,
     blacklist_reason: boolean
+}
+export interface IReasonResponse {
+    results: IReason[]
 }
 export interface IBlackList {
     id: number

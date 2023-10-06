@@ -17,8 +17,7 @@ interface TagResult {
 }
 
 export default class ProjectService {
-    static fetchProjects = (user_id: number | string, page = 1, pageLimit = 10) => $api.get<ProjectResponse>(`/api/projects/?manager=${user_id}&page=${page}&page_size=${pageLimit}&status=new,pilot,active,pause`).then((res) => res.data)
-
+    static fetchProjects = (user_id: number | string, page = 1, pageLimit: string | number = 10) => $api.get<ProjectResponse>(`/api/projects/?manager=${user_id}&page=${page}&page_size=${pageLimit}&status=active,pause`).then((res) => res.data)
     static fetchCompletedProjects = (managerID:string | number) => $api.get<ProjectResponse>(`/api/projects/?manager=${managerID}&status=completed`).then((res) => res.data)
 
     static fetchProject = (projectId: string | number | undefined) => $api.get<Project>(`/api/projects/${projectId}/`).then((res) => res.data)

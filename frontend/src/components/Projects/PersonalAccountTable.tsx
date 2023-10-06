@@ -5,8 +5,9 @@ import {observer} from "mobx-react-lite";
 import Loader from "../UI/Loader";
 import ProjectForm from "./ProjectForm";
 import Dialog from "../UI/Dialog";
-import NewTable from "./NewTable";
+import ProjectsTable from "./ProjectsTable";
 import {useQuery} from "react-query";
+import TablePagination from "../UI/TablePagination";
 
 const PersonalAccountTable = () => {
     const {store} = useContext(Context)
@@ -36,11 +37,8 @@ const PersonalAccountTable = () => {
         <>
             <div className="pt-20 items-center pb-6">
                 <Dialog isOpen={showSidebar} setIsOpen={setShowSidebar}>
-                    <div className="w-[30rem]">
                         <ProjectForm projectId={projectsId}
-                                     projects={data?.results}
                                      closeSidebar={setShowSidebar}/>
-                    </div>
                 </Dialog>
                 <div className="h-full w-full px-8">
 
@@ -55,44 +53,8 @@ const PersonalAccountTable = () => {
                             </button>
                         </div>
                         <div className='rounded-[20px] bg-white overflow-hidden pb-4'>
-                            <NewTable data={data?.results} setProjectId={setProjectId} setShowSidebar={setShowSidebar}/>
-                            <div className="flex px-2 justify-between space-y-2 border-t dark:border-neutral-500">
-                                <div className="flex items-center justify-center text-sm font-medium">
-                                     <span className="items-center gap-1 text-[18px]">
-                                         Страница {data?.results.length !== 0 ? currentPage : 0} из {countPages}
-                                     </span>
-                                </div>
-                                <div className="text-[18px] flex items-center space-x-2 mr-2">
-                                    <button
-                                        className={currentPage === 1 ? "border rounded p-1 text-gray-300 px-2" : "border rounded p-1 px-2"}
-                                        disabled={currentPage === 1}
-                                        onClick={() => setCurrentPage(currentPage - 1)}>
-                                        {'<'}
-                                    </button>
-                                    <div className="flex items-center space-x-2">
-                                        <p className="text-sm font-medium">Размер страницы</p>
-                                        <select
-                                            className="flex items-center justify-between rounded-md border border-input bg-transparent px-3 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 h-8 w-[70px]"
-                                            value={pageLimit}
-                                            onChange={e => {
-                                                setCurrentPage(1)
-                                                setPageLimit(Number(e.target.value))
-                                            }}
-                                        >
-                                            {[10, 20, 30, 40, 50].map(pageSize => (
-                                                <option key={pageSize} value={pageSize}>
-                                                    {pageSize}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <button
-                                        className={currentPage === countPages ? "border rounded p-1 text-gray-300 px-2" : "border rounded p-1 px-2"}
-                                        disabled={currentPage === countPages}
-                                        onClick={() => setCurrentPage(currentPage + 1)}>{'>'}
-                                    </button>
-                                </div>
-                            </div>
+                            <ProjectsTable data={data?.results} setProjectId={setProjectId} setShowSidebar={setShowSidebar}/>
+                            <TablePagination totalProjects={data?.results.length} currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={countPages} pageLimit={pageLimit} setPageLimit={setPageLimit}/>
                         </div>
                     </div>
                 </div>

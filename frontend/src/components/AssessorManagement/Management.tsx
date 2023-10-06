@@ -3,7 +3,7 @@ import Dialog from "../UI/Dialog";
 import FreeResourse from "./FreeResource";
 
 // @ts-ignore
-const Management = ({setOpenVacation, setShowAddToFreeResource}) => {
+const Management = ({setOpenVacation, setShowAddToFreeResource, setIsOpenFired}) => {
     const [open, setOpen] = useState(false);
 
     return (
@@ -31,7 +31,7 @@ const Management = ({setOpenVacation, setShowAddToFreeResource}) => {
                     <li className="w-full cursor-pointer border-b border-black text-center py-2 text-sm hover:bg-gray-100">
                         Открепить от себя
                     </li>
-                    <li className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">
+                    <li onClick={() => setIsOpenFired(true)} className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">
                         Уволить
                     </li>
                 </ul>

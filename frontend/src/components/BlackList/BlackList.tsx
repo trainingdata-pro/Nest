@@ -3,6 +3,7 @@ import AssessorService from "../../services/AssessorService";
 
 import {useQuery} from "react-query";
 import Header from "../Header/Header";
+import {MagnifyingGlassIcon} from "@heroicons/react/24/solid";
 
 const BlackList = () => {
     const header = ["Фамилия", "Имя", "Отчество", "Ник в ТГ", "Руководитель", "Проект", "Причина"]
@@ -13,10 +14,15 @@ const BlackList = () => {
         <>
             <Header/>
             <div className='pt-20 items-center'>
-                <div className="flex justify-between px-8">
-                    <input className='border border-black' placeholder='Поиск по ФИО' onChange={(event) => setFioFilter(event.target.value)}/>
-                    <input className='border border-black' placeholder='Поиск по Нику в ТГ' onChange={(event) => setUsernameFilter(event.target.value)}/>
-                </div>
+                <div className="flex justify-left space-x-2 px-8 my-2">
+                    <div className="relative">
+                    <input className='border border-black rounded-[8px] px-[8px] py-[5px]' placeholder='Поиск по ФИО' onChange={(event) => setFioFilter(event.target.value)}/>
+                    </div>
+                    <div className="relative">
+                        <input className='border border-black rounded-[8px] px-[8px] py-[5px]' placeholder='Поиск по Нику в ТГ' onChange={(event) => setUsernameFilter(event.target.value)}/>
+                        <MagnifyingGlassIcon className="h-6 w-6 text-black absolute top-[5px] right-[5px]"/>
+                    </div>
+                    </div>
                 <div className='px-8'>
                 <table className="w-full text-center">
                     <thead className="">

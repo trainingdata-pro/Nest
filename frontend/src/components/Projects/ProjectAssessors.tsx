@@ -34,8 +34,8 @@ const ProjectAssessors = () => {
                     <div></div>
                 </Dialog>
                 <Dialog isOpen={addAssessor} setIsOpen={setAddAssessor}>
-                    {/*<AddAssessorForm assessors={data} setAssessors={setData} showSidebar={addAssessor}*/}
-                    {/*                 setShowSidebar={setAddAssessor}/>*/}
+                    <AddAssessorForm assessorId={id} showSidebar={addAssessor}
+                                     setShowSidebar={setAddAssessor}/>
                 </Dialog>
 
                 <Header/>
