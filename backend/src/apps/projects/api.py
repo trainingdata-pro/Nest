@@ -101,7 +101,7 @@ class ProjectAPIViewSet(BaseAPIViewSet):
 
     def get_queryset(self) -> QuerySet[Project]:
         user = self.request.user
-        if user.is_superuser:
+        if user.is_superuser or user.status == UserStatus.ANALYST:
             return (Project.objects.all()
                     .annotate(assessors_count=Count('assessors'))
                     .prefetch_related('manager', 'tag')
