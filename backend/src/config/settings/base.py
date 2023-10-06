@@ -72,7 +72,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware'
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'core.middleware.swagger_redirect',
+    'core.middleware.swagger_forbidden',
 ]
 
 AUTH_USER_MODEL = 'users.BaseUser'
@@ -167,6 +169,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 50,
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication'
     ],
@@ -176,7 +179,6 @@ REST_FRAMEWORK = {
     ],
     'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }
-
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
@@ -194,18 +196,26 @@ SIMPLE_JWT = {
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
-        'Token': {
-            'type': 'JWT-token',
+        'basic': {
+            'type': 'basic'
+        },
+        'token': {
+            'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header',
             'description':
-                'The token must be passed as a request header. '
-                'Example: '
+                'Example value: '
                 '<br><pre><code class="language-bash">'
-                'curl https://your-host/api/users -H "Authorization: Bearer [your-token]"'
+                'Token [your-token]'
                 '</code></pre>'
         }
-    }
+    },
+
+    'LOGIN_URL': '/swagger/login',
+    'LOGOUT_URL': '/swagger/logout',
+
+    'DEFAULT_MODEL_RENDERING': 'example',
+    'OPERATIONS_SORTER': 'alpha'
 }
 
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
