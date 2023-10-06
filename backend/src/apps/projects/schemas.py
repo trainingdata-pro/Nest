@@ -1,7 +1,7 @@
 from drf_yasg import openapi
 
 from core.schemas import BaseAPISchema
-from .models import Status
+from .models import Status, ProjectStatuses
 from .services.download_service import allowed_types
 from . import serializers
 
@@ -55,8 +55,10 @@ class ProjectSchema(BaseAPISchema):
                     name='status',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Filtering by status. You can chose a few statuses. '
-                                'Example: Example: host.com/?status=new,pilot'
+                    description='Filtering by status. You can chose a few statuses.\n'
+                                'Example: host.com/?status=active,pause.\n\n'
+                                'Available statuses:\n'
+                                f'{", ".join([f"{item[0]} - {item[1]}" for item in ProjectStatuses.choices])}'
                 ),
                 openapi.Parameter(
                     name='is_free_resource',
