@@ -106,7 +106,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
 
     def get_queryset(self) -> QuerySet[Assessor]:
         user = self.request.user
-        if user.is_superuser:
+        if user.is_superuser or user.status == UserStatus.ANALYST:
             queryset = Assessor.objects.exclude(state__in=AssessorState.fired_states())
         else:
             if user.manager_profile.is_teamlead:
