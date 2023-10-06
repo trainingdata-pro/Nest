@@ -69,6 +69,7 @@ class ManagerAPIViewSet(BaseAPIViewSet):
         'list': (IsAuthenticated,),
         'partial_update': (
             IsAuthenticated,
+            permissions.IsManager,
             permissions.IsCurrentManager
         )
     }
