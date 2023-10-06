@@ -1,5 +1,4 @@
-from django.contrib.postgres.search import SearchVector
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Q
 from django_filters import rest_framework as filters
 
 from .models import Reason, Fired, BlackList
@@ -25,9 +24,11 @@ class FiredFilter(filters.FilterSet):
         return queryset.filter(assessor__username__icontains=value)
 
     def filter_full_name(self, queryset: QuerySet, name: str, value: str) -> QuerySet:
-        return queryset.annotate(search=SearchVector(
-                'assessor__last_name', 'assessor__first_name', 'assessor__middle_name'
-            )).filter(search__icontains=value)
+        return queryset.filter(
+            Q(assessor__last_name__icontains=value)
+            | Q(assessor__first_name__icontains=value)
+            | Q(assessor__middle_name__icontains=value)
+        )
 
 
 class BlackListFilter(FiredFilter):
