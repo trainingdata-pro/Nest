@@ -36,15 +36,15 @@ class AssessorFilter(FilteringMixin, filters.FilterSet):
             'second_manager'
         ]
 
-    def filter_projects(self, queryset: QuerySet[Assessor], name: str, value: str):
+    def filter_projects(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
         projects = self.get_id_for_filtering(value)
         return queryset.filter(projects__in=projects).distinct()
 
-    def filter_skills(self, queryset: QuerySet[Assessor], name: str, value: str):
+    def filter_skills(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
         skills = self.get_id_for_filtering(value)
         return queryset.filter(skills__in=skills).distinct()
 
-    def filter_second_manager(self, queryset: QuerySet[Assessor], name: str, value: str):
+    def filter_second_manager(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
         managers = self.get_id_for_filtering(value)
         return queryset.filter(second_manager__in=managers).distinct()
 

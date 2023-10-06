@@ -1,22 +1,21 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, re_path, include
-from django.views.generic import TemplateView
+from django.urls import path, include
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
-from rest_framework.authentication import SessionAuthentication
-from rest_framework.permissions import IsAdminUser
-from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated
+
+from core.permissions import IsAnalystOrAdmin
+
 
 schema_view = get_schema_view(
     openapi.Info(
-        title='Documentation API',
+        title='NEST API Documentation',
         default_version='v1'
     ),
     public=False,
-    authentication_classes=[JWTAuthentication, SessionAuthentication],
-    permission_classes=[IsAdminUser]
+    permission_classes=[IsAuthenticated, IsAnalystOrAdmin]
 )
 
 _api = [
@@ -29,21 +28,15 @@ _api = [
 ]
 
 _documentation = [
-    re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    re_path(r'^swagger/',
-            TemplateView.as_view(
-                template_name='swaggerui.html',
-                extra_context={'schema_url': 'openapi-schema'}
-            ),
-            name='schema-swagger-ui'),
-    re_path(r'^redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('', include('apps.authapp.swagger_urls'))
 ]
 
 urlpatterns = [
     path('', include(_documentation)),
     path('admin/', admin.site.urls),
     path('api/', include(_api)),
-    # path('api/', include(_token))
 ]
 
 if settings.DEBUG:
