@@ -107,7 +107,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
     def get_queryset(self) -> QuerySet[Assessor]:
         user = self.request.user
         if user.is_superuser:
-            queryset = Assessor.objects.all()
+            queryset = Assessor.objects.exclude(state__in=AssessorState.fired_states())
         else:
             if user.manager_profile.is_teamlead:
                 team = BaseUser.objects.filter(status=UserStatus.MANAGER, manager_profile__teamlead=user)
@@ -273,6 +273,7 @@ class FreeResourcesAPIViewSet(BaseAPIViewSet):
 
     def get_queryset(self) -> QuerySet[Assessor]:
         return (Assessor.objects
+                .exclude(state__in=AssessorState.fired_states())
                 .filter(Q(state=AssessorState.FREE_RESOURCE) | Q(manager=None))
                 .exclude(second_manager__in=[self.request.user])
                 .select_related('manager')
