@@ -22,11 +22,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-q#cm-@xnl4)mrxs2mzmzeldzo^-o!5j!a_vc*@lr+wqf%4d0x8')
 
-DEBUG = True
-
-MAIN_HOST = 'http://localhost:3000'
-
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 # Application definition
 DJANGO_APPS = [
@@ -159,11 +154,6 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 FILE_STORAGE_DAYS = 1
 
 RESET_PASSWORD_TOKEN_EXPIRATION_DAY = 1
-
-CORS_ALLOWED_ORIGINS = [MAIN_HOST]
-CORS_ALLOW_CREDENTIALS = True
-
-CSRF_TRUSTED_ORIGINS = [MAIN_HOST]
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'core.pagination.Pagination',
