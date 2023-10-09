@@ -7,6 +7,7 @@ import {NavLink} from "react-router-dom";
 import {useForm} from "react-hook-form";
 import AuthService from "../services/AuthService";
 import ConfirmPage from "../components/SignUp/ConfirmPage";
+import MyInput from "../components/UI/MyInput";
 
 export interface ISignUp {
     last_name: string,
@@ -43,15 +44,14 @@ const SignInPage = () => {
     return (
         <div className="container">
             {confirmPage && <ConfirmPage close={setConfirmPage}/>}
-            <div className="flex h-screen">
+            <div className="flex h-screen justify-center">
                 <div className="w-[45%] rounded-[16px] h-[95%] bg-white my-auto">
-                    <form className="flex h-[100%] justify-center items-center" onSubmit={handleSubmit(onSubmit)}>
-                        <div className="w-[85%]">
-                            <h1 className="text-[32px] font-bold mb-10">Регистрация</h1>
-                            <section className="flex justify-between my-2">
+                    <form className="flex h-full justify-center items-center" onSubmit={handleSubmit(onSubmit)}>
+                        <div className="w-[95%]">
+                            <h1 className="text-[32px] w-full text-center font-bold mb-10">Регистрация</h1>
+                            <section className="flex justify-between my-2 space-x-2 box-border">
                                 <div>
-                                    <div className='items-center'>
-                                        <input {...register('last_name', {
+                                        <MyInput register={{...register('last_name', {
                                             pattern: {
                                                 value: /^[А-ЯЁа-яёA-Za-z]+$/,
                                                 message: "Поле должно содержать символы: A-z,А-я"
@@ -60,41 +60,39 @@ const SignInPage = () => {
                                                 value: true,
                                                 message: 'Обязательное поле'
                                             }
-                                        })} type="text" className="py-[12px] pl-[5px] bg-[#F4F8F7] rounded-[8px] "
+                                        })}} type="text"
+                                               name="last"
                                                placeholder="Фамилия"/>
 
-                                    </div>
                                     <Error>{errors.last_name && errors.last_name?.message}</Error>
                                 </div>
                                 <div>
-                                    <div className='items-center'>
-                                        <input {...register('first_name', {
-                                            pattern: {
-                                                value: /^[А-ЯЁа-яёA-Za-z]+$/,
-                                                message: "Поле должно содержать символы: A-z,А-я"
-                                            },
-                                            required: {
-                                                value: true,
-                                                message: 'Обязательное поле'
-                                            }
-                                        })} type="text" className="py-[12px] pl-[5px] bg-[#F4F8F7] rounded-[8px] "
-                                               placeholder="Имя"/>
-
-                                    </div>
+                                    <MyInput
+                                        register={{...register('first_name', {
+                                                pattern: {
+                                                    value: /^[А-ЯЁа-яёA-Za-z]+$/,
+                                                    message: "Поле должно содержать символы: A-z,А-я"
+                                                },
+                                                required: {
+                                                    value: true,
+                                                    message: 'Обязательное поле'
+                                                }})}}
+                                        type="text"
+                                        name="first"
+                                        placeholder="Имя"/>
                                     <Error>{errors.first_name && errors.first_name?.message}</Error>
                                 </div>
                                 <div>
-                                    <div className='items-center'>
-                                        <input {...register('middle_name', {
-                                            pattern: {
-                                                value: /^[А-ЯЁа-яёA-Za-z]+$/,
-                                                message: "Поле должно содержать символы: A-z,А-я"
-                                            },
 
-                                        })} type="text" className="py-[12px] pl-[5px] bg-[#F4F8F7] rounded-[8px] "
-                                               placeholder="Отчество"/>
-
-                                    </div>
+                                        <MyInput
+                                            register={{...register('middle_name', {
+                                                pattern: {
+                                                    value: /^[А-ЯЁа-яёA-Za-z]+$/,
+                                                    message: "Поле должно содержать символы: A-z,А-я"
+                                                }})}}
+                                            type="text"
+                                            name="middle"
+                                            placeholder="Отчество"/>
                                     <Error>{errors.middle_name && errors.middle_name?.message}</Error>
                                 </div>
                             </section>
@@ -110,7 +108,7 @@ const SignInPage = () => {
                                             value: true,
                                             message: 'Обязательное поле'
                                         }
-                                    })} autoComplete="new-email" type="text" className="py-[12px] pl-[40px] w-full bg-[#F4F8F7] rounded-[8px] "
+                                    })} type="email" name="email" className="py-[12px] pl-[40px] w-full bg-[#F4F8F7] rounded-[8px] "
                                            placeholder="Email"/>
 
                                 </div>
@@ -130,8 +128,7 @@ const SignInPage = () => {
                                             value: /^[A-Za-z\d_]{5,32}$/,
                                             message: "Никнейм должен содержать символы:A-z, _ Длина: 5-32 символа"
                                         }
-                                    })} type="text"
-                                           autoComplete="new-username"
+                                    })}     name="login"
                                            className="py-[12px] pl-[40px] w-full bg-[#F4F8F7] rounded-[8px] "
                                            placeholder="Ник в ТГ"/>
                                 </div>
@@ -145,7 +142,7 @@ const SignInPage = () => {
                                             value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/,
                                             message: "Пароль должен содержать минимум 8 символов, Буквы A-z, и один из спецсиволов !@#$%^&*"
                                         }
-                                    })} type="password"
+                                    })} type="password" name="password"
                                            className="py-[12px] pl-[40px] w-full bg-[#F4F8F7] rounded-[8px] "
                                            placeholder="Пароль"/>
                                 </div>
@@ -155,7 +152,7 @@ const SignInPage = () => {
                                 <div className='flex relative items-center'>
                                     <LockClosedIcon className="absolute ml-[10px] h-6 w-6 text-gray-500"/>
                                     <input {...register('password2')} type="password"
-                                           className="py-[12px] pl-[40px] w-full bg-[#F4F8F7] rounded-[8px] "
+                                           name="password-again" className="py-[12px] pl-[40px] w-full bg-[#F4F8F7] rounded-[8px] "
                                            placeholder="Повторите пароль"/>
                                 </div>
                                 <Error>{watch('password') !== watch('password2') ? 'Пароли не совпадают' : ''}</Error>
@@ -171,8 +168,8 @@ const SignInPage = () => {
                         </div>
                     </form>
                 </div>
-                <div className="w-[50%]">
-                    <img src={cat} className="bottom-[0px] left-[20px]"
+                <div className="w-[50%] my-auto">
+                    <img src={cat} className="left-[20px]"
                          alt="cat"/>
                 </div>
             </div>
