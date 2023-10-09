@@ -63,7 +63,7 @@ const Profile = ({setIsOpen}: {
             </FormSection>
             <FormSection>
 
-                <MyLabel required={true}>Отчество</MyLabel>
+                <MyLabel required={false}>Отчество</MyLabel>
                 <MyInput register={{...register('middle_name')}} type="text" placeholder="Отчество"/>
             </FormSection>
             <FormSection>
