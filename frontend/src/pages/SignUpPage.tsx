@@ -44,7 +44,7 @@ const SignInPage = () => {
         <div className="container">
             {confirmPage && <ConfirmPage close={setConfirmPage}/>}
             <div className="flex h-screen">
-                <div className="w-[50%] rounded-[16px] h-[95%] bg-white my-auto">
+                <div className="w-[45%] rounded-[16px] h-[95%] bg-white my-auto">
                     <form className="flex h-[100%] justify-center items-center" onSubmit={handleSubmit(onSubmit)}>
                         <div className="w-[85%]">
                             <h1 className="text-[32px] font-bold mb-10">Регистрация</h1>
@@ -56,6 +56,10 @@ const SignInPage = () => {
                                                 value: /^[А-ЯЁа-яёA-Za-z]+$/,
                                                 message: "Поле должно содержать символы: A-z,А-я"
                                             },
+                                            required: {
+                                                value: true,
+                                                message: 'Обязательное поле'
+                                            }
                                         })} type="text" className="py-[12px] pl-[5px] bg-[#F4F8F7] rounded-[8px] "
                                                placeholder="Фамилия"/>
 
@@ -69,6 +73,10 @@ const SignInPage = () => {
                                                 value: /^[А-ЯЁа-яёA-Za-z]+$/,
                                                 message: "Поле должно содержать символы: A-z,А-я"
                                             },
+                                            required: {
+                                                value: true,
+                                                message: 'Обязательное поле'
+                                            }
                                         })} type="text" className="py-[12px] pl-[5px] bg-[#F4F8F7] rounded-[8px] "
                                                placeholder="Имя"/>
 
@@ -82,6 +90,7 @@ const SignInPage = () => {
                                                 value: /^[А-ЯЁа-яёA-Za-z]+$/,
                                                 message: "Поле должно содержать символы: A-z,А-я"
                                             },
+
                                         })} type="text" className="py-[12px] pl-[5px] bg-[#F4F8F7] rounded-[8px] "
                                                placeholder="Отчество"/>
 
@@ -97,6 +106,10 @@ const SignInPage = () => {
                                             value: /^[a-zA-Z0-9._-]+@trainingdata.pro$/,
                                             message: "Укажите корпоративную почту"
                                         },
+                                        required: {
+                                            value: true,
+                                            message: 'Обязательное поле'
+                                        }
                                     })} autoComplete="new-email" type="text" className="py-[12px] pl-[40px] w-full bg-[#F4F8F7] rounded-[8px] "
                                            placeholder="Email"/>
 
@@ -158,8 +171,8 @@ const SignInPage = () => {
                         </div>
                     </form>
                 </div>
-                <div className="relative w-[50%]">
-                    <img src={cat} className="absolute bottom-[52px] left-[20px] w-[631px]-max h-[663px]-max"
+                <div className="w-[50%]">
+                    <img src={cat} className="bottom-[0px] left-[20px]"
                          alt="cat"/>
                 </div>
             </div>
