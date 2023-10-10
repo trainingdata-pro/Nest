@@ -405,6 +405,18 @@ class FreeResourcesSchema(BaseAPISchema):
             operation_description='Get list of free resources',
             manual_parameters=[
                 openapi.Parameter(
+                    name='username',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Case-independent filtering by assessor username'
+                ),
+                openapi.Parameter(
+                    name='full_name',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Case-independent filtering by assessor full name'
+                ),
+                openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,

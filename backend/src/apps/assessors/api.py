@@ -264,6 +264,7 @@ class FreeResourcesAPIViewSet(BaseAPIViewSet):
         'partial_update': serializers.UpdateFreeResourceSerializer
     }
     http_method_names = ['get', 'patch']
+    filterset_class = filters.FreeResourcesFilter
     ordering_fields = [
         'pk',
         'username',
