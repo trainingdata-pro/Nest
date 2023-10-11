@@ -1,5 +1,5 @@
 from apps.users.models import BaseUser
-from core.utils import get_code
+from core.utils import get_hash
 from apps.authapp.models import Code, PasswordResetToken
 
 
@@ -14,7 +14,7 @@ class AuthService:
         return self.__perform_delete(instance)
 
     def __create_instance(self, **kwargs) -> Code:
-        return self.model(code=get_code(), **kwargs)
+        return self.model(code=get_hash(), **kwargs)
 
     @staticmethod
     def __perform_save(instance: Code) -> Code:
