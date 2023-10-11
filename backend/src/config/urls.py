@@ -21,6 +21,7 @@ schema_view = get_schema_view(
 _api = [
     path('', include('apps.assessors.urls')),
     path('', include('apps.authapp.urls')),
+    path('', include('apps.export.urls')),
     path('', include('apps.fired.urls')),
     path('', include('apps.history.urls')),
     path('', include('apps.projects.urls')),
@@ -41,5 +42,4 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += [path('__debug__/', include('debug_toolbar.urls'))]
