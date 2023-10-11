@@ -124,7 +124,8 @@ class AssessorSchema(BaseAPISchema):
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results. '
-                                'Available fields: pk, username, last_name, manager__last_name, status'
+                                'Available fields: pk, username, last_name, '
+                                'manager__last_name, status, projects'
                 )
             ],
             responses={**self.get_responses(401)}

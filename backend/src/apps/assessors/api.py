@@ -101,7 +101,8 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         'username',
         'last_name',
         'manager__last_name',
-        'status'
+        'status',
+        'projects'
     ]
 
     def get_queryset(self) -> QuerySet[Assessor]:
