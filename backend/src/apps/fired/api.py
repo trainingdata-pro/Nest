@@ -1,5 +1,3 @@
-from typing import List
-
 from django.db.models.query import EmptyQuerySet
 from django.utils.decorators import method_decorator
 from rest_framework import viewsets, status, generics

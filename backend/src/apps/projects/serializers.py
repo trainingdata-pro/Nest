@@ -230,4 +230,3 @@ class WorkLoadStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkLoadStatus
         fields = '__all__'
-

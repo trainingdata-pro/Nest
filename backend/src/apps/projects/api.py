@@ -283,4 +283,3 @@ class ExportProjectsAPIView(generics.GenericAPIView):
                 return list(managers.filter(manager_profile__teamlead=user).values_list('pk', flat=True))
             else:
                 return [user.pk]
-
