@@ -1,11 +1,10 @@
 import csv
-import os
-from abc import ABC, abstractmethod
 from typing import List, Any
 
 import pandas
-from django.conf import settings
 from rest_framework.exceptions import ValidationError
+
+from core.export import BaseWriterService
 
 CSV_TYPE = 'csv'
 EXCEL_TYPE = 'xlsx'
@@ -34,22 +33,7 @@ class ContentType:
         return ''
 
 
-class Writer(ABC):
-    FORMAT: str
-
-    @abstractmethod
-    def write(self, data: List[List[Any]], filename: str) -> str:
-        pass
-
-    def get_path_to_save(self, filename: str) -> str:
-        return os.path.join(settings.MEDIA_ROOT, f'{filename}.{self.FORMAT}')
-
-    @staticmethod
-    def get_full_filename(path_to_file: str) -> str:
-        return os.path.basename(path_to_file)
-
-
-class CSVWriter(Writer):
+class CSVWriter(BaseWriterService):
     FORMAT = CSV_TYPE
 
     def write(self, data: List[List[Any]], filename: str) -> str:
@@ -60,7 +44,7 @@ class CSVWriter(Writer):
         return self.get_full_filename(path_to_save)
 
 
-class ExcelWriter(Writer):
+class ExcelWriter(BaseWriterService):
     FORMAT = EXCEL_TYPE
 
     def write(self, data: List[List[Any]], filename: str) -> str:
