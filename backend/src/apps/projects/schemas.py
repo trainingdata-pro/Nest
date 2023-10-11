@@ -61,12 +61,6 @@ class ProjectSchema(BaseAPISchema):
                                 f'{", ".join([f"{item[0]} - {item[1]}" for item in ProjectStatuses.choices])}'
                 ),
                 openapi.Parameter(
-                    name='is_free_resource',
-                    in_=openapi.IN_QUERY,
-                    type=openapi.TYPE_BOOLEAN,
-                    description='Filtering by free resources'
-                ),
-                openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,

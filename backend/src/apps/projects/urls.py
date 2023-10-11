@@ -9,7 +9,7 @@ router.register('working_hours', api.ProjectWorkingHoursAPIViewSet, basename='pr
 router.register('workload_status', api.WorkLoadStatusAPIViewSet, basename='workload-status')
 
 _export = [
-    path('projects/', api.ExportProjectsInfoAPIView.as_view()),
+    path('projects/', api.ExportProjectsAPIView.as_view()),
 ]
 
 urlpatterns = [

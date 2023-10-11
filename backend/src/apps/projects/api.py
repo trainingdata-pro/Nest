@@ -258,7 +258,7 @@ class WorkLoadStatusAPIViewSet(BaseAPIViewSet):
 
 
 @method_decorator(name='get', decorator=schemas.export_schema.export())
-class ExportProjectsInfoAPIView(generics.GenericAPIView):
+class ExportProjectsAPIView(generics.GenericAPIView):
     queryset = EmptyQuerySet
     permission_classes = (IsAuthenticated,)
     serializer_class = ExportSerializer
