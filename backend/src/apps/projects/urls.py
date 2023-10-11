@@ -9,9 +9,7 @@ router.register('working_hours', api.ProjectWorkingHoursAPIViewSet, basename='pr
 router.register('workload_status', api.WorkLoadStatusAPIViewSet, basename='workload-status')
 
 _export = [
-    path('', api.ExportProjectsInfoAPIView.as_view()),
-    path('status/<str:task_id>/', api.GetExportResultAPIView.as_view()),
-    path('download/<str:filename>/', api.DownloadReportAPIView.as_view())
+    path('projects/', api.ExportProjectsInfoAPIView.as_view()),
 ]
 
 urlpatterns = [

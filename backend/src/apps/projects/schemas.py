@@ -1,9 +1,9 @@
 from drf_yasg import openapi
 
+from apps.export.services import allowed_types
+from apps.export.serializers import ExportSerializer
 from core.schemas import BaseAPISchema
 from .models import Status, ProjectStatuses
-from .services.download_service import allowed_types
-from . import serializers
 
 
 class ProjectSchema(BaseAPISchema):
@@ -317,57 +317,8 @@ class ExportProjectsSchema(BaseAPISchema):
                 )
             ],
             responses={
-                202: serializers.ExportProjectsSerializer(),
+                202: ExportSerializer(),
                 **self.get_responses(401)
-            }
-        )
-
-    def status(self):
-        return self.swagger_auto_schema(
-            operation_summary='Check report status',
-            operation_description='Returns the report generation status and, '
-                                  'if successful, the name of the result file.\n\n'
-                                  'Available statuses:\n'
-                                  'SUCCESS - the report was generated successfully\n'
-                                  'PENDING - report is generated\n'
-                                  'FAILURE - report generation error',
-            manual_parameters=[
-                openapi.Parameter(
-                    name='task_id',
-                    in_=openapi.IN_PATH,
-                    type=openapi.TYPE_STRING,
-                    required=True
-                )
-            ],
-            responses={
-                200: serializers.DownloadStatusSerializer(),
-                **self.get_responses(401)
-            },
-        )
-
-    def download(self):
-        return self.swagger_auto_schema(
-            operation_summary='Download file',
-            operation_description='Download projects report',
-            manual_parameters=[
-                openapi.Parameter(
-                    name='filename',
-                    in_=openapi.IN_PATH,
-                    type=openapi.TYPE_STRING,
-                    required=True
-                )
-            ],
-            responses={
-                200: openapi.Response(
-                    description='Download of file started',
-                    content={
-                        'application/octet-stream': openapi.Schema(
-                            type='string',
-                            format='binary'
-                        )
-                    },
-                ),
-                **self.get_responses(401, 404)
             }
         )
 
