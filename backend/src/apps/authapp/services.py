@@ -1,6 +1,6 @@
 from apps.users.models import BaseUser
 from core.utils import get_code
-from ..models import Code, PasswordResetToken
+from apps.authapp.models import Code, PasswordResetToken
 
 
 class AuthService:

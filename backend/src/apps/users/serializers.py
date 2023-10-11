@@ -5,10 +5,10 @@ from django.contrib.auth import password_validation, get_user_model
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from apps.authapp.services.auth_service import auth_service
+from apps.authapp.services import auth_service
 from core.users import UserStatus
 from .models import BaseUser, ManagerProfile
-from .services.user_service import user_service, profile_service
+from .services import user_service, profile_service
 
 
 class CreateUserSerializer(serializers.ModelSerializer):

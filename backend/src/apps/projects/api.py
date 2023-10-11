@@ -1,7 +1,5 @@
-import json
 from typing import Iterable
 
-from django.conf import settings
 from django.db.models import Count, QuerySet
 from django.db.models.query import EmptyQuerySet
 from django.utils.decorators import method_decorator
@@ -68,7 +66,6 @@ class ProjectAPIViewSet(BaseAPIViewSet):
         serializer.is_valid(raise_exception=True)
         project = serializer.save()
         response = serializers.ProjectSerializer(project)
-
         return Response(response.data, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request: Request, *args, **kwargs) -> Response:
@@ -81,7 +78,6 @@ class ProjectAPIViewSet(BaseAPIViewSet):
         serializer.is_valid(raise_exception=True)
         project = serializer.save()
         response = serializers.ProjectSerializer(project)
-
         return Response(response.data, status=status.HTTP_200_OK)
 
     def destroy(self, request: Request, *args, **kwargs) -> Response:
@@ -191,7 +187,6 @@ class ProjectWorkingHoursAPIViewSet(BaseAPIViewSet):
         serializer.is_valid(raise_exception=True)
         project_wh = serializer.save()
         response = serializers.ProjectWorkingHoursSerializer(project_wh)
-
         return Response(response.data, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request: Request, *args, **kwargs) -> Response:
@@ -204,7 +199,6 @@ class ProjectWorkingHoursAPIViewSet(BaseAPIViewSet):
         serializer.is_valid(raise_exception=True)
         project_wh = serializer.save()
         response = serializers.ProjectWorkingHoursSerializer(project_wh)
-
         return Response(response.data, status=status.HTTP_200_OK)
 
 
@@ -248,7 +242,6 @@ class WorkLoadStatusAPIViewSet(BaseAPIViewSet):
         serializer.is_valid(raise_exception=True)
         workload = serializer.save()
         response = serializers.WorkLoadStatusSerializer(workload)
-
         return Response(response.data, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request: Request, *args, **kwargs) -> Response:
@@ -261,7 +254,6 @@ class WorkLoadStatusAPIViewSet(BaseAPIViewSet):
         serializer.is_valid(raise_exception=True)
         workload = serializer.save()
         response = serializers.WorkLoadStatusSerializer(workload)
-
         return Response(response.data, status=status.HTTP_200_OK)
 
 

@@ -37,7 +37,6 @@ class ResetPasswordAPIView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         token = serializer.save()
         reset_password.delay(email=token.user.email, token=token.token)
-
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -51,7 +50,6 @@ class PasswordSetAPIView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -67,7 +65,6 @@ class ChangePasswordAPIView(generics.UpdateAPIView):
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

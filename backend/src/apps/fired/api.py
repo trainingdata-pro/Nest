@@ -63,5 +63,4 @@ class FiredAPIViewSet(BaseAPIViewSet):
         serializer.is_valid(raise_exception=True)
         assessor = serializer.save()
         response = AssessorSerializer(assessor)
-
         return Response(response.data, status=status.HTTP_200_OK)

@@ -126,7 +126,6 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         serializer.is_valid(raise_exception=True)
         assessor = serializer.save()
         response = serializers.AssessorSerializer(assessor)
-
         return Response(response.data, status=status.HTTP_201_CREATED)
 
     def _update(self, request: Request, **kwargs) -> Response:
@@ -139,7 +138,6 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         serializer.is_valid(raise_exception=True)
         assessor = serializer.save()
         response = serializers.AssessorSerializer(assessor)
-
         return Response(response.data, status=status.HTTP_200_OK)
 
     def partial_update(self, request: Request, **kwargs) -> Response:
@@ -225,7 +223,6 @@ class AssessorCredentialsAPIViewSet(BaseAPIViewSet):
         serializer.is_valid(raise_exception=True)
         credentials = serializer.save()
         response = serializers.AssessorCredentialsSerializer(credentials)
-
         return Response(response.data, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request: Request, *args, **kwargs) -> Response:
@@ -238,7 +235,6 @@ class AssessorCredentialsAPIViewSet(BaseAPIViewSet):
         serializer.is_valid(raise_exception=True)
         assessor = serializer.save()
         response = serializers.AssessorCredentialsSerializer(assessor)
-
         return Response(response.data, status=status.HTTP_200_OK)
 
     def destroy(self, request: Request, *args, **kwargs) -> Response:
@@ -246,7 +242,6 @@ class AssessorCredentialsAPIViewSet(BaseAPIViewSet):
         manager = self.request.user
         permissions.check_full_assessor_permission(manager, instance)
         self.perform_destroy(instance)
-
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -289,5 +284,4 @@ class FreeResourcesAPIViewSet(BaseAPIViewSet):
         serializer.is_valid(raise_exception=True)
         obj = serializer.save()
         response = serializers.AssessorSerializer(obj)
-
         return Response(response.data)

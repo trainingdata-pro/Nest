@@ -5,7 +5,7 @@ from django.db.models import QuerySet
 
 from apps.export import services
 from core.utils import get_code, current_date
-from ..models import Project, ProjectStatuses
+from apps.projects.models import Project, ProjectStatuses
 
 
 class ProjectExport:

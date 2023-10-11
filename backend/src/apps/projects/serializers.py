@@ -5,13 +5,13 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from apps.assessors.models import Assessor, AssessorState
-from apps.history.services.history_service import history
+from apps.history.services import history
 from apps.users.models import BaseUser
 from apps.users.serializers import UserSerializer
 from core.utils import current_date
 from core.mixins import GetUserMixin
 from core.users import UserStatus
-from .services.project_service import project_service
+from .services import project_service
 from .models import (
     ProjectTag,
     Project,
