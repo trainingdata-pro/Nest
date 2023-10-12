@@ -12,7 +12,6 @@ import {
     useReactTable
 } from "@tanstack/react-table";
 import {Project} from "../models/ProjectResponse";
-import {useNavigate} from "react-router-dom";
 import Table from "../components/UI/Table";
 
 const CompletedProjects = () => {
@@ -54,7 +53,7 @@ const CompletedProjects = () => {
         }),
         columnHelper.accessor('id', {
             header: '',
-            cell: info => <button className='disabled:opacity-50 disabled:cursor-default'
+            cell: () => <button className='disabled:opacity-50 disabled:cursor-default'
                                   disabled={!store.user_data.is_teamlead}><PencilSquareIcon
                 className="h-6 w-6 text-gray-500"/></button>,
             enableSorting: false,
