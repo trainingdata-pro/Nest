@@ -9,7 +9,6 @@ import Table from "../UI/Table";
 import {
     createColumnHelper,
     getCoreRowModel,
-    getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel, SortingState,
     useReactTable
