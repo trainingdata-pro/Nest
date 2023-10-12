@@ -1,55 +1,23 @@
-import React from 'react';
-import {
-    ColumnFiltersState,
-    flexRender,
-    getCoreRowModel, getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel, SortingState,
-    useReactTable
-} from "@tanstack/react-table";
+import React, {useEffect} from 'react';
+import {flexRender, Table} from "@tanstack/react-table";
 import Icon from "@mdi/react";
 import {mdiSort, mdiSortAscending, mdiSortDescending} from "@mdi/js";
+import {useMutation} from "react-query";
 interface TableProps {
-    data: any[],
-    columns: any[],
-    pages: boolean
+    pages: boolean,
+    rowSelection: any,
+    table: Table<any>
 }
 
-const Table = ({data, columns, pages}: TableProps) => {
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [rowSelection, setRowSelection] = React.useState({})
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-    const [globalFilter, setGlobalFilter] = React.useState('')
-    const table = useReactTable({
-        data,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        onSortingChange: setSorting,
-        getSortedRowModel: getSortedRowModel(),
-        globalFilterFn: "includesString",
-        state: {
-            rowSelection,
-            sorting,
-            columnFilters,
-            globalFilter,
-        },
-
-        onColumnFiltersChange: setColumnFilters,
-        onGlobalFilterChange: setGlobalFilter,
-        getFilteredRowModel: getFilteredRowModel(),
-        enableRowSelection: true,
-        onRowSelectionChange: setRowSelection,
-        debugTable: false,
-    })
-
+const MyTable = ({pages, rowSelection, table}: TableProps) => {
     return (
-        <>
+        <div className="h-full w-full">
+        <div className="rounded-t-[20px] border border-black bg-white overflow-hidden mb-[10px]">
             <table className="w-full">
                 <thead>
                 {table.getHeaderGroups().map(headerGroup => (
                     <tr key={headerGroup.id}
-                        className="border-b transition-colors data-[state=selected]:bg-muted">
+                        className="transition-colors data-[state=selected]:bg-muted bg-[#E7EAFF]">
                         {headerGroup.headers.map(header => {
                             return (
                                 <th key={header.id} style={{
@@ -59,7 +27,6 @@ const Table = ({data, columns, pages}: TableProps) => {
                                     colSpan={header.colSpan}
                                         className="items-center py-2 text-[#64748b] text-sm">
                                     {header.isPlaceholder ? null : (
-                                        // <div >
                                         <div{...{
                                             className: header.column.getCanSort() ? 'flex justify-center items-center align-middle cursor-pointer select-none' : 'flex justify-center',
                                             onClick: header.column.getToggleSortingHandler(),
@@ -86,43 +53,44 @@ const Table = ({data, columns, pages}: TableProps) => {
                     </tr>
                 ))}
                 </thead>
+                <tbody>
+                {table.getRowModel().rows.length !== 0 ?
+                    (table.getRowModel().rows.map(row => (
+                        <tr key={row.id}
+                            className={row.getIsSelected() ? "border-b transition-colors bg-gray-300" :
+                                "border-b transition-colors hover:bg-gray-100"}>
+                            {row.getVisibleCells().map(cell => {
+                                return (
+                                    <td key={cell.id} colSpan={1}>
+                                        <div className="flex justify-center items-center align-middle py-2 break-words">
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </div>
+                                    </td>
+                                )
+                            })}
 
-                {data.length !== 0 ? <tbody>
-                {table.getRowModel().rows.map(row => (
-                    <tr key={row.id}
-                        className={row.getIsSelected() ? "border-b transition-colors bg-gray-300" :
-                            "border-b transition-colors hover:bg-gray-100"}>
-                        {row.getVisibleCells().map(cell => {
-                            return (
-                                <td key={cell.id} colSpan={1}>
-                                    <div className="flex justify-center items-center align-middle py-2">
-                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                    </div>
-                                </td>
-                            )
-                        })}
-
-                    </tr>
-                ))}
-                </tbody> : <tbody>
-                <tr>
-                    <td className="p-4 border-b align-middle [&amp;:has([role=checkbox])]:pr-0 h-24 text-center"
-                        colSpan={20}>Нет результатов
-                    </td>
-                </tr>
-                </tbody>}
+                        </tr>
+                    )))
+                    :
+                    (<tr>
+                        <td className="p-4 border-b align-middle [&amp;:has([role=checkbox])]:pr-0 h-24 text-center"
+                            colSpan={20}>Нет результатов
+                        </td>
+                    </tr>)
+                }
+                </tbody>
             </table>
             {pages && <div className="px-2 py-3">
-                <div className="flex items-center justify-between px-2">
+                <div className="flex items-center justify-between space-x-2">
                     <div className="flex-1 text-sm text-muted-foreground text-gray-400">
                         Выделено {Object.keys(rowSelection).length} из{' '}
-                        {data.length} строк
+                        {table.getRowModel().rows.length} строк
                     </div>
                     <div className="flex items-center space-x-6 lg:space-x-8">
                         <div className="flex items-center space-x-2">
                             <p className="text-sm font-medium">Размер страницы</p>
                             <select
-                                className="flex items-center justify-between rounded-md border border-input bg-transparent px-3 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 h-8 w-[70px]"
+                                className="flex items-center rounded-md border border-input bg-transparent px-3 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 h-8"
                                 value={table.getState().pagination.pageSize}
                                 onChange={e => {
                                     table.setPageSize(Number(e.target.value))
@@ -136,9 +104,9 @@ const Table = ({data, columns, pages}: TableProps) => {
                             </select>
                         </div>
 
-                        <div className="flex w-[120px] items-center justify-center text-sm font-medium">
-                                             <span className="flex items-center gap-1">
-                                                 <div>Страница</div>
+                        <div className="inline-block text-sm font-medium">
+                                             <span className="flex items-center ">
+                                                 <div>Страница </div>
                                                  <strong>
                                                      {table.getPageCount() !== 0 ? table.getState().pagination.pageIndex + 1 : 0} из {' '}
                                                      {table.getPageCount()}
@@ -178,8 +146,9 @@ const Table = ({data, columns, pages}: TableProps) => {
                     </div>
                 </div>
             </div>}
-        </>
+        </div>
+        </div>
     );
 };
 
-export default Table;
+export default MyTable;
