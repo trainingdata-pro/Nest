@@ -1,7 +1,7 @@
 import {toast} from "react-toastify";
 const options = {
     position: toast.POSITION.BOTTOM_LEFT,
-    autoClose: 2000,
+    autoClose: 5000,
     pauseOnHover: false,
     draggable: true,
 }
