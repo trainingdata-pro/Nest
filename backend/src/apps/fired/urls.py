@@ -3,17 +3,16 @@ from rest_framework import routers
 
 from . import api
 
-blacklist_router = routers.DefaultRouter()
-blacklist_router.register('', api.BlackListAPIViewSet, basename='blacklist')
+router = routers.DefaultRouter()
+router.register('blacklist', api.BlackListAPIViewSet, basename='blacklist')
+router.register('fired', api.FiredAPIViewSet, basename='fired')
+router.register('reasons', api.ReasonAPIViewSet, basename='reason')
 
-fired_router = routers.DefaultRouter()
-fired_router.register('', api.FiredAPIViewSet, basename='fired')
-
-reasons_router = routers.DefaultRouter()
-reasons_router.register('', api.ReasonAPIViewSet, basename='reason')
+_export = [
+    path('blacklist/', api.ExportBlackListAPIView.as_view()),
+]
 
 urlpatterns = [
-    path('blacklist/', include(blacklist_router.urls)),
-    path('fired/', include(fired_router.urls)),
-    path('reasons/', include(reasons_router.urls))
+    path('', include(router.urls)),
+    path('export/', include(_export))
 ]

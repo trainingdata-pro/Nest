@@ -1,7 +1,9 @@
 from drf_yasg import openapi
 
-from core.schemas import BaseAPISchema
 from apps.assessors.serializers import AssessorSerializer
+from apps.export.serializers import ExportSerializer
+from apps.export.services import allowed_types
+from core.schemas import BaseAPISchema
 
 from . import serializers
 
@@ -166,5 +168,38 @@ class FiredSchema(BaseAPISchema):
         )
 
 
+class ExportBlackListSchema(BaseAPISchema):
+    def export(self):
+        return self.swagger_auto_schema(
+            operation_summary='Export blacklist',
+            operation_description='Returns unique celery task ID',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='type',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    required=True,
+                    description=f'Output file type. Available types: {", ".join(allowed_types())}'
+                ),
+                openapi.Parameter(
+                    name='items',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_ARRAY,
+                    items=openapi.Items(type=openapi.TYPE_INTEGER),
+                    required=False,
+                    description='List of item IDs in the blacklist.\n'
+                                'If the list is empty, then all items will '
+                                'be exported.\n'
+                                'Example: host.com/?type=csv&item=1,2,3'
+                )
+            ],
+            responses={
+                202: ExportSerializer(),
+                **self.get_responses(401)
+            }
+        )
+
+
 reason_schema = ReasonSchema(tags=['fired'])
 fired_schema = FiredSchema(tags=['fired'])
+export_schema = ExportBlackListSchema(tags=['export'])

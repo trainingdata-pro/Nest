@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 
-from ..models import BaseUser, ManagerProfile
+from apps.users.models import BaseUser, ManagerProfile
 
 
 class UserService:

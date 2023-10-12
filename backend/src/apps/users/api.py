@@ -41,7 +41,6 @@ class UserAPIViewSet(BaseAPIViewSet):
         user = serializer.save()
         send_confirmation_code.delay(email=user.email, code=user.code.code)
         response = serializers.UserSerializer(user)
-
         return Response(response.data, status=status.HTTP_201_CREATED)
 
     def update(self, request: Request, *args, **kwargs) -> Response:
@@ -50,7 +49,6 @@ class UserAPIViewSet(BaseAPIViewSet):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         response = serializers.UserSerializer(user)
-
         return Response(response.data, status=status.HTTP_200_OK)
 
 
@@ -83,5 +81,4 @@ class ManagerAPIViewSet(BaseAPIViewSet):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         response = serializers.ManagerProfileSerializer(user)
-
         return Response(response.data, status=status.HTTP_200_OK)

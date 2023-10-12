@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from apps.assessors.models import Assessor, AssessorState
-from ..models import Fired, BlackList
+from apps.fired.models import Fired, BlackList
 
 
 class FiredService:

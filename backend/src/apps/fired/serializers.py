@@ -5,16 +5,16 @@ from typing import Dict, Optional
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from apps.history.services.history_service import history
+from apps.history.services import history
 from apps.assessors.models import Assessor, AssessorState
 from apps.assessors.serializers import AssessorSerializer
-from apps.assessors.services.assessor_service import assessors_service
+from apps.assessors.services import assessors_service
 from apps.users.models import BaseUser
 from core.utils import current_date
 from core.mixins import GetUserMixin
 from core.users import UserStatus
 from .models import Reason, Fired, BlackList
-from .services.fired_service import fired_service, blacklist_service
+from .services import fired_service, blacklist_service
 
 
 class ReasonSerializer(serializers.ModelSerializer):

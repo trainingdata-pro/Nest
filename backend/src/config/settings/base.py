@@ -22,11 +22,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-q#cm-@xnl4)mrxs2mzmzeldzo^-o!5j!a_vc*@lr+wqf%4d0x8')
 
-DEBUG = True
-
-MAIN_HOST = 'http://localhost:3000'
-
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 # Application definition
 DJANGO_APPS = [
@@ -51,6 +46,7 @@ THIRD_PARTY_APP = [
 PROJECT_APPS = [
     'apps.assessors.apps.AssessorsConfig',
     'apps.authapp.apps.AuthappConfig',
+    'apps.export.apps.ExportConfig',
     'apps.fired.apps.FiredConfig',
     'apps.history.apps.HistoryConfig',
     'apps.projects.apps.ProjectsConfig',
@@ -142,7 +138,6 @@ USE_TZ = True
 STATIC_URL = 'staticfiles/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
@@ -159,10 +154,6 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 FILE_STORAGE_DAYS = 1
 
 RESET_PASSWORD_TOKEN_EXPIRATION_DAY = 1
-
-CORS_ALLOWED_ORIGINS = [MAIN_HOST]
-CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = [MAIN_HOST]
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'core.pagination.Pagination',
@@ -228,7 +219,7 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(hour='00', minute='00')
     },
     'remove_files_task': {
-        'task': 'apps.projects.tasks.remove_old_files',
+        'task': 'apps.export.tasks.remove_old_files',
         'schedule': crontab(hour='01', minute='00')
     }
 }
