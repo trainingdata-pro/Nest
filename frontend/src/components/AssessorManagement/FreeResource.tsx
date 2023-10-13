@@ -2,12 +2,14 @@ import React, {useEffect, useState} from 'react';
 import Dialog from "../UI/Dialog";
 import {useMutation, useQueryClient} from "react-query";
 import AssessorService from "../../services/AssessorService";
+import {errorNotification, successNotification} from "../UI/Notify";
 interface Props {
     assessorId: any,
     data:any
 }
-const FreeResource = ({assessorId}: {
-    assessorId: string | number | undefined
+const FreeResource = ({assessorId, setShowAddToFreeResource}: {
+    assessorId: string | number | undefined,
+    setShowAddToFreeResource: any
 }) => {
     const status = {
         free_time: 'Есть свободное время',
@@ -20,7 +22,19 @@ const FreeResource = ({assessorId}: {
         "reason": '',
         "free_resource": true
     })
-    const addToFreeResource = useMutation(['assessors', assessorId], ({assessorId, data}: Props) => AssessorService.addToFreeResource(assessorId, data))
+    const queryClient = useQueryClient()
+    const addToFreeResource = useMutation(['currentAssessor', assessorId], ({assessorId, data}: Props) => AssessorService.addToFreeResource(assessorId, data),{
+        onSuccess: () => {
+            queryClient.invalidateQueries(['currentAssessor', assessorId])
+            queryClient.invalidateQueries(['assessorHistory', assessorId])
+            successNotification('Ассесор успешно добавлен в свободные ресурсы')
+            setShowAddToFreeResource(false)
+        },
+        onError: (error:any) => {
+            const jsonError = JSON.parse(error.request.responseText)
+            console.log(jsonError[Object.keys(jsonError)[0]])
+            errorNotification(jsonError[Object.keys(jsonError)[0]][0])}
+    })
     const submit = () => {
         addToFreeResource.mutate({assessorId:assessorId, data: capacity})
     }
@@ -71,7 +85,7 @@ const FreeResource = ({assessorId}: {
                                 ...capacity,
                                 [event.target.name]: event.target.value
                             })} id='weekday2' type="radio" value='2-4'/>
-                            <label htmlFor='day2'>2-4 часа</label>
+                            <label htmlFor='weekday2'>2-4 часа</label>
                         </div>
                         <div>
                             <input name='free_resource_day_off_hours' onChange={(event) => setCapacity({

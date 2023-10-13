@@ -1,4 +1,4 @@
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Q
 from django_filters import rest_framework as filters
 
 from core.mixins import FilteringMixin
@@ -53,3 +53,22 @@ class AssessorCredentialsFilter(filters.FilterSet):
     class Meta:
         model = AssessorCredentials
         fields = ['assessor']
+
+
+class FreeResourcesFilter(filters.FilterSet):
+    username = filters.CharFilter(lookup_expr='icontains')
+    full_name = filters.CharFilter(method='filter_full_name')
+
+    class Meta:
+        model = Assessor
+        fields = [
+            'username',
+            'full_name'
+        ]
+
+    def filter_full_name(self, queryset: QuerySet, name: str, value: str) -> QuerySet:
+        return queryset.filter(
+            Q(last_name__icontains=value)
+            | Q(first_name__icontains=value)
+            | Q(middle_name__icontains=value)
+        )

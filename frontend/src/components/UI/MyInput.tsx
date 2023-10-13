@@ -3,15 +3,13 @@ import React, {InputHTMLAttributes} from 'react';
 interface InputProps extends InputHTMLAttributes<HTMLInputElement>{
     register: any
 }
-const MyInput = ({register, placeholder, type, disabled=false, className=''}: InputProps ) => {
+const MyInput = ({register, className='', ...props}: InputProps ) => {
     return (
         <input
-            className={`pl-[7px] h-[38px] w-full rounded-md box-border border border-input text-left disabled:opacity-50 ${className}`}
+            className={`py-[12px] bg-[#F4F8F7] rounded-[8px] w-full text-left disabled:opacity-50 ${className}`}
             {...register}
             autoFocus={false}
-            type={type}
-            placeholder={placeholder}
-            disabled={disabled}/>
+            {...props}/>
     );
 };
 

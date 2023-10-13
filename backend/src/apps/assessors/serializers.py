@@ -4,7 +4,7 @@ from typing import Dict
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from apps.history.services.history_service import history
+from apps.history.services import history
 from apps.projects.models import ProjectStatuses, Project, ProjectWorkingHours
 from apps.projects.serializers import ProjectSerializer, ProjectWorkingHoursSimpleSerializer
 from apps.users.models import BaseUser
@@ -14,7 +14,7 @@ from core.mixins import GetUserMixin
 from core.permissions import check_full_assessor_permission
 from core.users import UserStatus
 from .models import Assessor, Skill, AssessorCredentials, AssessorState
-from .services.assessor_service import assessors_service
+from .services import assessors_service
 
 
 class SkillSerializer(serializers.ModelSerializer):
@@ -94,7 +94,7 @@ class CreateUpdateAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
 
     def update(self, instance: Assessor, validated_data: Dict) -> Assessor:
         assessor = super().update(instance, validated_data)
-        assessor = assessors_service.check_and_change_state(assessor)
+        assessor = assessors_service.check_and_update_state(assessor)
 
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
@@ -131,7 +131,7 @@ class AssessorProjectsSerializer(GetUserMixin, serializers.ModelSerializer):
             instance=assessor,
             manager=manager
         )
-        assessors_service.check_and_change_state(assessor)
+        assessors_service.check_and_update_state(assessor)
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
             new_assessor=assessor,

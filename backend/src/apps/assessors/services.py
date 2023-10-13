@@ -3,7 +3,7 @@ from typing import Any, List, Optional, Union
 
 from apps.projects.models import Project
 from apps.users.models import BaseUser
-from ..models import Assessor, AssessorState, Skill
+from apps.assessors.models import Assessor, AssessorState, Skill
 
 
 class AssessorService:
@@ -16,8 +16,8 @@ class AssessorService:
     def set_skills(self, instance: Assessor, skills: List[Skill]) -> Assessor:
         return self.__set_m2m(instance, attribute='skills', values=skills)
 
-    def check_and_change_state(self, instance: Assessor) -> Assessor:
-        instance = self.__check_and_change_state(instance)
+    def check_and_update_state(self, instance: Assessor) -> Assessor:
+        instance = self.__check_and_update_state(instance)
         return self.__perform_save(instance)
 
     def add_second_manager(self,
@@ -107,7 +107,7 @@ class AssessorService:
         return instance
 
     @staticmethod
-    def __check_and_change_state(instance: Assessor) -> Assessor:
+    def __check_and_update_state(instance: Assessor) -> Assessor:
         if instance.state != AssessorState.FREE_RESOURCE:
             if instance.projects.exists():
                 instance.state = AssessorState.BUSY

@@ -26,14 +26,14 @@ const SignInPage = () => {
     return (
         <div className="container">
             <div className="flex h-screen">
-                <div className="relative w-[50%]">
-                    <img src={cat} className="absolute bottom-[52px] left-[20px] w-[631px]-max h-[663px]-max"
+                <div className="w-[50%] my-auto">
+                    <img src={cat} className="left-[20px]"
                          alt="cat"/>
                 </div>
-                <div className="w-[50%] rounded-[16px] h-[95%] bg-white my-auto">
+                <div className="w-[45%] rounded-[16px] h-[95%] bg-white my-auto">
                     <form className="flex h-[100%] justify-center items-center" onSubmit={handleSubmit(onSubmit)}>
-                        <div className="w-[85%]">
-                            <h1 className="text-[32px] font-bold mb-28">Добро пожаловать</h1>
+                        <div className="w-[95%]">
+                            <h1 className="text-[32px] w-full text-center font-bold mb-28">Добро пожаловать</h1>
                             <div className="my-2">
                                 <div className='flex relative items-center'>
                                     <EnvelopeIcon className="absolute ml-[10px] h-6 w-6 text-gray-500"/>
@@ -42,8 +42,12 @@ const SignInPage = () => {
                                             value: /^[a-zA-Z0-9._-]+@trainingdata.pro$/,
                                             message: "Укажите корпоративную почту"
                                         },
+                                        required: {
+                                            value: true,
+                                            message: 'Обязательное поле'
+                                        }
                                     })} type="text" className="h-[60px] pl-[40px] w-full bg-[#F4F8F7] rounded-[8px] "
-                                           placeholder="Username"/>
+                                           placeholder="email"/>
 
                                 </div>
                                 <Error>{errors.email && errors.email?.message}</Error>

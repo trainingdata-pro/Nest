@@ -4,53 +4,103 @@ import ProjectService from "../services/ProjectService";
 import {Context} from "../index";
 import {PencilSquareIcon} from "@heroicons/react/24/solid";
 import {useQuery} from "react-query";
+import {
+    createColumnHelper,
+    getCoreRowModel,
+    getPaginationRowModel, getSortedRowModel,
+    SortingState,
+    useReactTable
+} from "@tanstack/react-table";
+import {Project} from "../models/ProjectResponse";
+import Table from "../components/UI/Table";
 
 const CompletedProjects = () => {
-    const statusObject = {
-        "new": "Новый",
-        "pilot": "Пилот",
-        "active": "Активный",
-        "pause": "На паузе",
-        "completed": "Завершенный"
-    }
-    const header: string[] = ["Asana ID", "Наименование проекта", "Менеджер проекта", "Кол-во ассессеров", "Статус проекта", "Дата начала", "Дата завершения", ""]
+    const columnHelper = createColumnHelper<Project>()
     const {store} = useContext(Context)
-    const {data} = useQuery(['completedProjects'], () => ProjectService.fetchCompletedProjects(store.user_id))
+
+    const columns = [
+        columnHelper.accessor('asana_id', {
+            header: 'Asana ID',
+            cell: info => info.getValue(),
+            enableSorting: false,
+        }),
+        columnHelper.accessor('name', {
+            cell: info => info.getValue(),
+            header: 'Название',
+            enableSorting: false
+        }),
+        columnHelper.accessor('manager', {
+            header: 'Менеджер',
+            cell: info => info.getValue().map(manager => {
+                return `${manager.last_name} ${manager.first_name}`
+            }),
+            enableSorting: false
+        }),
+        columnHelper.accessor('assessors_count', {
+            header: 'Количество ассессеров',
+            cell: info => info.getValue(),
+            enableSorting: false
+        }),
+        columnHelper.accessor('date_of_creation', {
+            header: 'Дата начала',
+            cell: info => info.getValue(),
+            enableSorting: true
+        }),
+        columnHelper.accessor('date_of_completion', {
+            header: 'Дата завершения',
+            cell: info => info.getValue(),
+            enableSorting: true
+        }),
+        columnHelper.accessor('id', {
+            header: '',
+            cell: () => <button className='disabled:opacity-50 disabled:cursor-default'
+                                  disabled={!store.user_data.is_teamlead}><PencilSquareIcon
+                className="h-6 w-6 text-gray-500"/></button>,
+            enableSorting: false,
+            size:40
+        }),
+    ]
+    async function fetchAllData() {
+        const allData = [];
+        let currentPage = 1;
+        let hasMoreData = true;
+        while (hasMoreData) {
+            const data = await ProjectService.fetchCompletedProjects(currentPage);
+            allData.push(...data.results);
+            if (data.next !== null) {
+                currentPage++;
+            } else {
+                hasMoreData = false;
+            }
+        }
+        return allData;
+    }
+    const [sorting, setSorting] = React.useState<SortingState>([{id: 'date_of_completion', desc: true}])
+    const [rowSelection, setRowSelection] = React.useState({})
+    const {data} = useQuery(['completedProjects'], () => fetchAllData())
+
+    const table = useReactTable({
+        data: data ? data : [],
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        onSortingChange: setSorting,
+        getSortedRowModel: getSortedRowModel(),
+        enableMultiSort: true,
+        maxMultiSortColCount: 2,
+        state: {
+            rowSelection,
+            sorting
+        },
+        enableRowSelection: true,
+        onRowSelectionChange: setRowSelection,
+        debugTable: false,
+    })
     return (
         <div>
             <Header/>
             <div className="flex container pt-20 h-full pr-8 pl-8 items-center">
-                <div className="h-full w-full">
-                    <div className="rounded-t-[20px] border border-b-gray-400 bg-white">
-                        <table className="min-w-full text-center">
-                            <thead className="">
-                            <tr className="bg-[#E7EAFF]">
-                                {header.map((col, index) => <th key={index} className="border-r dark:border-neutral-500 px-[5px] py-[20px] last:border-none">{col}</th>)}
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {data?.results.length !== 0 ?  (data?.results.map(project => <tr key={project.id} className="text-center border-t dark:border-neutral-500">
-                                <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{project.asana_id}</td>
-                                <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{project.name}</td>
-                                <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{project.manager.map(manager => <span key={manager.id}>{manager.last_name} {manager.first_name}</span>)}</td>
-                                <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{project.assessors_count}</td>
-                                <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{statusObject[project.status]}</td>
-                                <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{project.date_of_creation}</td>
-                                <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{project.date_of_completion}</td>
-                                <td className="whitespace-nowrap px-[5px] py-[20px] flex justify-center">
-                                    <button className='disabled:opacity-50 disabled:cursor-default' disabled={!store.user_data.is_teamlead}><PencilSquareIcon className="  h-6 w-6 text-gray-500" /></button>
-                                </td>
-                            </tr>)):
-                            <tr>
-                                <td className="p-4 border-b align-middle h-24 text-center"
-                                    colSpan={20}>Нет результатов
-                                </td>
-                            </tr>}
-                            </tbody>
-
-                        </table>
-                    </div>
-                </div>
+                <Table pages={true} rowSelection={rowSelection} table={table}/>
             </div>
         </div>
     );

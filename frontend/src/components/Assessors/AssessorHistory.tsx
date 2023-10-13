@@ -18,12 +18,12 @@ const AssessorHistory = ({assessorId}: {
 }) => {
 
     const userId = 1
-    const {data} = useQuery(['assessorHistory', userId], () => AssessorService.fetchAssessorHistory(userId, 'state'), {
+    const {data} = useQuery(['assessorHistory', assessorId], () => AssessorService.fetchAssessorHistory(assessorId, 'state'), {
         onSuccess: data1 => console.log(data1)
     })
     return (
         <div>
-
+            {data?.results[0].id}
         </div>
     );
 };

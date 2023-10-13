@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
+import {errorNotification} from "../UI/Notify";
 
 // @ts-ignore
-const ProjectMenu = ({setIsDeleteFromProject}) => {
+const ProjectMenu = ({setIsDeleteFromProject, isSelected}) => {
     const [open, setOpen] = useState(false);
     return (
         <div>
@@ -18,7 +19,9 @@ const ProjectMenu = ({setIsDeleteFromProject}) => {
                             open ? "block" : "hidden"
                         }`}
                     >
-                        <li onClick={() => setIsDeleteFromProject(true)}
+                        <li onClick={() => {
+                            if (isSelected) {setIsDeleteFromProject(true)} else errorNotification('Выберите хотя бы одного ассессора')
+                        }}
                             className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">
                             Убрать с проекта
                         </li>

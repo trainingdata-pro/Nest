@@ -5,13 +5,13 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from apps.assessors.models import Assessor, AssessorState
-from apps.history.services.history_service import history
+from apps.history.services import history
 from apps.users.models import BaseUser
 from apps.users.serializers import UserSerializer
 from core.utils import current_date
 from core.mixins import GetUserMixin
 from core.users import UserStatus
-from .services.project_service import project_service
+from .services import project_service
 from .models import (
     ProjectTag,
     Project,
@@ -230,12 +230,3 @@ class WorkLoadStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkLoadStatus
         fields = '__all__'
-
-
-class ExportProjectsSerializer(serializers.Serializer):
-    task_id = serializers.CharField(required=False, max_length=255)
-
-
-class DownloadStatusSerializer(serializers.Serializer):
-    status = serializers.CharField(max_length=50, required=False)
-    filename = serializers.CharField(max_length=50, allow_null=True, required=False)

@@ -3,7 +3,7 @@ from typing import List, Any, Optional
 
 from apps.users.models import BaseUser
 from core.utils import current_date
-from ..models import (
+from apps.projects.models import (
     Project,
     ProjectTag,
     ProjectStatuses,

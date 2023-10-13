@@ -10,7 +10,7 @@ export interface Project {
     price_for_assessor: number,
     price_for_costumer: number,
     unloading_value: number,
-    unloading_regularity: number,
+    unloading_regularity: string,
     status: Status,
     tag: Tag[],
     date_of_creation: string,

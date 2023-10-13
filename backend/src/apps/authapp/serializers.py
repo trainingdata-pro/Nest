@@ -6,9 +6,9 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from apps.users.models import BaseUser
-from apps.users.services.user_service import user_service
+from apps.users.services import user_service
 from .models import Code, PasswordResetToken
-from .services.auth_service import auth_service, reset_password_service
+from .services import auth_service, reset_password_service
 
 
 class ConfirmationCodeSerializer(serializers.Serializer):
