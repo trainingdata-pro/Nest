@@ -30,7 +30,7 @@ type ProjectFormProps = {
     price_for_assessor: number,
     price_for_costumer: number,
     unloading_value: number,
-    unloading_regularity: number,
+    unloading_regularity: string,
     status: string | undefined,
     tag: number[] | string[],
     date_of_creation: string
@@ -78,7 +78,12 @@ const ProjectForm = ({projectId, closeSidebar}: {
                 setCurrentTags(data.tag.map(tag => {
                     return tag.id
                 }))
+                setRegularity(data.unloading_regularity)
                 setCurrentStatus(data.status)
+                if (regOptions.find(req => req.value === data.unloading_regularity) === undefined){
+                    setRegOptions([...regOptions, {label: data.unloading_regularity, value: data.unloading_regularity}])
+                }
+
             }
         }
     })
@@ -106,7 +111,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
             price_for_assessor: 0,
             price_for_costumer: 0,
             unloading_value: 0,
-            unloading_regularity: 0
+            unloading_regularity: ''
 
         }
     })
@@ -164,21 +169,21 @@ const ProjectForm = ({projectId, closeSidebar}: {
         setValue('unloading_regularity', newValue.value)
 
     }
-    const [regularity, setRegularity] = useState()
+    const [regularity, setRegularity] = useState('')
     const onChangeStatus = (newValue: any) => {
         setCurrentStatus(newValue.value)
         setValue('status', newValue.value)
 
     }
     const getRegularity = () => {
-        return regularity ? regOptions.find(s => s.value === regularity) : ''
+        return regularity ? regOptions.find(s => s.value === regularity): ''
     }
-    const regOptions = [{label: 'Разовая', value: 'Разовая'},
+    const [regOptions, setRegOptions] = useState([{label: 'Разовая', value: 'Разовая'},
         {label: 'Будние дни', value: 'Будние дни'},
         {label: 'Ежедневно', value: 'Ежедневно'},
         {label: 'Раз в неделю', value: 'Раз в неделю'},
         {label: 'Раз в две недели', value: 'Раз в две недели'},
-        {label: 'Раз в месяц', value: 'Раз в месяц'},]
+        {label: 'Раз в месяц', value: 'Раз в месяц'},])
     const getValueStatus = () => {
         return currentStatus ? statusList.find(s => s.value === currentStatus) : ''
     }
