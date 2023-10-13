@@ -84,13 +84,14 @@ const MyTable = ({pages, rowSelection, table}: TableProps) => {
                 <div className="flex items-center justify-between space-x-2">
                     <div className="flex-1 text-sm text-muted-foreground text-gray-400">
                         Выделено {Object.keys(rowSelection).length} из{' '}
-                        {table.getRowModel().rows.length} строк
+                        {table.getPreFilteredRowModel().rows.length} строк
                     </div>
                     <div className="flex items-center space-x-6 lg:space-x-8">
                         <div className="flex items-center space-x-2">
                             <p className="text-sm font-medium">Размер страницы</p>
                             <select
                                 className="flex items-center rounded-md border border-input bg-transparent px-3 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 h-8"
+                                name='pagination'
                                 value={table.getState().pagination.pageSize}
                                 onChange={e => {
                                     table.setPageSize(Number(e.target.value))
@@ -106,7 +107,7 @@ const MyTable = ({pages, rowSelection, table}: TableProps) => {
 
                         <div className="inline-block text-sm font-medium">
                                              <span className="flex items-center ">
-                                                 <div>Страница </div>
+                                                 <div>Страница</div>
                                                  <strong>
                                                      {table.getPageCount() !== 0 ? table.getState().pagination.pageIndex + 1 : 0} из {' '}
                                                      {table.getPageCount()}
