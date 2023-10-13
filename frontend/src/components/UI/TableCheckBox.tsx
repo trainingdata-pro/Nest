@@ -16,6 +16,7 @@ function TableCheckBox({
     return (
         <input
             type="checkbox"
+            name='sel'
             ref={ref}
             className={className + ' cursor-pointer'}
             {...rest}

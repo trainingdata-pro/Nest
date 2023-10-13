@@ -1,104 +1,212 @@
-import React, {useEffect, useState} from 'react';
-import Table from "../UI/Table";
-import {createColumnHelper} from "@tanstack/react-table";
-import {NavLink, useNavigate} from "react-router-dom";
-import {Assessor} from "../../models/AssessorResponse";
+import React, {HTMLProps, useContext, useEffect, useState} from 'react';
+import MyTable from "../UI/Table";
 import AssessorService from "../../services/AssessorService";
 import AddAssessorForm from "./AddAssessorForm";
 import Dialog from "../UI/Dialog";
 import Header from "../Header/Header";
+import {useInfiniteQuery, useQuery, useQueryClient} from "react-query";
+import {
+    createColumnHelper,
+    getCoreRowModel, getFilteredRowModel,
+    getPaginationRowModel,
+    getSortedRowModel, SortingState,
+    useReactTable
+} from "@tanstack/react-table";
+import {Assessor} from "../../models/AssessorResponse";
+import {useNavigate} from "react-router-dom";
+import {ToastContainer} from "react-toastify";
+import MyButton from "../UI/MyButton";
+import $api from "../../http";
+import AssessorsManagement from "./AssessorsManagement";
+import ChangeProjects from "./ChangeProjects";
+import TableCheckBox from '../UI/TableCheckBox';
+import AddToProject from "./AddToProject";
+import RemoveAssessorsFromProjects from "./RemoveAssessorsFromProjects";
+import {Context} from "../../index";
+
+const columnHelper = createColumnHelper<Assessor>()
+
+const stateObject = {
+    "available": "Доступен",
+    "busy": "Занят",
+    "free_resource": "Свободный ресурс",
+    "vacation": "Отпуск",
+    "blacklist": "Черный список",
+    "fired": "Уволен",
+}
 
 const AssessorsPage = () => {
-    const statusObject = {
-        "free": "Свободен",
-        "full": "Занят",
-        "partial": "Частичная загруженность"
+    const [assessorsType, setAssessorsType] = useState('my')
+    const navigate = useNavigate()
+
+    const assessors = useQuery(['assessors', assessorsType], () => fetchAllData())
+    const {store} = useContext(Context)
+    async function fetchAllData() {
+        const allData = [];
+        let currentPage = 1;
+        let hasMoreData = true;
+        while (hasMoreData) {
+            const data = await AssessorService.fetchManagersAssessors(currentPage, store.user_id ,'');
+            allData.push(...data.results);
+            if (data.next !== null) {
+                currentPage++;
+            } else {
+                hasMoreData = false;
+            }
+        }
+        return allData;
     }
 
-    const [assessors, setAssessors] = useState<Assessor[]>([])
+    const navigation = useNavigate()
+    const columns = [
+        columnHelper.accessor('id', {
+            header: ({table}) => (
+                <TableCheckBox
+                    {...{
+                        checked: table.getIsAllRowsSelected(),
+                        indeterminate: table.getIsSomeRowsSelected(),
+                        onChange: table.getToggleAllRowsSelectedHandler(),
+                    }}
+                />
+            ),
+            cell: ({row}) => (
+                <div className="px-1">
+                    <TableCheckBox
+                        {...{
+                            checked: row.getIsSelected(),
+                            disabled: !row.getCanSelect(),
+                            indeterminate: row.getIsSomeSelected(),
+                            onChange: row.getToggleSelectedHandler(),
+                        }}
+                    />
+                </div>
+            ),
+            enableSorting: false,
+            maxSize: 30
+        }),
+        columnHelper.accessor('last_name', {
+            header: 'Фамилия',
+            cell: info =>
+                <div className='w-full h-full text-center  cursor-pointer'
+                     onClick={() => navigation(`/assessor/${info.row.original.id}`)}>{info.getValue()}</div>,
+            enableSorting: false,
 
+        }),
+        columnHelper.accessor('first_name', {
+            cell: info =>
+                <div className='w-full h-full text-center cursor-pointer'
+                     onClick={() => navigation(`/assessor/${info.row.original.id}`)}>{info.getValue()}</div>,
+            header: 'Имя',
+            enableSorting: false
+        }),
+        columnHelper.accessor('middle_name', {
+            header: 'Отчество',
+            cell: info =>
+                <div className='w-full h-full text-center cursor-pointer'
+                     onClick={() => navigation(`/assessor/${info.row.original.id}`)}>{info.getValue()}</div>,
+            enableSorting: false
+        }),
+        columnHelper.accessor('username', {
+            header: 'Ник в ТГ',
+            cell: info => info.renderValue(),
+            enableSorting: false
+        }),
+        columnHelper.accessor('projects', {
+            header: 'Проект',
+            cell: info => info.row.original.projects.map(project => project.name).join(', '),
+            enableSorting: false
+        }),
+        columnHelper.accessor('working_hours', {
+            header: 'Всего рабочих часов',
+            cell: info => info.row.original.working_hours.map(wh => wh.total).reduce((a, v) => a = a + v, 0),
+            enableSorting: false,
+            maxSize: 120
+        }),
+        columnHelper.accessor('state', {
+            header: 'Состояние',
+            cell: info => stateObject[info.row.original.state],
+            enableSorting: false
+        }),
+        columnHelper.accessor('skills', {
+            header: 'Навыки',
+            cell: info => info.row.original.skills.map(skill => skill.title).join(', '),
+            enableSorting: false
+        }),
+    ]
+    const [sorting, setSorting] = React.useState<SortingState>([])
+    const [rowSelection, setRowSelection] = React.useState({})
+    const table = useReactTable({
+        data: assessors.data ? assessors.data : [],
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        onSortingChange: setSorting,
+        getSortedRowModel: getSortedRowModel(),
+        globalFilterFn: "includesString",
+        state: {
+            rowSelection,
+            sorting
+        },
+        getFilteredRowModel: getFilteredRowModel(),
+        enableRowSelection: true,
+        onRowSelectionChange: setRowSelection,
+        debugTable: false,
+    })
 
-    // const columns = [
-    //     columnHelper.accessor('last_name', {
-    //         header: 'Фамилия',
-    //         cell: info => info.getValue(),
-    //     }),
-    //     columnHelper.accessor('first_name', {
-    //         header: 'Имя',
-    //         cell: info => info.getValue(),
-    //         enableSorting: false
-    //     }),
-    //     columnHelper.accessor('middle_name', {
-    //         header: 'Отчество',
-    //         cell: info => info.getValue(),
-    //         enableSorting: false
-    //     }),
-    //     columnHelper.accessor("username", {
-    //         header: () => 'Ник в ТГ',
-    //         cell: info => info.getValue(),
-    //         enableSorting: false
-    //     }),
-    //     columnHelper.accessor("projects", {
-    //         header: () => 'Проекты',
-    //         cell: (info) => {
-    //             return <div>{info.row.original.projects.map(project => <div key={project.id} className="rounded-full bg-black text-white text-center py-1 px-3 mb-1">{project.name}</div>)}</div>
-    //         },
-    //         enableSorting: false
-    //     }),
-    //     columnHelper.accessor('working_hours', {
-    //         header: "Рабочее время Всего",
-    //         cell: info => {
-    //             const hours = [info.row.original.working_hours?.monday ? info.row.original.working_hours?.monday : 0,
-    //                 info.row.original.working_hours?.tuesday ? info.row.original.working_hours?.tuesday : 0,
-    //                 info.row.original.working_hours?.wednesday ? info.row.original.working_hours?.wednesday : 0,
-    //                 info.row.original.working_hours?.thursday ? info.row.original.working_hours?.thursday : 0,
-    //                 info.row.original.working_hours?.friday ? info.row.original.working_hours?.friday : 0,
-    //                 info.row.original.working_hours?.saturday ? info.row.original.working_hours?.saturday : 0,
-    //                 info.row.original.working_hours?.sunday ? info.row.original.working_hours?.sunday : 0]
-    //             const total = hours.reduce(
-    //                 (total, currentItem) => (total = total + currentItem), 0)
-    //             return total
-    //
-    //
-    //         },
-    //         enableSorting: false
-    //     }),
-    //     columnHelper.accessor('state', {
-    //         header: "Статус",
-    //         // @ts-ignore
-    //         cell: info => <div className="text-center">{statusObject[info.row.original.status]}</div>,
-    //         enableSorting: false,
-    //         size:155
-    //
-    //     }),
-    //     columnHelper.accessor('skills', {
-    //         header: "Skills",
-    //         cell: (info) => {
-    //             return <div>{info.row.original.skills.map(skill => {
-    //                 return <div className="rounded-full bg-black text-white text-center py-1 px-3 mb-1" key={skill.id}>{skill.title}</div>
-    //             })}</div>
-    //         },
-    //         enableSorting: false
-    //     })
-    // ]
+    const getUnavailableProjects = () => {
+        let projects: any[] = []
+        const rows = table.getPreFilteredRowModel().rows.filter(row => Object.keys(rowSelection).find(key => key.toString() === row.id.toString()))
+        projects = rows.map(row => [...projects, ...row.original.projects.map(project => project.id)])
+        projects = Array.from(new Set([].concat(...projects)))
+        return projects
+    }
+
+    const getSelectedAssessors = () => {
+        return table.getPreFilteredRowModel().rows.filter(row => Object.keys(rowSelection).find(key => key.toString() === row.id.toString()))
+    }
     const [showSidebar, setShowSidebar] = useState(false)
+    const [showChangeProject, setShowChangeProject] = useState(false)
+    const [showAddProject, setShowAddProject] = useState(false)
+    const [showRemoveAssessors, setShowRemoveAssessors] = useState(false)
     return (
         <div>
             <Dialog isOpen={showSidebar} setIsOpen={setShowSidebar}>
-                <AddAssessorForm assessorId={undefined} showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
+                <AddAssessorForm assessorId={undefined} showSidebar={showSidebar} setShowSidebar={setShowSidebar}/>
+            </Dialog>
+            <Dialog isOpen={showChangeProject} setIsOpen={setShowChangeProject}>
+                <ChangeProjects show={setShowChangeProject} selectedAssessor={getSelectedAssessors()}
+                                extendProjects={getUnavailableProjects()}/>
+            </Dialog>
+            <Dialog isOpen={showAddProject} setIsOpen={setShowAddProject}>
+                <AddToProject show={setShowAddProject} selectedAssessor={getSelectedAssessors()}
+                              extendProjects={getUnavailableProjects()}/>
+            </Dialog>
+            <Dialog isOpen={showRemoveAssessors} setIsOpen={setShowRemoveAssessors}>
+                <RemoveAssessorsFromProjects assessorsRow={getSelectedAssessors()}
+                                             assessorsProjects={getUnavailableProjects()}
+                                             show={setShowRemoveAssessors}/>
             </Dialog>
             <Header/>
             <div className='pt-20'>
-            <nav className='px-8 flex justify-end mb-2'>
-                <button className="bg-black text-white rounded-md px-3 py-2" onClick={() => setShowSidebar(true)}>Создать асессора</button>
-            </nav>
-            <div className="flex container mx-auto h-full pr-8 pl-8 items-center">
-                <div className="h-full w-full">
-                    <div className="rounded-md pt-20 border border-b-gray-400 bg-white">
-                        {/*<Table data={assessors} columns={columns} pages={true}/>*/}
-                    </div>
+                <div className='flex justify-between'>
+                <nav className='px-8 flex justify-start mb-2 space-x-2'>
+                    <MyButton>Привязанные ассессоры</MyButton>
+                    <MyButton onClick={() => navigate('/dashboard/assessors/rent')}>Арендованные ассессоры</MyButton>
+                </nav>
+                    <div className='px-8 flex justify-start mb-2 space-x-2'><p className='my-auto'>Привязанные ассессоры</p></div>
+                <nav className='px-8 flex justify-end mb-2 space-x-2'>
+                    <AssessorsManagement type={assessorsType} setShowRemoveAssessors={setShowRemoveAssessors}
+                                         setShowAddProject={setShowAddProject}
+                                         availableAddProject={getSelectedAssessors().length !== 0}
+                                         availableChangeProject={getSelectedAssessors().length !== 0}
+                                         setShowChangeProject={setShowChangeProject}/>
+                    <MyButton onClick={() => setShowSidebar(true)}>Создать асессора</MyButton>
+                </nav>
                 </div>
-            </div>
+                <div className="flex px-8">
+                    <MyTable table={table} rowSelection={rowSelection} pages={true}/>
+                </div>
+
             </div>
         </div>
     );

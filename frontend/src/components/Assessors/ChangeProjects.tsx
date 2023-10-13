@@ -14,17 +14,18 @@ import {
 } from "@tanstack/react-table";
 import TableCheckBox from "../UI/TableCheckBox";
 
-const Reason = ({setSelectedReason,name, value,id}:{
-    setSelectedReason:  React.Dispatch<React.SetStateAction<string | undefined>>
+export const Reason = ({setSelectedReason,name, value,id, label}:{
+    setSelectedReason:  any
     name: string,
     value: string,
-    id: number | string
+    id: string,
+    label: string
 }) => {
     return (
         <div className='flex justify-start'>
-            <input name={name} onChange={(event) => setSelectedReason(event.target.value)} id={id.toString()}
+            <input name={name} onChange={(event) => setSelectedReason(event.target.value)} id={id}
                    type="radio" value={value}/>
-            <label className="ml-[5px]" htmlFor={id.toString()}>{value}</label>
+            <label className="ml-[5px]" htmlFor={id}>{label}</label>
         </div>
     )
 }
@@ -74,10 +75,9 @@ const ChangeProjects = ({selectedAssessor, extendProjects, show}) => {
             enableSorting: false
         })
     ]
-    const {store} = useContext(Context)
     const queryClient = useQueryClient()
     const [selectedReason, setSelectedReason] = useState<string>()
-    const projects = useQuery(['projects'], () => ProjectService.fetchProjects(store.user_id), {
+    const projects = useQuery(['projects'], () => ProjectService.fetchProjects(), {
         onSuccess: data => {
             setAvailableProjects([...data.results.filter(project => extendProjects.find((projectId: number) => projectId === project.id) === undefined)])
         }
@@ -93,7 +93,7 @@ const ChangeProjects = ({selectedAssessor, extendProjects, show}) => {
         } else {
             const mutationPromises = selectedAssessor.map((assessor: any) =>
                 addToProject.mutateAsync({
-                    id: assessor,
+                    id: assessor.original.id,
                     data: {projects: getSelectedProjects(), reason: selectedReason},
                 })
             );
@@ -122,20 +122,20 @@ const ChangeProjects = ({selectedAssessor, extendProjects, show}) => {
         debugTable: false,
     })
     const getSelectedProjects = () => {
-        return table.getRowModel().rows.filter(row => Object.keys(rowSelection).find(key => key.toString() === row.id.toString())).map(row => {
+        return table.getPreFilteredRowModel().rows.filter(row => Object.keys(rowSelection).find(key => key.toString() === row.id.toString())).map(row => {
             return row.original.id
         })}
     const reasons = [
-        {id: 1, value: 'Не смог работать со спецификой проекта',name: 'reason'},
-        {id: 2, value: 'Не сработались',name: 'reason'},
-        {id: 3, value: 'Не понадобился',name: 'reason'},
-        {id: 4, value: 'Усиление другого проекта',name: 'reason'}]
+        {id: 'reason1', value: 'Не смог работать со спецификой проекта',name: 'reason',label: 'Не смог работать со спецификой проекта'},
+        {id: 'reason2', value: 'Не сработались',name: 'reason', label: 'Не сработались'},
+        {id: 'reason3', value: 'Не понадобился',name: 'reason', label: 'Не понадобился'},
+        {id: 'reason4', value: 'Усиление другого проекта',name: 'reason',label: 'Усиление другого проекта'}]
     return (
         <div>
             <div className='w-full'>
                 <h1 className='px-4 border-b border-black mb-2'>Аренда ассессора</h1>
                 <div className='bg-white pb-4'>
-                    {reasons.map(reason => <Reason key={reason.id} setSelectedReason={setSelectedReason} name={reason.name} value={reason.value} id={reason.id}/>)}
+                    {reasons.map(reason => <Reason key={reason.id} label={reason.label} setSelectedReason={setSelectedReason} name={reason.name} value={reason.value} id={reason.id}/>)}
                 </div>
                 <Table pages={true} rowSelection={rowSelection} table={table}/>
                 <div className='flex space-x-2'>

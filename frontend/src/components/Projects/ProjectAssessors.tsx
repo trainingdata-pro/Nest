@@ -14,6 +14,8 @@ import AssessorService from "../../services/AssessorService";
 import AssessorsPageRow from "../Assessors/AssessorsPageRows";
 import ProjectMenu from "./ProjectMenu";
 import DeleteFromProjects from "../AssessorManagement/DeleteFromProjects";
+import {ToastContainer} from "react-toastify";
+import AddToProject from "./AddToProject";
 const statusObject = {
     "full":"Полная загрузка",
     "partial": "Частичная загрузка",
@@ -21,23 +23,23 @@ const statusObject = {
     }
 const ProjectAssessors = () => {
         const {id} = useParams()
-        const {data, isLoading} = useQuery(['projectAssessors'], ()=>AssessorService.fetchAssessors(id))
-        const projectName = useQuery(['projectName'], () => ProjectService.fetchProject(id), {
-
-        })
+        const columnHelper = createColumnHelper<any>()
+        const {data, isLoading} = useQuery(['projectAssessors', id], ()=>AssessorService.fetchAssessors(id))
+        // прокинуть через пропс
+        const projectName = useQuery(['projectName'], () => ProjectService.fetchProject(id), )
         const [addToProject, setAddToProject] = useState(false)
         const [addAssessor, setAddAssessor] = useState(false)
         const [idDeleteFromProject, setIsDeleteFromProject] = useState(false)
         const [selectedAssessors, setSelectedAssessors] = useState<any>([])
         const [assessorsProjects, setAssessorProjects] = useState<any>({})
-    useEffect(()=>{
-        console.log(assessorsProjects)
-    }, [assessorsProjects])
+        const isSelected =()=> {
+            return Object.keys(assessorsProjects).length !== 0
+        }
         if (isLoading) return <div>Загрузка</div>
         return (
             <div>
-                <Dialog isOpen={addToProject}  setIsOpen={setAddToProject}>
-                    <div></div>
+                <Dialog isOpen={addToProject} setIsOpen={setAddToProject}>
+                    <AddToProject/>
                 </Dialog>
                 <Dialog isOpen={addAssessor} setIsOpen={setAddAssessor}>
                     <AddAssessorForm assessorId={projectName.data?.id} showSidebar={addAssessor}
@@ -47,17 +49,16 @@ const ProjectAssessors = () => {
                     <DeleteFromProjects projectId={id} assessorsProjects={assessorsProjects} close={setIsDeleteFromProject}/>
                 </Dialog>
                 <Header/>
-
                 <div className="flex-col container mx-auto pt-[70px] pr-8 pl-8 items-center">
                     <div className="flex justify-between my-2">
                         <div className="flex items-center">
                             <div className="pl-[15px]">{projectName.data?.name}</div>
                         </div>
-                        <div className='flex'>
-                            <ProjectMenu setIsDeleteFromProject={setIsDeleteFromProject}/>
-                            <button className="bg-[#5970F6] text-white py-[8px] px-[15px] mx-2 rounded-[8px]" onClick={() => alert('Пока не работает')}>Добавить на проект</button>
-                            <button className="bg-[#5970F6] text-white py-[8px] px-[15px] mx-2 rounded-[8px]" onClick={() => setAddAssessor(true)}>Добавить ассессора</button>
-                            <button className="border border-[#5970F6] py-[8px] px-[15px] mx-2 rounded-[8px]">Экспорт данных</button>
+                        <div className='flex space-x-2'>
+                            <ProjectMenu setIsDeleteFromProject={setIsDeleteFromProject} isSelected={isSelected}/>
+                            <button className="bg-[#5970F6] text-white py-[8px] px-[15px] rounded-[8px]" onClick={() => setAddToProject(true)}>Добавить на проект</button>
+                            <button className="bg-[#5970F6] text-white py-[8px] px-[15px] rounded-[8px]" onClick={() => setAddAssessor(true)}>Добавить ассессора</button>
+                            <button className="bg-[#5970F6] text-white py-[8px] px-[15px] rounded-[8px]">Экспорт данных</button>
                         </div>
                     </div>
                     <div className="h-full w-full">
@@ -65,6 +66,7 @@ const ProjectAssessors = () => {
                             <table className='w-full'>
                                 <thead>
                                 <tr>
+                                    <th rowSpan={2}></th>
                                     <th colSpan={3}>ФИО</th>
                                     <th colSpan={1} rowSpan={2}>Ник в тг</th>
                                     <th colSpan={7}>Количество рабочих часов</th>
@@ -74,6 +76,7 @@ const ProjectAssessors = () => {
                                     <th colSpan={1} rowSpan={2}></th>
                                 </tr>
                                 <tr>
+
                                     <th>Фамилия</th>
                                     <th>Имя</th>
                                     <th>Отчество</th>

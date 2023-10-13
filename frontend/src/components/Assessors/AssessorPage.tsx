@@ -17,6 +17,9 @@ import Management from "../AssessorManagement/Management";
 import Fired from "../AssessorManagement/Fired";
 import Loader from "../UI/Loader";
 import VacationReturn from "../AssessorManagement/VacationReturn";
+import {toast, ToastContainer} from "react-toastify";
+import Unpin from "../AssessorManagement/Unpin";
+import ReturnFromFreeResources from "../AssessorManagement/ReturnFromFreeResources";
 
 
 export interface AssessorPatch {
@@ -43,24 +46,34 @@ const AssessorPage = () => {
             if (err.response.status === 404) {
                 navigate(-1)
             }
+        },
+        onSuccess: data => {
+            setAssessorState(data.state)
         }
     })
+    const [assessorState, setAssessorState] = useState('')
     const [isShowLoginAndPassword, setIsShowLoginAndPassword] = useState(false)
     const [isShowHistory, setIsShowHistory] = useState(false)
     const [showAddToFreeResource, setShowAddToFreeResource] = useState(false)
     const [openVacation, setOpenVacation] = useState(false)
     const [isOpenFired, setIsOpenFired] = useState(false)
     const [isReturnVacation, setIsReturnVacation] = useState(false)
+    const [unpin, setUnpin] = useState(false)
+    const [isReturnFromFreeResources, setIsReturnFromFreeResources] = useState(false)
     if (assessor.isLoading) {
         return <Loader width={50}/>
     } else {
         return (
             <div>
+
                 <Dialog isOpen={isReturnVacation} setIsOpen={setIsReturnVacation}>
                     <VacationReturn assessorId={id} setIsReturnVacation={setIsReturnVacation}/>
                 </Dialog>
                 <Dialog isOpen={showAddToFreeResource} setIsOpen={setShowAddToFreeResource}>
-                    <FreeResource assessorId={id}/>
+                    <FreeResource assessorId={id} setShowAddToFreeResource={setShowAddToFreeResource}/>
+                </Dialog>
+                <Dialog isOpen={isReturnFromFreeResources} setIsOpen={setIsReturnFromFreeResources}>
+                    <ReturnFromFreeResources assessorId={id} show={setIsReturnFromFreeResources}/>
                 </Dialog>
                 <Dialog isOpen={openVacation} setIsOpen={setOpenVacation}>
                     <Vacation assessorId={id} close={setOpenVacation}/>
@@ -71,13 +84,18 @@ const AssessorPage = () => {
                 <Dialog isOpen={isOpenFired} setIsOpen={setIsOpenFired}>
                     <Fired assessorId={id} close={setIsOpenFired}/>
                 </Dialog>
+                <Dialog isOpen={unpin} setIsOpen={setUnpin}>
+                    <Unpin assessor={assessor.data} assessorId={id} close={setUnpin}/>
+                </Dialog>
                 <Dialog isOpen={isShowLoginAndPassword} setIsOpen={setIsShowLoginAndPassword}>
                     <TableLog assessorId={id} setIsShowLoginAndPassword={setIsShowLoginAndPassword}
                               assessorName={`${assessor.data?.last_name} ${assessor.data?.first_name} ${assessor.data?.middle_name}`}/>
                 </Dialog>
                 <Header/>
                 <div className="px-8 pt-20 space-x-2 flex justify-end mb-2">
-                    <Management assessorState={assessor.data?.state} setIsReturnVacation={setIsReturnVacation} setOpenVacation={setOpenVacation} setIsOpenFired={setIsOpenFired}
+
+
+                    <Management setIsReturnFromFreeResources={setIsReturnFromFreeResources} setUnpin={setUnpin} assessorState={assessorState} setIsReturnVacation={setIsReturnVacation} setOpenVacation={setOpenVacation} setIsOpenFired={setIsOpenFired}
                                 setShowAddToFreeResource={setShowAddToFreeResource}/>
                     <button className='bg-[#5970F6] rounded-md text-white px-4 py-2'
                             onClick={() => setIsShowHistory(true)}>История

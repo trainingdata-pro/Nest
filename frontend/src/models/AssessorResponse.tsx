@@ -60,13 +60,14 @@ export interface Assessor {
     middle_name: string,
     email: string,
     country: string,
-    state: string
+    state: AssessorState
     date_of_registration: string,
     working_hours: WorkingHours[],
     vacation_date: string,
     free_resource_weekday_hours: string,
     free_resource_day_off_hours: string
 }
+type AssessorState = "available" | "busy" | "free_resource" | "vacation" | "blacklist" | "fired"
 
 
 
@@ -83,6 +84,7 @@ export interface AssessorWorkingTime {
 
 export interface AssessorResponse {
     results: Assessor[]
+    next: string
 }
 
 export interface IFreeResources extends Assessor{
@@ -126,4 +128,17 @@ export interface IBlackList {
 }
 export interface IBlackListResponse {
     results: IBlackList[]
+}
+
+export interface IFired {
+    id: number,
+    assessor: Assessor,
+    reason: IReason,
+    date: string,
+    possible_return_date: string
+}
+
+export interface IFiredResponse {
+    results: IFired[]
+    count: number
 }

@@ -2,12 +2,17 @@ import {AxiosResponse} from "axios";
 import $api from "../http";
 import {
     Assessor,
-    AssessorResponse, IBlackListResponse, IFreeResourcesResponse, IHistoryResponse, IReasonResponse,
+    AssessorResponse,
+    IBlackListResponse,
+    IFiredResponse,
+    IFreeResourcesResponse,
+    IHistoryResponse,
+    IReasonResponse,
     SkillResponse,
     WorkingHoursResponse,
     WorkloadStatusResponse
 } from "../models/AssessorResponse";
-import {data} from "autoprefixer";
+
 export type ILoginAndPassword = {
     id: number,
     assessor: Assessor,
@@ -21,9 +26,9 @@ export type LoginAndPasswordResponse = {
 export default class AssessorService{
     static fetchAssessors = (projectId: any) => $api.get<AssessorResponse>(`/api/assessors/?projects=${projectId}`).then(res => res.data)
     static addAssessor = (data:any) => $api.post<Assessor>('/api/assessors/', data).then(res => res.data)
-    static fetchManagersAssessors = () => $api.get<AssessorResponse>('/api/assessors/').then(res => res.data)
+    static fetchManagersAssessors = ( page = 1, manager: number|string = '', second_manager:string|number ='') => $api.get<AssessorResponse>(`/api/assessors/?page=${page}&manager=${manager}&second_manager=${second_manager}`).then(res => res.data)
     static fetchAssessor = (id: any) => $api.get<Assessor>(`/api/assessors/${id}/`).then(res => res.data)
-    static addAssessorProject = (id: string | number, data: string[]) => $api.patch<Assessor>(`/api/assessors/${id}/projects/`, data).then(res => res.data)
+    static addAssessorProject = (id: string | number, data: any) => $api.patch<Assessor>(`/api/assessors/${id}/projects/`, data).then(res => res.data)
     static fetchCredentials = (id: string | number | undefined) => $api.get<LoginAndPasswordResponse>(`/api/credentials/?assessor=${id}`).then((res) => res.data)
     static patchCredentials = (credId: string | number | undefined, data:any) => $api.patch(`/api/credentials/${credId}/`, data)
     static postCredentials = (data:any) => $api.post(`/api/credentials/`, data)
@@ -54,8 +59,12 @@ export default class AssessorService{
     static fetchAssessorSkills(id: string | number):Promise<AxiosResponse<SkillResponse>>{
         return $api.get<SkillResponse>(`/api/skills/${id}/`)
     }
-    static fetchFreeResource = () => $api.get<IFreeResourcesResponse>('/api/free_resources/').then(res => res.data)
+    static fetchFreeResource = (username: string = '', fio:string = '', page = 1, pageLimit: string | number = 10   ) => $api.get<IFreeResourcesResponse>(`/api/free_resources/?username=${username}&full_name=${fio}&page=${page}&page_size=${pageLimit}`).then(res => res.data)
     static patchVacation = (assessorId: string | number |undefined, data: any) => $api.patch(`/api/assessors/${assessorId}/vacation/`, data).then(res => res.data)
     static fetchReasons = () => $api.get<IReasonResponse>('/api/reasons/').then(res => res.data)
     static addAssessorToFired = (id: string| number| undefined, data: any) => $api.patch(`/api/assessors/${id}/fire/`, data).then(res => res.data)
+    static fetchFired = (username: string = '', fio:string = '', page = 1, pageLimit: string | number = 10   ) => $api.get<IFiredResponse>(`/api/fired/?username=${username}&full_name=${fio}&page=${page}&page_size=${pageLimit}`).then(res => res.data)
+    static takeFromFreeResource = (assessorId: string | number, data: any) => $api.patch(`/api/free_resources/${assessorId}/`, data).then(res => res.data)
+    static unpinAssessor = (assessorId: string | number, data: any) => $api.patch(`/api/assessors/${assessorId}/unpin/`, data).then(res => res.data)
+    static returnFromFreeResources = (assessorId:number| string | undefined, data:any) => $api.patch(`/api/assessors/${assessorId}/free_resource/`, data).then(res => res.data)
 }

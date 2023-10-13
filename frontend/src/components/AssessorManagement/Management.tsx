@@ -5,8 +5,24 @@ import {useMutation} from "react-query";
 import AssessorService from "../../services/AssessorService";
 
 // @ts-ignore
-const Management = ({assessorState, setOpenVacation, setShowAddToFreeResource, setIsOpenFired, setIsReturnVacation}) =>
-{
+const Management = ({
+                        setIsReturnFromFreeResources,
+                        setUnpin,
+                        assessorState,
+                        setOpenVacation,
+                        setShowAddToFreeResource,
+                        setIsOpenFired,
+                        setIsReturnVacation
+                    }:
+                        {
+                            setIsReturnFromFreeResources: any,
+                            setUnpin: any,
+                            assessorState: any,
+                            setOpenVacation: any,
+                            setShowAddToFreeResource: any,
+                            setIsOpenFired: any,
+                            setIsReturnVacation: any
+                        }) => {
     const [open, setOpen] = useState(false);
     return (
         <div className="justify-center w-36">
@@ -30,12 +46,20 @@ const Management = ({assessorState, setOpenVacation, setShowAddToFreeResource, s
                         <li onClick={() => setIsReturnVacation(true)}
                             className="w-full cursor-pointer border-b border-black text-center py-2 px-2 text-sm hover:bg-gray-100">
                             Вернуть из отпуска
-                        </li>}
-                    <li onClick={() => setShowAddToFreeResource(true)}
+                        </li>
+                    }
+                    {assessorState !== 'free_resource' ?
+                        <li onClick={() => setShowAddToFreeResource(true)}
+                            className="w-full cursor-pointer border-b border-black text-center py-2 text-sm hover:bg-gray-100">
+                            Отправить в свободные ресурсы
+                        </li> :
+                        <li onClick={() => setIsReturnFromFreeResources(true)}
+                            className="w-full cursor-pointer border-b border-black text-center py-2 text-sm hover:bg-gray-100">
+                            Вернуть из свободных ресурсов
+                        </li>
+                    }
+                    <li onClick={() => setUnpin(true)}
                         className="w-full cursor-pointer border-b border-black text-center py-2 text-sm hover:bg-gray-100">
-                        Отправить в свободные ресурсы
-                    </li>
-                    <li className="w-full cursor-pointer border-b border-black text-center py-2 text-sm hover:bg-gray-100">
                         Открепить от себя
                     </li>
                     <li onClick={() => setIsOpenFired(true)}

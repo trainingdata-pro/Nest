@@ -70,7 +70,6 @@ const AssessorProjectRow = ({project, assessorId}: { project: IAssessorProjects,
                 })
             }
             if (workingHours.isSuccess && workingHours.data.results.length !== 0){
-                console.log(getValues('workingHours'))
                 const data:WorkingHours = getValues('workingHours')
                 const {id, assessor, total,  project, ...rest} = data
 

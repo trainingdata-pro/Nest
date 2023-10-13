@@ -2,15 +2,15 @@ import React, {useState} from 'react';
 import {useQuery} from "react-query";
 import AssessorService from "../../services/AssessorService";
 import FreeResourceTableRow from "../../pages/FreeResourceTableRow";
-import {ToastContainer} from "react-toastify";
+import FiredTableRow from "../../pages/FiredTableRow";
 
-const FreeResource = ({fioQuery, usernameQuery}:
-                          { fioQuery: string,
-                          usernameQuery: string}) => {
-    const header = ['Фамилия', 'Имя', 'Отчество', 'Ник в ТГ', 'Последний руководитель', 'Последний проект', 'Кол-во рабочих часов(Будние)', 'Кол-во рабочих часов(выходные)', 'Навыки']
+const OwnDesires = ({fioQuery, usernameQuery}:
+                        { fioQuery: string,
+                            usernameQuery: string}) => {
+    const header = ['Фамилия', 'Имя', 'Отчество', 'Ник в ТГ', 'Последний руководитель', 'Последний проект', 'Причина увольнения', 'Навыки','Дата ухода','Предполагаемая дата возвращения']
     const [currentPage, setCurrentPage] = useState(1)
     const [pageLimit, setPageLimit] = useState(10)
-    const freeResources = useQuery(['freeResources', currentPage, pageLimit, fioQuery,usernameQuery], () => AssessorService.fetchFreeResource(usernameQuery, fioQuery,currentPage, pageLimit), {
+    const fired = useQuery(['fired', currentPage, pageLimit, fioQuery,usernameQuery], () => AssessorService.fetchFired(usernameQuery, fioQuery,currentPage, pageLimit), {
         onSuccess: (data) => {
             setTotalRows(data.count)
             setCountPages(Math.ceil(data.count / pageLimit))
@@ -18,7 +18,8 @@ const FreeResource = ({fioQuery, usernameQuery}:
         keepPreviousData: true
     })
     const [totalRows, setTotalRows] = useState<number>(0)
-    const [countPages, setCountPages] = useState(1)
+    const [countPages, setCountPages] = useState(0)
+
     return (
         <div>
             <table className="min-w-full text-center">
@@ -29,17 +30,17 @@ const FreeResource = ({fioQuery, usernameQuery}:
                     <th className="py-[20px]"></th>
                 </tr>
                 </thead>
-                {freeResources.data?.results.length !== 0 ?
+                {fired.data?.results.length !== 0 ?
                     <tbody>
-                    {freeResources.data?.results.map(assessor =>
-                        <FreeResourceTableRow key={assessor.id} assessor={assessor}/>)}
+                    {fired.data?.results.map(assessor =>
+                        <FiredTableRow key={assessor.id} assessor={assessor}/>)}
                     </tbody> :
                     <tbody>
-                        <tr>
-                            <td className="p-4 border-b align-middle [&amp;:has([role=checkbox])]:pr-0 h-24 text-center"
-                                colSpan={20}>Нет результатов
-                            </td>
-                        </tr>
+                    <tr>
+                        <td className="p-4 border-b align-middle [&amp;:has([role=checkbox])]:pr-0 h-24 text-center"
+                            colSpan={20}>Нет результатов
+                        </td>
+                    </tr>
                     </tbody>
                 }
 
@@ -47,7 +48,7 @@ const FreeResource = ({fioQuery, usernameQuery}:
             <div className="flex px-2 justify-between space-y-2 border-t dark:border-neutral-500">
                 <div className="flex items-center justify-center text-sm font-medium">
                                                   <span className="items-center gap-1 text-[18px]">
-                                          Страница {freeResources.data?.results.length !== 0 ? currentPage : 0} из {countPages}
+                                          Страница {fired.data?.results.length !== 0 ? currentPage : 0} из {countPages}
                                                   </span>
                 </div>
                 <div className="text-[18px] flex items-center space-x-2 mr-2">
@@ -81,9 +82,8 @@ const FreeResource = ({fioQuery, usernameQuery}:
                     </button>
                 </div>
             </div>
-
         </div>
     );
 };
 
-export default FreeResource;
+export default OwnDesires;

@@ -5,13 +5,13 @@ import MyLabel from "../UI/MyLabel";
 import MyInput from "../UI/MyInput";
 import Error from "../UI/Error";
 import Select from "react-select";
-import {SelectProps} from "../Projects/ProjectForm";
-import {useParams} from "react-router-dom";
 import AssessorService from "../../services/AssessorService";
 
 import {AtSymbolIcon} from '@heroicons/react/24/solid';
-import {useMutation, useQuery} from "react-query";
+import {useMutation, useQuery, useQueryClient} from "react-query";
 import ProjectService from "../../services/ProjectService";
+import {errorNotification, successNotification} from "../UI/Notify";
+import MyButton from "../UI/MyButton";
 
 
 interface FormProps {
@@ -35,14 +35,7 @@ const countryObject = [
     {label: "ПМР", value: "ПМР"},
     {label: "Другое", value: "Другое"},
 ]
-// const stateObject = [
-//     {value: "available", label: "Доступен"},
-//     {value: "busy", label: "Занят"},
-//     {value: "free_resource", label: "Свободный ресурс"},
-//     {value: "vacation", label: "Отпуск"},
-//     {value: "blacklist", label: "Черный список"},
-//     {value: "fired", label: "Уволен"}
-// ]
+
 const statusObject = [
     {value: "full", label: "Полная загрузка"},
     {value: "partial", label: "Частичная загрузка"},
@@ -52,180 +45,238 @@ const AddAssessorForm = ({assessorId, showSidebar, setShowSidebar}: {
         assessorId: number | string | undefined,
         showSidebar: any,
         setShowSidebar: any,
-}) => {
-    const {store} = useContext(Context)
-    const availableProjects = useQuery(['availableProjects'], () => ProjectService.fetchProjects(store.user_id, 1, 'all'), {
-        onSuccess: data => setAvailableProjectsList(data.results.map(project => {
-            return {label: project.name, value: project.id}
-        }))
-    })
-    const [availableProjectsList, setAvailableProjectsList] = useState<any[]>([])
-    const [selectedProjects, setSelectedProjects] = useState<number>()
-    const {register, setValue, watch, reset, getValues, formState: {errors}, handleSubmit} = useForm<FormProps>({
-        defaultValues: {
-            manager: store.user_id,
-        }
-    })
-    const updateAssessorProject = useMutation(['assessors'], ({id, data}:any) => AssessorService.addAssessorProject(id, data), {
-        onSuccess: data => {
-            if (getValues("status")) createWorkloadStatus.mutate({data:{assessor: data.id, project: getValues('projects'), status: getValues('status')}})
-        }
-    })
-    const createWorkloadStatus = useMutation(['assessors'], ({data}:any) => AssessorService.createWorkloadStatus(data))
-    const createAssessor = useMutation(['assessors'], () => AssessorService.addAssessor(getValues()), {
-        onSuccess: data => {
-            if (getValues("projects")) updateAssessorProject.mutate({id: data.id,data: {projects: [getValues('projects')]}})
-        },
-        onError: error => console.log(error)
-    })
-    function submit() {
-        const data = getValues('projects')
-        console.log(data)
-        createAssessor.mutate()
-    }
+    }) => {
+        const {store} = useContext(Context)
+        const queryClient = useQueryClient()
+        const availableProjects = useQuery(['availableProjects'], () => ProjectService.fetchProjects(1), {
+            onSuccess: data => {
+                setAvailableProjectsList(data.results.map(project => {
+                        return {label: project.name, value: project.id}
+                    }
+                ))
+            }
+        })
+        const [availableProjectsList, setAvailableProjectsList] = useState<any[]>([])
+        const [selectedProjects, setSelectedProjects] = useState<number>()
+        const {register, setValue, watch, reset, getValues, formState: {errors}, handleSubmit} = useForm<FormProps>({
+            defaultValues: {
+                manager: store.user_id,
+            }
+        })
+        const updateAssessorProject = useMutation(['projectAssessors',], ({
+                                                                              id,
+                                                                              data
+                                                                          }: any) => AssessorService.addAssessorProject(id, data), {
+            onSuccess: data => {
+                if (getValues("status")) createWorkloadStatus.mutate({
+                    data: {
+                        assessor: data.id,
+                        project: getValues('projects'),
+                        status: getValues('status')
+                    }
+                })
+                queryClient.invalidateQueries('projectAssessors')
+                successNotification('Ассессор успешно назначен на проект')
+                setShowSidebar(false)
+            },
+            onError: (error:any) => {
+                const jsonError = JSON.parse(error.request.responseText)
+                errorNotification(jsonError[Object.keys(jsonError)[0]][0])
+            }
+        })
+        const createWorkloadStatus = useMutation(['projectAssessors'], ({data}: any) => AssessorService.createWorkloadStatus(data), {
+            onSuccess: () => {
+                queryClient.invalidateQueries('projectAssessors')
+                successNotification('Ассессору успешно присвоен статус')
+                setShowSidebar(false)
+            },
+            onError: (error:any) => {
+                const jsonError = JSON.parse(error.request.responseText)
+                errorNotification(jsonError[Object.keys(jsonError)[0]][0])}
 
-    const onChangeProjects = (newValue: any) => {
-        setSelectedProjects(newValue.value)
-        setValue('projects', newValue.value)
+        })
+        const createAssessor = useMutation(['projectAssessors'], ({data}:any) => AssessorService.addAssessor(data), {
+            onSuccess: data => {
+                if (getValues("projects")) updateAssessorProject.mutate({
+                    id: data.id,
+                    data: {projects: [getValues('projects')]}
+                })
+                queryClient.invalidateQueries('projectAssessors')
+                successNotification('Ассессор успешно создан')
+                setShowSidebar(false)
+            },
+            onError: (error:any) => {
+                const jsonError = JSON.parse(error.request.responseText)
+                errorNotification(jsonError[Object.keys(jsonError)[0]][0])
+            }
+        })
 
-    }
-    const [currentStatus, setCurrentStatus] = useState<string>()
-    const [currentCountry, setCurrentCountry] = useState<string>('')
-    const getValueProjects = () => {
-        return selectedProjects ? availableProjectsList.find(p => p.value === selectedProjects) : ''
-    }
-    const onChangeStatus = (newValue: any) => {
-        setCurrentStatus(newValue.value)
-        setValue('status', newValue.value)
-    }
-    const getValueStatus = () => {
-        return currentStatus ? statusObject.find(s => s.value === currentStatus) : ''
-    }
-    const onChangeCountry = (newValue: any) => {
-        setCurrentCountry(newValue.value)
-        setValue('country', newValue.value)
-    }
-    const getValueCountry = () => {
-        return currentCountry ? countryObject.find(c => c.value === currentCountry) : ''
-    }
-    return (
-        <form onSubmit={handleSubmit(submit)}>
-            <FormSection>
-                <MyLabel required={true}>Фамилия</MyLabel>
-                <MyInput placeholder="Фамилия"
-                         type="text"
-                         register={{
-                             ...register('last_name', {
-                                 required: "Обязательное поле",
-                                 pattern: {
-                                     value: /^[А-ЯЁа-яёA-Za-z]+$/,
-                                     message: "Поле должно содержать символы: A-z,А-я"
-                                 }
-                             })
-                         }}/>
-                <Error>{errors.last_name && errors.last_name?.message}</Error>
-            </FormSection>
-            <FormSection>
-                <MyLabel required={true}>Иван</MyLabel>
-                <MyInput register={{
-                    ...register('first_name', {
-                        required: "Обязательное поле",
-                        pattern: {
-                            value: /^[А-ЯЁа-яёA-Za-z]+$/,
-                            message: "Поле должно содержать символы: A-z,А-я"
-                        }
-                    })
-                }}
-                         type="text"
-                         placeholder="Имя"
-                />
-                <Error>{errors.first_name && errors.first_name?.message}</Error>
-            </FormSection>
-            <FormSection>
-                <MyLabel>Отчество</MyLabel>
-                <MyInput register={{
-                    ...register('middle_name', {
-                        pattern: {
-                            value: /^[А-ЯЁа-яёA-Za-z]+$/,
-                            message: "Поле должно содержать символы: A-z,А-я"
-                        }
-                    })
-                }} type="text" placeholder="Отчество"
-                />
-                <Error>{errors.middle_name && errors.middle_name?.message}</Error>
-            </FormSection>
-            <FormSection>
-                <MyLabel required={true}>Ник в ТГ</MyLabel>
-                <div className='flex relative items-center'>
-                    <AtSymbolIcon className="absolute ml-[10px] h-full w-[18px] text-black border-x-black"/>
+        function submit() {
+            const data = getValues()
+            if (getValues('email')) {
+                createAssessor.mutate({data: data})
+            } else {
+                const {email, ...rest} = data
+                createAssessor.mutate({data: rest})
+            }
+
+        }
+
+        const onChangeProjects = (newValue: any) => {
+            setSelectedProjects(newValue.value)
+            setValue('projects', newValue.value)
+
+        }
+        const [currentStatus, setCurrentStatus] = useState<string>()
+        const [currentCountry, setCurrentCountry] = useState<string>('')
+        const getValueProjects = () => {
+            return selectedProjects ? availableProjectsList.find(p => p.value === selectedProjects) : ''
+        }
+        const onChangeStatus = (newValue: any) => {
+            setCurrentStatus(newValue.value)
+            setValue('status', newValue.value)
+        }
+        const getValueStatus = () => {
+            return currentStatus ? statusObject.find(s => s.value === currentStatus) : ''
+        }
+        const onChangeCountry = (newValue: any) => {
+            setCurrentCountry(newValue.value)
+            setValue('country', newValue.value)
+        }
+        const getValueCountry = () => {
+            return currentCountry ? countryObject.find(c => c.value === currentCountry) : ''
+        }
+        return (
+            <form className='min-w-[30rem] pt-4' onSubmit={handleSubmit(submit)}>
+                <FormSection>
+                    <div className='flex justify-between'>
+                        <MyLabel required={true}>Фамилия</MyLabel>
+                        <Error>{errors.last_name && errors.last_name?.message}</Error>
+                    </div>
+                    <MyInput placeholder="Фамилия"
+                             type="text"
+                             register={{
+                                 ...register('last_name', {
+                                     required: "Обязательное поле",
+                                     pattern: {
+                                         value: /^[А-ЯЁа-яёA-Za-z]+$/,
+                                         message: "Поле должно содержать символы: A-z,А-я"
+                                     }
+                                 })
+                             }}/>
+
+                </FormSection>
+                <FormSection>
+                    <div className='flex justify-between'>
+                        <MyLabel required={true}>Имя</MyLabel>
+                        <Error>{errors.first_name && errors.first_name?.message}</Error>
+                    </div>
                     <MyInput register={{
-                        ...register('username', {
+                        ...register('first_name', {
                             required: "Обязательное поле",
                             pattern: {
-                                value: /^[A-Za-z\d_]{5,32}$/,
-                                message: "Никнейм должен содержать символы:A-z, _ Длина: 5-32 символа"
+                                value: /^[А-ЯЁа-яёA-Za-z]+$/,
+                                message: "Поле должно содержать символы: A-z,А-я"
                             }
                         })
-                    }} type="text" placeholder="Ник в ТГ"
-                    />
-                </div>
-                <Error>{errors.username && errors.username?.message}</Error>
-            </FormSection>
-            <FormSection>
-                <MyLabel>Проект</MyLabel>
-                <Select
-                    {...register('projects')}
-                    options={availableProjectsList}
-                    isSearchable={false}
-                    // isDisabled={!!getValues('projects')}
-                    value={getValueProjects()}
-                    onChange={onChangeProjects}
-                />
-            </FormSection>
-            <FormSection>
-                <MyLabel>Статус</MyLabel>
-                <Select
-                    {...register('status')}
-                    isDisabled={!getValues('projects')}
-                    options={statusObject}
-                    value={getValueStatus()}
-                    onChange={onChangeStatus}
-                />
-            </FormSection>
-            <FormSection>
-                <MyLabel>Страна</MyLabel>
-                <Select
-                    {...register('country')}
-                    options={countryObject}
-                    value={getValueCountry()}
-                    onChange={onChangeCountry}
-                />
-            </FormSection>
-            <FormSection>
-                <MyLabel>Почта</MyLabel>
-                <MyInput
-                    register={{
-                        ...register('email', {
-                            pattern: {
-                                value: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+[.][a-zA-Z]{2,}$/,
-                                message: "Неверно указана почта"
-                            },
-                        })
                     }}
-                    placeholder='Почта'
-                    type="text"
-                />
-                <Error>{errors.email && errors.email?.message}</Error>
-            </FormSection>
-            <div className="w-full pt-3">
-                <button
-                    className="bg-black text-white rounded-md text-sm font-medium disabled:opacity-50 transition-colors hover:bg-primary/90 h-10 py-2 px-4"
-                    type="submit">Сохранить
-                </button>
-            </div>
-        </form>
-    );
-}
+                             type="text"
+                             placeholder="Имя"
+                    />
+
+                </FormSection>
+                <FormSection>
+                    <div className='flex justify-between'>
+                        <MyLabel>Отчество</MyLabel>
+                        <Error>{errors.middle_name && errors.middle_name?.message}</Error>
+                    </div>
+                    <MyInput register={{
+                        ...register('middle_name', {
+                            pattern: {
+                                value: /^[А-ЯЁа-яёA-Za-z]+$/,
+                                message: "Поле должно содержать символы: A-z,А-я"
+                            }
+                        })
+                    }} type="text" placeholder="Отчество"
+                    />
+
+                </FormSection>
+                <FormSection>
+                    <div className='flex justify-between'>
+                        <MyLabel required={true}>Ник в ТГ</MyLabel>
+                        <Error>{errors.username && errors.username?.message}</Error>
+                    </div>
+                    <div className='flex relative items-center'>
+                        <AtSymbolIcon className="absolute ml-[10px] h-full w-[18px] text-black border-x-black"/>
+                        <MyInput register={{
+                            ...register('username', {
+                                required: "Обязательное поле",
+                                pattern: {
+                                    value: /^[A-Za-z\d_]{5,32}$/,
+                                    message: "Доступные символы:A-z, _ Длина: 5-32 символа"
+                                }
+                            })
+                        }} type="text" placeholder="Ник в ТГ" className='pl-[32px]'
+                        />
+                    </div>
+
+                </FormSection>
+                <FormSection>
+                    <MyLabel>Проект</MyLabel>
+                    <Select
+                        {...register('projects')}
+                        options={availableProjectsList}
+                        isSearchable={false}
+                        // isDisabled={!!getValues('projects')}
+                        value={getValueProjects()}
+                        onChange={onChangeProjects}
+                    />
+                </FormSection>
+                <FormSection>
+                    <MyLabel>Статус</MyLabel>
+                    <Select
+                        {...register('status')}
+                        isDisabled={!getValues('projects')}
+                        options={statusObject}
+                        value={getValueStatus()}
+                        onChange={onChangeStatus}
+                    />
+                </FormSection>
+                <FormSection>
+                    <MyLabel>Страна</MyLabel>
+                    <Select
+                        {...register('country')}
+                        options={countryObject}
+                        value={getValueCountry()}
+                        onChange={onChangeCountry}
+                    />
+                </FormSection>
+                <FormSection>
+                    <div className='flex justify-between'>
+                        <MyLabel>Почта</MyLabel>
+                        <Error>{errors.email && errors.email?.message}</Error>
+                    </div>
+                    <MyInput
+                        register={{
+                            ...register('email', {
+                                pattern: {
+                                    value: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+[.][a-zA-Z]{2,}$/,
+                                    message: "Неверно указана почта"
+                                },
+                            })
+                        }}
+                        placeholder='Почта'
+                        type="text"
+                    />
+
+                </FormSection>
+                <div className="flex pt-3 space-x-2">
+                    <MyButton onClick={() => setShowSidebar(false)}>Назад</MyButton>
+                    <MyButton>Сохранить</MyButton>
+                </div>
+            </form>
+        );
+    }
 ;
 
 export default AddAssessorForm;

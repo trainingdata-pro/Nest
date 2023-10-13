@@ -54,27 +54,65 @@ const Profile = ({setIsOpen}: {
             </div>
             <FormSection>
                 <MyLabel required={true}>Фамилия</MyLabel>
-                <MyInput autoComplete="new-last_name" register={{...register('last_name')}} type="text" placeholder="Фамилия"/>
+                <MyInput autoComplete="new-last_name" register={{...register('last_name', {
+                        pattern: {
+                            value: /^[А-ЯЁа-яёA-Za-z]+$/,
+                            message: "Поле должно содержать символы: A-z,А-я"
+                        },
+                        required: {
+                            value: true,
+                            message: 'Обязательное поле'
+                        }
+                    })}} type="text" placeholder="Фамилия"/>
             </FormSection>
             <FormSection>
 
                 <MyLabel required={true}>Имя</MyLabel>
-                <MyInput autoComplete="new-first_name" register={{...register('first_name')}} type="text" placeholder="Имя"/>
+                <MyInput autoComplete="new-first_name" register={{...register('first_name', {
+                        pattern: {
+                            value: /^[А-ЯЁа-яёA-Za-z]+$/,
+                            message: "Поле должно содержать символы: A-z,А-я"
+                        },
+                        required: {
+                            value: true,
+                            message: 'Обязательное поле'
+                        }
+                    })}} type="text" placeholder="Имя"/>
             </FormSection>
             <FormSection>
 
                 <MyLabel required={false}>Отчество</MyLabel>
-                <MyInput register={{...register('middle_name')}} type="text" placeholder="Отчество"/>
+                <MyInput register={{...register('middle_name', {
+                        pattern: {
+                            value: /^[А-ЯЁа-яёA-Za-z]+$/,
+                            message: "Поле должно содержать символы: A-z,А-я"
+                        },
+                    })}} type="text" placeholder="Отчество"/>
             </FormSection>
             <FormSection>
 
                 <MyLabel required={true}>Ник в ТГ</MyLabel>
-                <MyInput register={{...register('username')}} type="text" placeholder="Ник в ТГ"/>
+                <MyInput register={{...register('username', {
+                        pattern: {
+                            value: /^[A-Za-z\d_]{5,32}$/,
+                            message: "Никнейм должен содержать символы:A-z, _ Длина: 5-32 символа"
+                        },
+                        required: {
+                            value: true,
+                            message: 'Обязательное поле'
+                        }
+                    })}} type="text" placeholder="Ник в ТГ"/>
             </FormSection>
             <FormSection>
 
                 <MyLabel required={true}>Ответственный TeamLead</MyLabel>
-                <MyInput disabled register={{...register('teamlead')}} type="text"
+                <MyInput disabled register={{...register('teamlead', {
+
+                        required: {
+                            value: true,
+                            message: 'Обязательное поле'
+                        }
+                    })}} type="text"
                          placeholder="Ответственный TeamLead"/>
             </FormSection>
             <FormSection>
