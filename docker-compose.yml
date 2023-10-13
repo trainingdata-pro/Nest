@@ -40,8 +40,8 @@ services:
     env_file:
       - ./backend/.env
     command: bash -c "celery -A config.celery worker --loglevel=info"
-    volumes:
-      - ./backend/src/media:home/assessors/backend/src/media
+#    volumes:
+#      - ./backend/src/media:home/assessors/backend/src/media
     depends_on:
       - redis
     networks:
