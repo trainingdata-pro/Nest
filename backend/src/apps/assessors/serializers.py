@@ -529,7 +529,7 @@ class UpdateFreeResourceSerializer(GetUserMixin, serializers.ModelSerializer):
                 raise ValidationError(
                     {'second_manager': ['Укажите дополнительного менеджера.']}
                 )
-            if projects is None:
+            if not projects:
                 raise ValidationError(
                     {'projects': ['Укажите проекты.']}
                 )
