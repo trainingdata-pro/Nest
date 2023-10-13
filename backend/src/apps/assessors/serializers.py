@@ -94,7 +94,7 @@ class CreateUpdateAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
 
     def update(self, instance: Assessor, validated_data: Dict) -> Assessor:
         assessor = super().update(instance, validated_data)
-        assessor = assessors_service.check_and_change_state(assessor)
+        assessor = assessors_service.check_and_update_state(assessor)
 
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
@@ -131,7 +131,7 @@ class AssessorProjectsSerializer(GetUserMixin, serializers.ModelSerializer):
             instance=assessor,
             manager=manager
         )
-        assessors_service.check_and_change_state(assessor)
+        assessors_service.check_and_update_state(assessor)
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
             new_assessor=assessor,
