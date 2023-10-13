@@ -6,7 +6,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>{
 
 const MyButton = ({children, ...props}: ButtonProps) => {
     return (
-        <button {...props} className="bg-[#5970F6] text-white w-full rounded-md mt-2 py-2">{children}</button>
+        <button {...props} className="bg-[#5970F6] text-white rounded-[8px] py-[8px] px-[15px]">{children}</button>
     );
 };
 
