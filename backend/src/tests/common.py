@@ -1,83 +1,121 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+from django.test import Client
 from django.urls import reverse
 
-from apps.assessors import Assessor
-from apps.projects import Project
-from apps.users import Manager
+from apps.assessors.models import Assessor, AssessorState
+from apps.assessors.services import assessors_service
+from apps.projects.models import Project
+from apps.projects.services import project_service
+from apps.users.models import BaseUser, ManagerProfile
+from apps.users.services import user_service, profile_service
+from core.users import UserStatus
+
+
+user_model = get_user_model()
+username_field = user_model.USERNAME_FIELD
 
 
 class BaseTestConfig:
-    NOT_ACTIVE_USER_DATA = {
+    NOT_ACTIVE_MANAGER_DATA = {
         'id': 1,
-        'username': 'not_active',
+        'username': 'not_active_manager',
         'password': 'test_password123',
         'email': 'not_active@trainingdata.pro',
+        'last_name': 'Ivanov',
+        'first_name': 'Ivan',
+        'middle_name': 'Ivanovich',
+        'status': UserStatus.MANAGER,
         'is_active': False
     }
 
-    ACTIVE_USER_DATA = {
+    ACTIVE_MANAGER_DATA = {
         'id': 2,
-        'username': 'active',
+        'username': 'active_manager',
         'password': 'test_password123',
         'email': 'active@trainingdata.pro',
+        'last_name': 'Petrov',
+        'first_name': 'Petr',
+        'middle_name': 'Petrovich',
+        'status': UserStatus.MANAGER,
         'is_active': True
     }
 
-    MANAGER_DATA = {
-        'last_name': 'Ivanov',
-        'first_name': 'Ivan',
-        'middle_name': 'Ivanovich'
+    TEAMLEAD_DATA = {
+        'id': 3,
+        'username': 'teamlead',
+        'password': 'test_password123',
+        'email': 'teamlead@trainingdata.pro',
+        'last_name': 'Semenov',
+        'first_name': 'Semen',
+        'middle_name': 'Semenovich',
+        'is_active': True
+    }
+
+    TEAMLEAD_PROFILE_DATA = {
+        'is_teamlead': True
+    }
+
+    MANAGER_PROFILE_DATA = {
+        'is_teamlead': False
     }
 
     PROJECT_DATA = {
         'id': 1,
+        'asana_id': '1A',
         'name': 'test project'
     }
     ASSESSOR_DATA = {
         'id': 1,
         'username': 'assessor',
-        'last_name': 'Assessor',
-        'first_name': 'Assessor',
-        'middle_name': 'middle_name'
+        'last_name': 'AssessorLastName',
+        'first_name': 'AssessorFirstName',
+        'middle_name': 'AssessorMiddleName',
+        'state': 'available'
+    }
+    ASSESSOR_DATA2 = {
+        'id': 2,
+        'username': 'assessor2',
+        'last_name': 'AssessorLastName',
+        'first_name': 'AssessorFirstName',
+        'middle_name': 'AssessorMiddleName',
+        'state': 'available'
     }
 
     @staticmethod
-    def create_test_user(**data):
-        return User.objects.create_user(**data)
+    def create_test_user(**data) -> BaseUser:
+        return user_service.create_user(**data)
 
-    def create_default_manager(self):
-        user = self.create_test_user(**self.ACTIVE_USER_DATA)
-        manager = self.create_test_manager(user=user, **self.MANAGER_DATA)
-
-        return manager
-
-    @staticmethod
-    def create_test_manager(**data):
-        return Manager.objects.create(**data)
+    def create_default_active_manager(self) -> BaseUser:
+        user = self.create_test_user(**self.ACTIVE_MANAGER_DATA)
+        self.create_test_manager_profile(user=user, **self.MANAGER_PROFILE_DATA)
+        return user
 
     @staticmethod
-    def create_test_project(**data):
-        return Project.objects.create(**data)
+    def create_test_manager_profile(user: BaseUser, **data) -> ManagerProfile:
+        return profile_service.create_profile(user, **data)
 
     @staticmethod
-    def create_test_assessor(*projects, **data):
-        assessor = Assessor.objects.create(**data)
+    def create_test_project(**data) -> Project:
+        return project_service.create_project(**data)
+
+    @staticmethod
+    def create_test_assessor(*projects, **data) -> Assessor:
+        assessor = assessors_service.create_assessor(**data)
         if projects:
             assessor.projects.add(*projects)
-            assessor.save()
 
+        assessor = assessors_service.check_and_update_state(assessor)
         return assessor
 
     @staticmethod
-    def get_auth_token(client, username, password):
+    def get_auth_token(client: Client, username: str, password: str) -> str:
         url = reverse('token_obtain_pair')
         response = client.post(url, {
-            'username': username,
+            f'{username_field}': username,
             'password': password
         })
 
         access = response.data.get('access')
-
         return f'Bearer {access}'
 
 
