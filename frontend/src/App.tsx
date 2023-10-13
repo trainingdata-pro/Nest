@@ -13,6 +13,8 @@ import AssessorPage from './components/Assessors/AssessorPage';
 import CompletedProjects from "./pages/CompletedProjects";
 import BlackList from "./components/BlackList/BlackList";
 import FreeResourcePage from "./pages/FreeResourcePage";
+import RentAssessor from "./components/AssessorManagement/RentAssessor";
+import RentAssessors from './components/Assessors/RentAssessors';
 
 function App() {
     const {store} = useContext(Context)
@@ -39,7 +41,8 @@ function App() {
                  <Routes>
                      <Route path={'/dashboard/projects'} element={<MainPage/>}/>
                      <Route path={'/dashboard/projects/:id/assessors'} element={<ProjectAssessors/>}/>
-                     <Route path={'/dashboard/assessors'} element={<AssessorsPage/>}/>
+                     <Route path={'/dashboard/assessors/my'} element={<AssessorsPage/>}/>
+                     <Route path={'/dashboard/assessors/rent'} element={<RentAssessors/>}/>
                      <Route path={'/assessor/:id'} element={<AssessorPage/>}/>
                      <Route path={'/dashboard/projects/free'} element={<CompletedProjects/>} />
                      <Route path={'/assessors/blacklist'} element={<BlackList/>} />

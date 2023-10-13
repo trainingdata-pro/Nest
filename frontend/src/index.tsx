@@ -6,6 +6,7 @@ import "./index.css"
 import React from 'react';
 import RootStore from "./store/store";
 import {QueryClient, QueryClientProvider} from "react-query";
+import {ToastContainer} from "react-toastify";
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
@@ -22,6 +23,7 @@ export const Context = createContext<State>({store});
 root.render(
     <Context.Provider value={{store}}>
         <QueryClientProvider client={queryClient}>
+            <ToastContainer />
             <App/>
         </QueryClientProvider>
     </Context.Provider>

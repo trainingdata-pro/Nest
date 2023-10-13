@@ -1,31 +1,28 @@
-import React, {HTMLProps, useContext, useEffect, useState} from 'react';
-import MyTable from "../UI/Table";
+import React, {useContext, useState} from 'react';
+import {useQuery} from "react-query";
 import AssessorService from "../../services/AssessorService";
-import AddAssessorForm from "./AddAssessorForm";
-import Dialog from "../UI/Dialog";
-import Header from "../Header/Header";
-import {useInfiniteQuery, useQuery, useQueryClient} from "react-query";
+import {useNavigate} from "react-router-dom";
+import TableCheckBox from "../UI/TableCheckBox";
 import {
     createColumnHelper,
     getCoreRowModel, getFilteredRowModel,
     getPaginationRowModel,
-    getSortedRowModel, SortingState,
+    getSortedRowModel,
+    SortingState,
     useReactTable
 } from "@tanstack/react-table";
-import {Assessor} from "../../models/AssessorResponse";
-import {useNavigate} from "react-router-dom";
-import {ToastContainer} from "react-toastify";
-import MyButton from "../UI/MyButton";
-import $api from "../../http";
-import AssessorsManagement from "./AssessorsManagement";
+import Dialog from "../UI/Dialog";
+import AddAssessorForm from "./AddAssessorForm";
 import ChangeProjects from "./ChangeProjects";
-import TableCheckBox from '../UI/TableCheckBox';
 import AddToProject from "./AddToProject";
 import RemoveAssessorsFromProjects from "./RemoveAssessorsFromProjects";
+import Header from "../Header/Header";
+import MyButton from "../UI/MyButton";
+import AssessorsManagement from "./AssessorsManagement";
+import MyTable from "../UI/Table";
+import {Assessor} from "../../models/AssessorResponse";
 import {Context} from "../../index";
-
 const columnHelper = createColumnHelper<Assessor>()
-
 const stateObject = {
     "available": "Доступен",
     "busy": "Занят",
@@ -34,11 +31,9 @@ const stateObject = {
     "blacklist": "Черный список",
     "fired": "Уволен",
 }
-
-const AssessorsPage = () => {
-    const [assessorsType, setAssessorsType] = useState('my')
+const RentAssessors = () => {
+    const [assessorsType, setAssessorsType] = useState('rent')
     const navigate = useNavigate()
-
     const assessors = useQuery(['assessors', assessorsType], () => fetchAllData())
     const {store} = useContext(Context)
     async function fetchAllData() {
@@ -46,7 +41,7 @@ const AssessorsPage = () => {
         let currentPage = 1;
         let hasMoreData = true;
         while (hasMoreData) {
-            const data = await AssessorService.fetchManagersAssessors(currentPage, store.user_id ,'');
+            const data = await AssessorService.fetchManagersAssessors(currentPage, '', store.user_id);
             allData.push(...data.results);
             if (data.next !== null) {
                 currentPage++;
@@ -189,19 +184,19 @@ const AssessorsPage = () => {
             <Header/>
             <div className='pt-20'>
                 <div className='flex justify-between'>
-                <nav className='px-8 flex justify-start mb-2 space-x-2'>
-                    <MyButton>Привязанные ассессоры</MyButton>
-                    <MyButton onClick={() => navigate('/dashboard/assessors/rent')}>Арендованные ассессоры</MyButton>
-                </nav>
-                    <div className='px-8 flex justify-start mb-2 space-x-2'><p className='my-auto'>Привязанные ассессоры</p></div>
-                <nav className='px-8 flex justify-end mb-2 space-x-2'>
-                    <AssessorsManagement type={assessorsType} setShowRemoveAssessors={setShowRemoveAssessors}
-                                         setShowAddProject={setShowAddProject}
-                                         availableAddProject={getSelectedAssessors().length !== 0}
-                                         availableChangeProject={getSelectedAssessors().length !== 0}
-                                         setShowChangeProject={setShowChangeProject}/>
-                    <MyButton onClick={() => setShowSidebar(true)}>Создать асессора</MyButton>
-                </nav>
+                    <nav className='px-8 flex justify-start mb-2 space-x-2'>
+                        <MyButton onClick={() => navigate('/dashboard/assessors/my')}>Привязанные ассессоры</MyButton>
+                        <MyButton onClick={() => setAssessorsType('rent')}>Арендованные ассессоры</MyButton>
+                    </nav>
+                    <div className='px-8 flex justify-start mb-2 space-x-2'><p className='my-auto'>Арендованные ассессоры</p></div>
+                    <nav className='px-8 flex justify-end mb-2 space-x-2'>
+                        <AssessorsManagement type={assessorsType} setShowRemoveAssessors={setShowRemoveAssessors}
+                                             setShowAddProject={setShowAddProject}
+                                             availableAddProject={getSelectedAssessors().length !== 0}
+                                             availableChangeProject={getSelectedAssessors().length !== 0}
+                                             setShowChangeProject={setShowChangeProject}/>
+                        <MyButton onClick={() => setShowSidebar(true)}>Создать асессора</MyButton>
+                    </nav>
                 </div>
                 <div className="flex px-8">
                     <MyTable table={table} rowSelection={rowSelection} pages={true}/>
@@ -212,4 +207,4 @@ const AssessorsPage = () => {
     );
 };
 
-export default AssessorsPage;
+export default RentAssessors;

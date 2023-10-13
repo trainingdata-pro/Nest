@@ -1,6 +1,7 @@
 import React from 'react';
 import {useMutation, useQueryClient} from "react-query";
 import AssessorService from "../../services/AssessorService";
+import {errorNotification, successNotification} from "../UI/Notify";
 
 
 const VacationReturn = ({assessorId,setIsReturnVacation}: {
@@ -13,7 +14,12 @@ const VacationReturn = ({assessorId,setIsReturnVacation}: {
         onSuccess: () => {
             queryClient.invalidateQueries('assessorHistory')
             queryClient.invalidateQueries(['currentAssessor', assessorId])
-            setIsReturnVacation(true)
+            successNotification('Ассесор возвращен из отпуска')
+            setIsReturnVacation(false)
+        }, onError: (error:any) => {
+            const jsonError = JSON.parse(error.request.responseText)
+            console.log(jsonError[Object.keys(jsonError)[0]])
+            errorNotification(jsonError[Object.keys(jsonError)[0]][0])
         }
     })
 
