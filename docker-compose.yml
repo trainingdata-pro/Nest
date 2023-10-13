@@ -7,7 +7,7 @@ services:
     command: bash -c "python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       - static_volume:/home/assessors/backend/src/static
-      - ./backend/src/media:home/assessors/backend/src/media
+      - ./backend/src/media:/home/assessors/backend/src/media
     expose:
       - 8000
     networks:
@@ -41,7 +41,7 @@ services:
       - ./backend/.env
     command: bash -c "celery -A config.celery worker --loglevel=info"
     volumes:
-      - ./backend/src/media:home/assessors/backend/src/media
+      - ./backend/src/media:/home/assessors/backend/src/media
     depends_on:
       - redis
     networks:
