@@ -1,32 +1,110 @@
-import React, {ChangeEvent, useContext, useState} from 'react';
+import React, {useContext} from 'react';
 import {useMutation, useQuery, useQueryClient} from "react-query";
 import AssessorService from "../../services/AssessorService";
 import {errorNotification, successNotification} from "../UI/Notify";
 import ProjectService from "../../services/ProjectService";
 import {Context} from "../../index";
-import TablePagination from "../UI/TablePagination";
+import Table from "../UI/Table";
+import {createColumnHelper, getCoreRowModel, getPaginationRowModel, useReactTable} from "@tanstack/react-table";
+import {Project} from "../../models/ProjectResponse";
+import TableCheckBox from "../UI/TableCheckBox";
+import MyButton from "../UI/MyButton";
 
 
-// @ts-ignore
-const RentAssessor = ({assessorId, show}) => {
+const RentAssessor = ({assessorId, show}:{
+    assessorId: string | number,
+    show: React.Dispatch<boolean>
+}) => {
     const queryClient = useQueryClient()
+    const columnHelperT = createColumnHelper<Project>()
+    const columns = [
+        columnHelperT.accessor('id', {
+            header: ({table}) => (
+                <TableCheckBox
+                    {...{
+                        checked: table.getIsAllRowsSelected(),
+                        indeterminate: table.getIsSomeRowsSelected(),
+                        onChange: table.getToggleAllRowsSelectedHandler(),
+                    }}
+                />
+            ),
+            cell: ({row}) => (
+                <div className="px-1">
+                    <TableCheckBox
+                        {...{
+                            checked: row.getIsSelected(),
+                            disabled: !row.getCanSelect(),
+                            indeterminate: row.getIsSomeSelected(),
+                            onChange: row.getToggleSelectedHandler(),
+                        }}
+                    />
+                </div>
+            ),
+            enableSorting: false,
+            maxSize: 30
+        }),
+        columnHelperT.accessor('asana_id', {
+            header: 'Asana ID',
+            cell: info => info.getValue(),
+            enableSorting: false,
+
+        }),
+        columnHelperT.accessor('name', {
+            cell: info => info.getValue(),
+            header: 'Название',
+            enableSorting: false
+        }),
+        columnHelperT.accessor('assessors_count', {
+            header: 'Количество ассессеров',
+            cell: info => info.getValue(),
+            enableSorting: false
+        })
+    ]
     const {store} = useContext(Context)
-    const [currentPage, setCurrentPage] = useState(1)
-    const [pageLimit, setPageLimit] = useState(10)
     const {
         data,
-        isLoading,
-    } = useQuery(['projects', currentPage, pageLimit], () => ProjectService.fetchProjects(currentPage),{
-        onSuccess: (data) => {
-            setTotalProjects(data.count)
-            setCountPages(Math.ceil(data.count/pageLimit))
-        },
+    } = useQuery(['projects'], () => fetchAllData(), {
         keepPreviousData: true
     })
-    const [totalProjects, setTotalProjects] = useState<number>(0)
-    const [countPages, setCountPages] = useState(1)
-    const [selectedProjects, setSelectedProjects] = useState<any[]>([])
-    const rentAssessor = useMutation(['assessors'], () => AssessorService.takeFromFreeResource(assessorId, {second_manager: store.user_id, projects: [...selectedProjects]}), {
+
+    async function fetchAllData() {
+        const allData = [];
+        let currentPage = 1;
+        let hasMoreData = true;
+        while (hasMoreData) {
+            const data = await ProjectService.fetchProjects(currentPage);
+            allData.push(...data.results);
+            if (data.next !== null) {
+                currentPage++;
+            } else {
+                hasMoreData = false;
+            }
+        }
+        return allData;
+    }
+
+    const [rowSelection, setRowSelection] = React.useState({})
+    const table = useReactTable({
+        data: data ? data : [],
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        state: {
+            rowSelection,
+        },
+        enableRowSelection: true,
+        onRowSelectionChange: setRowSelection,
+        debugTable: false,
+    })
+    const getSelectedProjects = () => {
+        return table.getPreFilteredRowModel().rows.filter(row => Object.keys(rowSelection).find(key => key.toString() === row.id.toString())).map(row => {
+            return row.original.id
+        })
+    }
+    const rentAssessor = useMutation(['assessors'], () => AssessorService.takeFromFreeResource(assessorId, {
+        second_manager: store.user_id,
+        projects: [...getSelectedProjects()]
+    }), {
         onSuccess: () => {
             queryClient.invalidateQueries('assessors')
             queryClient.invalidateQueries('freeResources')
@@ -37,59 +115,22 @@ const RentAssessor = ({assessorId, show}) => {
         }
     })
 
-    const SelectProject = (event: ChangeEvent<HTMLInputElement>) => {
-        if (event.target.value) {
-            if (selectedProjects.length === 0){
-                setSelectedProjects([event.target.value])
-            } else {
-                setSelectedProjects([...selectedProjects, event.target.value])
-            }
-        } else {
-            setSelectedProjects(selectedProjects.filter(project => project.toString() !== event.target.value.toString()))
-        }
-    }
     const submit = () => {
-        rentAssessor.mutate()
-    }
-    const header = ['', 'Asana ID', 'Название проекта', 'Количество исполнителей']
+        if (Object.keys(rowSelection).length !== 0){
+            rentAssessor.mutate()
+        } else {
+            errorNotification('Выберите хотя бы 1 проект')
+        }
 
+    }
     return (
         <div>
             <div className='w-full'>
                 <h1 className='px-4 border-b border-black mb-2'>Аренда ассессора</h1>
-                <div className='rounded-[20px] bg-white overflow-hidden pb-4'>
-                    <table className="min-w-full text-center">
-                        <thead className="">
-                        <tr className="bg-[#E7EAFF]">
-                            {header.map((col, index) => <th key={index}
-                                                            className="border-r dark:border-neutral-500 last:border-none px-[5px] py-[20px]">{col}</th>)}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {data?.results.length !== 0 ? (data?.results.map(project => <tr key={project.id} className="text-center border-t dark:border-neutral-500">
-                                <td className="whitespace-pre-wrap border-r dark:border-neutral-500 px-[5px] py-[20px]"><input name='project' value={project.id} onChange={SelectProject} type={"checkbox"}/></td>
-                                <td className="whitespace-pre-wrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{project.asana_id}</td>
-                                <td className="break-all border-r max-w-[12rem] dark:border-neutral-500 px-[5px] py-[20px]">{project.name}</td>
-                                <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[20px]">{project.assessors_count}</td>
-                            </tr>)) :
-                            (<tr>
-                                <td className="p-4 border-b align-middle [&amp;:has([role=checkbox])]:pr-0 h-24 text-center"
-                                    colSpan={20}>Нет результатов
-                                </td>
-                            </tr>)
-                        }
-                        </tbody>
-
-                    </table>
-                    <TablePagination totalProjects={data?.results.length} currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={countPages} pageLimit={pageLimit} setPageLimit={setPageLimit}/>
-                </div>
+                <Table pages={true} rowSelection={rowSelection} table={table}/>
                 <div className='flex space-x-2'>
-                    <button className='bg-[#5970F6] text-white w-full rounded-md mt-2 py-2'
-                            onClick={() => show(false)}>Назад
-                    </button>
-                    <button className='bg-[#5970F6] text-white w-full rounded-md mt-2 py-2'
-                           onClick={submit} >Сохранить
-                    </button>
+                    <MyButton onClick={() => show(false)}>Назад</MyButton>
+                    <MyButton onClick={submit}>Сохранить</MyButton>
                 </div>
             </div>
         </div>
