@@ -1,12 +1,11 @@
-from typing import Iterable
+from typing import List
 
-from celery import shared_task
-
+from config.celery import app
 from .export import ProjectExport
 
 
-@shared_task
-def make_report(export_type: str, team: Iterable[int]) -> str:
+@app.task
+def make_report(export_type: str, team: List[int]) -> str:
     exporter = ProjectExport(export_type)
     filename = exporter.export(team)
     return filename

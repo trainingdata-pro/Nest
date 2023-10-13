@@ -27,17 +27,17 @@ class BaseExportService:
     model: Model
     file_prefix: str
 
-    def __init__(self, export_type: str, *args, **kwargs):
+    def __init__(self, export_type: str):
         self.export_type = export_type
 
     def export(self, *args, **kwargs) -> str:
-        raise NotImplementedError('`export()` must be implemented.')
+        raise NotImplementedError('"export()" must be implemented.')
 
     def get_values(self, *args, **kwargs) -> QuerySet:
-        raise NotImplementedError('`get_values()` must be implemented.')
+        raise NotImplementedError('"get_values()" must be implemented.')
 
     def parse(self, queryset: QuerySet) -> List[List[Any]]:
-        raise NotImplementedError('`parse()` must be implemented.')
+        raise NotImplementedError('"parse()" must be implemented.')
 
     def get_headers(self) -> List[str]:
         headers = [field.verbose_name for field in self.model._meta.fields]

@@ -70,9 +70,9 @@ class Project(models.Model):
         blank=True,
         null=True
     )
-    unloading_regularity = models.IntegerField(
+    unloading_regularity = models.CharField(
         verbose_name='регулярность выгрузок',
-        validators=[not_negative_value_validator],
+        max_length=255,
         blank=True,
         null=True
     )
