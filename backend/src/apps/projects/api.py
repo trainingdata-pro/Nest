@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, Any
 
 from django.db.models import Count, QuerySet
 from django.db.models.query import EmptyQuerySet
@@ -19,7 +19,7 @@ from core.mixins import BaseAPIViewSet
 from core.users import UserStatus
 from .filters import ProjectFilter, ProjectWorkingHoursFilter, WorkLoadStatusFilter
 from .models import Project, ProjectTag, ProjectWorkingHours, WorkLoadStatus
-from .tasks import make_report
+from .tasks import make_report_projects, make_report_assessors
 from . import serializers, schemas
 
 
@@ -257,7 +257,7 @@ class WorkLoadStatusAPIViewSet(BaseAPIViewSet):
         return Response(response.data, status=status.HTTP_200_OK)
 
 
-@method_decorator(name='get', decorator=schemas.export_schema.export())
+@method_decorator(name='get', decorator=schemas.export_schema.export_projects())
 class ExportProjectsAPIView(generics.GenericAPIView):
     queryset = EmptyQuerySet
     permission_classes = (IsAuthenticated,)
@@ -267,7 +267,7 @@ class ExportProjectsAPIView(generics.GenericAPIView):
         export_type = request.GET.get('type', '').lower()
         ContentType.validate(export_type)
         team = self._get_team()
-        task = make_report.delay(export_type=export_type, team=team)
+        task = make_report_projects.delay(export_type=export_type, team=team)
         return Response({'task_id': task.id}, status=status.HTTP_202_ACCEPTED)
 
     def _get_team(self) -> Iterable[int]:
@@ -283,3 +283,27 @@ class ExportProjectsAPIView(generics.GenericAPIView):
                 return list(managers.filter(manager_profile__teamlead=user).values_list('pk', flat=True))
             else:
                 return [user.pk]
+
+
+@method_decorator(name='get', decorator=schemas.export_schema.export_assessors())
+class ExportAssessorsForProjectAPIView(generics.GenericAPIView):
+    queryset = EmptyQuerySet
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ExportSerializer
+
+    def get(self, request: Request, *args, **kwargs) -> Response:
+        export_type = request.GET.get('type', '').lower()
+        ContentType.validate(export_type)
+        project_id = self._check_project(request.GET.get('project'))
+        task = make_report_assessors.delay(export_type=export_type, project_id=project_id)
+        return Response({'task_id': task.id}, status=status.HTTP_202_ACCEPTED)
+
+    @staticmethod
+    def _check_project(project: Any) -> int:
+        try:
+            project_id = int(project)
+        except (ValueError, TypeError):
+            raise ValidationError(
+                {'project': ['Invalid project ID.']}
+            )
+        return project_id

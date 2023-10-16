@@ -10,6 +10,7 @@ router.register('workload_status', api.WorkLoadStatusAPIViewSet, basename='workl
 
 _export = [
     path('projects/', api.ExportProjectsAPIView.as_view()),
+    path('assessors/', api.ExportAssessorsForProjectAPIView.as_view()),
 ]
 
 urlpatterns = [

@@ -5,8 +5,17 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from apps.history.services import history
-from apps.projects.models import ProjectStatuses, Project, ProjectWorkingHours
-from apps.projects.serializers import ProjectSerializer, ProjectWorkingHoursSimpleSerializer
+from apps.projects.models import (
+    ProjectStatuses,
+    Project,
+    ProjectWorkingHours,
+    WorkLoadStatus
+)
+from apps.projects.serializers import (
+    ProjectSerializer,
+    ProjectWorkingHoursSimpleSerializer,
+    WorkLoadStatusSerializer
+)
 from apps.users.models import BaseUser
 from apps.users.serializers import UserSerializer
 from core.utils import current_date
@@ -157,6 +166,7 @@ class AssessorSerializer(serializers.ModelSerializer):
     skills = SkillSerializer(read_only=True, many=True)
     second_manager = UserSerializer(read_only=True, many=True)
     working_hours = serializers.SerializerMethodField(method_name='get_working_hours')
+    workload_status = serializers.SerializerMethodField(method_name='get_workload_status')
 
     class Meta:
         model = Assessor
@@ -165,6 +175,11 @@ class AssessorSerializer(serializers.ModelSerializer):
     def get_working_hours(self, obj: Assessor) -> Dict:
         wh = ProjectWorkingHours.objects.filter(assessor=obj, project__in=obj.projects.all())
         serialized = ProjectWorkingHoursSimpleSerializer(wh, many=True)
+        return serialized.data
+
+    def get_workload_status(self, obj: Assessor) -> Dict:
+        ws = WorkLoadStatus.objects.filter(assessor=obj, project__in=obj.projects.all())
+        serialized = WorkLoadStatusSerializer(ws, many=True)
         return serialized.data
 
 
