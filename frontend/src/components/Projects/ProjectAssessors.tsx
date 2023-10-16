@@ -37,7 +37,6 @@ const ProjectAssessors = () => {
         const {id} = useParams()
         const columnHelper = createColumnHelper<any>()
         const navigate = useNavigate()
-
         const columns = [
             columnHelper.accessor('id', {
                 header: ({table}) => (
@@ -171,7 +170,6 @@ const ProjectAssessors = () => {
         })
 
         const [sorting, setSorting] = React.useState<SortingState>([])
-
         const [rowSelection, setRowSelection] = React.useState({})
         const table = useReactTable({
             data: data ? data.results : [],
@@ -204,7 +202,7 @@ const ProjectAssessors = () => {
         return (
             <div>
                 <Dialog isOpen={addToProject} setIsOpen={setAddToProject}>
-                    <AddToProject/>
+                    <AddToProject setAddToProject={setAddToProject}/>
                 </Dialog>
                 <Dialog isOpen={addAssessor} setIsOpen={setAddAssessor}>
                     <AddAssessorForm assessorId={projectName.data?.id} showSidebar={addAssessor}

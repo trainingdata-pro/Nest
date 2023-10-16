@@ -8,7 +8,7 @@ const LastProject = ({assessorId}: {
 }) => {
     const assessorHistoryProject = useQuery(['assessorHistoryProject', assessorId], () => AssessorService.fetchAssessorHistory(assessorId, 'project'), {})
     if (assessorHistoryProject.isLoading) return <MiniLoader size={6}/>
-    return(<span className='w-full h-full text-center'>{assessorHistoryProject.data?.results[0]?.old_value ? assessorHistoryProject.data?.results[0]?.old_value: assessorHistoryProject.data?.results[0]?.new_value}</span>)
+    return(<span>{assessorHistoryProject.data?.results[0]?.old_value ? assessorHistoryProject.data?.results[0]?.old_value: assessorHistoryProject.data?.results[0]?.new_value}</span>)
 }
 
 export default LastProject

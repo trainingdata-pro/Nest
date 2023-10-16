@@ -33,11 +33,9 @@ export default class AssessorService{
     static patchCredentials = (credId: string | number | undefined, data:any) => $api.patch(`/api/credentials/${credId}/`, data)
     static postCredentials = (data:any) => $api.post(`/api/credentials/`, data)
     static fetchHistoryByAssessor = (assessorId: string | number | undefined, page: string | number = 1) => $api.get<IHistoryResponse>(`/api/history/?ordering=-timestamp&assessor=${assessorId}&page=${page}`).then(res => res.data)
-
     static fetchAssessorHistory = (id: string | number | undefined, attribute: string) => $api.get<IHistoryResponse>(`/api/history/?attribute=${attribute}&ordering=-timestamp&assessor=${id}`).then(res => res.data)
-    static getBlackList = (username: string, fio: string) => $api.get<IBlackListResponse>(`/api/blacklist/?username=${username}&full_name=${fio}`).then(res => res.data)
+    static getBlackList = (page: string | number = 1) => $api.get<IBlackListResponse>(`/api/blacklist/?page=${page}`).then(res => res.data)
     static fetchWorkloadStatusProject = (projectId: string | number| undefined = undefined) => $api.get<WorkloadStatusResponse>(`/api/workload_status/?project=${projectId}`).then(res => res.data)
-
     static fetchWorkloadStatus = (assessorID: string | number | undefined, projectId: string | number| undefined = undefined) => $api.get<WorkloadStatusResponse>(`/api/workload_status/?assessor=${assessorID}&project=${projectId}`).then(res => res.data)
     static fetchWorkingHours = (assessorID: string | number | undefined, projectId: string | number| undefined = undefined) => $api.get<WorkingHoursResponse>(`/api/working_hours/?assessor=${assessorID}&project=${projectId}`).then(res => res.data)
     static fetchSkills = () => $api.get<SkillResponse>('/api/skills/')
@@ -70,4 +68,5 @@ export default class AssessorService{
     static unpinAssessor = (assessorId: string | number, data: any) => $api.patch(`/api/assessors/${assessorId}/unpin/`, data).then(res => res.data)
     static returnFromFreeResources = (assessorId:number| string | undefined, data:any) => $api.patch(`/api/assessors/${assessorId}/free_resource/`, data).then(res => res.data)
     static exportProjectAssessors = (type: string, projectId: number | string) => $api.get(`/api/export/assessors/?type=${type}&project=${projectId}`).then(res => res.data)
+    static exportBlackList = (type: string, items:string) => $api.get(`/api/export/blacklist/?type=${type}&items=${items}`).then(res => res.data)
 }

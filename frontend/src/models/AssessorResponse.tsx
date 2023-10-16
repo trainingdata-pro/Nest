@@ -1,5 +1,6 @@
 import {IManager} from "./ManagerResponse";
 import {Project} from "./ProjectResponse";
+import {FreeAssessor} from "../components/FreeResource/FreeResorces/FreeResource";
 
 export interface Skill {
     id: number,
@@ -93,23 +94,25 @@ export interface IFreeResources extends Assessor{
     "free_resource_day_off_hours": string
 }
 export interface IFreeResourcesResponse {
-    results: IFreeResources[]
+    results: FreeAssessor[]
     count: number,
     next: string | null,
 }
 
 export interface IHistory {
-    id: number,
     action: string,
-    old_value: string,
+    attribute: string,
+    id: number,
     new_value: string,
+    old_value: string,
     reason: string,
-    user: string,
-    timestamp: string
+    timestamp: string,
+    user: string
 }
 export interface IHistoryResponse {
     results: IHistory[],
-    count: number
+    count: number,
+    next: string
 }
 
 export interface IReason {
@@ -124,10 +127,13 @@ export interface IBlackList {
     id: number
     assessor: Assessor,
     reason: IReason,
-    date: string
+    date: string,
+    last_manager: string,
+    last_project: string
 }
 export interface IBlackListResponse {
-    results: IBlackList[]
+    results: IBlackList[],
+    next: string
 }
 
 export interface IFired {
@@ -136,9 +142,12 @@ export interface IFired {
     reason: IReason,
     date: string,
     possible_return_date: string
+    last_manager: string,
+    last_project: string
 }
 
 export interface IFiredResponse {
     results: IFired[]
     count: number
+    next: string
 }
