@@ -32,6 +32,8 @@ export default class AssessorService{
     static fetchCredentials = (id: string | number | undefined) => $api.get<LoginAndPasswordResponse>(`/api/credentials/?assessor=${id}`).then((res) => res.data)
     static patchCredentials = (credId: string | number | undefined, data:any) => $api.patch(`/api/credentials/${credId}/`, data)
     static postCredentials = (data:any) => $api.post(`/api/credentials/`, data)
+    static fetchHistoryByAssessor = (assessorId: string | number | undefined, page: string | number = 1) => $api.get<IHistoryResponse>(`/api/history/?ordering=-timestamp&assessor=${assessorId}&page=${page}`).then(res => res.data)
+
     static fetchAssessorHistory = (id: string | number | undefined, attribute: string) => $api.get<IHistoryResponse>(`/api/history/?attribute=${attribute}&ordering=-timestamp&assessor=${id}`).then(res => res.data)
     static getBlackList = (username: string, fio: string) => $api.get<IBlackListResponse>(`/api/blacklist/?username=${username}&full_name=${fio}`).then(res => res.data)
     static fetchWorkloadStatusProject = (projectId: string | number| undefined = undefined) => $api.get<WorkloadStatusResponse>(`/api/workload_status/?project=${projectId}`).then(res => res.data)
@@ -59,11 +61,11 @@ export default class AssessorService{
     static fetchAssessorSkills(id: string | number):Promise<AxiosResponse<SkillResponse>>{
         return $api.get<SkillResponse>(`/api/skills/${id}/`)
     }
-    static fetchFreeResource = (username: string = '', fio:string = '', page = 1, pageLimit: string | number = 10   ) => $api.get<IFreeResourcesResponse>(`/api/free_resources/?username=${username}&full_name=${fio}&page=${page}&page_size=${pageLimit}`).then(res => res.data)
+    static fetchFreeResource = (page = 1) => $api.get<IFreeResourcesResponse>(`/api/free_resources/?page=${page}`).then(res => res.data)
     static patchVacation = (assessorId: string | number |undefined, data: any) => $api.patch(`/api/assessors/${assessorId}/vacation/`, data).then(res => res.data)
     static fetchReasons = () => $api.get<IReasonResponse>('/api/reasons/').then(res => res.data)
     static addAssessorToFired = (id: string| number| undefined, data: any) => $api.patch(`/api/assessors/${id}/fire/`, data).then(res => res.data)
-    static fetchFired = (username: string = '', fio:string = '', page = 1, pageLimit: string | number = 10   ) => $api.get<IFiredResponse>(`/api/fired/?username=${username}&full_name=${fio}&page=${page}&page_size=${pageLimit}`).then(res => res.data)
+    static fetchFired = (page = 1) => $api.get<IFiredResponse>(`/api/fired/?page=${page}`).then(res => res.data)
     static takeFromFreeResource = (assessorId: string | number, data: any) => $api.patch(`/api/free_resources/${assessorId}/`, data).then(res => res.data)
     static unpinAssessor = (assessorId: string | number, data: any) => $api.patch(`/api/assessors/${assessorId}/unpin/`, data).then(res => res.data)
     static returnFromFreeResources = (assessorId:number| string | undefined, data:any) => $api.patch(`/api/assessors/${assessorId}/free_resource/`, data).then(res => res.data)
