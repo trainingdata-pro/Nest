@@ -17,9 +17,21 @@ from apps.users.models import BaseUser
 from core import permissions
 from core.mixins import BaseAPIViewSet
 from core.users import UserStatus
-from .filters import ProjectFilter, ProjectWorkingHoursFilter, WorkLoadStatusFilter
-from .models import Project, ProjectTag, ProjectWorkingHours, WorkLoadStatus
-from .tasks import make_report_projects, make_report_assessors
+from .filters import (
+    ProjectFilter,
+    ProjectWorkingHoursFilter,
+    WorkLoadStatusFilter
+)
+from .models import (
+    Project,
+    ProjectTag,
+    ProjectWorkingHours,
+    WorkLoadStatus
+)
+from .tasks import (
+    make_report_projects,
+    make_report_assessors
+)
 from . import serializers, schemas
 
 

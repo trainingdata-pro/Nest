@@ -2,7 +2,10 @@ from typing import Dict
 
 from django.contrib.auth import get_user_model
 from rest_framework import exceptions
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
+from rest_framework_simplejwt.serializers import (
+    TokenObtainPairSerializer,
+    TokenRefreshSerializer
+)
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import Token, RefreshToken
 
@@ -81,7 +84,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(cls, user) -> Token:
         token = super().get_token(user)
         token[USER_DATA_FIELD] = get_updated_payload(user=user)
-
         return token
 
 

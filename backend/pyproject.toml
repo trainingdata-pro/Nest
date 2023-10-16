@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "Nest (backend)"
+version = "0.1.0"
+description = "API for Nest web application"
+authors = ["DmBand <d.bandysik@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<=3.12"
+django = "4.0.0"
+pandas = "^2.1.1"
+psycopg2-binary = "^2.9.9"
+celery = "^5.3.4"
+redis = "^5.0.1"
+django-debug-toolbar = "^4.2.0"
+djangorestframework = "^3.14.0"
+djangorestframework-simplejwt = "^5.3.0"
+drf-yasg = "^1.21.7"
+openpyxl = "^3.1.2"
+gunicorn = "^21.2.0"
+python-dotenv = "^1.0.0"
+django-celery-beat = "^2.5.0"
+django-filter = "^23.3"
+django-cors-headers = "^4.3.0"
+
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^6.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

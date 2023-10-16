@@ -18,25 +18,25 @@ class BaseAPISchema:
         }
 
     def retrieve(self):
-        pass
+        raise NotImplementedError('"retrieve()" must be implemented.')
 
     def list(self):
-        pass
+        raise NotImplementedError('"list()" must be implemented.')
 
     def create(self):
-        pass
+        raise NotImplementedError('"create()" must be implemented.')
 
     def partial_update(self):
-        pass
+        raise NotImplementedError('"partial_update()" must be implemented.')
 
     def destroy(self):
-        pass
+        raise NotImplementedError('"destroy()" must be implemented.')
 
     def get(self):
-        pass
+        raise NotImplementedError('"get()" must be implemented.')
 
     def post(self):
-        pass
+        raise NotImplementedError('"post()" must be implemented.')
 
     def swagger_auto_schema(self, *args, **kwargs):
         return swagger_auto_schema(tags=self.tags, *args, **kwargs)

@@ -13,16 +13,18 @@ class HistoryService:
         histories = self.create_history_objects(assessor, updates)
         self.perform_create(histories)
 
-    def updated_assessor_history(self,
-                                 old_assessor: Assessor,
-                                 new_assessor: Assessor,
-                                 user: str,
-                                 old_projects: Optional[List[int]] = None,
-                                 old_second_managers: Optional[List[int]] = None,
-                                 completed_project: bool = False,
-                                 state_reason: Optional[str] = None,
-                                 unpin_reason: Optional[str] = None,
-                                 use_none_action_for_state: bool = False) -> None:
+    def updated_assessor_history(
+            self,
+            old_assessor: Assessor,
+            new_assessor: Assessor,
+            user: str,
+            old_projects: Optional[List[int]] = None,
+            old_second_managers: Optional[List[int]] = None,
+            completed_project: bool = False,
+            state_reason: Optional[str] = None,
+            unpin_reason: Optional[str] = None,
+            use_none_action_for_state: bool = False
+    ) -> None:
         updates = self._get_updates_for_existing_assessor(
             old_assessor=old_assessor,
             new_assessor=new_assessor,
@@ -72,16 +74,18 @@ class HistoryService:
         ]
         return updates
 
-    def _get_updates_for_existing_assessor(self,
-                                           old_assessor: Assessor,
-                                           new_assessor: Assessor,
-                                           user: str,
-                                           old_projects: Optional[List[int]] = None,
-                                           old_second_managers: Optional[List[int]] = None,
-                                           completed_project: bool = False,
-                                           state_reason: Optional[str] = None,
-                                           unpin_reason: Optional[str] = None,
-                                           use_none_action_for_state: bool = False) -> List[Dict]:
+    def _get_updates_for_existing_assessor(
+            self,
+            old_assessor: Assessor,
+            new_assessor: Assessor,
+            user: str,
+            old_projects: Optional[List[int]] = None,
+            old_second_managers: Optional[List[int]] = None,
+            completed_project: bool = False,
+            state_reason: Optional[str] = None,
+            unpin_reason: Optional[str] = None,
+            use_none_action_for_state: bool = False
+    ) -> List[Dict]:
         updates = []
         if old_assessor.last_name != new_assessor.last_name:
             updates.append(
