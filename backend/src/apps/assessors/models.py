@@ -3,10 +3,16 @@ from typing import Tuple
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from core.validators import allowed_chars_validator, only_manager_validator
+from core.validators import (
+    allowed_chars_validator,
+    only_manager_validator
+)
 from apps.projects.models import Project
 
-from apps.assessors.utils.validators import assessor_username_validator, assessor_email_validator
+from apps.assessors.utils.validators import (
+    assessor_username_validator,
+    assessor_email_validator
+)
 
 
 class AssessorState(models.TextChoices):

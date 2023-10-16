@@ -22,7 +22,12 @@ from core.utils import current_date
 from core.mixins import GetUserMixin
 from core.permissions import check_full_assessor_permission
 from core.users import UserStatus
-from .models import Assessor, Skill, AssessorCredentials, AssessorState
+from .models import (
+    Assessor,
+    Skill,
+    AssessorCredentials,
+    AssessorState
+)
 from .services import assessors_service
 
 
