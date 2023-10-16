@@ -1,9 +1,9 @@
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import Header from "../components/Header/Header";
 import ProjectService from "../services/ProjectService";
 import {Context} from "../index";
 import {PencilSquareIcon} from "@heroicons/react/24/solid";
-import {useQuery} from "react-query";
+import {useMutation, useQuery} from "react-query";
 import {
     createColumnHelper,
     getCoreRowModel,
@@ -13,7 +13,12 @@ import {
 } from "@tanstack/react-table";
 import {Project} from "../models/ProjectResponse";
 import Table from "../components/UI/Table";
-
+import MyButton from "../components/UI/MyButton";
+import {successNotification, warnNotification} from "../components/UI/Notify";
+import {observer} from "mobx-react-lite";
+import fileDownload from 'js-file-download'
+import Dialog from "../components/UI/Dialog";
+import Export from "../components/Projects/Export";
 const CompletedProjects = () => {
     const columnHelper = createColumnHelper<Project>()
     const {store} = useContext(Context)
@@ -96,14 +101,22 @@ const CompletedProjects = () => {
         onRowSelectionChange: setRowSelection,
         debugTable: false,
     })
+    const [isExportProjects, setIsExportProjects] = useState(false)
+
     return (
         <div>
             <Header/>
-            <div className="flex container pt-20 h-full pr-8 pl-8 items-center">
+            <Dialog isOpen={isExportProjects} setIsOpen={setIsExportProjects}>
+                <Export setIsExportProjects={setIsExportProjects}/>
+            </Dialog>
+            <div className="pt-20 px-8">
+                <div className='my-2 flex justify-end'>
+                    <MyButton onClick={() => setIsExportProjects(true)}>Экспорт</MyButton>
+                </div>
                 <Table pages={true} rowSelection={rowSelection} table={table}/>
             </div>
         </div>
     );
 };
 
-export default CompletedProjects;
+export default observer(CompletedProjects);
