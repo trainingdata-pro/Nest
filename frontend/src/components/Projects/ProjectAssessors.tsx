@@ -1,6 +1,12 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {NavLink, useParams} from "react-router-dom";
-import {ColumnDef, createColumnHelper} from "@tanstack/react-table";
+import {NavLink, useNavigate, useParams} from "react-router-dom";
+import {
+    ColumnDef,
+    createColumnHelper,
+    getCoreRowModel,
+    getPaginationRowModel, getSortedRowModel, SortingState,
+    useReactTable
+} from "@tanstack/react-table";
 import {Assessor, WorkingHours} from "../../models/AssessorResponse";
 import Table from "../UI/Table";
 import ProjectService from "../../services/ProjectService";
@@ -16,23 +22,180 @@ import ProjectMenu from "./ProjectMenu";
 import DeleteFromProjects from "../AssessorManagement/DeleteFromProjects";
 import {ToastContainer} from "react-toastify";
 import AddToProject from "./AddToProject";
+import MyButton from "../UI/MyButton";
+import TableCheckBox from "../UI/TableCheckBox";
+
+
 const statusObject = {
-    "full":"Полная загрузка",
+    "full": "Полная загрузка",
     "partial": "Частичная загрузка",
     "reserved": "Зарезервирован",
-    }
+}
+
 const ProjectAssessors = () => {
         const {id} = useParams()
         const columnHelper = createColumnHelper<any>()
-        const {data, isLoading} = useQuery(['projectAssessors', id], ()=>AssessorService.fetchAssessors(id))
+        const navigate = useNavigate()
+        const columns = [
+            columnHelper.accessor('id', {
+                header: ({table}) => (
+                    <TableCheckBox
+                        {...{
+                            checked: table.getIsAllRowsSelected(),
+                            indeterminate: table.getIsSomeRowsSelected(),
+                            onChange: table.getToggleAllRowsSelectedHandler(),
+                        }}
+                    />
+                ),
+                cell: ({row}) => (
+                    <div className="px-1">
+                        <TableCheckBox
+                            {...{
+                                checked: row.getIsSelected(),
+                                disabled: !row.getCanSelect(),
+                                indeterminate: row.getIsSomeSelected(),
+                                onChange: row.getToggleSelectedHandler(),
+                            }}
+                        />
+                    </div>
+                ),
+                enableSorting: false,
+                maxSize: 30
+            }),
+            columnHelper.group({
+                header: 'ФИО',
+                columns: [
+                    columnHelper.accessor('last_name', {
+                        header: () => <span>Фамилия</span>,
+                        cell: info => <span className='cursor-pointer h-full w-full text-center' onClick={() => navigate(`/assessor/${info.row.original.id}/`)}>{info.getValue()}</span>,
+                        enableSorting: false
+                    }),
+                    columnHelper.accessor('first_name', {
+                        cell: info => <span className='cursor-pointer h-full w-full text-center' onClick={() => navigate(`/assessor/${info.row.original.id}/`)}>{info.getValue()}</span>,
+                        header: () => <span>Имя</span>,
+                        enableSorting: false
+                    }),
+                    columnHelper.accessor('middle_name', {
+                        cell: info => <span className='cursor-pointer h-full w-full text-center' onClick={() => navigate(`/assessor/${info.row.original.id}/`)}>{info.getValue()}</span>,
+                        header: () => <span>Отчество</span>,
+                        enableSorting: false
+                    })
+                ],
+            }),
+
+            columnHelper.accessor('username', {
+                header: () => 'Ник в ТГ',
+                cell: info => info.getValue(),
+                enableSorting: false,
+            }),
+            columnHelper.group({
+                header: 'Количество рабочих часов',
+                columns: [
+                    columnHelper.accessor('working_hours.monday', {
+                        header: () => 'ПН',
+                        cell: info => info.getValue() ? info.getValue() : 0,
+                        enableSorting: false
+                    }),
+                    columnHelper.accessor('working_hours?.tuesday', {
+                        header: () => 'ВТ',
+                        enableSorting: false,
+                        cell: info => info.getValue() ? info.getValue() : 0,
+
+                    }),
+                    columnHelper.accessor('working_hours?.wednesday', {
+                        header: () => 'СР',
+                        cell: info => info.getValue() ? info.getValue() : 0,
+
+                        enableSorting: false
+                    }),
+                    columnHelper.accessor('working_hours.thursday', {
+                        header: () => 'ЧТ',
+                        cell: info => info.getValue() ? info.getValue() : 0,
+
+                        enableSorting: false
+                    }),
+                    columnHelper.accessor('working_hours.friday', {
+                        header: () => 'ПТ',
+                        cell: info => info.getValue() ? info.getValue() : 0,
+
+                        enableSorting: false
+                    }),
+                    columnHelper.accessor('working_hours.saturday', {
+                        header: () => 'СБ',
+                        cell: info => info.getValue() ? info.getValue() : 0,
+
+                        enableSorting: false
+                    }),
+                    columnHelper.accessor('working_hours.sunday', {
+                        header: () => 'ВС',
+                        cell: info => info.getValue() ? info.getValue() : 0,
+
+                        enableSorting: false
+                    }),
+                ],
+            }),
+            columnHelper.accessor('working_hours.total', {
+                header: () => 'Всего',
+                cell: info => info.getValue(),
+
+                enableSorting: false
+            }),
+            // columnHelper.accessor('workload_status', {
+            //     header: () => 'ПН',
+            //     cell: info => info.getValue(),
+            //
+            //     enableSorting: false
+            // }),
+            columnHelper.accessor('skills', {
+                header: () => 'Навыки',
+                cell: info => info.getValue().map((skill:any) => skill.title).join(', '),
+
+                enableSorting: false,
+
+            }),
+        ]
+        const [tableData, setTableData] = useState<any>([])
+        const {data, isLoading} = useQuery(['projectAssessors', id], () => AssessorService.fetchAssessors(id), {
+            onSuccess: data1 => {
+                let newData:any[] = []
+                data1.results.map((assessor:any) => {
+                    assessor.working_hours = assessor.working_hours.find((wh:any) => wh.project.id.toString() === id?.toString())
+                    newData.push(assessor)
+                    // assessor.workload_status.find(wh => wh.project.id.toString() === id?.toString())
+
+                })
+                setTableData(newData)
+                console.log(newData)
+            }
+        })
+        const [sorting, setSorting] = React.useState<SortingState>([{id: 'date_of_completion', desc: true}])
+
+        const [rowSelection, setRowSelection] = React.useState({})
+        const table = useReactTable({
+            data: tableData,
+            columns,
+            getCoreRowModel: getCoreRowModel(),
+            getPaginationRowModel: getPaginationRowModel(),
+            onSortingChange: setSorting,
+            getSortedRowModel: getSortedRowModel(),
+            enableMultiSort: true,
+            maxMultiSortColCount: 2,
+            state: {
+                rowSelection,
+                sorting
+            },
+            enableRowSelection: true,
+            onRowSelectionChange: setRowSelection,
+            debugTable: false,
+        })
         // прокинуть через пропс
-        const projectName = useQuery(['projectName'], () => ProjectService.fetchProject(id), )
+        const projectName = useQuery(['projectName'], () => ProjectService.fetchProject(id),)
         const [addToProject, setAddToProject] = useState(false)
         const [addAssessor, setAddAssessor] = useState(false)
         const [idDeleteFromProject, setIsDeleteFromProject] = useState(false)
         const [selectedAssessors, setSelectedAssessors] = useState<any>([])
         const [assessorsProjects, setAssessorProjects] = useState<any>({})
-        const isSelected =()=> {
+        const isSelected = () => {
             return Object.keys(assessorsProjects).length !== 0
         }
         if (isLoading) return <div>Загрузка</div>
@@ -46,7 +209,8 @@ const ProjectAssessors = () => {
                                      setShowSidebar={setAddAssessor}/>
                 </Dialog>
                 <Dialog isOpen={idDeleteFromProject} setIsOpen={setIsDeleteFromProject}>
-                    <DeleteFromProjects projectId={id} assessorsProjects={assessorsProjects} close={setIsDeleteFromProject}/>
+                    <DeleteFromProjects projectId={id} assessorsProjects={assessorsProjects}
+                                        close={setIsDeleteFromProject}/>
                 </Dialog>
                 <Header/>
                 <div className="flex-col container mx-auto pt-[70px] pr-8 pl-8 items-center">
@@ -56,45 +220,51 @@ const ProjectAssessors = () => {
                         </div>
                         <div className='flex space-x-2'>
                             <ProjectMenu setIsDeleteFromProject={setIsDeleteFromProject} isSelected={isSelected}/>
-                            <button className="bg-[#5970F6] text-white py-[8px] px-[15px] rounded-[8px]" onClick={() => setAddToProject(true)}>Добавить на проект</button>
-                            <button className="bg-[#5970F6] text-white py-[8px] px-[15px] rounded-[8px]" onClick={() => setAddAssessor(true)}>Добавить ассессора</button>
-                            <button className="bg-[#5970F6] text-white py-[8px] px-[15px] rounded-[8px]">Экспорт данных</button>
+                            <MyButton onClick={() => setAddToProject(true)}>Добавить на проект</MyButton>
+                            <MyButton onClick={() => setAddAssessor(true)}>Добавить ассессора</MyButton>
+                            <MyButton>Экспорт данных</MyButton>
                         </div>
                     </div>
-                    <div className="h-full w-full">
-                        <div className="rounded-t-[20px] border border-b-gray-400 bg-white">
-                            <table className='w-full'>
-                                <thead>
-                                <tr>
-                                    <th rowSpan={2}></th>
-                                    <th colSpan={3}>ФИО</th>
-                                    <th colSpan={1} rowSpan={2}>Ник в тг</th>
-                                    <th colSpan={7}>Количество рабочих часов</th>
-                                    <th colSpan={1} rowSpan={2}>Всего</th>
-                                    <th colSpan={1} rowSpan={2}>Статус</th>
-                                    <th colSpan={1} rowSpan={2}>Навыки</th>
-                                    <th colSpan={1} rowSpan={2}></th>
-                                </tr>
-                                <tr>
+                    <Table pages={true} rowSelection={rowSelection} table={table}/>
+                    {/*<div className="h-full w-full">*/}
+                    {/*    <div className="rounded-t-[20px] border border-b-gray-400 bg-white">*/}
+                    {/*        <table className='w-full'>*/}
+                    {/*            <thead>*/}
+                    {/*            <tr>*/}
+                    {/*                <th rowSpan={2}></th>*/}
+                    {/*                <th colSpan={3}>ФИО</th>*/}
+                    {/*                <th colSpan={1} rowSpan={2}>Ник в тг</th>*/}
+                    {/*                <th colSpan={7}>Количество рабочих часов</th>*/}
+                    {/*                <th colSpan={1} rowSpan={2}>Всего</th>*/}
+                    {/*                <th colSpan={1} rowSpan={2}>Статус</th>*/}
+                    {/*                <th colSpan={1} rowSpan={2}>Навыки</th>*/}
+                    {/*                <th colSpan={1} rowSpan={2}></th>*/}
+                    {/*            </tr>*/}
+                    {/*            <tr>*/}
 
-                                    <th>Фамилия</th>
-                                    <th>Имя</th>
-                                    <th>Отчество</th>
-                                    <th>ПН</th>
-                                    <th>ВТ</th>
-                                    <th>СР</th>
-                                    <th>ЧТ</th>
-                                    <th>ПТ</th>
-                                    <th>СБ</th>
-                                    <th>ВС</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {data?.results.map(assessor => <AssessorsPageRow assessorsProjects={assessorsProjects} setAssessorProjects={setAssessorProjects} selectedAssessors={selectedAssessors} setSelectedAssessors={setSelectedAssessors} key={assessor.id} assessorId={assessor.id} projectId={id}/>)}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    {/*                <th>Фамилия</th>*/}
+                    {/*                <th>Имя</th>*/}
+                    {/*                <th>Отчество</th>*/}
+                    {/*                <th>ПН</th>*/}
+                    {/*                <th>ВТ</th>*/}
+                    {/*                <th>СР</th>*/}
+                    {/*                <th>ЧТ</th>*/}
+                    {/*                <th>ПТ</th>*/}
+                    {/*                <th>СБ</th>*/}
+                    {/*                <th>ВС</th>*/}
+                    {/*            </tr>*/}
+                    {/*            </thead>*/}
+                    {/*            <tbody>*/}
+                    {/*            {data?.results.map(assessor => <AssessorsPageRow assessorsProjects={assessorsProjects}*/}
+                    {/*                                                             setAssessorProjects={setAssessorProjects}*/}
+                    {/*                                                             selectedAssessors={selectedAssessors}*/}
+                    {/*                                                             setSelectedAssessors={setSelectedAssessors}*/}
+                    {/*                                                             key={assessor.id} assessorId={assessor.id}*/}
+                    {/*                                                             projectId={id}/>)}*/}
+                    {/*            </tbody>*/}
+                    {/*        </table>*/}
+                    {/*    </div>*/}
+                    {/*</div>*/}
                 </div>
 
             </div>

@@ -7,6 +7,7 @@ import React from 'react';
 import RootStore from "./store/store";
 import {QueryClient, QueryClientProvider} from "react-query";
 import {ToastContainer} from "react-toastify";
+import Export from "./components/Projects/Export";
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
