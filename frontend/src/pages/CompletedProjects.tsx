@@ -107,7 +107,7 @@ const CompletedProjects = () => {
         <div>
             <Header/>
             <Dialog isOpen={isExportProjects} setIsOpen={setIsExportProjects}>
-                <Export setIsExportProjects={setIsExportProjects}/>
+                <Export setIsExportProjects={setIsExportProjects} exportType='completedProjects' project={undefined}/>
             </Dialog>
             <div className="pt-20 px-8">
                 <div className='my-2 flex justify-end'>

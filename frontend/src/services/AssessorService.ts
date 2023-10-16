@@ -67,4 +67,5 @@ export default class AssessorService{
     static takeFromFreeResource = (assessorId: string | number, data: any) => $api.patch(`/api/free_resources/${assessorId}/`, data).then(res => res.data)
     static unpinAssessor = (assessorId: string | number, data: any) => $api.patch(`/api/assessors/${assessorId}/unpin/`, data).then(res => res.data)
     static returnFromFreeResources = (assessorId:number| string | undefined, data:any) => $api.patch(`/api/assessors/${assessorId}/free_resource/`, data).then(res => res.data)
+    static exportProjectAssessors = (type: string, projectId: number | string) => $api.get(`/api/export/assessors/?type=${type}&project=${projectId}`).then(res => res.data)
 }

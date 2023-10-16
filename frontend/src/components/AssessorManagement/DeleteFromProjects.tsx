@@ -7,17 +7,29 @@ import {successNotification, errorNotification} from "../UI/Notify";
 // @ts-ignore
 const DeleteFromProjects = ({projectId, assessorsProjects, close}) => {
     const queryClient = useQueryClient()
-    const deleteFromProject = useMutation([], ({id, data}:any) => AssessorService.addAssessorProject(id,data), {
-        onSuccess: () => {
-            queryClient.invalidateQueries('projectAssessors')
-            successNotification('Ассессор(ы) успешно убраны с проекта')
-        }
-    })
+    const deleteFromProject = useMutation([], ({id, data}:any) => AssessorService.addAssessorProject(id,data))
     const [selectedReason, setSelectedReason] = useState<string>()
     const submit = ()=> {
         if (selectedReason){
-            Object.keys(assessorsProjects).map(key => deleteFromProject.mutate({id:key, data:{projects: assessorsProjects[key].filter((pr:any) => pr.toString() !== projectId.toString()), reason: selectedReason}}))
-            close(false)
+            assessorsProjects.forEach((row:any) => {
+                const newProjects = row.original.projects.filter((pr: any) => pr.toString() !== projectId.toString())
+                deleteFromProject.mutate({
+                        id: row.original.id,
+                        data: {
+                            projects: newProjects,
+                            reason: selectedReason
+                        }
+                    },
+                    {
+                        onSuccess: () => {
+                            queryClient.invalidateQueries('projectAssessors')
+                            close(false)
+                            successNotification('Ассессор(ы) успешно убраны с проекта')
+                        }
+                    })
+
+
+            })
         } else {
             errorNotification('Выберите причину')
         }
@@ -25,7 +37,6 @@ const DeleteFromProjects = ({projectId, assessorsProjects, close}) => {
     }
     return (
         <div className='px-4'>
-
             <div className='border-b border-black w-full'>
                 <h1 className='px-4'>Убрать с проекта</h1>
             </div>

@@ -24,6 +24,7 @@ import {ToastContainer} from "react-toastify";
 import AddToProject from "./AddToProject";
 import MyButton from "../UI/MyButton";
 import TableCheckBox from "../UI/TableCheckBox";
+import Export from "./Export";
 
 
 const statusObject = {
@@ -36,6 +37,7 @@ const ProjectAssessors = () => {
         const {id} = useParams()
         const columnHelper = createColumnHelper<any>()
         const navigate = useNavigate()
+
         const columns = [
             columnHelper.accessor('id', {
                 header: ({table}) => (
@@ -67,16 +69,19 @@ const ProjectAssessors = () => {
                 columns: [
                     columnHelper.accessor('last_name', {
                         header: () => <span>Фамилия</span>,
-                        cell: info => <span className='cursor-pointer h-full w-full text-center' onClick={() => navigate(`/assessor/${info.row.original.id}/`)}>{info.getValue()}</span>,
+                        cell: info => <span className='cursor-pointer h-full w-full text-center'
+                                            onClick={() => navigate(`/assessor/${info.row.original.id}/`)}>{info.getValue()}</span>,
                         enableSorting: false
                     }),
                     columnHelper.accessor('first_name', {
-                        cell: info => <span className='cursor-pointer h-full w-full text-center' onClick={() => navigate(`/assessor/${info.row.original.id}/`)}>{info.getValue()}</span>,
+                        cell: info => <span className='cursor-pointer h-full w-full text-center'
+                                            onClick={() => navigate(`/assessor/${info.row.original.id}/`)}>{info.getValue()}</span>,
                         header: () => <span>Имя</span>,
                         enableSorting: false
                     }),
                     columnHelper.accessor('middle_name', {
-                        cell: info => <span className='cursor-pointer h-full w-full text-center' onClick={() => navigate(`/assessor/${info.row.original.id}/`)}>{info.getValue()}</span>,
+                        cell: info => <span className='cursor-pointer h-full w-full text-center'
+                                            onClick={() => navigate(`/assessor/${info.row.original.id}/`)}>{info.getValue()}</span>,
                         header: () => <span>Отчество</span>,
                         enableSorting: false
                     })
@@ -93,42 +98,42 @@ const ProjectAssessors = () => {
                 columns: [
                     columnHelper.accessor('working_hours.monday', {
                         header: () => 'ПН',
-                        cell: info => info.getValue() ? info.getValue() : 0,
+                        cell: info => info.row.original.working_hours ? info.getValue() : 0,
                         enableSorting: false
                     }),
-                    columnHelper.accessor('working_hours?.tuesday', {
+                    columnHelper.accessor('working_hours.tuesday', {
                         header: () => 'ВТ',
                         enableSorting: false,
-                        cell: info => info.getValue() ? info.getValue() : 0,
+                        cell: info => info.row.original.working_hours ? info.getValue() : 0,
 
                     }),
-                    columnHelper.accessor('working_hours?.wednesday', {
+                    columnHelper.accessor('working_hours.wednesday', {
                         header: () => 'СР',
-                        cell: info => info.getValue() ? info.getValue() : 0,
+                        cell: info => info.row.original.working_hours ? info.getValue() : 0,
 
                         enableSorting: false
                     }),
                     columnHelper.accessor('working_hours.thursday', {
                         header: () => 'ЧТ',
-                        cell: info => info.getValue() ? info.getValue() : 0,
+                        cell: info => info.row.original.working_hours ? info.getValue() : 0,
 
                         enableSorting: false
                     }),
                     columnHelper.accessor('working_hours.friday', {
                         header: () => 'ПТ',
-                        cell: info => info.getValue() ? info.getValue() : 0,
+                        cell: info => info.row.original.working_hours ? info.getValue() : 0,
 
                         enableSorting: false
                     }),
                     columnHelper.accessor('working_hours.saturday', {
                         header: () => 'СБ',
-                        cell: info => info.getValue() ? info.getValue() : 0,
+                        cell: info => info.row.original.working_hours ? info.getValue() : 0,
 
                         enableSorting: false
                     }),
                     columnHelper.accessor('working_hours.sunday', {
                         header: () => 'ВС',
-                        cell: info => info.getValue() ? info.getValue() : 0,
+                        cell: info => info.row.original.working_hours ? info.getValue() : 0,
 
                         enableSorting: false
                     }),
@@ -136,43 +141,40 @@ const ProjectAssessors = () => {
             }),
             columnHelper.accessor('working_hours.total', {
                 header: () => 'Всего',
-                cell: info => info.getValue(),
+                cell: info => info.row.original.working_hours ? info.getValue() : 0,
 
                 enableSorting: false
             }),
-            // columnHelper.accessor('workload_status', {
-            //     header: () => 'ПН',
-            //     cell: info => info.getValue(),
-            //
-            //     enableSorting: false
-            // }),
+            columnHelper.accessor('workload_status', {
+                header: () => 'Статус',
+                // @ts-ignore
+                cell: info => info.row.original.workload_status ? statusObject[info.row.original.workload_status] : '',
+
+                enableSorting: false
+            }),
             columnHelper.accessor('skills', {
                 header: () => 'Навыки',
-                cell: info => info.getValue().map((skill:any) => skill.title).join(', '),
+                cell: info => info.getValue().map((skill: any) => skill.title).join(', '),
 
                 enableSorting: false,
 
             }),
         ]
-        const [tableData, setTableData] = useState<any>([])
         const {data, isLoading} = useQuery(['projectAssessors', id], () => AssessorService.fetchAssessors(id), {
             onSuccess: data1 => {
-                let newData:any[] = []
-                data1.results.map((assessor:any) => {
-                    assessor.working_hours = assessor.working_hours.find((wh:any) => wh.project.id.toString() === id?.toString())
-                    newData.push(assessor)
-                    // assessor.workload_status.find(wh => wh.project.id.toString() === id?.toString())
-
+                data1.results.map((assessor: any) => {
+                    assessor.working_hours = assessor.working_hours.find((wh: any) => wh.project.id.toString() === id?.toString())
+                    assessor.workload_status = assessor.workload_status.find((ws: any) => ws.project.id.toString() === id?.toString())?.status
+                    assessor.projects = assessor.projects.map((project: any) => project.id)
                 })
-                setTableData(newData)
-                console.log(newData)
             }
         })
-        const [sorting, setSorting] = React.useState<SortingState>([{id: 'date_of_completion', desc: true}])
+
+        const [sorting, setSorting] = React.useState<SortingState>([])
 
         const [rowSelection, setRowSelection] = React.useState({})
         const table = useReactTable({
-            data: tableData,
+            data: data ? data.results : [],
             columns,
             getCoreRowModel: getCoreRowModel(),
             getPaginationRowModel: getPaginationRowModel(),
@@ -188,16 +190,16 @@ const ProjectAssessors = () => {
             onRowSelectionChange: setRowSelection,
             debugTable: false,
         })
+        const getSelectedAssessors = () => {
+            return table.getPreFilteredRowModel().rows.filter(row => Object.keys(rowSelection).find(key => key.toString() === row.id.toString()))
+        }
         // прокинуть через пропс
         const projectName = useQuery(['projectName'], () => ProjectService.fetchProject(id),)
         const [addToProject, setAddToProject] = useState(false)
         const [addAssessor, setAddAssessor] = useState(false)
         const [idDeleteFromProject, setIsDeleteFromProject] = useState(false)
-        const [selectedAssessors, setSelectedAssessors] = useState<any>([])
-        const [assessorsProjects, setAssessorProjects] = useState<any>({})
-        const isSelected = () => {
-            return Object.keys(assessorsProjects).length !== 0
-        }
+        const [isExportAssessors, setIsExportAssessors] = useState(false)
+
         if (isLoading) return <div>Загрузка</div>
         return (
             <div>
@@ -209,8 +211,11 @@ const ProjectAssessors = () => {
                                      setShowSidebar={setAddAssessor}/>
                 </Dialog>
                 <Dialog isOpen={idDeleteFromProject} setIsOpen={setIsDeleteFromProject}>
-                    <DeleteFromProjects projectId={id} assessorsProjects={assessorsProjects}
+                    <DeleteFromProjects projectId={id} assessorsProjects={getSelectedAssessors()}
                                         close={setIsDeleteFromProject}/>
+                </Dialog>
+                <Dialog isOpen={isExportAssessors} setIsOpen={setIsExportAssessors}>
+                    <Export setIsExportProjects={setIsExportAssessors} exportType='projectAssessors' project={id}/>
                 </Dialog>
                 <Header/>
                 <div className="flex-col container mx-auto pt-[70px] pr-8 pl-8 items-center">
@@ -219,52 +224,14 @@ const ProjectAssessors = () => {
                             <div className="pl-[15px]">{projectName.data?.name}</div>
                         </div>
                         <div className='flex space-x-2'>
-                            <ProjectMenu setIsDeleteFromProject={setIsDeleteFromProject} isSelected={isSelected}/>
+                            <ProjectMenu setIsDeleteFromProject={setIsDeleteFromProject}
+                                         isSelected={Object.keys(rowSelection).length !== 0}/>
                             <MyButton onClick={() => setAddToProject(true)}>Добавить на проект</MyButton>
                             <MyButton onClick={() => setAddAssessor(true)}>Добавить ассессора</MyButton>
-                            <MyButton>Экспорт данных</MyButton>
+                            <MyButton onClick={() => setIsExportAssessors(true)}>Экспорт данных</MyButton>
                         </div>
                     </div>
                     <Table pages={true} rowSelection={rowSelection} table={table}/>
-                    {/*<div className="h-full w-full">*/}
-                    {/*    <div className="rounded-t-[20px] border border-b-gray-400 bg-white">*/}
-                    {/*        <table className='w-full'>*/}
-                    {/*            <thead>*/}
-                    {/*            <tr>*/}
-                    {/*                <th rowSpan={2}></th>*/}
-                    {/*                <th colSpan={3}>ФИО</th>*/}
-                    {/*                <th colSpan={1} rowSpan={2}>Ник в тг</th>*/}
-                    {/*                <th colSpan={7}>Количество рабочих часов</th>*/}
-                    {/*                <th colSpan={1} rowSpan={2}>Всего</th>*/}
-                    {/*                <th colSpan={1} rowSpan={2}>Статус</th>*/}
-                    {/*                <th colSpan={1} rowSpan={2}>Навыки</th>*/}
-                    {/*                <th colSpan={1} rowSpan={2}></th>*/}
-                    {/*            </tr>*/}
-                    {/*            <tr>*/}
-
-                    {/*                <th>Фамилия</th>*/}
-                    {/*                <th>Имя</th>*/}
-                    {/*                <th>Отчество</th>*/}
-                    {/*                <th>ПН</th>*/}
-                    {/*                <th>ВТ</th>*/}
-                    {/*                <th>СР</th>*/}
-                    {/*                <th>ЧТ</th>*/}
-                    {/*                <th>ПТ</th>*/}
-                    {/*                <th>СБ</th>*/}
-                    {/*                <th>ВС</th>*/}
-                    {/*            </tr>*/}
-                    {/*            </thead>*/}
-                    {/*            <tbody>*/}
-                    {/*            {data?.results.map(assessor => <AssessorsPageRow assessorsProjects={assessorsProjects}*/}
-                    {/*                                                             setAssessorProjects={setAssessorProjects}*/}
-                    {/*                                                             selectedAssessors={selectedAssessors}*/}
-                    {/*                                                             setSelectedAssessors={setSelectedAssessors}*/}
-                    {/*                                                             key={assessor.id} assessorId={assessor.id}*/}
-                    {/*                                                             projectId={id}/>)}*/}
-                    {/*            </tbody>*/}
-                    {/*        </table>*/}
-                    {/*    </div>*/}
-                    {/*</div>*/}
                 </div>
 
             </div>
