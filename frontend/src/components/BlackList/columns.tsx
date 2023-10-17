@@ -28,12 +28,12 @@ export const columns = [
     }),
     columnHelper.accessor('last_manager', {
         header: 'Последний руководитель',
-        cell: info => info.getValue(),
+        cell: info => info.renderValue(),
         enableSorting: true
     }),
     columnHelper.accessor('last_project', {
         header: 'Последний проект',
-        cell: info => info.getValue(),
+        cell: info => info.renderValue(),
         enableSorting: true
     }),
     columnHelper.accessor('reason.title', {

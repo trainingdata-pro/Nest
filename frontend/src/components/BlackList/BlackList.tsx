@@ -59,7 +59,6 @@ const BlackList = () => {
         onRowSelectionChange: setRowSelection,
         debugTable: false,
     })
-    console.log(table)
     const [filteredRows, setFilteredRows] = useState<any>([])
     const [isExportBlackList, setIsExportBlackList] = useState(false)
     useEffect(() => {
