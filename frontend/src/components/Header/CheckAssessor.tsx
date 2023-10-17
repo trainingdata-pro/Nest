@@ -4,6 +4,7 @@ import {useForm} from "react-hook-form";
 import MyButton from "../UI/MyButton";
 import Error from "../UI/Error";
 import AssessorService from "../../services/AssessorService";
+import {errorNotification} from "../UI/Notify";
 
 interface FormProps{
     last_name: string,
@@ -18,7 +19,9 @@ const CheckAssessor = ({setIsOpenCheck}: {
     }, handleSubmit} = useForm<FormProps>()
     const submit = () => {
         const {last_name, first_name, middle_name} = getValues()
-        AssessorService.checkAssessor(last_name, first_name, middle_name).then(res => console.log(res.data))
+        AssessorService.checkAssessor(last_name, first_name, middle_name).then(res => console.log(res.data)).catch(() => {
+            errorNotification('Заполните все поля')
+        })
     }
     return (
         <div>
