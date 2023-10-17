@@ -179,7 +179,7 @@ class AssessorCheckAPIView(generics.ListAPIView):
         last_name = self.request.GET.get('last_name')
         first_name = self.request.GET.get('first_name')
         middle_name = self.request.GET.get('middle_name')
-        if not all([last_name, first_name]):
+        if last_name is None or first_name is None:
             raise ValidationError(
                 {'detail': ['You have to specify at least last_name and first_name.']}
             )
