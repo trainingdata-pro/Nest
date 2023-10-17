@@ -1,107 +1,52 @@
-############
-## BUILDER #
-############
-#FROM python:3.10 as builder
-#
-## set work directory
-#WORKDIR /backend
-#
-#ENV PYTHONDONTWRITEBYTECODE=1
-#ENV PYTHONUNBUFFERED=1
-#
-#RUN apt-get update -y && apt-get install -y --no-install-recommends \
-#    build-essential \
-#    libpq-dev
-#
-#COPY ./src ./src
-#
-#COPY ./requirements.txt ./
-#RUN pip wheel --no-cache-dir --no-deps --wheel-dir /backend/wheels -r /backend/requirements.txt
-#
-#########
-## FINAL #
-##########
-#FROM python:3.10-slim
-#
-## create the app user
-#RUN groupadd -r assessors && useradd -r -g assessors assessors
-#
-## set the home directory
-#ENV HOME=/home/assessors
-#ENV APP_HOME=/home/assessors/backend
-#RUN mkdir -p $APP_HOME
-#WORKDIR $APP_HOME
-#
-## install dependencies
-#RUN apt-get update && apt-get install -y --no-install-recommends \
-#    libpq-dev
-#
-#COPY --from=builder /backend/wheels /wheels
-#COPY --from=builder /backend/requirements.txt .
-#RUN pip install --no-cache /wheels/*
-#
-#COPY . $APP_HOME
-#
-## set ownership and permissions
-#RUN chown -R assessors:assessors $APP_HOME
-#RUN chmod -R 755 $APP_HOME
-#
-## switch to the app user
-#USER assessors
-#
-#WORKDIR $APP_HOME/src
-
 ###########
 # BUILDER #
 ###########
 FROM python:3.10 as builder
 
-# Устанавливаем инструмент Poetry
-RUN pip install poetry
+# set work directory
+WORKDIR /backend
 
-# Устанавливаем системные зависимости
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev
 
-# Создаем директорию приложения и устанавливаем переменные окружения
-WORKDIR /backend
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+COPY ./src ./src
 
-# Копируем файлы проекта
-COPY ./pyproject.toml poetry.lock ./
-
-# Устанавливаем зависимости с Poetry
-RUN poetry install
+COPY ./requirements.txt ./
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /backend/wheels -r /backend/requirements.txt
 
 ########
 # FINAL #
 #########
 FROM python:3.10-slim
 
-# Создаем пользователя для приложения
+# create the app user
 RUN groupadd -r assessors && useradd -r -g assessors assessors
 
-# Устанавливаем директории
+# set the home directory
 ENV HOME=/home/assessors
 ENV APP_HOME=/home/assessors/backend
 RUN mkdir -p $APP_HOME
 WORKDIR $APP_HOME
 
-# Устанавливаем системные зависимости
+# install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev
 
-# Копируем зависимости из билдера
-COPY --from=builder $APP_HOME $APP_HOME
+COPY --from=builder /backend/wheels /wheels
+COPY --from=builder /backend/requirements.txt .
+RUN pip install --no-cache /wheels/*
 
-# Устанавливаем владельца и права доступа
+COPY . $APP_HOME
+
+# set ownership and permissions
 RUN chown -R assessors:assessors $APP_HOME
 RUN chmod -R 755 $APP_HOME
 
-# Переключаемся на пользователя приложения
+# switch to the app user
 USER assessors
 
-# Устанавливаем рабочую директорию
 WORKDIR $APP_HOME/src
