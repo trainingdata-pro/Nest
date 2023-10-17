@@ -18,5 +18,14 @@ export default class AuthService{
     static async confirmRegistration(code: string){
         return axios.post(`${API_URL}/api/activate_user/`, {"code": code})
     }
+    static async resetPassword(code: string, password: string){
+        return axios.post(`${API_URL}/api/password/set/`, {"token": code, password: password})
+    }
+
+    static async sendResetEmail(email: string){
+        return axios.post(`${API_URL}/api/password/reset/`, {email:email})
+    }
+
+
 
 }
