@@ -204,7 +204,9 @@ class CheckAssessorSerializer(serializers.ModelSerializer):
             'middle_name',
             'manager',
             'projects',
-            'state'
+            'state',
+            'last_manager',
+            'last_project'
         ]
 
     def get_last_manager(self, obj: Assessor) -> Union[str, None]:
