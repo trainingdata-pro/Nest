@@ -179,9 +179,9 @@ class AssessorCheckAPIView(generics.ListAPIView):
         last_name = self.request.GET.get('last_name')
         first_name = self.request.GET.get('first_name')
         middle_name = self.request.GET.get('middle_name')
-        if not all([last_name, first_name, middle_name]):
+        if not all([last_name, first_name]):
             raise ValidationError(
-                {'detail': ['You have to specify last_name, first_name and middle_name.']}
+                {'detail': ['You have to specify at least last_name and first_name.']}
             )
         return {
             'last_name': last_name,
@@ -195,9 +195,10 @@ class AssessorCheckAPIView(generics.ListAPIView):
         first_name = data.get('first_name')
         middle_name = data.get('middle_name')
 
-        return queryset.filter(Q(last_name__iexact=last_name) &
-                               Q(first_name__iexact=first_name) &
-                               Q(middle_name__iexact=middle_name))
+        result = queryset.filter(Q(last_name__iexact=last_name) & Q(first_name__iexact=first_name))
+        if middle_name is not None:
+            return result.filter(middle_name__iexact=middle_name)
+        return result
 
 
 @method_decorator(name='retrieve', decorator=schemas.credentials_schema.retrieve())
