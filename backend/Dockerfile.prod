@@ -75,9 +75,6 @@ COPY ./pyproject.toml poetry.lock ./
 # Устанавливаем зависимости с Poetry
 RUN poetry install
 
-# Копируем .venv из билдера в финальный образ
-COPY .venv .venv
-
 ########
 # FINAL #
 #########
@@ -97,10 +94,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev
 
 # Копируем зависимости из билдера
-COPY --from=builder $APP_HOME/.venv ./.venv
-
-# Копируем файлы проекта
-COPY . $APP_HOME
+COPY --from=builder $APP_HOME $APP_HOME
 
 # Устанавливаем владельца и права доступа
 RUN chown -R assessors:assessors $APP_HOME
