@@ -1,52 +1,97 @@
+############
+## BUILDER #
+############
+#FROM python:3.10 as builder
+#
+## set work directory
+#WORKDIR /backend
+#
+#ENV PYTHONDONTWRITEBYTECODE=1
+#ENV PYTHONUNBUFFERED=1
+#
+#RUN apt-get update -y && apt-get install -y --no-install-recommends \
+#    build-essential \
+#    libpq-dev
+#
+#COPY ./src ./src
+#
+#COPY ./requirements.txt ./
+#RUN pip wheel --no-cache-dir --no-deps --wheel-dir /backend/wheels -r /backend/requirements.txt
+#
+#########
+## FINAL #
+##########
+#FROM python:3.10-slim
+#
+## create the app user
+#RUN groupadd -r assessors && useradd -r -g assessors assessors
+#
+## set the home directory
+#ENV HOME=/home/assessors
+#ENV APP_HOME=/home/assessors/backend
+#RUN mkdir -p $APP_HOME
+#WORKDIR $APP_HOME
+#
+## install dependencies
+#RUN apt-get update && apt-get install -y --no-install-recommends \
+#    libpq-dev
+#
+#COPY --from=builder /backend/wheels /wheels
+#COPY --from=builder /backend/requirements.txt .
+#RUN pip install --no-cache /wheels/*
+#
+#COPY . $APP_HOME
+#
+## set ownership and permissions
+#RUN chown -R assessors:assessors $APP_HOME
+#RUN chmod -R 755 $APP_HOME
+#
+## switch to the app user
+#USER assessors
+#
+#WORKDIR $APP_HOME/src
+
 ###########
 # BUILDER #
 ###########
 FROM python:3.10 as builder
 
-# set work directory
-WORKDIR /backend
-
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+RUN pip install poetry
 
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev
 
-COPY ./src ./src
+WORKDIR /backend
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-COPY ./requirements.txt ./
-RUN pip wheel --no-cache-dir --no-deps --wheel-dir /backend/wheels -r /backend/requirements.txt
+COPY ./pyproject.toml poetry.lock ./
+
+RUN poetry install
 
 ########
 # FINAL #
 #########
 FROM python:3.10-slim
 
-# create the app user
 RUN groupadd -r assessors && useradd -r -g assessors assessors
 
-# set the home directory
 ENV HOME=/home/assessors
 ENV APP_HOME=/home/assessors/backend
 RUN mkdir -p $APP_HOME
 WORKDIR $APP_HOME
 
-# install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev
 
-COPY --from=builder /backend/wheels /wheels
-COPY --from=builder /backend/requirements.txt .
-RUN pip install --no-cache /wheels/*
+COPY --from=builder /backend/.venv ./.venv
 
 COPY . $APP_HOME
 
-# set ownership and permissions
 RUN chown -R assessors:assessors $APP_HOME
 RUN chmod -R 755 $APP_HOME
 
-# switch to the app user
 USER assessors
 
 WORKDIR $APP_HOME/src
