@@ -166,7 +166,7 @@ const RentAssessors = () => {
     return (
         <div>
             <Dialog isOpen={showSidebar} setIsOpen={setShowSidebar}>
-                <AddAssessorForm assessorId={undefined} showSidebar={showSidebar} setShowSidebar={setShowSidebar}/>
+                <AddAssessorForm assessorId={undefined} project={undefined} setShowSidebar={setShowSidebar}/>
             </Dialog>
             <Dialog isOpen={showChangeProject} setIsOpen={setShowChangeProject}>
                 <ChangeProjects show={setShowChangeProject} selectedAssessor={getSelectedAssessors()}

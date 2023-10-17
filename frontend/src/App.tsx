@@ -15,6 +15,8 @@ import BlackList from "./components/BlackList/BlackList";
 import FreeResourcePage from "./pages/FreeResourcePage";
 import RentAssessor from "./components/AssessorManagement/RentAssessor";
 import RentAssessors from './components/Assessors/RentAssessors';
+import Export from "./components/Projects/Export";
+import PasswordReset from "./components/PasswordReset/PasswordReset";
 
 function App() {
     const {store} = useContext(Context)
@@ -36,6 +38,7 @@ function App() {
                         <Route path={'/login'} element={<SignInPage/>}/>
                         <Route path={'/register'} element={<SignUpPage/>}/>
                         <Route path={'/signup/confirmation/:id'} element={<ConfirmationSignUp/>}/>
+                        <Route path={'/password/reset/:id'} element={<PasswordReset/>}/>
                         <Route path="*" element={<Navigate to="/login" replace/>}/>
                 </Routes>:
                  <Routes>
@@ -48,6 +51,7 @@ function App() {
                      <Route path={'/assessors/blacklist'} element={<BlackList/>} />
                      <Route path={'/assessors/free_resources'} element={<FreeResourcePage/>}/>
                      <Route path="*" element={<Navigate to="/dashboard/projects" replace/>}/> // TODO: redirect 404
+
                  </Routes>}
              </BrowserRouter>
     );

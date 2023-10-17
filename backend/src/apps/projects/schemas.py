@@ -297,7 +297,7 @@ class WorkLoadStatusSchema(BaseAPISchema):
 
 
 class ExportProjectsSchema(BaseAPISchema):
-    def export(self):
+    def export_projects(self):
         return self.swagger_auto_schema(
             operation_summary='Export projects',
             operation_description='Returns unique celery task ID',
@@ -308,6 +308,33 @@ class ExportProjectsSchema(BaseAPISchema):
                     type=openapi.TYPE_STRING,
                     required=True,
                     description=f'Output file type. Available types: {", ".join(allowed_types())}'
+                )
+            ],
+            responses={
+                202: ExportSerializer(),
+                **self.get_responses(401)
+            }
+        )
+
+    def export_assessors(self):
+        return self.swagger_auto_schema(
+            operation_summary='Export assessors',
+            operation_description='Export assessors for a specific project.\n\n'
+                                  'Returns unique celery task ID',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='type',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    required=True,
+                    description=f'Output file type. Available types: {", ".join(allowed_types())}'
+                ),
+                openapi.Parameter(
+                    name='project',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_INTEGER,
+                    required=True,
+                    description='Unique project ID'
                 )
             ],
             responses={

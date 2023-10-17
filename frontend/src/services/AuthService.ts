@@ -10,7 +10,7 @@ export default class AuthService{
     static async login(email: string, password: string): Promise<AxiosResponse<AuthResponse>> {
         return axios.post<AuthResponse>(`${API_URL}/api/token/`, {'email':email, 'password':password})
     }
-    static async register(data:ISignUp): Promise<AxiosResponse<RegisterResponse>> {
+    static async register(data:any): Promise<AxiosResponse<RegisterResponse>> {
         return axios.post<AuthResponse>(`${API_URL}/api/users/`, {
             ...data
         })
@@ -18,5 +18,14 @@ export default class AuthService{
     static async confirmRegistration(code: string){
         return axios.post(`${API_URL}/api/activate_user/`, {"code": code})
     }
+    static async resetPassword(code: string, password: string){
+        return axios.post(`${API_URL}/api/password/set/`, {"token": code, password: password})
+    }
+
+    static async sendResetEmail(email: string){
+        return axios.post(`${API_URL}/api/password/reset/`, {email:email})
+    }
+
+
 
 }

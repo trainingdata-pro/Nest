@@ -19,7 +19,7 @@ class AssessorsTest(APITestCase):
     def setUpTestData(cls):
         cls.manager_data = config.ACTIVE_MANAGER_DATA
         cls.manager = config.create_default_active_manager()
-        cls.project_data = config.PROJECT_DATA
+        cls.project_data = config.ACTIVE_PROJECT_DATA
         cls.assessor_data = config.ASSESSOR_DATA
         cls.assessor_data2 = config.ASSESSOR_DATA2
 

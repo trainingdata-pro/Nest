@@ -1,8 +1,7 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {flexRender, Table} from "@tanstack/react-table";
 import Icon from "@mdi/react";
 import {mdiSort, mdiSortAscending, mdiSortDescending} from "@mdi/js";
-import {useMutation} from "react-query";
 interface TableProps {
     pages: boolean,
     rowSelection: any,
@@ -11,8 +10,8 @@ interface TableProps {
 
 const MyTable = ({pages, rowSelection, table}: TableProps) => {
     return (
-        <div className="h-full w-full">
-        <div className="rounded-t-[20px] border border-black bg-white overflow-hidden mb-[10px]">
+        <div className="w-full">
+        <div className="rounded-t-[20px] bg-white overflow-hidden mb-[20px]">
             <table className="w-full">
                 <thead>
                 {table.getHeaderGroups().map(headerGroup => (
@@ -25,7 +24,7 @@ const MyTable = ({pages, rowSelection, table}: TableProps) => {
                                         header.getSize(),
                                 }}
                                     colSpan={header.colSpan}
-                                        className="items-center py-2 text-[#64748b] text-sm">
+                                        className="items-center py-2 text-[#64748b] text-sm border-r border-r-gray-300 last:border-none">
                                     {header.isPlaceholder ? null : (
                                         <div{...{
                                             className: header.column.getCanSort() ? 'flex justify-center items-center align-middle cursor-pointer select-none' : 'flex justify-center',
@@ -61,8 +60,8 @@ const MyTable = ({pages, rowSelection, table}: TableProps) => {
                                 "border-b transition-colors hover:bg-gray-100"}>
                             {row.getVisibleCells().map(cell => {
                                 return (
-                                    <td key={cell.id} colSpan={1}>
-                                        <div className="flex justify-center items-center align-middle py-2 break-words">
+                                    <td className='border-r border-r-gray-300 last:border-none' key={cell.id} colSpan={1}>
+                                        <div className="flex justify-center text-center items-center align-middle py-2 break-words">
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </div>
                                     </td>

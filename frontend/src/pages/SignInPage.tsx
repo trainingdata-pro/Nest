@@ -6,6 +6,8 @@ import {NavLink} from "react-router-dom";
 import {EnvelopeIcon, LockClosedIcon} from "@heroicons/react/24/solid";
 import Error from "../components/UI/Error";
 import {observer} from "mobx-react-lite";
+import Dialog from "../components/UI/Dialog";
+import EmailToReset from "../components/PasswordReset/EmailToReset";
 
 
 interface ISignIn {
@@ -17,6 +19,7 @@ const SignInPage = () => {
     const {register, formState: {errors}, getValues, handleSubmit} = useForm<ISignIn>()
     const [isLoading, setIsLoading] = useState(false)
     const {store} = useContext(Context)
+    const [isShowEmailToReset, setIsShowEmailToReset] = useState(false)
     const onSubmit = async () => {
         setIsLoading(true)
         const values = getValues()
@@ -25,6 +28,9 @@ const SignInPage = () => {
     }
     return (
         <div className="container">
+            <Dialog isOpen={isShowEmailToReset} setIsOpen={setIsShowEmailToReset}>
+                <EmailToReset setIsOpen={setIsShowEmailToReset}/>
+            </Dialog>
             <div className="flex h-screen">
                 <div className="w-[50%] my-auto">
                     <img src={cat} className="left-[20px]"
@@ -63,7 +69,7 @@ const SignInPage = () => {
                             </div>
                             <Error>{store.authError}</Error>
                             <div className="w-full flex justify-end mt-3 my-6">
-                                <p className="text-black cursor-pointer underline">Забыли пароль?</p>
+                                <p className="text-black cursor-pointer underline" onClick={() => setIsShowEmailToReset(true)}>Забыли пароль?</p>
                             </div>
                             <button disabled={isLoading}
                                     className="flex justify-center bg-[#5970F6] py-3 text-white w-full items-center rounded-[8px]"

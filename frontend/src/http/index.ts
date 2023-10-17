@@ -29,7 +29,6 @@ $api.interceptors.response.use((response) => {
             console.error('Произошла ошибка при обновлении токена:', error);
         }
     }
-
     return Promise.reject(error);
 })
 export default $api;

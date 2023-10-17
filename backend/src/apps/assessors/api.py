@@ -14,7 +14,12 @@ from core.users import UserStatus
 from core import permissions
 from apps.fired import serializers as fired_serializers
 from apps.users.models import BaseUser
-from .models import AssessorState, Assessor, Skill, AssessorCredentials
+from .models import (
+    AssessorState,
+    Assessor,
+    Skill,
+    AssessorCredentials
+)
 from . import filters, serializers, schemas
 
 
@@ -128,18 +133,6 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         response = serializers.AssessorSerializer(assessor)
         return Response(response.data, status=status.HTTP_201_CREATED)
 
-    def _update(self, request: Request, **kwargs) -> Response:
-        instance = self.get_object()
-        serializer = self.get_serializer(
-            instance,
-            data=request.data,
-            partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        assessor = serializer.save()
-        response = serializers.AssessorSerializer(assessor)
-        return Response(response.data, status=status.HTTP_200_OK)
-
     def partial_update(self, request: Request, **kwargs) -> Response:
         return self._update(request, **kwargs)
 
@@ -162,6 +155,18 @@ class AssessorAPIViewSet(BaseAPIViewSet):
     @action(detail=True, methods=['patch'])
     def fire(self, request: Request, **kwargs) -> Response:
         return self._update(request, **kwargs)
+
+    def _update(self, request: Request, **kwargs) -> Response:
+        instance = self.get_object()
+        serializer = self.get_serializer(
+            instance,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        assessor = serializer.save()
+        response = serializers.AssessorSerializer(assessor)
+        return Response(response.data, status=status.HTTP_200_OK)
 
 
 @method_decorator(name='get', decorator=schemas.check_assessor_schema.get())

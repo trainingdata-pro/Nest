@@ -8,21 +8,29 @@ from apps.history.models import History, HistoryAction, HistoryAttribute
 class HistoryService:
     model = History
 
+    def get_last_assessor_manager(self, assessor_id: int) -> Union[str, None]:
+        return self.__get_last_obj(assessor_id, attribute=HistoryAttribute.MANAGER)
+
+    def get_last_assessor_project(self, assessor_id: int) -> Union[str, None]:
+        return self.__get_last_obj(assessor_id, attribute=HistoryAttribute.PROJECT)
+
     def new_assessor_history(self, assessor: Assessor, user: str) -> None:
         updates = self._get_updates_for_new_assessor(assessor, user=user)
         histories = self.create_history_objects(assessor, updates)
         self.perform_create(histories)
 
-    def updated_assessor_history(self,
-                                 old_assessor: Assessor,
-                                 new_assessor: Assessor,
-                                 user: str,
-                                 old_projects: Optional[List[int]] = None,
-                                 old_second_managers: Optional[List[int]] = None,
-                                 completed_project: bool = False,
-                                 state_reason: Optional[str] = None,
-                                 unpin_reason: Optional[str] = None,
-                                 use_none_action_for_state: bool = False) -> None:
+    def updated_assessor_history(
+            self,
+            old_assessor: Assessor,
+            new_assessor: Assessor,
+            user: str,
+            old_projects: Optional[List[int]] = None,
+            old_second_managers: Optional[List[int]] = None,
+            completed_project: bool = False,
+            state_reason: Optional[str] = None,
+            unpin_reason: Optional[str] = None,
+            use_none_action_for_state: bool = False
+    ) -> None:
         updates = self._get_updates_for_existing_assessor(
             old_assessor=old_assessor,
             new_assessor=new_assessor,
@@ -46,6 +54,20 @@ class HistoryService:
                 **self.__get_base_action_data(user='-')
             }
         ]
+
+    def create_history_objects(self, assessor: Assessor, updates: List[Dict]) -> List[History]:
+        return [self.model(
+            assessor=assessor,
+            attribute=item.get('attribute'),
+            action=item.get('action'),
+            old_value=item.get('old_value'),
+            new_value=item.get('new_value'),
+            reason=item.get('reason'),
+            user=item.get('user')
+        ) for item in updates]
+
+    def perform_create(self, histories: List[History]) -> None:
+        self.model.objects.bulk_create(histories)
 
     def _get_updates_for_new_assessor(self, assessor: Assessor, user: str) -> List[Dict]:
         updates = [
@@ -72,16 +94,18 @@ class HistoryService:
         ]
         return updates
 
-    def _get_updates_for_existing_assessor(self,
-                                           old_assessor: Assessor,
-                                           new_assessor: Assessor,
-                                           user: str,
-                                           old_projects: Optional[List[int]] = None,
-                                           old_second_managers: Optional[List[int]] = None,
-                                           completed_project: bool = False,
-                                           state_reason: Optional[str] = None,
-                                           unpin_reason: Optional[str] = None,
-                                           use_none_action_for_state: bool = False) -> List[Dict]:
+    def _get_updates_for_existing_assessor(
+            self,
+            old_assessor: Assessor,
+            new_assessor: Assessor,
+            user: str,
+            old_projects: Optional[List[int]] = None,
+            old_second_managers: Optional[List[int]] = None,
+            completed_project: bool = False,
+            state_reason: Optional[str] = None,
+            unpin_reason: Optional[str] = None,
+            use_none_action_for_state: bool = False
+    ) -> List[Dict]:
         updates = []
         if old_assessor.last_name != new_assessor.last_name:
             updates.append(
@@ -268,19 +292,12 @@ class HistoryService:
             return '; '.join(data)
         return None
 
-    def create_history_objects(self, assessor: Assessor, updates: List[Dict]) -> List[History]:
-        return [self.model(
-            assessor=assessor,
-            attribute=item.get('attribute'),
-            action=item.get('action'),
-            old_value=item.get('old_value'),
-            new_value=item.get('new_value'),
-            reason=item.get('reason'),
-            user=item.get('user')
-        ) for item in updates]
+    def __get_last_obj(self, assessor_id: int, attribute: str) -> Union[str, None]:
+        obj = self.model.objects.filter(
+            assessor=assessor_id, attribute=attribute
+        ).first()
 
-    def perform_create(self, histories: List[History]) -> None:
-        self.model.objects.bulk_create(histories)
+        return obj.old_value if obj is not None else None
 
 
 history = HistoryService()

@@ -3,7 +3,11 @@ from typing import Any, List, Optional, Union
 
 from apps.projects.models import Project
 from apps.users.models import BaseUser
-from apps.assessors.models import Assessor, AssessorState, Skill
+from apps.assessors.models import (
+    Assessor,
+    AssessorState,
+    Skill
+)
 
 
 class AssessorService:

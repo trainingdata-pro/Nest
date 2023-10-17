@@ -2,9 +2,9 @@ from django.contrib.auth import get_user_model
 from django.test import Client
 from django.urls import reverse
 
-from apps.assessors.models import Assessor, AssessorState
+from apps.assessors.models import Assessor
 from apps.assessors.services import assessors_service
-from apps.projects.models import Project
+from apps.projects.models import Project, ProjectStatuses
 from apps.projects.services import project_service
 from apps.users.models import BaseUser, ManagerProfile
 from apps.users.services import user_service, profile_service
@@ -17,7 +17,7 @@ username_field = user_model.USERNAME_FIELD
 
 class BaseTestConfig:
     NOT_ACTIVE_MANAGER_DATA = {
-        'id': 1,
+        'id': 1230,
         'username': 'not_active_manager',
         'password': 'test_password123',
         'email': 'not_active@trainingdata.pro',
@@ -29,7 +29,7 @@ class BaseTestConfig:
     }
 
     ACTIVE_MANAGER_DATA = {
-        'id': 2,
+        'id': 1240,
         'username': 'active_manager',
         'password': 'test_password123',
         'email': 'active@trainingdata.pro',
@@ -41,7 +41,7 @@ class BaseTestConfig:
     }
 
     TEAMLEAD_DATA = {
-        'id': 3,
+        'id': 1250,
         'username': 'teamlead',
         'password': 'test_password123',
         'email': 'teamlead@trainingdata.pro',
@@ -59,13 +59,14 @@ class BaseTestConfig:
         'is_teamlead': False
     }
 
-    PROJECT_DATA = {
-        'id': 1,
+    ACTIVE_PROJECT_DATA = {
+        'id': 1230,
         'asana_id': '1A',
-        'name': 'test project'
+        'name': 'active project',
+        'status': ProjectStatuses.ACTIVE
     }
     ASSESSOR_DATA = {
-        'id': 1,
+        'id': 1230,
         'username': 'assessor',
         'last_name': 'AssessorLastName',
         'first_name': 'AssessorFirstName',
@@ -73,7 +74,7 @@ class BaseTestConfig:
         'state': 'available'
     }
     ASSESSOR_DATA2 = {
-        'id': 2,
+        'id': 1240,
         'username': 'assessor2',
         'last_name': 'AssessorLastName',
         'first_name': 'AssessorFirstName',
@@ -95,8 +96,12 @@ class BaseTestConfig:
         return profile_service.create_profile(user, **data)
 
     @staticmethod
-    def create_test_project(**data) -> Project:
-        return project_service.create_project(**data)
+    def create_test_project(manager: BaseUser, **data) -> Project:
+        project = project_service.create_project(**data)
+        if manager:
+            project_service.set_manager(project, [manager])
+
+        return project
 
     @staticmethod
     def create_test_assessor(*projects, **data) -> Assessor:
