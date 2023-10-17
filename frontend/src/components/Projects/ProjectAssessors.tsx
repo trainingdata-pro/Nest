@@ -205,7 +205,7 @@ const ProjectAssessors = () => {
                     <AddToProject setAddToProject={setAddToProject}/>
                 </Dialog>
                 <Dialog isOpen={addAssessor} setIsOpen={setAddAssessor}>
-                    <AddAssessorForm assessorId={projectName.data?.id} showSidebar={addAssessor}
+                    <AddAssessorForm assessorId={projectName.data?.id} project={projectName.data}
                                      setShowSidebar={setAddAssessor}/>
                 </Dialog>
                 <Dialog isOpen={idDeleteFromProject} setIsOpen={setIsDeleteFromProject}>

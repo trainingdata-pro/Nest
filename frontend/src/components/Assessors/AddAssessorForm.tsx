@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {useForm} from "react-hook-form";
 import {Context} from "../../index";
 import MyLabel from "../UI/MyLabel";
@@ -41,10 +41,10 @@ const statusObject = [
     {value: "partial", label: "Частичная загрузка"},
     {value: "reserved", label: "Зарезервирован"},
 ]
-const AddAssessorForm = ({assessorId, showSidebar, setShowSidebar}: {
+const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
         assessorId: number | string | undefined,
-        showSidebar: any,
         setShowSidebar: any,
+        project: any
     }) => {
         const {store} = useContext(Context)
         const queryClient = useQueryClient()
@@ -56,11 +56,13 @@ const AddAssessorForm = ({assessorId, showSidebar, setShowSidebar}: {
                 ))
             }
         })
+
         const [availableProjectsList, setAvailableProjectsList] = useState<any[]>([])
         const [selectedProjects, setSelectedProjects] = useState<number>()
         const {register, setValue, watch, reset, getValues, formState: {errors}, handleSubmit} = useForm<FormProps>({
             defaultValues: {
                 manager: store.user_id,
+                projects: project?.id
             }
         })
         const updateAssessorProject = useMutation(['projectAssessors',], ({
@@ -113,12 +115,13 @@ const AddAssessorForm = ({assessorId, showSidebar, setShowSidebar}: {
 
         function submit() {
             const data = getValues()
-            if (getValues('email')) {
-                createAssessor.mutate({data: data})
-            } else {
-                const {email, ...rest} = data
-                createAssessor.mutate({data: rest})
-            }
+            console.log(data)
+            // if (getValues('email')) {
+            //     createAssessor.mutate({data: data})
+            // } else {
+            //     const {email, ...rest} = data
+            //     createAssessor.mutate({data: rest})
+            // }
 
         }
 
@@ -227,8 +230,8 @@ const AddAssessorForm = ({assessorId, showSidebar, setShowSidebar}: {
                         {...register('projects')}
                         options={availableProjectsList}
                         isSearchable={false}
-                        // isDisabled={!!getValues('projects')}
-                        value={getValueProjects()}
+                        isDisabled={!!project}
+                        value={project ? {label: project.name, value: project.id}: getValueProjects() }
                         onChange={onChangeProjects}
                     />
                 </FormSection>
