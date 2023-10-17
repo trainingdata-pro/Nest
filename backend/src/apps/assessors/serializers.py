@@ -1,5 +1,5 @@
 from copy import copy
-from typing import Dict
+from typing import Dict, Union
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -191,6 +191,8 @@ class AssessorSerializer(serializers.ModelSerializer):
 class CheckAssessorSerializer(serializers.ModelSerializer):
     manager = UserSerializer(read_only=True)
     projects = ProjectSerializer(read_only=True, many=True)
+    last_manager = serializers.SerializerMethodField(method_name='get_last_manager', read_only=True)
+    last_project = serializers.SerializerMethodField(method_name='get_last_project', read_only=True)
 
     class Meta:
         model = Assessor
@@ -204,6 +206,12 @@ class CheckAssessorSerializer(serializers.ModelSerializer):
             'projects',
             'state'
         ]
+
+    def get_last_manager(self, obj: Assessor) -> Union[str, None]:
+        return history.get_last_assessor_manager(obj.pk)
+
+    def get_last_project(self, obj: Assessor) -> Union[str, None]:
+        return history.get_last_assessor_project(obj.pk)
 
 
 class CreateUpdateAssessorCredentialsSerializer(GetUserMixin, serializers.ModelSerializer):
