@@ -8,7 +8,6 @@ import Select from "react-select";
 
 // @ts-ignore
 const Unpin = ({assessorId,assessor, close}) => {
-    console.log(assessor)
     const navigate = useNavigate()
     const queryClient = useQueryClient()
     const [selectedReason, setSelectedReason] = useState<string>()

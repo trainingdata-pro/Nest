@@ -104,7 +104,6 @@ const Profile = ({setIsOpen}: {
                     })}} type="text" placeholder="Ник в ТГ"/>
             </FormSection>
             <FormSection>
-
                 <MyLabel required={true}>Ответственный TeamLead</MyLabel>
                 <MyInput disabled register={{...register('teamlead', {
 

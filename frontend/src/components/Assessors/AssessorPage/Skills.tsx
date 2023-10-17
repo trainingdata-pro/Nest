@@ -1,14 +1,14 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {Assessor, Skill} from "../../models/AssessorResponse";
-import AssessorService from "../../services/AssessorService";
+import {Assessor, Skill} from "../../../models/AssessorResponse";
+import AssessorService from "../../../services/AssessorService";
 import Select, {MultiValue} from "react-select";
-import {SelectProps} from "../Projects/ProjectForm";
+import {SelectProps} from "../../Projects/ProjectForm";
 import {PencilSquareIcon} from "@heroicons/react/24/outline";
 import {CheckIcon} from "@heroicons/react/24/solid";
 import {useForm} from "react-hook-form";
-import {Context} from "../../index";
+import {Context} from "../../../index";
 import {useQuery} from "react-query";
-import {errorNotification, successNotification} from "../UI/Notify";
+import {errorNotification, successNotification} from "../../UI/Notify";
 
 const Skills = ({assessor}: {
     assessor: Assessor

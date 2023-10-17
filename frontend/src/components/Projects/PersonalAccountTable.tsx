@@ -49,7 +49,7 @@ const PersonalAccountTable = () => {
         columnHelper.accessor('assessors_count', {
             header: 'Количество ассессеров',
             cell: info => <div className="cursor-pointer h-full w-full text-center break-all"
-                              onClick={() => navigation(`/dashboard/projects/${info.row.original.id}/assessors`)}>{info.getValue()}</div>,
+                              onClick={() => navigation(`/dashboard/projects/${info.row.original.id}/assessors/?name=${info.row.original.name}`)}>{info.getValue()}</div>,
             enableSorting: true
         }),
         columnHelper.accessor('status', {

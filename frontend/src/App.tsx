@@ -7,9 +7,9 @@ import SignUpPage from "./pages/SignUpPage";
 import ConfirmationSignUp from "./components/SignUp/ConfirmationSignUp";
 import MainPage from './pages/MainPage';
 import Loader from './components/UI/Loader';
-import ProjectAssessors from "./components/Projects/ProjectAssessors";
+import ProjectPage from "./components/Projects/ProjectPage/ProjectPage";
 import AssessorsPage from "./components/Assessors/AssessorsPage";
-import AssessorPage from './components/Assessors/AssessorPage';
+import AssessorPage from './components/Assessors/AssessorPage/AssessorPage';
 import CompletedProjects from "./pages/CompletedProjects";
 import BlackList from "./components/BlackList/BlackList";
 import FreeResourcePage from "./pages/FreeResourcePage";
@@ -43,7 +43,7 @@ function App() {
                 </Routes>:
                  <Routes>
                      <Route path={'/dashboard/projects'} element={<MainPage/>}/>
-                     <Route path={'/dashboard/projects/:id/assessors'} element={<ProjectAssessors/>}/>
+                     <Route path={'/dashboard/projects/:id/assessors'} element={<ProjectPage/>}/>
                      <Route path={'/dashboard/assessors/my'} element={<AssessorsPage/>}/>
                      <Route path={'/dashboard/assessors/rent'} element={<RentAssessors/>}/>
                      <Route path={'/assessor/:id'} element={<AssessorPage/>}/>

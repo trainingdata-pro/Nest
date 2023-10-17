@@ -44,23 +44,20 @@ const Header = () => {
                                     </li>
                                     <li>
                                         <NavLink
-                                            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4"
+                                            className={({isActive}) => `${isActive? 'text-black' : ''} inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4`}
                                             to='/dashboard/projects/free'>Завершенные</NavLink>
                                     </li>
                                     <li>
                                         <NavLink
-                                            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4"
-                                            to='/assessors/blacklist'>Черный список</NavLink>
+                                            className={({isActive}) => `${isActive? 'text-black' : ''} inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4`}                                            to='/assessors/blacklist'>Черный список</NavLink>
                                     </li>
                                     <li>
                                         <NavLink
-                                            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4"
-                                            to='/dashboard/assessors/my'>Мои исполнители</NavLink>
+                                            className={({isActive}) => `${isActive? 'text-black' : ''} inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4`}                                            to='/dashboard/assessors/my'>Мои исполнители</NavLink>
                                     </li>
                                     <li>
                                         <NavLink
-                                            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4"
-                                            to='/assessors/free_resources'>Свободные ресурсы</NavLink>
+                                            className={({isActive}) => `${isActive? 'text-black' : ''} inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4`}                                            to='/assessors/free_resources'>Свободные ресурсы</NavLink>
                                     </li>
                                 </div>
                             </ul>

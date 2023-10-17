@@ -26,15 +26,21 @@ export const columns = [
         cell: info => info.renderValue(),
         enableSorting: false
     }),
-    columnHelper.accessor('last_manager', {
-        header: 'Последний руководитель',
-        cell: info => info.getValue(),
+    columnHelper.accessor('manager', {
+        header: 'Руководитель',
+        cell: info => {
+            if (info.getValue()){
+                return `${info.getValue().last_name} ${info.getValue().first_name}`
+            } else {
+                return ''
+            }
 
+        },
         enableSorting: false
     }),
-    columnHelper.accessor('last_project', {
-        header: 'Последний проект',
-        cell: info => info.getValue(),
+    columnHelper.accessor('projects', {
+        header: 'Проект',
+        cell: info => <div className='flex flex-col'>{info.getValue().map(project => <span>{project.name}</span>)}</div>,
         enableSorting: false
     }),
     columnHelper.accessor('free_resource_weekday_hours', {

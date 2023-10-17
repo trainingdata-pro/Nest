@@ -151,3 +151,19 @@ export interface IFiredResponse {
     count: number
     next: string
 }
+
+export interface ProjectAssessors {
+    id: number
+    date_of_registration: string
+    email: string
+    first_name: string
+    free_resource_day_off_hours: string
+    free_resource_weekday_hours:string
+    last_name: string
+    manager: IManager
+    middle_name: string
+    skills: Skill[]
+    username: string
+    working_hours: WorkingHours
+    workload_status: 'full' | 'partial' | 'reserved'
+}

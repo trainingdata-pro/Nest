@@ -24,7 +24,7 @@ export type LoginAndPasswordResponse = {
     results: ILoginAndPassword[]
 }
 export default class AssessorService{
-    static fetchAssessors = (projectId: any) => $api.get<AssessorResponse>(`/api/assessors/?projects=${projectId}`).then(res => res.data)
+    static fetchAssessors = (page: number | string,projectId: any) => $api.get<AssessorResponse>(`/api/assessors/?projects=${projectId}&page=${page}`).then(res => res.data)
     static addAssessor = (data:any) => $api.post<Assessor>('/api/assessors/', data).then(res => res.data)
     static fetchManagersAssessors = ( page = 1, manager: number|string = '', second_manager:string|number ='') => $api.get<AssessorResponse>(`/api/assessors/?page=${page}&manager=${manager}&second_manager=${second_manager}`).then(res => res.data)
     static fetchAssessor = (id: any) => $api.get<Assessor>(`/api/assessors/${id}/`).then(res => res.data)

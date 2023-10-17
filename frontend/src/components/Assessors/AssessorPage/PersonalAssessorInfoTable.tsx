@@ -2,12 +2,12 @@ import React, {useContext, useState} from 'react';
 import {PencilSquareIcon} from "@heroicons/react/24/outline";
 import {CheckIcon} from "@heroicons/react/24/solid";
 import {useForm} from "react-hook-form";
-import AssessorService from "../../services/AssessorService";
+import AssessorService from "../../../services/AssessorService";
 import {useMutation, useQuery, useQueryClient} from "react-query";
-import {Context} from "../../index";
-import Loader from "../UI/Loader";
-import MiniLoader from "../UI/MiniLoader";
-import {errorNotification, successNotification} from "../UI/Notify";
+import {Context} from "../../../index";
+import Loader from "../../UI/Loader";
+import MiniLoader from "../../UI/MiniLoader";
+import {errorNotification, successNotification} from "../../UI/Notify";
 interface PersonalTableProps{
     last_name: string,
     first_name: string,
@@ -92,16 +92,16 @@ const PersonalAssessorInfoTable = ({assessorId}: {assessorId: string | number | 
                 <tbody>
                 <tr className='bg-white'>
                     <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
-                        <input placeholder={!getValues('last_name') ? 'Загрузка' : 'Фамилия'} disabled={isDisabled} className="text-center bg-white disabled:border-none disabled:opacity-50" {...register('last_name')}/>
+                        <input disabled={isDisabled} className="text-center bg-white disabled:border-none disabled:opacity-50" {...register('last_name')}/>
                     </td>
                     <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
-                        <input placeholder={!getValues('first_name') ? 'Загрузка' : 'Имя'} disabled={isDisabled} className="w-full text-center bg-white disabled:border-none disabled:opacity-50" {...register('first_name')}/>
+                        <input disabled={isDisabled} className="w-full text-center bg-white disabled:border-none disabled:opacity-50" {...register('first_name')}/>
                     </td>
                     <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
-                        <input placeholder={!getValues('middle_name') ? 'Загрузка' : 'Отчество'} disabled={isDisabled} className="block w-full text-center bg-white disabled:border-none disabled:opacity-50" {...register('middle_name')}/>
+                        <input disabled={isDisabled} className="block w-full text-center bg-white disabled:border-none disabled:opacity-50" {...register('middle_name')}/>
                     </td>
                     <td className="text-center whitespace-nowrap border-r dark:border-neutral-500 py-[5px]">
-                        {!getValues('username') ? <MiniLoader size={15}/> : <input placeholder={!getValues('username') ? 'Загрузка' : 'Ник в ТГ'} disabled={isDisabled} className="w-full text-center bg-white disabled:border-none disabled:opacity-50" {...register('username')}/>}
+                        {!getValues('username') ? <MiniLoader size={15}/> : <input disabled={isDisabled} className="w-full text-center bg-white disabled:border-none disabled:opacity-50" {...register('username')}/>}
                     </td>
                     <td className="whitespace-nowrap border-r dark:border-neutral-500 py-[5px] text-center">
                         {assessor.data?.manager ? `${assessor.data?.manager.last_name} ${assessor.data?.manager.first_name}`: <p className='text-gray-400'>Загрузка</p>}

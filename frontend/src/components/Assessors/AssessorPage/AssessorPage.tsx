@@ -1,26 +1,26 @@
 import React, {useContext, useMemo, useState} from 'react';
 import {NavLink, useNavigate, useParams} from "react-router-dom";
-import AssessorService from "../../services/AssessorService";
-import Header from "../Header/Header";
+import AssessorService from "../../../services/AssessorService";
+import Header from "../../Header/Header";
 import PersonalAssessorInfoTable from "./PersonalAssessorInfoTable";
-import Dialog from "../UI/Dialog";
-import TableLog from "./LoginAndPassword";
+import Dialog from "../../UI/Dialog";
+import TableLog from "../LoginAndPassword";
 import {observer} from "mobx-react-lite";
-import AssessorProjects from "./AssessorProjects";
-import AssessorHistory from "./AssessorHistory";
+import AssessorProjects from "../AssessorProjects";
+import AssessorHistory from "../AssessorHistory";
 import Skills from "./Skills";
-import FreeResource from "../AssessorManagement/FreeResource";
-import Vacation from "../AssessorManagement/Vacation";
-import CurrentState from "./CurrentState";
+import FreeResource from "../../AssessorManagement/FreeResource";
+import Vacation from "../../AssessorManagement/Vacation";
+import CurrentState from "../CurrentState";
 import {useQuery} from 'react-query';
-import Management from "../AssessorManagement/Management";
-import Fired from "../AssessorManagement/Fired";
-import Loader from "../UI/Loader";
-import VacationReturn from "../AssessorManagement/VacationReturn";
+import Management from "../../AssessorManagement/Management";
+import Fired from "../../AssessorManagement/Fired";
+import Loader from "../../UI/Loader";
+import VacationReturn from "../../AssessorManagement/VacationReturn";
 import {toast, ToastContainer} from "react-toastify";
-import Unpin from "../AssessorManagement/Unpin";
-import ReturnFromFreeResources from "../AssessorManagement/ReturnFromFreeResources";
-import {Context} from "../../index";
+import Unpin from "../../AssessorManagement/Unpin";
+import ReturnFromFreeResources from "../../AssessorManagement/ReturnFromFreeResources";
+import {Context} from "../../../index";
 
 
 export interface AssessorPatch {

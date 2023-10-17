@@ -1,10 +1,13 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import MyButton from '../UI/MyButton';
 import {useMutation, useQueryClient} from "react-query";
 import AssessorService from "../../services/AssessorService";
 import {errorNotification, successNotification} from "../UI/Notify";
 
 const ReturnFromFreeResources = ({assessorId, show}:{assessorId:string|number|undefined, show:any}) => {
+    useEffect(() => {
+        document.title = 'Вернуть из свободных ресурсов'
+    }, []);
     const queryClient = useQueryClient()
     const returnFromFreeResources = useMutation(['currentAssessor', assessorId], () => AssessorService.returnFromFreeResources(assessorId, {free_resource:false}),{
         onSuccess: () => {
