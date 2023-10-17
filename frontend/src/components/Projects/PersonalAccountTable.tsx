@@ -115,7 +115,7 @@ const PersonalAccountTable = () => {
             </Dialog>
             <div className="h-full w-full px-8">
 
-                <div className="flex-col container items-center">
+                <div className="flex-col items-center">
                     <div className="flex justify-between my-2">
                         <div className='my-auto'>
                             <p>Всего активных проектов: {data?.length}</p>
