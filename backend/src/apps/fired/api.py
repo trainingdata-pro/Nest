@@ -1,3 +1,5 @@
+from typing import Dict
+
 from django.db.models.query import EmptyQuerySet
 from django.utils.decorators import method_decorator
 from rest_framework import viewsets, status, generics
@@ -37,6 +39,10 @@ class BlackListAPIViewSet(viewsets.ModelViewSet):
     http_method_names = ['get']
     filterset_class = BlackListFilter
     ordering_fields = ['pk']
+
+    # def get_serializer_context(self) -> Dict:
+    #     context = super().get_serializer_context()
+    #     context['assessor_id'] = self.request.GET.get('assessor')
 
 
 @method_decorator(name='retrieve', decorator=schemas.fired_schema.retrieve_fired())
