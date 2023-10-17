@@ -16,6 +16,7 @@ import FreeResourcePage from "./pages/FreeResourcePage";
 import RentAssessor from "./components/AssessorManagement/RentAssessor";
 import RentAssessors from './components/Assessors/RentAssessors';
 import Export from "./components/Projects/Export";
+import PasswordReset from "./components/PasswordReset/PasswordReset";
 
 function App() {
     const {store} = useContext(Context)
@@ -37,6 +38,7 @@ function App() {
                         <Route path={'/login'} element={<SignInPage/>}/>
                         <Route path={'/register'} element={<SignUpPage/>}/>
                         <Route path={'/signup/confirmation/:id'} element={<ConfirmationSignUp/>}/>
+                        <Route path={'/password/reset/:id'} element={<PasswordReset/>}/>
                         <Route path="*" element={<Navigate to="/login" replace/>}/>
                 </Routes>:
                  <Routes>

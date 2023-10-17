@@ -128,8 +128,8 @@ export interface IBlackList {
     assessor: Assessor,
     reason: IReason,
     date: string,
-    last_manager: string,
-    last_project: string
+    last_manager?: string,
+    last_project?: string
 }
 export interface IBlackListResponse {
     results: IBlackList[],
