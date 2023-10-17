@@ -44,7 +44,7 @@ COPY . $APP_HOME
 
 # set ownership and permissions
 RUN chown -R assessors:assessors $APP_HOME
-RUN chmod -R 755 $APP_HOME
+RUN chmod -R 777 $APP_HOME
 
 # switch to the app user
 USER assessors
