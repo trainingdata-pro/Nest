@@ -115,13 +115,13 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
 
         function submit() {
             const data = getValues()
-            console.log(data)
-            // if (getValues('email')) {
-            //     createAssessor.mutate({data: data})
-            // } else {
-            //     const {email, ...rest} = data
-            //     createAssessor.mutate({data: rest})
-            // }
+            // console.log(data)
+            if (getValues('email')) {
+                createAssessor.mutate({data: data})
+            } else {
+                const {email, ...rest} = data
+                createAssessor.mutate({data: rest})
+            }
 
         }
 
