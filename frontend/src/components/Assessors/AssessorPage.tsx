@@ -95,8 +95,6 @@ const AssessorPage = () => {
                 </Dialog>
                 <Header/>
                 <div className="px-8 pt-20 space-x-2 flex justify-end mb-2">
-
-
                     {assessor.data?.manager.id === store.user_id && <Management setIsReturnFromFreeResources={setIsReturnFromFreeResources} setUnpin={setUnpin} assessorState={assessorState} setIsReturnVacation={setIsReturnVacation} setOpenVacation={setOpenVacation} setIsOpenFired={setIsOpenFired}
                                 setShowAddToFreeResource={setShowAddToFreeResource}/>}
                     <button className='bg-[#5970F6] rounded-md text-white px-4 py-2'

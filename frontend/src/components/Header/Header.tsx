@@ -4,16 +4,20 @@ import {Context} from "../../index";
 import Profile from "../Profile";
 import {observer} from "mobx-react-lite";
 import Dialog from "../UI/Dialog";
+import CheckAssessor from "./CheckAssessor";
 
 const Header = () => {
     const {store} = useContext(Context)
     const [isOpen, setIsOpen] = useState(false)
+    const [isOpenCheck, setIsOpenCheck] = useState(false)
     return (
         <>
             <Dialog isOpen={isOpen} setIsOpen={setIsOpen}>
                 <Profile setIsOpen={setIsOpen}/>
             </Dialog>
-
+            <Dialog isOpen={isOpenCheck} setIsOpen={setIsOpenCheck}>
+                <CheckAssessor setIsOpenCheck={setIsOpenCheck}/>
+            </Dialog>
             <header className="fixed z-10 left-0 right-0 h-[70px] rounded-b-[20px] border-b border-gray-200 bg-[#5970F6]">
 
                 <div className="flex mx-auto h-full pr-8 pl-8 items-center">
@@ -34,10 +38,9 @@ const Header = () => {
                                             onClick={() => setIsOpen(true)}>Профиль</button>
                                     </li>
                                     <li>
-                                        <NavLink
-
+                                        <button
                                             className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4"
-                                            to='/dashboard/check'>Проверить</NavLink>
+                                            onClick={() => setIsOpenCheck(true)}>Проверить</button>
                                     </li>
                                     <li>
                                         <NavLink
