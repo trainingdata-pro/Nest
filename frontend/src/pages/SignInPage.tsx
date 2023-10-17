@@ -7,7 +7,7 @@ import {EnvelopeIcon, LockClosedIcon} from "@heroicons/react/24/solid";
 import Error from "../components/UI/Error";
 import {observer} from "mobx-react-lite";
 import Dialog from "../components/UI/Dialog";
-import EmailToReset from "../components/EmailToReset";
+import EmailToReset from "../components/PasswordReset/EmailToReset";
 
 
 interface ISignIn {

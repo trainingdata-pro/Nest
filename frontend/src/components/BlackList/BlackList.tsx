@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import AssessorService from "../../services/AssessorService";
 
-import {useQuery} from "react-query";
+import {useMutation, useQuery} from "react-query";
 import Header from "../Header/Header";
 import {MagnifyingGlassIcon} from "@heroicons/react/24/solid";
 import {
@@ -9,7 +9,7 @@ import {
     getPaginationRowModel,
     getSortedRowModel,
     SortingState,
-    useReactTable
+    useReactTable,
 } from "@tanstack/react-table";
 import {columns} from './columns';
 import Table from "../UI/Table";
@@ -19,11 +19,9 @@ import MyButton from "../UI/MyButton";
 
 const BlackList = () => {
     const [globalFilter, setGlobalFilter] = React.useState('')
-
     const blacklist = useQuery(['blacklist'], () => fetchAllData())
-    const [sorting, setSorting] = React.useState<SortingState>([{id: 'last_manager', desc: true}])
+    const [sorting, setSorting] = React.useState<SortingState>([])
     const [rowSelection, setRowSelection] = React.useState({})
-
     async function fetchAllData() {
         const allData = [];
         let currentPage = 1;
@@ -39,6 +37,7 @@ const BlackList = () => {
         }
         return allData;
     }
+
 
     const table = useReactTable({
         data: blacklist.data ? blacklist.data : [],
@@ -60,6 +59,7 @@ const BlackList = () => {
         onRowSelectionChange: setRowSelection,
         debugTable: false,
     })
+    console.log(table)
     const [filteredRows, setFilteredRows] = useState<any>([])
     const [isExportBlackList, setIsExportBlackList] = useState(false)
     useEffect(() => {

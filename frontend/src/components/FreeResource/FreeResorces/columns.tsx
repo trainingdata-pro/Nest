@@ -1,5 +1,3 @@
-import LastManager from "./LastManager";
-import LastProject from "./LastProject";
 import FreeResourceEdit from "./FreeResourceEdit";
 import React from "react";
 import {createColumnHelper} from "@tanstack/react-table";
@@ -31,12 +29,13 @@ export const columns = [
     }),
     columnHelper.accessor('last_manager', {
         header: 'Последний руководитель',
-        cell: info => <LastManager assessorId={info.row.original.id}/>,
+        cell: info => info.getValue(),
+
         enableSorting: false
     }),
     columnHelper.accessor('last_project', {
         header: 'Последний проект',
-        cell: info => <LastProject assessorId={info.row.original.id}/>,
+        cell: info => info.getValue(),
         enableSorting: false
     }),
     columnHelper.accessor('free_resource_weekday_hours', {

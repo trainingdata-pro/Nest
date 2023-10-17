@@ -2,11 +2,11 @@ import React, {useState} from 'react';
 import {useNavigate, useParams} from "react-router-dom";
 import {useForm} from "react-hook-form";
 import {LockClosedIcon} from "@heroicons/react/24/solid";
-import Error from "./UI/Error";
-import {ISignUp} from "../pages/SignUpPage";
-import AuthService from "../services/AuthService";
+import Error from "../UI/Error";
+import {ISignUp} from "../../pages/SignUpPage";
+import AuthService from "../../services/AuthService";
 import {log} from "util";
-import {errorNotification, successNotification} from "./UI/Notify";
+import {errorNotification, successNotification} from "../UI/Notify";
 
 
 interface Reset {

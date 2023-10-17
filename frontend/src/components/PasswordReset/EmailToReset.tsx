@@ -1,9 +1,9 @@
 import React, {useState} from 'react';
 import {EnvelopeIcon} from "@heroicons/react/24/solid";
-import Error from "./UI/Error";
+import Error from "../UI/Error";
 import {useForm} from "react-hook-form";
-import AuthService from "../services/AuthService";
-import {errorNotification, successNotification} from "./UI/Notify";
+import AuthService from "../../services/AuthService";
+import {errorNotification, successNotification} from "../UI/Notify";
 
 const EmailToReset = ({setIsOpen}:{
     setIsOpen: React.Dispatch<boolean>

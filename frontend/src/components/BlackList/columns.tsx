@@ -1,7 +1,4 @@
 import {NavLink} from "react-router-dom";
-import LastManager from "../FreeResource/FreeResorces/LastManager";
-import LastProject from "../FreeResource/FreeResorces/LastProject";
-import FreeResourceEdit from "../FreeResource/FreeResorces/FreeResourceEdit";
 import React from "react";
 import {createColumnHelper} from "@tanstack/react-table";
 import {IBlackList} from "../../models/AssessorResponse";
@@ -31,13 +28,13 @@ export const columns = [
     }),
     columnHelper.accessor('last_manager', {
         header: 'Последний руководитель',
-        cell: info => <LastManager assessorId={info.row.original.id}/>,
-        enableSorting: false
+        cell: info => info.getValue(),
+        enableSorting: true
     }),
     columnHelper.accessor('last_project', {
         header: 'Последний проект',
-        cell: info => <LastProject assessorId={info.row.original.id}/>,
-        enableSorting: false
+        cell: info => info.getValue(),
+        enableSorting: true
     }),
     columnHelper.accessor('reason.title', {
         header: 'Причина',
