@@ -11,7 +11,7 @@ interface TableProps {
 const MyTable = ({pages, rowSelection, table}: TableProps) => {
     return (
         <div className="w-full">
-        <div className="rounded-t-[20px] bg-white overflow-hidden pb-[20px]">
+        <div className="rounded-t-[20px] bg-white overflow-hidden mb-[20px]">
             <table className="w-full">
                 <thead>
                 {table.getHeaderGroups().map(headerGroup => (
