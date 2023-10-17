@@ -56,42 +56,58 @@
 ###########
 FROM python:3.10 as builder
 
+# Устанавливаем инструмент Poetry
 RUN pip install poetry
 
+# Устанавливаем системные зависимости
 RUN apt-get update -y && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev
 
+# Создаем директорию приложения и устанавливаем переменные окружения
 WORKDIR /backend
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+# Копируем файлы проекта
 COPY ./pyproject.toml poetry.lock ./
 
+# Устанавливаем зависимости с Poetry
 RUN poetry install
+
+# Копируем .venv из билдера в финальный образ
+COPY .venv .venv
 
 ########
 # FINAL #
 #########
 FROM python:3.10-slim
 
+# Создаем пользователя для приложения
 RUN groupadd -r assessors && useradd -r -g assessors assessors
 
+# Устанавливаем директории
 ENV HOME=/home/assessors
 ENV APP_HOME=/home/assessors/backend
 RUN mkdir -p $APP_HOME
 WORKDIR $APP_HOME
 
+# Устанавливаем системные зависимости
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev
 
-COPY --from=builder /backend/.venv ./.venv
+# Копируем зависимости из билдера
+COPY --from=builder $APP_HOME/.venv ./.venv
 
+# Копируем файлы проекта
 COPY . $APP_HOME
 
+# Устанавливаем владельца и права доступа
 RUN chown -R assessors:assessors $APP_HOME
 RUN chmod -R 755 $APP_HOME
 
+# Переключаемся на пользователя приложения
 USER assessors
 
+# Устанавливаем рабочую директорию
 WORKDIR $APP_HOME/src
