@@ -31,7 +31,6 @@ export default class Store {
     isLoading = false
     cookies = new Cookies()
     authError = ''
-    isEditableLoginAndPassword = false
     constructor() {
         makeAutoObservable(this)
     }
@@ -42,7 +41,6 @@ export default class Store {
     setAuthError(error: string) {
         this.authError = error
     }
-
     setAuth(bool: boolean) {
         this.isAuth = bool
     }
@@ -53,9 +51,6 @@ export default class Store {
 
     setUserData(manager: UserData) {
         this.user_data = manager
-    }
-    setEditableLoginAndPassword(bool: boolean){
-        this.isEditableLoginAndPassword = bool
     }
     async login(email: string, password: string) {
         await AuthService.login(email, password)
@@ -90,7 +85,6 @@ export default class Store {
             const decodeJwt: Token = jwtDecode(response.data.access)
             const managerId = decodeJwt.user_id
             const user_data = decodeJwt.user_data
-            console.log(user_data)
             this.setUserId(managerId)
             this.setUserData(user_data)
             this.setAuth(true)
