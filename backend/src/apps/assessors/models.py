@@ -96,7 +96,6 @@ class Assessor(models.Model):
     email = models.EmailField(
         verbose_name='эл. почта',
         blank=True,
-        null=True,
         validators=[assessor_email_validator]
     )
     country = models.CharField(
