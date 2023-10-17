@@ -171,7 +171,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
 
 @method_decorator(name='get', decorator=schemas.check_assessor_schema.get())
 class AssessorCheckAPIView(generics.ListAPIView):
-    queryset = Assessor.objects.all().select_related('manager__user')
+    queryset = Assessor.objects.all().select_related('manager')
     serializer_class = serializers.CheckAssessorSerializer
     permission_classes = (IsAuthenticated,)
 
