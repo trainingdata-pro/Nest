@@ -50,13 +50,18 @@ const PersonalAssessorInfoTable = ({assessorId}: {assessorId: string | number | 
             setIsDisabled(false)
         } else {
             let data = getValues()
-            if (data.email === assessor.data?.email){
-                const {email, ...rest} = data
-                patchAssessorInfo.mutate({id: assessorId, data:rest})
+            if (data.email === ''){
+                const newData = {...data, email: null}
+                patchAssessorInfo.mutate({id: assessorId, data:newData})
             } else {
-                patchAssessorInfo.mutate({id: assessorId, data:data})
-            }
+                if (data.email === assessor.data?.email){
+                    const {email, ...rest} = data
+                    patchAssessorInfo.mutate({id: assessorId, data:rest})
+                } else {
+                    patchAssessorInfo.mutate({id: assessorId, data:data})
+                }
 
+            }
             setIsDisabled(true)
 
         }
