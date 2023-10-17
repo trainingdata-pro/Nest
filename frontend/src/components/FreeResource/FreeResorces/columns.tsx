@@ -1,5 +1,4 @@
 import FreeResourceEdit from "./FreeResourceEdit";
-import React from "react";
 import {createColumnHelper} from "@tanstack/react-table";
 import {FreeAssessor} from "./FreeResource";
 import {NavLink} from "react-router-dom";

@@ -14,7 +14,7 @@ function SideBar({children, isOpen, setIsOpen}: {
                 <div className="fixed inset-0 z-20 overflow-y-auto">
                     <div className="flex min-h-full justify-center p-4 text-center items-start">
                         <Dialog.Panel
-                            className="relative rounded-lg bg-white text-left shadow-xl transition-all max-w-[50%]]">
+                            className="relative rounded-lg bg-white text-left shadow-xl transition-all max-w-[70%]">
                             <div className="bg-white px-4 pb-4">
                                 <div className="text-center" ref={cancelButtonRef}>
                                     {children}

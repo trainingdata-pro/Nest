@@ -15,6 +15,8 @@ import {
     useReactTable
 } from "@tanstack/react-table";
 import {Assessor} from "../../models/AssessorResponse";
+import FreeResourceEdit from "../FreeResource/FreeResorces/FreeResourceEdit";
+import CheckAssessorManagement from "./CheckAssessorManagement";
 
 interface FormProps{
     last_name: string,
@@ -29,10 +31,14 @@ const stateObject = {
     "blacklist": "Черный список",
     "fired": "Уволен",
 }
+interface CheckAssessor extends Assessor{
+    last_manager: string,
+    last_project: string
+}
 const CheckAssessor = ({setIsOpenCheck}: {
     setIsOpenCheck: React.Dispatch<boolean>
 }) => {
-    const columnHelper = createColumnHelper<Assessor>()
+    const columnHelper = createColumnHelper<CheckAssessor>()
 
     const {register,getValues, formState:{
         errors
@@ -60,7 +66,27 @@ const CheckAssessor = ({setIsOpenCheck}: {
         }),
         columnHelper.accessor('projects', {
             header: 'Проект',
-            cell: info => info.row.original.projects?.map(project => project.name).join(', '),
+            cell: info => {
+                if (info.row.original.last_project){
+                    return info.row.original.last_project
+                } else {
+                    return info.row.original.projects?.map(project => project.name).join(', ')
+                }
+            },
+            enableSorting: false
+        }),
+        columnHelper.accessor('manager', {
+            header: 'Менеджер',
+            cell: info => {
+                if (info.row.original.last_manager){
+                    return info.row.original.last_manager
+                } else if (info.row.original.manager) {
+                    return `${info.row.original.manager.last_name} ${info.row.original.manager.first_name}`
+                } else {
+                    return ''
+                }
+
+            },
             enableSorting: false
         }),
         columnHelper.accessor('state', {
@@ -89,6 +115,7 @@ const CheckAssessor = ({setIsOpenCheck}: {
         onRowSelectionChange: setRowSelection,
         debugTable: false,
     })
+    const [showTable, setShowTable] = useState(false)
     const submit = () => {
         const {last_name, first_name, middle_name} = getValues()
         if (middle_name){
@@ -100,19 +127,21 @@ const CheckAssessor = ({setIsOpenCheck}: {
                 errorNotification('Ошибка')
             })
         }
+        setShowTable(true)
     }
     return (
-        <div>
+        <div className='max-w-[800px] overflow-x-hidden'>
             <form onSubmit={handleSubmit(submit)}>
                 <section className="flex justify-between my-2 space-x-2 box-border">
-                    <div>
-                        <MyInput register={{...register('last_name')}} type="text"
+                    <div className={'w-full'}>
+                        <MyInput register={{...register('last_name')}}
+                                 type="text"
                                  name="last_name"
                                  placeholder="Фамилия"/>
 
                         <Error>{errors.last_name && errors.last_name?.message}</Error>
                     </div>
-                    <div>
+                    <div className={'w-full'}>
                         <MyInput
                             register={{...register('first_name')}}
                             type="text"
@@ -120,7 +149,7 @@ const CheckAssessor = ({setIsOpenCheck}: {
                             placeholder="Имя"/>
                         <Error>{errors.first_name && errors.first_name?.message}</Error>
                     </div>
-                    <div>
+                    <div className={'w-full'}>
 
                         <MyInput
                             register={{...register('middle_name')}}
@@ -129,12 +158,12 @@ const CheckAssessor = ({setIsOpenCheck}: {
                             placeholder="Отчество"/>
                         <Error>{errors.middle_name && errors.middle_name?.message}</Error>
                     </div>
+                    <MyButton>Проверить</MyButton>
                 </section>
-                <MyButton>Проверить</MyButton>
-                <div>
-                    {data.length === 0 ? 'Совпадений не найдено':<Table pages={true} rowSelection={rowSelection} table={table}/>}
-                </div>
             </form>
+            <div>
+                {showTable && (data.length === 0 ? 'Совпадений не найдено':<Table pages={true} rowSelection={rowSelection} table={table}/>)}
+            </div>
         </div>
     );
 };

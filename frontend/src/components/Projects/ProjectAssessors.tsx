@@ -216,7 +216,7 @@ const ProjectAssessors = () => {
                     <Export setIsExportProjects={setIsExportAssessors} exportType='projectAssessors' project={id}/>
                 </Dialog>
                 <Header/>
-                <div className="flex-col container mx-auto pt-[70px] pr-8 pl-8 items-center">
+                <div className="flex-col mx-auto pt-[70px] pr-8 pl-8 items-center">
                     <div className="flex justify-between my-2">
                         <div className="flex items-center">
                             <div className="pl-[15px]">{projectName.data?.name}</div>
