@@ -10,11 +10,7 @@ export default class AuthService{
     static async login(email: string, password: string): Promise<AxiosResponse<AuthResponse>> {
         return axios.post<AuthResponse>(`${API_URL}/api/token/`, {'email':email, 'password':password})
     }
-    static async register(data:any): Promise<AxiosResponse<RegisterResponse>> {
-        return axios.post<AuthResponse>(`${API_URL}/api/users/`, {
-            ...data
-        })
-    }
+    static register = (data:any) => axios.post<AuthResponse>(`${API_URL}/api/users/`, data).then(res => res.data)
     static async confirmRegistration(code: string){
         return axios.post(`${API_URL}/api/activate_user/`, {"code": code})
     }

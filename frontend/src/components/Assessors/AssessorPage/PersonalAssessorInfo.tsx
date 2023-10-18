@@ -60,7 +60,6 @@ const PersonalAssessorInfo = ({assessorId}: { assessorId: string | number | unde
             const keys = Object.keys(errors)
             // @ts-ignore
             const notify = <div>{keys.map(key => <p key={key}>{`${Errors[key]}: ${errors[key][0]}`}</p>)}</div>
-            queryClient.invalidateQueries(['currentAssessorInfo', assessorId])
             errorNotification(notify)
         },
         onSuccess: () => {
