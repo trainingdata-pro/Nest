@@ -2,11 +2,11 @@ import React, {useContext, useMemo, useState} from 'react';
 import {NavLink, useNavigate, useParams} from "react-router-dom";
 import AssessorService from "../../../services/AssessorService";
 import Header from "../../Header/Header";
-import PersonalAssessorInfoTable from "./PersonalAssessorInfoTable";
+import PersonalAssessorInfo from "./PersonalAssessorInfo";
 import Dialog from "../../UI/Dialog";
 import TableLog from "../LoginAndPassword";
 import {observer} from "mobx-react-lite";
-import AssessorProjects from "../AssessorProjects";
+import AssessorProjects from "./AssessorProjects";
 import AssessorHistory from "../AssessorHistory";
 import Skills from "./Skills";
 import FreeResource from "../../AssessorManagement/FreeResource";
@@ -105,7 +105,7 @@ const AssessorPage = () => {
                     </button>
                 </div>
                 <div className='px-8 space-y-4 pb-6'>
-                    {assessor.isSuccess && <PersonalAssessorInfoTable assessorId={id}/>}
+                    {assessor.isSuccess && <PersonalAssessorInfo assessorId={id}/>}
                     {assessor.isSuccess && <AssessorProjects assessorId={id}/>}
                     {assessor.isSuccess && <Skills assessor={assessor.data}/>}
                     <div className='flex justify-between'>

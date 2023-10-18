@@ -1,12 +1,13 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {CheckIcon, PencilSquareIcon} from "@heroicons/react/24/outline";
-import {IAssessorProjects, PatchWorkingHours, WorkingHours} from "../../models/AssessorResponse";
+import {IAssessorProjects, PatchWorkingHours, WorkingHours} from "../../../models/AssessorResponse";
 import {useForm} from "react-hook-form";
 import Select, {SingleValue} from "react-select";
-import AssessorService from "../../services/AssessorService";
-import {Context} from "../../index";
+import AssessorService from "../../../services/AssessorService";
+import {Context} from "../../../index";
 import {useMutation, useQuery, useQueryClient} from "react-query";
-import {Project} from "../../models/ProjectResponse";
+import {Project} from "../../../models/ProjectResponse";
+import {successNotification} from "../../UI/Notify";
 type ProjectsProps = {
     workloadStatus: SingleValue<{ label: string; value: string | number}> ,
     workingHours: WorkingHours
@@ -39,21 +40,25 @@ const AssessorProjectRow = ({project, assessorId}: { project: IAssessorProjects,
     const postWorkloadStatus = useMutation(['workloadStatus', project.id, assessorId], (data:{assessor:string|number | undefined, project: string|number, status:any}) => AssessorService.createWorkloadStatus(data),{
         onSuccess: () => {
             queryClient.invalidateQueries('workloadStatus')
+            successNotification('Статус загрузки обновлен')
         }
     })
     const patchWorkloadStatus = useMutation(['workloadStatus', project.id, assessorId], ({id, data}: {id:string|number|undefined,data: any }) => AssessorService.patchWorkloadStatus(id,data),{
         onSuccess: () => {
             queryClient.invalidateQueries('workloadStatus')
+            successNotification('Статус загрузки обновлен')
         }
     })
     const postWorkingHours = useMutation(['workingHours'], (data:WorkingHours) => AssessorService.createWorkingHours(data),{
         onSuccess: () => {
             queryClient.invalidateQueries('workingHours')
+            successNotification('Рабочие часы обновлены')
         }
     })
     const patchWorkingHours = useMutation(['workingHours'], ({id, data}: {id:string|number, data: PatchWorkingHours } ) => AssessorService.patchWorkingHours(id,data),{
         onSuccess: () => {
             queryClient.invalidateQueries('workingHours')
+            successNotification('Рабочие часы обновлены')
         }
     })
     function edit() {
