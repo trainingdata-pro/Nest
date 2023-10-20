@@ -40,10 +40,6 @@ class BlackListAPIViewSet(viewsets.ModelViewSet):
     filterset_class = BlackListFilter
     ordering_fields = ['pk']
 
-    # def get_serializer_context(self) -> Dict:
-    #     context = super().get_serializer_context()
-    #     context['assessor_id'] = self.request.GET.get('assessor')
-
 
 @method_decorator(name='retrieve', decorator=schemas.fired_schema.retrieve_fired())
 @method_decorator(name='list', decorator=schemas.fired_schema.list_fired())
