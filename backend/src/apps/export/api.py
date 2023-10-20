@@ -45,16 +45,17 @@ class DownloadReportAPIView(generics.GenericAPIView):
     def _get_response(self, content_type: str, filename: str) -> Union[FileResponse, Response]:
         path_to_file = os.path.join(settings.MEDIA_ROOT, filename)
         if self._check_if_file_exists(path_to_file):
-            def file_iterator(path: str, chunk_size: int = 4096):
-                with open(path, 'rb') as file:
-                    while True:
-                        data = file.read(chunk_size)
-                        if not data:
-                            break
-                        yield data
+            # def file_iterator(path: str, chunk_size: int = 4096):
+            #     with open(path, 'rb') as file:
+            #         while True:
+            #             data = file.read(chunk_size)
+            #             if not data:
+            #                 break
+            #             yield data
 
             response = FileResponse(
-                file_iterator(path_to_file),
+                # file_iterator(path_to_file),
+                open(path_to_file, 'rb'),
                 content_type=content_type,
                 as_attachment=True
             )
