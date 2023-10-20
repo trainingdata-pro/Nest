@@ -43,6 +43,9 @@ export default class AssessorService{
     static patchWorkloadStatus(workloadId: string | number | undefined, status: string ){
         return $api.patch(`/api/workload_status/${workloadId}/`, status)
     }
+    static patchAssessorSkills = (id: string | number, skills: string[]|number[]) => $api.patch(`/api/assessors/${id}/skills/`, {
+        skills : skills
+    })
     static createWorkloadStatus = (data: any ) => $api.post(`/api/workload_status/`, data).then(res => res.data)
     static patchWorkingHours(workingHoursId: string | number, data:any ){
         return $api.patch(`/api/working_hours/${workingHoursId}/`, data)
