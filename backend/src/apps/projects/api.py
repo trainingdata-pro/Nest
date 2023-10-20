@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from apps.assessors.models import Assessor
 from apps.assessors.serializers import AssessorSerializer
 from apps.export.serializers import ExportSerializer
-from apps.export.services import ContentType
+from apps.export.services import ExportType
 from apps.users.models import BaseUser
 from core import permissions
 from core.mixins import BaseAPIViewSet
@@ -277,7 +277,7 @@ class ExportProjectsAPIView(generics.GenericAPIView):
 
     def get(self, request: Request, *args, **kwargs) -> Response:
         export_type = request.GET.get('type', '').lower()
-        ContentType.validate(export_type)
+        ExportType.validate(export_type)
         team = self._get_team()
         task = make_report_projects.delay(export_type=export_type, team=team)
         return Response({'task_id': task.id}, status=status.HTTP_202_ACCEPTED)
@@ -305,7 +305,7 @@ class ExportAssessorsForProjectAPIView(generics.GenericAPIView):
 
     def get(self, request: Request, *args, **kwargs) -> Response:
         export_type = request.GET.get('type', '').lower()
-        ContentType.validate(export_type)
+        ExportType.validate(export_type)
         project_id = self._check_project(request.GET.get('project'))
         task = make_report_assessors.delay(export_type=export_type, project_id=project_id)
         return Response({'task_id': task.id}, status=status.HTTP_202_ACCEPTED)

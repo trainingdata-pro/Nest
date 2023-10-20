@@ -10,7 +10,7 @@ from rest_framework.response import Response
 
 from apps.assessors.serializers import AssessorSerializer
 from apps.export.serializers import ExportSerializer
-from apps.export.services import ContentType
+from apps.export.services import ExportType
 from core.mixins import BaseAPIViewSet
 from core.permissions import IsManager
 from .filters import ReasonFilter, FiredFilter, BlackListFilter
@@ -79,7 +79,7 @@ class ExportBlackListAPIView(generics.GenericAPIView):
 
     def get(self, request: Request, *args, **kwargs) -> Response:
         export_type = request.GET.get('type', '').lower()
-        ContentType.validate(export_type)
+        ExportType.validate(export_type)
         items = request.GET.get('items')
         task = make_report.delay(export_type=export_type, items=items)
         return Response({'task_id': task.id}, status=status.HTTP_202_ACCEPTED)
