@@ -54,6 +54,7 @@ class CreateUpdateAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
             'second_manager',
             'state',
             'date_of_registration',
+            'skills'
         ]
 
     def validate(self, attrs: Dict) -> Dict:
@@ -92,14 +93,10 @@ class CreateUpdateAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
         return super().validate(attrs)
 
     def create(self, validated_data: Dict) -> Assessor:
-        skills = validated_data.pop('skills', None)
         assessor = assessors_service.create_assessor(
             state=AssessorState.AVAILABLE,
             **validated_data
         )
-        if skills is not None:
-            assessors_service.set_skills(assessor, skills)
-
         history.new_assessor_history(
             assessor=assessor,
             user=self.get_user().full_name
@@ -155,6 +152,12 @@ class AssessorProjectsSerializer(GetUserMixin, serializers.ModelSerializer):
         )
 
         return assessor
+
+
+class AssessorSkillsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assessor
+        fields = ['skills']
 
 
 class SimpleAssessorSerializer(serializers.ModelSerializer):

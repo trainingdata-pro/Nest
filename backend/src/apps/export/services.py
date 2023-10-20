@@ -14,23 +14,11 @@ def allowed_types() -> List[str]:
     return [CSV_TYPE, EXCEL_TYPE]
 
 
-class ContentType:
-    CSV: str = 'text/csv'
-    EXCEL: str = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-
+class ExportType:
     @classmethod
     def validate(cls, export_type: str) -> None:
         if export_type.lower() not in allowed_types():
             raise ValidationError({'type': ['Invalid export type.']})
-
-    @classmethod
-    def get_content_type(cls, filename: str) -> str:
-        ext = filename.split('.')[-1]
-        if ext == CSV_TYPE:
-            return cls.CSV
-        elif ext == EXCEL_TYPE:
-            return cls.EXCEL
-        return ''
 
 
 class CSVWriter(BaseWriterService):

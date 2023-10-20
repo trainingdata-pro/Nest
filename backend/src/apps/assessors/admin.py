@@ -39,6 +39,7 @@ class SkillAdmin(admin.ModelAdmin):
     search_fields = ['title']
     search_help_text = 'Введите название навыка'
     list_display = ['pk', 'title']
+    list_display_links = ['title']
 
 
 class AssessorCredentialsAdmin(admin.ModelAdmin):
