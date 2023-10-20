@@ -59,7 +59,7 @@ class DownloadReportAPIView(generics.GenericAPIView):
                 content_type=content_type,
                 as_attachment=True
             )
-            response['Content-Disposition'] = f'attachment; filename={os.path.basename(path_to_file)}'
+            # response['Content-Disposition'] = f'attachment; filename={os.path.basename(path_to_file)}'
             return response
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
