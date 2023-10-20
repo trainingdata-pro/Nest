@@ -57,12 +57,8 @@ const AddToProject = ({selectedAssessor, extendProjects, show}) => {
     ]
     const queryClient = useQueryClient()
     const projects = useQuery(['projects'], () => fetchAllData(), {
-        onSuccess: data => {
-            setAvailableProjects([...data.filter(project => extendProjects.find((projectId: number) => projectId === project.id) === undefined)])
-        }
+        select: data => data.filter(project => extendProjects.find((projectId: number) => projectId === project.id) === undefined)
     })
-    const [availableProjects, setAvailableProjects] = useState<Project[]>([])
-
     async function fetchAllData() {
         const allData = [];
         let currentPage = 1;
@@ -82,7 +78,7 @@ const AddToProject = ({selectedAssessor, extendProjects, show}) => {
     const addToProject = useMutation('assessors', async ({id, data}: any) => AssessorService.addAssessorProject(id, data));
     const [rowSelection, setRowSelection] = React.useState({})
     const table = useReactTable({
-        data: availableProjects.length !== 0 ? availableProjects : [],
+        data: projects.data ? projects.data : [] as Project[],
         columns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
@@ -164,7 +160,7 @@ const AddToProject = ({selectedAssessor, extendProjects, show}) => {
                                                        setSelectedReason={setWorkloadStatus}
                                                        name={reason.name} value={reason.value} id={reason.id}/>)}
                     </div>
-                    <Table pages={true} rowSelection={rowSelection} table={table}/>
+                    {/*<Table pages={true} rowSelection={rowSelection} table={table}/>*/}
                     <div className='flex space-x-2'>
                         <button className='bg-[#5970F6] text-white w-full rounded-md mt-2 py-2'
                                 onClick={() => show(false)}>Назад
