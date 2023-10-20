@@ -7,36 +7,40 @@ import {PencilSquareIcon} from "@heroicons/react/24/outline";
 import {CheckIcon} from "@heroicons/react/24/solid";
 import {useForm} from "react-hook-form";
 import {Context} from "../../../index";
-import {useQuery} from "react-query";
+import {useMutation, useQuery, useQueryClient} from "react-query";
 import {errorNotification, successNotification} from "../../UI/Notify";
 
 const Skills = ({assessor}: {
     assessor: Assessor
 }) => {
+    const queryClient = useQueryClient()
     const skills = useQuery(['skills', assessor.id], () => AssessorService.fetchSkills(), {
         onSuccess: () => {}
     })
     useEffect(() => {
         assessor.skills.map(skill => setValue(skill.id.toString(), true))
     }, [])
+    const assessorSkills = useMutation(['currentAssessor'], ({assessorSkills}:any) => AssessorService.patchAssessorSkills(assessor.id, assessorSkills), {
+        onSuccess: () => {
+            successNotification('Навыки обновлены')
+            queryClient.invalidateQueries(['currentAssessor'])
+        },
+        onError: () => {
+            errorNotification('Произошла ошибка')
+        }
+    })
     const {store} = useContext(Context)
     const submit = () => {
         if (isDisabled) {
             setIsDisabled(false)
         } else {
-            const assessorSkills = Object.keys(getValues()).filter(key => getValues()[key] === true)
-            AssessorService.patchAssessor(assessor.id, {
-                skills: assessorSkills
-            }).then(() => {
-                successNotification('Информация обновлена')
-            }).catch(() => {
-                errorNotification('Произошла ошибка')
-            })
+            const assessorSkillsList = Object.keys(getValues()).filter(key => getValues()[key] === true)
+            assessorSkills.mutate({assessorSkills: assessorSkillsList})
             setIsDisabled(true)
         }
     }
     const [isDisabled, setIsDisabled] = useState<boolean>(true)
-    const {register, handleSubmit, setValue, getValues} = useForm()
+    const {register, setValue, getValues} = useForm()
     return (
         <div className='w-full flex align-middle text-center'>
             <div className='flex-[10%] bg-[#E7EAFF] px-[30px] py-[20px] text-center border-r border-black'>Skills</div>
