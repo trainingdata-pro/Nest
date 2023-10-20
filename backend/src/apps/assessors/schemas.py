@@ -180,6 +180,24 @@ class AssessorSchema(BaseAPISchema):
             }
         )
 
+    def skills(self):
+        return self.swagger_auto_schema(
+            operation_summary='Update assessor skills',
+            operation_description='Update assessor skills',
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique assessor ID'
+                )
+            ],
+            responses={
+                200: serializers.AssessorSerializer(),
+                **self.get_responses(400, 401, 403, 404)
+            }
+        )
+
     def vacation(self):
         return self.swagger_auto_schema(
             operation_summary='Send / return assessor to vacation',

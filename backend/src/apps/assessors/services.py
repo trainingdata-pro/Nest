@@ -3,11 +3,7 @@ from typing import Any, List, Optional, Union
 
 from apps.projects.models import Project
 from apps.users.models import BaseUser
-from apps.assessors.models import (
-    Assessor,
-    AssessorState,
-    Skill
-)
+from apps.assessors.models import Assessor, AssessorState
 
 
 class AssessorService:
@@ -16,9 +12,6 @@ class AssessorService:
     def create_assessor(self, **data) -> Assessor:
         instance = self.__create_instance(**data)
         return self.__perform_save(instance)
-
-    def set_skills(self, instance: Assessor, skills: List[Skill]) -> Assessor:
-        return self.__set_m2m(instance, attribute='skills', values=skills)
 
     def check_and_update_state(self, instance: Assessor) -> Assessor:
         instance = self.__check_and_update_state(instance)
