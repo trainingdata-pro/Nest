@@ -15,30 +15,25 @@ interface IUser {
     status: string
 }
 export interface Manager {
+    id: number,
     user: IUser,
     teamlead: IUser,
     is_teamlead: boolean}
 
 export default class ManagerService{
-    static fetch_manager(id: number | string): Promise<AxiosResponse<IManager>> {
-        return $api.get<IManager>(`/api/users/${id}`)
-    }
+    static fetch_manager = (id: number | string) => $api.get<IManager>(`/api/users/${id}`).then(res => res.data)
+    static fetchManager = (id: number | string) => $api.get<Manager>(`/api/managers/${id}`).then(res => res.data)
+    static fetchTeamLeads = () => $api.get<any>(`/api/managers/?is_teamlead=true`)
     static fetch_managers(): Promise<AxiosResponse<UsersResponse>> {
         return $api.get<UsersResponse>(`/api/users/?is_teamlead=false`)
     }
 
-    static patchManager(managerId:number, data:any) {
-        return $api.patch(`/api/managers/${managerId}/`, {
-            "teamlead": Number(data.operational_manager)
-        })
-    }
+    static patchManager = (managerId:number|string, data:any) => $api.patch(`/api/managers/${managerId}/`, {
+            teamlead: Number(data.teamlead)
+        }).then(res => res.data)
+
     static patchBaseUser(managerId:number, data:any) {
-        return $api.patch(`/api/users/${managerId}/`, {
-            "username": data.username,
-            "last_name": data.last_name,
-            "first_name": data.first_name,
-            "middle_name": data.middle_name
-        })
+        return $api.patch(`/api/users/${managerId}/`, data).then(res => res.data)
     }
     static fetchOperationsManagers = () => $api.get('/api/users/?is_teamlead=true').then(res => res.data)
 

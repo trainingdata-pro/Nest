@@ -5,6 +5,10 @@ import {useForm} from "react-hook-form";
 import ManagerService from "../services/ManagerService";
 import MyLabel from "./UI/MyLabel";
 import MyInput from "./UI/MyInput";
+import Select from "react-select";
+import {useMutation, useQuery} from "react-query";
+import {errorNotification, successNotification} from "./UI/Notify";
+import Error from "./UI/Error";
 
 
 interface FormProps {
@@ -12,8 +16,8 @@ interface FormProps {
     first_name: string,
     middle_name: string,
     username: string,
-    id: number,
-    teamlead: string
+    id: number | string,
+    teamlead: number | string
 }
 
 const FormSection = ({children}: { children: React.ReactNode }) => {
@@ -23,38 +27,72 @@ const Profile = ({setIsOpen}: {
     setIsOpen: any
 }) => {
     const {store} = useContext(Context)
-    const {register, watch, getValues, reset, setValue, handleSubmit} = useForm<FormProps>()
-    useMemo(async () => {
-        if (store.user_data.teamlead) {
-            await ManagerService.fetch_manager(store.user_data.teamlead).then(res => {
-                setValue('teamlead', `${res.data.last_name} ${res.data.first_name}`)
-
-            })
+    const {
+        register, formState: {
+            errors
+        }, setValue, handleSubmit
+    } = useForm<FormProps>()
+    const fetchTeamLeads = useQuery(['TeamLeads'], () => ManagerService.fetchTeamLeads(), {
+        onSuccess: data => {
+            setOptions(data.data.results.map((TeamLead: any) => {
+                return {label: `${TeamLead.user.last_name} ${TeamLead.user.first_name}`, value: TeamLead.user.id}
+            }))
         }
-        await ManagerService.fetch_manager(store.user_id).then(res => {
-            setValue('id', res.data.id);
-            setValue('last_name', res.data.last_name);
-            setValue('first_name', res.data.first_name);
-            setValue('middle_name', res.data.middle_name);
-            setValue('username', res.data.username);
-        })
-    }, []);
+    })
+    const [selectedTeamLead, setSelectedTeamLead] = useState<number | string>()
+    const fetchManagerInfo = useQuery('currentManager', () => ManagerService.fetchManager(store.user_data.profile_id), {
+        onSuccess: data => {
+            setValue('id', data.user.id)
+            setValue('last_name', data.user.last_name)
+            setValue('first_name', data.user.first_name)
+            setValue('middle_name', data.user.middle_name)
+            setValue('username', data.user.username)
+            setValue('teamlead', data.teamlead?.id)
+            setSelectedTeamLead(data.teamlead?.id)
+        },
+    })
+    const [options, setOptions] = useState<{ label: string, value: string | number }[]>([])
+    const getSelectValues = () => {
+        return selectedTeamLead ? options.find(TeamLead => TeamLead.value.toString() === selectedTeamLead.toString()) : ''
+    }
+    const handleChangeTeamLead = (value: any) => {
+        setValue('teamlead', value.value)
+        setSelectedTeamLead(value.value)
+    }
+    const patchBaseUser = useMutation(({data}: any) => ManagerService.patchBaseUser(store.user_id, data), {
+        onSuccess: data => {
+            successNotification('Информация обновлена')
+        },
+        onError: error => {
+            errorNotification('Ошибка при обновлении данных')
+        }
+    })
+    const patchManagerTeamLead = useMutation(({data}: any) => ManagerService.patchManager(store.user_data.profile_id, data), {
+        onSuccess: data => {
+            successNotification('TeamLead осбновлен')
+        },
+        onError: error => {
+            errorNotification('Ошибка при обновлении поля TeamLead')
+        }
+    })
 
-    function onSubmit(data: FormProps) {
-        ManagerService.patchBaseUser(store.user_id, data).then((res) => {
-                setIsOpen(false)
-            }
-        );
+    const onSubmit = (data: FormProps) => {
+        patchBaseUser.mutate({data: data})
+        patchManagerTeamLead.mutate({data: data})
     }
 
     return (
-        <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
+        <form className="space-y-3 w-[500px]" onSubmit={handleSubmit(onSubmit)}>
             <div className="flex h-2 justify-end w-full">
                 <div className="cursor-pointer" onClick={() => setIsOpen(false)}>x</div>
             </div>
             <FormSection>
-                <MyLabel required={true}>Фамилия</MyLabel>
-                <MyInput autoComplete="new-last_name" register={{...register('last_name', {
+                <div className="flex justify-between">
+                    <MyLabel required={true}>Фамилия</MyLabel>
+                    <Error>{errors.last_name?.message}</Error>
+                </div>
+                <MyInput autoComplete="new-last_name" register={{
+                    ...register('last_name', {
                         pattern: {
                             value: /^[А-ЯЁа-яёA-Za-z]+$/,
                             message: "Поле должно содержать символы: A-z,А-я"
@@ -63,12 +101,17 @@ const Profile = ({setIsOpen}: {
                             value: true,
                             message: 'Обязательное поле'
                         }
-                    })}} type="text" placeholder="Фамилия"/>
+                    })
+                }} type="text" placeholder="Фамилия" className='pl-[10px]'/>
+
             </FormSection>
             <FormSection>
-
-                <MyLabel required={true}>Имя</MyLabel>
-                <MyInput autoComplete="new-first_name" register={{...register('first_name', {
+                <div className="flex justify-between">
+                    <MyLabel required={true}>Имя</MyLabel>
+                    <Error>{errors.first_name?.message}</Error>
+                </div>
+                <MyInput autoComplete="new-first_name" register={{
+                    ...register('first_name', {
                         pattern: {
                             value: /^[А-ЯЁа-яёA-Za-z]+$/,
                             message: "Поле должно содержать символы: A-z,А-я"
@@ -77,42 +120,59 @@ const Profile = ({setIsOpen}: {
                             value: true,
                             message: 'Обязательное поле'
                         }
-                    })}} type="text" placeholder="Имя"/>
+                    })
+                }} type="text" placeholder="Имя" className='pl-[10px]'/>
             </FormSection>
             <FormSection>
+                <div className="flex justify-between">
+                    <MyLabel required={false}>Отчество</MyLabel>
+                    <Error>{errors.middle_name?.message}</Error>
 
-                <MyLabel required={false}>Отчество</MyLabel>
-                <MyInput register={{...register('middle_name', {
+                </div>
+                <MyInput register={{
+                    ...register('middle_name', {
                         pattern: {
                             value: /^[А-ЯЁа-яёA-Za-z]+$/,
                             message: "Поле должно содержать символы: A-z,А-я"
                         },
-                    })}} type="text" placeholder="Отчество"/>
+                    })
+                }} type="text" placeholder="Отчество" className='pl-[10px]'/>
             </FormSection>
             <FormSection>
+                <div className="flex justify-between">
+                    <MyLabel required={true}>Ник в ТГ</MyLabel>
+                    <Error>{errors.username?.message}</Error>
 
-                <MyLabel required={true}>Ник в ТГ</MyLabel>
-                <MyInput register={{...register('username', {
+                </div>
+                <MyInput register={{
+                    ...register('username', {
                         pattern: {
                             value: /^[A-Za-z\d_]{5,32}$/,
-                            message: "Никнейм должен содержать символы:A-z, _ Длина: 5-32 символа"
+                            message: "Допустимы символы: A-z, _ Длина: 5-32 символа"
                         },
                         required: {
                             value: true,
                             message: 'Обязательное поле'
                         }
-                    })}} type="text" placeholder="Ник в ТГ"/>
+                    })
+                }} type="text" placeholder="Ник в ТГ" className='pl-[10px]'/>
             </FormSection>
             <FormSection>
-                <MyLabel required={true}>Ответственный TeamLead</MyLabel>
-                <MyInput disabled register={{...register('teamlead', {
-
+                <div className="flex justify-between">
+                    <MyLabel required={true}>TeamLead</MyLabel>
+                    <Error>{errors.teamlead?.message}</Error>
+                </div>
+                <Select
+                    {...register('teamlead', {
                         required: {
                             value: true,
                             message: 'Обязательное поле'
                         }
-                    })}} type="text"
-                         placeholder="Ответственный TeamLead"/>
+                    })}
+                    options={options}
+                    value={getSelectValues()}
+                    onChange={handleChangeTeamLead}
+                />
             </FormSection>
             <FormSection>
                 <MyLabel required={true}>ID</MyLabel>
