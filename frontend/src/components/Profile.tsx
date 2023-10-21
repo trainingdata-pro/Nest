@@ -60,18 +60,18 @@ const Profile = ({setIsOpen}: {
         setSelectedTeamLead(value.value)
     }
     const patchBaseUser = useMutation(({data}: any) => ManagerService.patchBaseUser(store.user_id, data), {
-        onSuccess: data => {
+        onSuccess: () => {
             successNotification('Информация обновлена')
         },
-        onError: error => {
+        onError: () => {
             errorNotification('Ошибка при обновлении данных')
         }
     })
     const patchManagerTeamLead = useMutation(({data}: any) => ManagerService.patchManager(store.user_data.profile_id, data), {
-        onSuccess: data => {
+        onSuccess: () => {
             successNotification('TeamLead осбновлен')
         },
-        onError: error => {
+        onError: () => {
             errorNotification('Ошибка при обновлении поля TeamLead')
         }
     })
