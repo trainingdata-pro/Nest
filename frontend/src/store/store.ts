@@ -4,6 +4,7 @@ import axios from "axios";
 import jwtDecode from "jwt-decode";
 import {API_URL} from "../http";
 import Cookies from 'universal-cookie';
+import {warnNotification} from "../components/UI/Notify";
 
 interface UserData {
     is_admin: boolean,
@@ -12,6 +13,7 @@ interface UserData {
     username: string,
     is_teamlead: boolean,
     teamlead: any,
+    profile_id: number | string
     last_name: string,
     first_name: string,
     middle_name: string
@@ -31,8 +33,12 @@ export default class Store {
     isLoading = false
     cookies = new Cookies()
     authError = ''
+    isOpenProfile = false
     constructor() {
         makeAutoObservable(this)
+    }
+    setIsOpenProfile(bool: boolean) {
+        this.isOpenProfile = bool
     }
     setIsLoading(bool: boolean) {
         this.isLoading = bool
@@ -57,9 +63,14 @@ export default class Store {
             .then(res => {
                 localStorage.setItem('token', res.data.access)
                 const decodeJwt: Token = jwtDecode(res.data.access)
+
                 this.cookies.set('refresh', res.data.refresh, {path: '/', maxAge: decodeJwt.exp})
                 const managerId = decodeJwt.user_id
                 const user_data = decodeJwt.user_data
+                if (!user_data.teamlead) {
+                    warnNotification('Заполните поле TeamLead')
+                    this.setIsOpenProfile(true)
+                }
                 this.setUserData(user_data)
                 this.setUserId(managerId)
                 this.setAuth(true)
@@ -85,6 +96,10 @@ export default class Store {
             const decodeJwt: Token = jwtDecode(response.data.access)
             const managerId = decodeJwt.user_id
             const user_data = decodeJwt.user_data
+            if (!user_data.teamlead) {
+                warnNotification('Заполните поле TeamLead')
+                this.setIsOpenProfile(true)
+            }
             this.setUserId(managerId)
             this.setUserData(user_data)
             this.setAuth(true)
