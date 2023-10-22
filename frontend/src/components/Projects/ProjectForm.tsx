@@ -190,6 +190,9 @@ const ProjectForm = ({projectId, closeSidebar}: {
     return (
         <div className="w-[30rem]">
             <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
+                <div className="flex h-2 justify-end w-full">
+                    <div className="cursor-pointer text-[18px]" onClick={() => closeSidebar(false)}>x</div>
+                </div>
                 <FormSection>
                     <div className="flex justify-between">
                         <MyLabel required={true}>Название проекта: </MyLabel>
@@ -330,7 +333,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                              register={{...register('date_of_creation', {required: true})}} type="text"/>
                 </FormSection>
 
-                <MyButton>{projectId === 0 ? 'Добавить' : 'Сохранить'}</MyButton>
+                <MyButton className='w-full'>{projectId === 0 ? 'Добавить' : 'Сохранить'}</MyButton>
 
             </form>
         </div>
