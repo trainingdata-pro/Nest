@@ -40,7 +40,7 @@ export const columns = [
     }),
     columnHelper.accessor('projects', {
         header: 'Проект',
-        cell: info => <div className='flex flex-col'>{info.getValue().map(project => <span key={project.id}>{project.name}</span>)}</div>,
+        cell: info => <div className='flex flex-col'>{info.getValue().map(project => <span>{project.name}</span>)}</div>,
         enableSorting: false
     }),
     columnHelper.accessor('free_resource_weekday_hours', {

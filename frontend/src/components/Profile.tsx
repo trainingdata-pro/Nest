@@ -6,14 +6,14 @@ import ManagerService from "../services/ManagerService";
 import MyLabel from "./UI/MyLabel";
 import MyInput from "./UI/MyInput";
 import Select from "react-select";
-import {useMutation, useQuery, useQueryClient} from "react-query";
+import {useMutation, useQuery} from "react-query";
 import {errorNotification, successNotification} from "./UI/Notify";
 import Error from "./UI/Error";
 import {Dialog} from "@headlessui/react";
 import MyButton from './UI/MyButton';
 
 
-interface ProfileProps {
+interface FormProps {
     last_name: string,
     first_name: string,
     middle_name: string,
@@ -26,9 +26,13 @@ const FormSection = ({children}: { children: React.ReactNode }) => {
     return (<div className="text-left">{children}</div>)
 }
 
+function MyDialog() {
+
+
+}
+
 const Profile = () => {
     const {store} = useContext(Context)
-    const queryClient = useQueryClient()
     const {
         register,
         getValues,
@@ -37,7 +41,7 @@ const Profile = () => {
         },
         setValue,
         handleSubmit
-    } = useForm<ProfileProps>()
+    } = useForm<FormProps>()
     const fetchTeamLeads = useQuery(
         ['TeamLeads'],
         () => ManagerService.fetchTeamLeads(),
@@ -76,7 +80,6 @@ const Profile = () => {
     }
     const patchBaseUser = useMutation(({data}: any) => ManagerService.patchBaseUser(store.user_id, data), {
         onSuccess: () => {
-            queryClient.invalidateQueries('currentManager')
             successNotification('Информация обновлена')
         },
         onError: () => {
@@ -85,7 +88,6 @@ const Profile = () => {
     })
     const patchManagerTeamLead = useMutation(({data}: any) => ManagerService.patchManager(store.user_data.profile_id, data), {
         onSuccess: () => {
-            queryClient.invalidateQueries('currentManager')
             successNotification('TeamLead обновлен')
         },
         onError: () => {
@@ -93,20 +95,18 @@ const Profile = () => {
         }
     })
     const close = () => {
-        if (!getValues('teamlead') || !fetchManagerInfo.data?.teamlead) {
-            errorNotification('Заполните поле TeamLead и нажмите сохранить')
+        if (!getValues('teamlead')) {
+            errorNotification('Заполните поле TeamLead')
         } else {
             store.setIsOpenProfile(false)
         }
     }
-    const onSubmit = (data: ProfileProps) => {
+    const onSubmit = (data: FormProps) => {
         if (!data.teamlead) {
             errorNotification('Заполните поле TeamLead')
         } else {
             patchBaseUser.mutate({data: data})
-            if (!fetchManagerInfo.data?.teamlead){
-                patchManagerTeamLead.mutate({data: data})
-            }
+            patchManagerTeamLead.mutate({data: data})
             store.setIsOpenProfile(false)
         }
 
@@ -194,6 +194,7 @@ const Profile = () => {
                                             <div className="flex justify-between">
                                                 <MyLabel required={true}>Ник в ТГ</MyLabel>
                                                 <Error>{errors.username?.message}</Error>
+
                                             </div>
                                             <MyInput register={{
                                                 ...register('username', {
@@ -220,7 +221,6 @@ const Profile = () => {
                                                         message: 'Обязательное поле'
                                                     }
                                                 })}
-                                                isDisabled={!!fetchManagerInfo.data?.teamlead}
                                                 options={options}
                                                 value={getSelectValues()}
                                                 onChange={handleChangeTeamLead}

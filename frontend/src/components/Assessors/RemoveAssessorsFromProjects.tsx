@@ -91,13 +91,11 @@ const RemoveAssessorsFromProjects = ({assessorsProjects, assessorsRow, show}) =>
         } else if (Object.keys(rowSelection).length === 0) {
             errorNotification('Выбери хотя бы 1 проект')
         } else {
-
             assessorsRow.forEach((assessor:any) => {
                 const projects = assessor.original.projects.map((pr:Project) => {return pr.id})
                 const newProjects = projects.filter((project:any) => getSelectedProjects().find(pr => pr.toString() === project.toString()) === undefined)
                 addToProject.mutate({id: assessor.original.id, data: {projects: newProjects, reason: selectedReason}}, {
                     onSuccess: () => {
-                        console.log(newProjects)
                         queryClient.invalidateQueries('assessors')
                         successNotification('Ассессоры удалены с проекта')
                         show(false)

@@ -42,7 +42,7 @@ const Skills = ({assessor}: {
     const [isDisabled, setIsDisabled] = useState<boolean>(true)
     const {register, setValue, getValues} = useForm()
     return (
-        <div className='w-full rounded-[20px] overflow-hidden flex align-middle text-center'>
+        <div className='w-full flex align-middle text-center'>
             <div className='flex-[10%] bg-[#E7EAFF] px-[30px] py-[20px] text-center border-r border-black'>Skills</div>
             <div className='flex flex-[90%] justify-between px-4 bg-white'>
                 {skills.data?.data.results.map(skill => {
