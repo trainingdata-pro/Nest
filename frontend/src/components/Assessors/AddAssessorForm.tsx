@@ -158,6 +158,7 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
                     </div>
                     <MyInput placeholder="Фамилия"
                              type="text"
+                             className={'pl-[12px]'}
                              register={{
                                  ...register('last_name', {
                                      required: "Обязательное поле",
@@ -183,6 +184,7 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
                             }
                         })
                     }}
+                             className={'pl-[12px]'}
                              type="text"
                              placeholder="Имя"
                     />
@@ -200,7 +202,7 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
                                 message: "Поле должно содержать символы: A-z,А-я"
                             }
                         })
-                    }} type="text" placeholder="Отчество"
+                    }} className={'pl-[12px]'} type="text" placeholder="Отчество"
                     />
 
                 </FormSection>
@@ -228,6 +230,7 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
                     <MyLabel>Проект</MyLabel>
                     <Select
                         {...register('projects')}
+                        className='text-start'
                         options={availableProjectsList}
                         isSearchable={false}
                         isDisabled={!!project}
@@ -239,6 +242,7 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
                     <MyLabel>Статус</MyLabel>
                     <Select
                         {...register('status')}
+                        className='text-start'
                         isDisabled={!getValues('projects')}
                         options={statusObject}
                         value={getValueStatus()}
@@ -249,6 +253,7 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
                     <MyLabel>Страна</MyLabel>
                     <Select
                         {...register('country')}
+                        className='text-start'
                         options={countryObject}
                         value={getValueCountry()}
                         onChange={onChangeCountry}
@@ -268,12 +273,13 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
                                 },
                             })
                         }}
+                        className={'pl-[12px]'}
                         placeholder='Почта'
                         type="text"
                     />
 
                 </FormSection>
-                <div className="flex pt-3 space-x-2">
+                <div className="flex justify-between pt-3 space-x-2">
                     <MyButton onClick={() => setShowSidebar(false)}>Назад</MyButton>
                     <MyButton>Сохранить</MyButton>
                 </div>
