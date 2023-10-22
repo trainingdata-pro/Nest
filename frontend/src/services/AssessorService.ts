@@ -59,9 +59,6 @@ export default class AssessorService{
         free_resource_weekday_hours: data.free_resource_weekday_hours,
         free_resource_day_off_hours: data.free_resource_day_off_hours
     }).then((res) => res.data)
-    static fetchAssessorSkills(id: string | number):Promise<AxiosResponse<SkillResponse>>{
-        return $api.get<SkillResponse>(`/api/skills/${id}/`)
-    }
     static fetchFreeResource = (page = 1) => $api.get<IFreeResourcesResponse>(`/api/free_resources/?page=${page}`).then(res => res.data)
     static patchVacation = (assessorId: string | number |undefined, data: any) => $api.patch(`/api/assessors/${assessorId}/vacation/`, data).then(res => res.data)
     static fetchReasons = () => $api.get<IReasonResponse>('/api/reasons/').then(res => res.data)
@@ -74,5 +71,6 @@ export default class AssessorService{
     static exportBlackList = (type: string, items:string) => $api.get(`/api/export/blacklist/?type=${type}&items=${items}`).then(res => res.data)
     static checkAssessor = (last_name: string = '', first_name: string = '', middle_name:string = '') => $api.get(`/api/assessors/check/?last_name=${last_name}&first_name=${first_name}&middle_name=${middle_name}`)
     static checkAssessorWithoutMiddleName = (last_name: string = '', first_name: string = '') => $api.get(`/api/assessors/check/?last_name=${last_name}&first_name=${first_name}`)
+    static takeFromOwnDesires = (assessorId: string | number, data: any) => $api.patch(`/api/fired/${assessorId}/back/`, data).then(res => res.data)
 
 }

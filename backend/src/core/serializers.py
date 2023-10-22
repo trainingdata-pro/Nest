@@ -31,6 +31,7 @@ def _update_user_payload(user) -> Dict:
 
     if hasattr(user, 'manager_profile'):
         payload['is_teamlead'] = user.manager_profile.is_teamlead
+        payload['profile_id'] = user.manager_profile.id
         if user.manager_profile.teamlead:
             payload['teamlead'] = user.manager_profile.teamlead.id
         else:
