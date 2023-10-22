@@ -6,7 +6,7 @@ import ManagerService from "../services/ManagerService";
 import MyLabel from "./UI/MyLabel";
 import MyInput from "./UI/MyInput";
 import Select from "react-select";
-import {useMutation, useQuery} from "react-query";
+import {useMutation, useQuery, useQueryClient} from "react-query";
 import {errorNotification, successNotification} from "./UI/Notify";
 import Error from "./UI/Error";
 import {Dialog} from "@headlessui/react";
@@ -32,6 +32,7 @@ function MyDialog() {
 }
 
 const Profile = () => {
+    const queryClient = useQueryClient()
     const {store} = useContext(Context)
     const {
         register,
@@ -80,6 +81,7 @@ const Profile = () => {
     }
     const patchBaseUser = useMutation(({data}: any) => ManagerService.patchBaseUser(store.user_id, data), {
         onSuccess: () => {
+            queryClient.invalidateQueries('currentManager')
             successNotification('Информация обновлена')
         },
         onError: () => {
@@ -88,6 +90,7 @@ const Profile = () => {
     })
     const patchManagerTeamLead = useMutation(({data}: any) => ManagerService.patchManager(store.user_data.profile_id, data), {
         onSuccess: () => {
+            queryClient.invalidateQueries('currentManager')
             successNotification('TeamLead обновлен')
         },
         onError: () => {
@@ -95,8 +98,8 @@ const Profile = () => {
         }
     })
     const close = () => {
-        if (!getValues('teamlead')) {
-            errorNotification('Заполните поле TeamLead')
+        if (!getValues('teamlead') || !fetchManagerInfo.data?.teamlead) {
+            errorNotification('Заполните поле TeamLead и нажмите кнопку сохранить')
         } else {
             store.setIsOpenProfile(false)
         }
@@ -106,7 +109,9 @@ const Profile = () => {
             errorNotification('Заполните поле TeamLead')
         } else {
             patchBaseUser.mutate({data: data})
-            patchManagerTeamLead.mutate({data: data})
+            if (!fetchManagerInfo.data?.teamlead){
+                patchManagerTeamLead.mutate({data: data})
+            }
             store.setIsOpenProfile(false)
         }
 
@@ -221,6 +226,7 @@ const Profile = () => {
                                                         message: 'Обязательное поле'
                                                     }
                                                 })}
+                                                isDisabled={!!fetchManagerInfo.data?.teamlead}
                                                 options={options}
                                                 value={getSelectValues()}
                                                 onChange={handleChangeTeamLead}
@@ -228,7 +234,9 @@ const Profile = () => {
                                         </FormSection>
                                         <FormSection>
                                             <MyLabel required={true}>ID</MyLabel>
-                                            <MyInput register={{...register('id')}} type="text" placeholder="ID"
+                                            <MyInput register={{...register('id')}}
+                                                     type="text"
+                                                     placeholder="ID"
                                                      disabled={true}/>
                                         </FormSection>
                                         <MyButton className='w-full'>Сохранить</MyButton>
