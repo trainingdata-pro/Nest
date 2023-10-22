@@ -196,7 +196,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                         <Error>{errors.name && errors.name?.message}</Error>
                     </div>
 
-                    <MyInput placeholder="Название проекта" className={'pl-[20px]'}
+                    <MyInput placeholder="Название проекта" className={'pl-[12px]'}
                              register={{...register('name', {required: 'Обязательное поле'})}}
                              type="text"/>
                 </FormSection>
@@ -205,7 +205,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                         <MyLabel required={true}>Asana ID: </MyLabel>
                         <Error>{errors.status && errors.status?.message}</Error>
                     </div>
-                    <MyInput className={'pl-[20px]'} placeholder="Asana ID" type="text"
+                    <MyInput className={'pl-[12px]'} placeholder="Asana ID" type="text"
                              register={{...register('asana_id', {required: 'Обязательное поле'})}}/>
                 </FormSection>
                 {store.user_data.is_teamlead && <FormSection>
@@ -230,7 +230,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                         <MyLabel required={false}>Скорость в час: </MyLabel>
                         <Error>{errors.speed_per_hour && errors.speed_per_hour?.message}</Error>
                     </div>
-                    <MyInput className={'pl-[20px]'} placeholder="Скорость в час" type="text" register={{
+                    <MyInput className={'pl-[12px]'} placeholder="Скорость в час" type="text" register={{
                         ...register('speed_per_hour', {
                             pattern: {
                                 value: /^-?\d+(\.\d+)?$/,
@@ -245,7 +245,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                         <MyLabel required={false}>Цена за единицу для асессора: </MyLabel>
                         <Error>{errors.speed_per_hour && errors.speed_per_hour?.message}</Error>
                     </div>
-                    <MyInput className={'pl-[20px]'} placeholder="Цена за единицу для асессора" type="text"
+                    <MyInput className={'pl-[12px]'} placeholder="Цена за единицу для асессора" type="text"
                              register={{...register('price_for_assessor')}}/>
                 </FormSection>
 
@@ -255,7 +255,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                         <Error>{errors.speed_per_hour && errors.speed_per_hour?.message}</Error>
 
                     </div>
-                    <MyInput className={'pl-[20px]'} placeholder="Цена за единицу для заказчика" type="text"
+                    <MyInput className={'pl-[12px]'} placeholder="Цена за единицу для заказчика" type="text"
                              register={{
                                  ...register('price_for_costumer', {
                                      pattern: {
@@ -270,7 +270,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                     <div className="flex justify-between">
                         <MyLabel required={false}>Объем выгрузок: </MyLabel>
                     </div>
-                    <MyInput className={'pl-[20px]'} placeholder="Объем выгрузок" type="text" register={{
+                    <MyInput className={'pl-[12px]'} placeholder="Объем выгрузок" type="text" register={{
                         ...register('unloading_value', {
                             pattern: {
                                 value: /^-?\d+(\.\d+)?$/,
@@ -288,6 +288,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                         options={regOptions}
                         onChange={onChangeRegularity}
                         value={getRegularity()}
+                        className='text-start'
                     />
                 </FormSection>
 
@@ -303,6 +304,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                         options={statusList}
                         value={getValueStatus()}
                         onChange={onChangeStatus}
+                        className='text-start'
                     />
                 </FormSection>
                 <FormSection>
@@ -324,12 +326,11 @@ const ProjectForm = ({projectId, closeSidebar}: {
                         <MyLabel required={true}>Дата старта проекта</MyLabel>
                         <Error>{errors.date_of_creation && errors.date_of_creation?.message}</Error>
                     </div>
-                    <MyInput className={'pl-[20px]'} placeholder="Дата старта проекта"
+                    <MyInput className={'pl-[12px]'} placeholder="Дата старта проекта"
                              register={{...register('date_of_creation', {required: true})}} type="text"/>
                 </FormSection>
 
-                <MyButton>{projectId === 0 ? 'Добавить' : 'Сохранить'}
-                </MyButton>
+                <MyButton>{projectId === 0 ? 'Добавить' : 'Сохранить'}</MyButton>
 
             </form>
         </div>
