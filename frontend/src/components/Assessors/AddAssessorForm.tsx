@@ -216,7 +216,7 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
                                 required: "Обязательное поле",
                                 pattern: {
                                     value: /^[A-Za-z\d_]{5,32}$/,
-                                    message: "Доступные символы:A-z, _ Длина: 5-32 символа"
+                                    message: "Доступные символы:A-z,0-9,_ Длина: 5-32 символа"
                                 }
                             })
                         }} type="text" placeholder="Ник в ТГ" className='pl-[32px]'
