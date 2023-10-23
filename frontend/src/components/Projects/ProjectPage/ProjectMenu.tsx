@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {errorNotification} from "../UI/Notify";
+import {errorNotification} from "../../UI/Notify";
 
 // @ts-ignore
 const ProjectMenu = ({setIsDeleteFromProject, isSelected}) => {

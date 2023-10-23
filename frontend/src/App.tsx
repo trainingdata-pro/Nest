@@ -5,7 +5,7 @@ import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import ConfirmationSignUp from "./components/SignUp/ConfirmationSignUp";
-import MainPage from './pages/MainPage';
+import MainPage from './components/Projects/Projects/MainPage';
 import Loader from './components/UI/Loader';
 import ProjectPage from "./components/Projects/ProjectPage/ProjectPage";
 import AssessorsPage from "./components/Assessors/AssessorsPage";
@@ -42,7 +42,7 @@ function App() {
                         <Route path="*" element={<Navigate to="/login" replace/>}/>
                 </Routes>:
                  <Routes>
-                     <Route path={'/dashboard/projects'} element={<MainPage/>}/>
+                     <Route path={'/projects'} element={<MainPage/>}/>
                      <Route path={'/dashboard/projects/:id/assessors'} element={<ProjectPage/>}/>
                      <Route path={'/dashboard/assessors/my'} element={<AssessorsPage/>}/>
                      <Route path={'/dashboard/assessors/rent'} element={<RentAssessors/>}/>
@@ -50,7 +50,7 @@ function App() {
                      <Route path={'/dashboard/projects/free'} element={<CompletedProjects/>} />
                      <Route path={'/assessors/blacklist'} element={<BlackList/>} />
                      <Route path={'/assessors/free_resources'} element={<FreeResourcePage/>}/>
-                     <Route path="*" element={<Navigate to="/dashboard/projects" replace/>}/> // TODO: redirect 404
+                     <Route path="*" element={<Navigate to="/projects" replace/>}/> // TODO: redirect 404
 
                  </Routes>}
              </BrowserRouter>

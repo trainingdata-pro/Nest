@@ -74,5 +74,5 @@ export default class AssessorService{
     static exportBlackList = (type: string, items:string) => $api.get(`/api/export/blacklist/?type=${type}&items=${items}`).then(res => res.data)
     static checkAssessor = (last_name: string = '', first_name: string = '', middle_name:string = '') => $api.get(`/api/assessors/check/?last_name=${last_name}&first_name=${first_name}&middle_name=${middle_name}`)
     static checkAssessorWithoutMiddleName = (last_name: string = '', first_name: string = '') => $api.get(`/api/assessors/check/?last_name=${last_name}&first_name=${first_name}`)
-
+    static takeFromOwnDesires = (firedId: string | number, data:any) => $api.patch(`/api/fired/${firedId}/back/`, data)
 }

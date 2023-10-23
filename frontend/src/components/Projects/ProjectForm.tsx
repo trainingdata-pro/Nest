@@ -1,13 +1,10 @@
-import React, {Dispatch, SetStateAction, useContext, useEffect, useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {useForm} from 'react-hook-form'
 import ProjectService from "../../services/ProjectService";
 import {Context} from "../../index";
-import ManagerService from '../../services/ManagerService';
 import Select from "react-select";
-import {Project} from "../../models/ProjectResponse";
 import MyInput from "../UI/MyInput";
 import {format} from 'date-fns';
-import {IManager} from "../../models/ManagerResponse";
 import {observer} from "mobx-react-lite";
 import MyLabel from "../UI/MyLabel";
 import Error from "../UI/Error";
@@ -16,11 +13,6 @@ import {AxiosError} from "axios";
 import {errorNotification, successNotification} from "../UI/Notify";
 import CreatableSelect from "react-select/creatable";
 import MyButton from "../UI/MyButton";
-
-export interface SelectProps {
-    value: string | number,
-    label: string
-}
 
 type ProjectFormProps = {
     name: string,
@@ -35,7 +27,20 @@ type ProjectFormProps = {
     tag: number[] | string[],
     date_of_creation: string
 }
+const Errors = {
+    name: 'Название',
+    asana_id: 'Асана ID',
+    manager: 'Менеджер',
+    speed_per_hour: 'Скорость в час',
+    price_for_assessor: 'Цена за единицу для асессора',
+    price_for_costumer: 'Цена за единицу для заказчика',
+    unloading_value: 'Объем выгрузок',
+    unloading_regularity: 'Регулярность выгрузок',
+    status: 'Статус',
+    tag: 'Тег',
+    date_of_creation: 'Дата старта проекта'
 
+}
 interface MyParams {
     id: number | string;
     data: any;
@@ -120,38 +125,32 @@ const ProjectForm = ({projectId, closeSidebar}: {
         onSuccess: () => {
             queryClient.invalidateQueries('projects');
             successNotification('Проект успешно обновлен')
+            closeSidebar(false)
         },
-        onError: (error: any) => {
-            const jsonError = JSON.parse(error.request.responseText)
-            errorNotification(jsonError[Object.keys(jsonError)[0]][0])
+        onError: (error: AxiosError) => {
+            const errors = error.response?.data ? error.response?.data : {}
+            const keys = Object.keys(errors)
+            // @ts-ignore
+            const notify = <div>{keys.map(key => <p key={key}>{`${Errors[key]}: ${errors[key][0]}`}</p>)}</div>
+            errorNotification(notify)
         }
     });
     const postProject = useMutation((data: any) => ProjectService.postProject(data), {
         onSuccess: () => {
             queryClient.invalidateQueries('projects')
             successNotification('Проект успешно создан')
+            closeSidebar(false)
         },
-        onError: (error: any) => {
-            const jsonError = JSON.parse(error.request.responseText)
-            errorNotification(jsonError[Object.keys(jsonError)[0]][0])
+        onError: (error: AxiosError) => {
+            const errors = error.response?.data ? error.response?.data : {}
+            const keys = Object.keys(errors)
+            // @ts-ignore
+            const notify = <div>{keys.map(key => <p key={key}>{`${Errors[key]}: ${errors[key][0]}`}</p>)}</div>
+            errorNotification(notify)
         }
     });
-    const [tagsList, setTagsList] = useState<any[]>([])
     const [currentTags, setCurrentTags] = useState<number[]>([])
-
-    const [currentStatus, setCurrentStatus] = useState<string>()
-
-    function onSubmit() {
-        const formValue = getValues()
-        if (projectId !== 0) {
-            patchProject.mutate({id: projectId, data: formValue})
-            closeSidebar(false)
-        } else {
-            postProject.mutate(formValue)
-            closeSidebar(false)
-        }
-    }
-
+    const [tagsList, setTagsList] = useState<any[]>([])
     const onTagChange = (newValue: any) => {
         const tagsId = newValue.map((value: any) => value.value)
         setCurrentTags(tagsId)
@@ -164,16 +163,20 @@ const ProjectForm = ({projectId, closeSidebar}: {
             return []
         }
     }
-    const onChangeRegularity = (newValue: any) => {
-        setRegularity(newValue.value)
-        setValue('unloading_regularity', newValue.value)
 
+    const [currentStatus, setCurrentStatus] = useState<string>()
+    const getValueStatus = () => {
+        return currentStatus ? statusList.find(s => s.value === currentStatus) : ''
     }
     const [regularity, setRegularity] = useState('')
     const onChangeStatus = (newValue: any) => {
         setCurrentStatus(newValue.value)
         setValue('status', newValue.value)
+    }
 
+    const onChangeRegularity = (newValue: any) => {
+        setRegularity(newValue.value)
+        setValue('unloading_regularity', newValue.value)
     }
     const getRegularity = () => {
         return regularity ? regOptions.find(s => s.value === regularity): ''
@@ -183,14 +186,22 @@ const ProjectForm = ({projectId, closeSidebar}: {
         {label: 'Ежедневно', value: 'Ежедневно'},
         {label: 'Раз в неделю', value: 'Раз в неделю'},
         {label: 'Раз в две недели', value: 'Раз в две недели'},
-        {label: 'Раз в месяц', value: 'Раз в месяц'},])
-    const getValueStatus = () => {
-        return currentStatus ? statusList.find(s => s.value === currentStatus) : ''
+        {label: 'Раз в месяц', value: 'Раз в месяц'}
+    ])
+
+    function onSubmit() {
+        const formValue = getValues()
+        if (projectId !== 0) {
+            patchProject.mutate({id: projectId, data: formValue})
+        } else {
+            postProject.mutate(formValue)
+        }
     }
+
     return (
         <div className="w-[30rem]">
             <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
-                <div className="flex h-2 justify-end w-full">
+                <div className="flex h-2 justify-end w-full pb-[5px]">
                     <div className="cursor-pointer text-[18px]" onClick={() => closeSidebar(false)}>x</div>
                 </div>
                 <FormSection>
