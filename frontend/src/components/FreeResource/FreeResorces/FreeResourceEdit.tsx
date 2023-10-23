@@ -3,11 +3,12 @@ import {Assessor} from "../../../models/AssessorResponse";
 import {useMutation, useQuery, useQueryClient} from "react-query";
 import AssessorService from "../../../services/AssessorService";
 import Dialog from "../../UI/Dialog";
-import AssessorHistory from "../../Assessors/AssessorHistory";
+import AssessorHistory from "../../Assessors/AssessorPage/AssessorHistory";
 import {useCalendarState} from "@mui/x-date-pickers/internals";
 import {Context} from "../../../index";
 import {errorNotification, successNotification} from "../../UI/Notify";
-import RentAssessor from "../../AssessorManagement/RentAssessor";
+import RentAssessor from "../../AssessorManagement/RentAssessor/RentAssessor";
+import ReturnFromFreeResources from "../../AssessorManagement/ReturnFromFreeResources";
 
 const FreeResourceEdit = ({assessor}: {
     assessor: Assessor
@@ -27,6 +28,7 @@ const FreeResourceEdit = ({assessor}: {
 
     const [isShowHistory, setIsShowHistory] = useState(false)
     const [showRentAssessor, setShowRentAssessor] = useState(false)
+    const [isShowReturnFromFreeResources, setIsShowReturnFromFreeResources] = useState(false)
     return (
         <>
             <Dialog isOpen={isShowHistory} setIsOpen={setIsShowHistory}>
@@ -35,11 +37,14 @@ const FreeResourceEdit = ({assessor}: {
             <Dialog isOpen={showRentAssessor} setIsOpen={setShowRentAssessor}>
                 <RentAssessor assessorId={assessor.id} show={setShowRentAssessor}/>
             </Dialog>
+            <Dialog isOpen={isShowReturnFromFreeResources} setIsOpen={setIsShowReturnFromFreeResources}>
+                <ReturnFromFreeResources assessorId={assessor.id} show={setIsShowReturnFromFreeResources}/>
+            </Dialog>
             <div className='flex flex-col'>
             <button onClick={() => setIsShowHistory(true)}>История</button>
-            {assessor.manager?.id !== store.user_id && (!assessor.manager?.id ?
+            {assessor.manager?.id !== store.user_id ? (!assessor.manager?.id ?
                 <button onClick={() => addAssessorToManager.mutate()}>Забрать в команду</button> :
-                <button onClick={() => setShowRentAssessor(true)}>Арендовать</button>)}
+                <button onClick={() => setShowRentAssessor(true)}>Арендовать</button>) : <button onClick={() => setIsShowReturnFromFreeResources(true)}>Забрать из СР</button>}
             </div>
             </>
     );
