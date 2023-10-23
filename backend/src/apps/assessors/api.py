@@ -289,7 +289,6 @@ class FreeResourcesAPIViewSet(BaseAPIViewSet):
         return (Assessor.objects
                 .exclude(state__in=AssessorState.fired_states())
                 .filter(Q(state=AssessorState.FREE_RESOURCE) | Q(manager=None))
-                .exclude(second_manager__in=[self.request.user])
                 .select_related('manager')
                 .prefetch_related('projects')
                 .order_by('last_name'))

@@ -526,9 +526,9 @@ class UpdateFreeResourceSerializer(GetUserMixin, serializers.ModelSerializer):
         queryset=BaseUser.objects.filter(status=UserStatus.MANAGER),
         required=False
     )
-    projects = serializers.PrimaryKeyRelatedField(
+    project = serializers.PrimaryKeyRelatedField(
         queryset=Project.objects.exclude(status=ProjectStatuses.COMPLETED),
-        many=True,
+        # many=True,
         required=False
     )
 
@@ -541,7 +541,7 @@ class UpdateFreeResourceSerializer(GetUserMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Assessor
-        fields = ['second_manager', 'manager', 'projects']
+        fields = ['second_manager', 'manager', 'project']
 
     def validate(self, attrs: Dict) -> Dict:
         if self.instance.manager is None:
@@ -559,15 +559,20 @@ class UpdateFreeResourceSerializer(GetUserMixin, serializers.ModelSerializer):
                     )
         else:
             second_manager = attrs.get('second_manager')
-            projects = attrs.get('projects')
+            project = attrs.get('project')
             if second_manager is None:
                 raise ValidationError(
                     {'second_manager': ['Укажите дополнительного менеджера.']}
                 )
-            if not projects:
+            if not project:
                 raise ValidationError(
-                    {'projects': ['Укажите проекты.']}
+                    {'project': ['Укажите проект.']}
                 )
+            else:
+                if project in self.instance.projects.all():
+                    raise ValidationError(
+                        {'project': ['Исполнитель уже работает на данном проекте.']}
+                    )
             if second_manager.manager_profile.is_teamlead:
                 raise ValidationError(
                     {'second_manager': ['Операционный менеджер не может быть ответственным менеджером '
@@ -587,7 +592,7 @@ class UpdateFreeResourceSerializer(GetUserMixin, serializers.ModelSerializer):
             assessor = assessors_service.add_second_manager(
                 instance,
                 manager=validated_data.get('second_manager'),
-                projects=validated_data.get('projects')
+                project=validated_data.get('project')
             )
 
         history.updated_assessor_history(
