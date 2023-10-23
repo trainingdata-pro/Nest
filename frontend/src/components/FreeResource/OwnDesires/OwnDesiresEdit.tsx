@@ -3,10 +3,10 @@ import {Assessor} from "../../../models/AssessorResponse";
 import {useMutation, useQueryClient} from "react-query";
 import AssessorService from "../../../services/AssessorService";
 import Dialog from "../../UI/Dialog";
-import AssessorHistory from "../../Assessors/AssessorHistory";
+import AssessorHistory from "../../Assessors/AssessorPage/AssessorHistory";
 import {Context} from "../../../index";
 import {errorNotification, successNotification} from "../../UI/Notify";
-import RentAssessor from "../../AssessorManagement/RentAssessor";
+import RentAssessor from "../../AssessorManagement/RentAssessor/RentAssessor";
 import {FiredAssessor} from "./columns";
 
 const OwnDesiresEdit = ({assessor}: {

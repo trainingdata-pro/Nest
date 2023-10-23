@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import AssessorService from "../../services/AssessorService";
+import AssessorService from "../../../services/AssessorService";
 import {useQuery} from "react-query";
 import {
     createColumnHelper,
@@ -9,9 +9,9 @@ import {
     getSortedRowModel, SortingState,
     useReactTable
 } from "@tanstack/react-table";
-import {columns, FiredAssessor} from "../FreeResource/OwnDesires/columns";
-import {IHistory} from "../../models/AssessorResponse";
-import Table from "../UI/Table";
+import {columns, FiredAssessor} from "../../FreeResource/OwnDesires/columns";
+import {IHistory} from "../../../models/AssessorResponse";
+import Table from "../../UI/Table";
 
 const columnHelper = createColumnHelper<IHistory>()
 const AssessorHistory = ({assessorId}: {

@@ -1,15 +1,15 @@
 import React, {useState} from 'react';
 import {useMutation, useQuery, useQueryClient} from "react-query";
-import ProjectService from "../../services/ProjectService";
-import {Project} from "../../models/ProjectResponse";
+import ProjectService from "../../../services/ProjectService";
+import {Project} from "../../../models/ProjectResponse";
 
-import {Reason} from "./ChangeProjects";
+import {Reason} from "./ChangeProjects/ChangeProjects";
 import {createColumnHelper, getCoreRowModel, getPaginationRowModel, useReactTable} from "@tanstack/react-table";
-import TableCheckBox from "../UI/TableCheckBox";
-import MyButton from "../UI/MyButton";
-import Table from "../UI/Table";
-import AssessorService from "../../services/AssessorService";
-import {errorNotification, successNotification} from "../UI/Notify";
+import TableCheckBox from "../../UI/TableCheckBox";
+import MyButton from "../../UI/MyButton";
+import Table from "../../UI/Table";
+import AssessorService from "../../../services/AssessorService";
+import {errorNotification, successNotification} from "../../UI/Notify";
 
 // @ts-ignore
 const RemoveAssessorsFromProjects = ({assessorsProjects, assessorsRow, show}) => {

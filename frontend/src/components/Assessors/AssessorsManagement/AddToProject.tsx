@@ -1,13 +1,13 @@
 import React, {useState} from 'react';
 import {useMutation, useQuery, useQueryClient} from "react-query";
-import ProjectService from "../../services/ProjectService";
-import AssessorService from "../../services/AssessorService";
-import {errorNotification, successNotification} from "../UI/Notify";
-import {Project} from "../../models/ProjectResponse";
-import Table from "../UI/Table";
+import ProjectService from "../../../services/ProjectService";
+import AssessorService from "../../../services/AssessorService";
+import {errorNotification, successNotification} from "../../UI/Notify";
+import {Project} from "../../../models/ProjectResponse";
+import Table from "../../UI/Table";
 import {createColumnHelper, getCoreRowModel, getPaginationRowModel, useReactTable} from "@tanstack/react-table";
-import TableCheckBox from "../UI/TableCheckBox";
-import {Reason} from './ChangeProjects';
+import TableCheckBox from "../../UI/TableCheckBox";
+import {Reason} from './ChangeProjects/ChangeProjects';
 
 // @ts-ignore
 const AddToProject = ({selectedAssessor, extendProjects, show}) => {

@@ -13,7 +13,7 @@ import AssessorPage from './components/Assessors/AssessorPage/AssessorPage';
 import CompletedProjects from "./pages/CompletedProjects";
 import BlackList from "./components/BlackList/BlackList";
 import FreeResourcePage from "./pages/FreeResourcePage";
-import RentAssessor from "./components/AssessorManagement/RentAssessor";
+import RentAssessor from "./components/AssessorManagement/RentAssessor/RentAssessor";
 import RentAssessors from './components/Assessors/RentAssessors';
 import Export from "./components/Projects/Export";
 import PasswordReset from "./components/PasswordReset/PasswordReset";

@@ -1,6 +1,6 @@
 import React from 'react';
 import {useQuery} from "react-query";
-import AssessorService from "../../services/AssessorService";
+import AssessorService from "../../../services/AssessorService";
 
 const CurrentState = ({assessorId, vacationDate}: {
     assessorId: string | number | undefined,

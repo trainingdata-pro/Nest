@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
-import MyButton from "../UI/MyButton";
-import {errorNotification} from "../UI/Notify";
+import MyButton from "../../UI/MyButton";
+import {errorNotification} from "../../UI/Notify";
 
 // @ts-ignore
 const AssessorsManagement = ({type,setShowRemoveAssessors, setShowChangeProject, availableChangeProject, availableAddProject, setShowAddProject}) => {
