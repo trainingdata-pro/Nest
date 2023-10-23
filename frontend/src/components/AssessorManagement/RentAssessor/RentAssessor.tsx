@@ -1,14 +1,14 @@
 import React, {useContext} from 'react';
 import {useMutation, useQuery, useQueryClient} from "react-query";
-import AssessorService from "../../services/AssessorService";
-import {errorNotification, successNotification} from "../UI/Notify";
-import ProjectService from "../../services/ProjectService";
-import {Context} from "../../index";
-import Table from "../UI/Table";
+import AssessorService from "../../../services/AssessorService";
+import {errorNotification, successNotification} from "../../UI/Notify";
+import ProjectService from "../../../services/ProjectService";
+import {Context} from "../../../index";
+import Table from "../../UI/Table";
 import {createColumnHelper, getCoreRowModel, getPaginationRowModel, useReactTable} from "@tanstack/react-table";
-import {Project} from "../../models/ProjectResponse";
-import TableCheckBox from "../UI/TableCheckBox";
-import MyButton from "../UI/MyButton";
+import {Project} from "../../../models/ProjectResponse";
+import TableCheckBox from "../../UI/TableCheckBox";
+import MyButton from "../../UI/MyButton";
 
 
 const RentAssessor = ({assessorId, show}:{
@@ -96,19 +96,20 @@ const RentAssessor = ({assessorId, show}:{
         onRowSelectionChange: setRowSelection,
         debugTable: false,
     })
-    const getSelectedProjects = () => {
+    const getSelectedProject = () => {
         return table.getPreFilteredRowModel().rows.filter(row => Object.keys(rowSelection).find(key => key.toString() === row.id.toString())).map(row => {
             return row.original.id
-        })
+        })[0]
     }
     const rentAssessor = useMutation(['assessors'], () => AssessorService.takeFromFreeResource(assessorId, {
         second_manager: store.user_id,
-        projects: [...getSelectedProjects()]
+        project: getSelectedProject()
     }), {
         onSuccess: () => {
             queryClient.invalidateQueries('assessors')
             queryClient.invalidateQueries('freeResources')
             successNotification('Ассессор успешно арендован')
+            show(false)
         },
         onError: () => {
             errorNotification('Произошла ошибка')
