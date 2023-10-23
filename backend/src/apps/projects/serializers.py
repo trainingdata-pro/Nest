@@ -5,6 +5,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from apps.assessors.models import Assessor, AssessorState
+from apps.assessors.services import assessors_service
 from apps.history.services import history
 from apps.users.models import BaseUser
 from apps.users.serializers import UserSerializer
@@ -120,6 +121,8 @@ class CreateUpdateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
                     if (not instance.projects.filter(manager__in=[manager]).exists()
                             and manager in instance.second_manager.all()):
                         instance.second_manager.remove(manager)
+
+                assessors_service.check_and_update_state(instance)
 
                 history.updated_assessor_history(
                     old_assessor=instance_before_update,
