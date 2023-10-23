@@ -15,9 +15,7 @@ class SkillsFilter(filters.FilterSet):
 
 class AssessorFilter(FilteringMixin, filters.FilterSet):
     username = filters.CharFilter(lookup_expr='icontains')
-    last_name = filters.CharFilter(lookup_expr='icontains')
-    first_name = filters.CharFilter(lookup_expr='icontains')
-    middle_name = filters.CharFilter(lookup_expr='icontains')
+    full_name = filters.CharFilter(method='filter_full_name')
     manager = filters.NumberFilter()
     projects = filters.CharFilter(method='filter_projects')
     skills = filters.CharFilter(method='filter_skills')
@@ -27,9 +25,7 @@ class AssessorFilter(FilteringMixin, filters.FilterSet):
         model = Assessor
         fields = [
             'username',
-            'last_name',
-            'first_name',
-            'middle_name',
+            'full_name',
             'manager',
             'projects',
             'skills',
@@ -47,6 +43,13 @@ class AssessorFilter(FilteringMixin, filters.FilterSet):
     def filter_second_manager(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
         managers = self.get_id_for_filtering(value)
         return queryset.filter(second_manager__in=managers).distinct()
+
+    def filter_full_name(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
+        return queryset.filter(
+            Q(last_name__icontains=value)
+            | Q(first_name__icontains=value)
+            | Q(middle_name__icontains=value)
+        )
 
 
 class AssessorCredentialsFilter(filters.FilterSet):

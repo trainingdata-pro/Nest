@@ -78,22 +78,10 @@ class AssessorSchema(BaseAPISchema):
                     description='Case-independent filtering by assessor username'
                 ),
                 openapi.Parameter(
-                    name='last_name',
+                    name='full_name',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by assessor last_name'
-                ),
-                openapi.Parameter(
-                    name='first_name',
-                    in_=openapi.IN_QUERY,
-                    type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by assessor first_name'
-                ),
-                openapi.Parameter(
-                    name='middle_name',
-                    in_=openapi.IN_QUERY,
-                    type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by assessor middle_name'
+                    description='Case-independent filtering by assessor full name'
                 ),
                 openapi.Parameter(
                     name='manager',

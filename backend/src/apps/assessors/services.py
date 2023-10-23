@@ -20,17 +20,17 @@ class AssessorService:
     def add_second_manager(self,
                            instance: Assessor,
                            manager: BaseUser,
-                           projects: List[Project]) -> Assessor:
-        instance = self.__add_m2m(
-            instance,
-            attribute='second_manager',
-            values=manager
-        )
+                           project: Project) -> Assessor:
+        if manager not in instance.second_manager.all():
+            instance = self.__add_m2m(
+                instance,
+                attribute='second_manager',
+                values=manager
+            )
         instance = self.__add_m2m(
             instance,
             attribute='projects',
-            values=projects,
-            many=True
+            values=project
         )
         instance.state = AssessorState.BUSY
         instance.free_resource_weekday_hours = None
@@ -38,7 +38,8 @@ class AssessorService:
         return self.__perform_save(instance)
 
     def check_and_remove_second_managers(self, instance: Assessor, manager: BaseUser) -> Assessor:
-        if manager in instance.second_manager.all():
+        if (manager in instance.second_manager.all()
+                and not instance.projects.filter(manager=manager).exists()):
             self.__remove_second_manager_m2m(instance, manager)
 
         return instance
