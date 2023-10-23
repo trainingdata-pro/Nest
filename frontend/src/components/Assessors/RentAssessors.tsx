@@ -13,12 +13,12 @@ import {
 } from "@tanstack/react-table";
 import Dialog from "../UI/Dialog";
 import AddAssessorForm from "./AddAssessorForm";
-import ChangeProjects from "./ChangeProjects";
-import AddToProject from "./AddToProject";
-import RemoveAssessorsFromProjects from "./RemoveAssessorsFromProjects";
+import ChangeProjects from "./AssessorsManagement/ChangeProjects/ChangeProjects";
+import AddToProject from "./AssessorsManagement/AddToProject";
+import RemoveAssessorsFromProjects from "./AssessorsManagement/RemoveAssessorsFromProjects";
 import Header from "../Header/Header";
 import MyButton from "../UI/MyButton";
-import AssessorsManagement from "./AssessorsManagement";
+import AssessorsManagement from "./AssessorsManagement/AssessorsManagement";
 import MyTable from "../UI/Table";
 import {Assessor} from "../../models/AssessorResponse";
 import {Context} from "../../index";
@@ -170,7 +170,7 @@ const RentAssessors = () => {
             </Dialog>
             <Dialog isOpen={showChangeProject} setIsOpen={setShowChangeProject}>
                 <ChangeProjects show={setShowChangeProject} selectedAssessor={getSelectedAssessors()}
-                                extendProjects={getUnavailableProjects()}/>
+                                extendProjects={getUnavailableProjects()} resetSelection={table.resetRowSelection}/>
             </Dialog>
             <Dialog isOpen={showAddProject} setIsOpen={setShowAddProject}>
                 <AddToProject show={setShowAddProject} selectedAssessor={getSelectedAssessors()}
