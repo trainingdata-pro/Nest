@@ -130,6 +130,7 @@ class AssessorProjectsSerializer(GetUserMixin, serializers.ModelSerializer):
         if instance:
             self.projects_before_update = [pr.pk for pr in instance.projects.all()]
             self.instance_before_update = copy(instance)
+            self.second_managers_before_update = [man.pk for man in instance.second_manager.all()]
 
     class Meta:
         model = Assessor
@@ -148,6 +149,7 @@ class AssessorProjectsSerializer(GetUserMixin, serializers.ModelSerializer):
             new_assessor=assessor,
             user=self.get_user().full_name,
             old_projects=self.projects_before_update,
+            old_second_managers=self.second_managers_before_update,
             state_reason=validated_data.get('reason')
         )
 
