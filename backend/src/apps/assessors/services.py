@@ -38,7 +38,8 @@ class AssessorService:
         return self.__perform_save(instance)
 
     def check_and_remove_second_managers(self, instance: Assessor, manager: BaseUser) -> Assessor:
-        if manager in instance.second_manager.all():
+        if (manager in instance.second_manager.all()
+                and not instance.projects.filter(manager=manager).exists()):
             self.__remove_second_manager_m2m(instance, manager)
 
         return instance
