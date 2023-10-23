@@ -1,13 +1,7 @@
-import React, {useContext, useEffect} from 'react';
-import {useMutation, useQuery, useQueryClient} from "react-query";
-import AssessorService from "../../../services/AssessorService";
-import {errorNotification, successNotification} from "../../UI/Notify";
-import ProjectService from "../../../services/ProjectService";
-import {Context} from "../../../index";
+import React from 'react';
+import {errorNotification} from "../../UI/Notify";
 import Table from "../../UI/Table";
-import {createColumnHelper, getCoreRowModel, getPaginationRowModel, RowSelectionState, useReactTable} from "@tanstack/react-table";
-import {Project} from "../../../models/ProjectResponse";
-import TableCheckBox from "../../UI/TableCheckBox";
+import {getCoreRowModel, getPaginationRowModel, RowSelectionState, useReactTable} from "@tanstack/react-table";
 import MyButton from "../../UI/MyButton";
 import { columns } from './columns';
 import {useGetProjects, useRentAssessor} from "./queries";
@@ -20,7 +14,7 @@ const RentAssessor = ({assessorId, show}:{
     const getSelectedProject = () => {
         return table.getPreFilteredRowModel().rows.at(Number(Object.keys(rowSelection)[0]))?.original.id
     }
-    const {data, isLoading, isError} = useGetProjects()
+    const {data} = useGetProjects()
     const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({} as RowSelectionState)
     const table = useReactTable({
         data: data ? data : [],
@@ -35,9 +29,7 @@ const RentAssessor = ({assessorId, show}:{
         onRowSelectionChange: setRowSelection,
         debugTable: false,
     })
-    useEffect(()=> {
-        console.log(rowSelection)
-    }, [rowSelection])
+
     const {mutate} = useRentAssessor({assessorId:assessorId, show:show, project:getSelectedProject()})
 
     const submit = () => {
