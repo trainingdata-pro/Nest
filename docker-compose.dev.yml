@@ -12,6 +12,7 @@ services:
     volumes:
       - ./backend/src:/backend/src
       - ./backend/src/media:/backend/src/media
+      - ./backend/logging:/backend/logging
     networks:
       - dev_network
     depends_on:
@@ -43,11 +44,12 @@ services:
     build: ./backend
     env_file:
       - './backend/.env'
-    command: bash -c "celery -A config.celery worker --loglevel=info"
+    command: bash -c "celery -A config.celery worker --loglevel=info --logfile=../logging/celery.log"
     depends_on:
       - redis
     volumes:
       - ./backend/src/media:/backend/src/media
+      - ./backend/logging:/backend/logging
     networks:
       - dev_network
 
@@ -56,7 +58,9 @@ services:
     build: ./backend
     env_file:
       - './backend/.env'
-    command: bash -c "celery -A config.celery beat --loglevel=info"
+    command: bash -c "celery -A config.celery beat --loglevel=info --logfile=../logging/celery-beat.log"
+    volumes:
+      - ./backend/logging:/backend/logging
     networks:
       - dev_network
     depends_on:

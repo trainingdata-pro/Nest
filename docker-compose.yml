@@ -8,6 +8,7 @@ services:
     volumes:
       - static_volume:/home/assessors/backend/src/static
       - media_volume:/home/assessors/backend/src/media
+      - ./backend/logging:/home/assessors/backend/logging
     expose:
       - 8000
     networks:
@@ -39,9 +40,10 @@ services:
     build: ./backend
     env_file:
       - ./backend/.env
-    command: bash -c "celery -A config.celery worker --loglevel=info"
+    command: bash -c "celery -A config.celery worker --loglevel=info --logfile=../logging/celery.log"
     volumes:
       - media_volume:/backend/src/media
+      - ./backend/logging:/home/assessors/backend/logging
     depends_on:
       - redis
     networks:
@@ -52,7 +54,9 @@ services:
     build: ./backend
     env_file:
       - ./backend/.env
-    command: bash -c "celery -A config.celery beat --loglevel=info"
+    command: bash -c "celery -A config.celery beat --loglevel=info --logfile=../logging/celery-beat.log"
+    volumes:
+      - ./backend/logging:/home/assessors/backend/logging
     depends_on:
       - redis
     networks:

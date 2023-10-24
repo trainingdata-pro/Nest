@@ -19,7 +19,6 @@ drf-yasg = "^1.21.7"
 openpyxl = "^3.1.2"
 gunicorn = "^21.2.0"
 python-dotenv = "^1.0.0"
-django-celery-beat = "^2.5.0"
 django-filter = "^23.3"
 django-cors-headers = "^4.3.0"
 
