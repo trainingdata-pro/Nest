@@ -8,7 +8,7 @@ class SkillsSchema(BaseAPISchema):
     def retrieve(self):
         return self.swagger_auto_schema(
             operation_summary='Get skill',
-            operation_description='Get a specific skill',
+            operation_description='Get a specific skill info.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
@@ -26,21 +26,21 @@ class SkillsSchema(BaseAPISchema):
     def list(self):
         return self.swagger_auto_schema(
             operation_summary='List skills',
-            operation_description='Get list of skills',
+            operation_description='Get list of skills.',
             manual_parameters=[
                 openapi.Parameter(
                     name='title',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
                     description='Case-independent filtering by skill title.\n'
-                                'Example: host.com/?title=cvat'
+                                'Example: host.com/?title=cvat.'
                 ),
                 openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
-                    description='Which field to use when ordering the results. '
-                                'Available fields: pk, title'
+                    description='Which field to use when ordering the results.\n'
+                                'Available fields: pk, title.'
                 )
             ],
             responses={**self.get_responses(401)}
@@ -51,13 +51,13 @@ class AssessorSchema(BaseAPISchema):
     def retrieve(self):
         return self.swagger_auto_schema(
             operation_summary='Get assessor',
-            operation_description='Get a specific assessor',
+            operation_description='Get a specific assessor info.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique assessor ID'
+                    description='Unique assessor ID.'
                 )
             ],
             responses={
@@ -69,51 +69,54 @@ class AssessorSchema(BaseAPISchema):
     def list(self):
         return self.swagger_auto_schema(
             operation_summary='List assessors',
-            operation_description='Get list of assessors',
+            operation_description='Get list of assessors.',
             manual_parameters=[
                 openapi.Parameter(
                     name='username',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by assessor username'
+                    description='Case-independent filtering by assessor username.'
                 ),
                 openapi.Parameter(
                     name='full_name',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by assessor full name'
+                    description='Case-independent filtering by assessor full name.'
                 ),
                 openapi.Parameter(
                     name='manager',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_INTEGER,
-                    description='Filtering by manager ID'
+                    description='Filtering by manager ID.'
                 ),
                 openapi.Parameter(
                     name='projects',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Filtering by project ID. Example: host.com/?projects=1,2'
+                    description='Filtering by project ID.\n'
+                                'Example: host.com/?projects=1,2.'
                 ),
                 openapi.Parameter(
                     name='skills',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Filtering by skill ID. Example: host.com/?skills=1,2'
+                    description='Filtering by skill ID.\n'
+                                'Example: host.com/?skills=1,2.'
                 ),
                 openapi.Parameter(
                     name='second_manager',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Filtering by second manager ID. Example: host.com/?second_manager=1,2'
+                    description='Filtering by second manager ID.\n'
+                                'Example: host.com/?second_manager=1,2.'
                 ),
                 openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
-                    description='Which field to use when ordering the results. '
+                    description='Which field to use when ordering the results.\n'
                                 'Available fields: pk, username, last_name, '
-                                'manager__last_name, status, projects'
+                                'manager__last_name, status, projects.'
                 )
             ],
             responses={**self.get_responses(401)}
@@ -122,10 +125,7 @@ class AssessorSchema(BaseAPISchema):
     def create(self):
         return self.swagger_auto_schema(
             operation_summary='Create assessor',
-            operation_description='If the manager field is None, then the assessor '
-                                  'will be immediately added to free resources as an '
-                                  'assessor without a team.\n\n'
-                                  'Statuses: full, partial, reserved',
+            operation_description='Create a new assessor.',
             responses={
                 201: serializers.CreateUpdateAssessorSerializer(),
                 **self.get_responses(400, 401)
@@ -135,13 +135,13 @@ class AssessorSchema(BaseAPISchema):
     def partial_update(self):
         return self.swagger_auto_schema(
             operation_summary='Update assessor',
-            operation_description='Update assessor',
+            operation_description='Update a specific assessor.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique assessor ID'
+                    description='Unique assessor ID.'
                 )
             ],
             responses={
@@ -153,13 +153,13 @@ class AssessorSchema(BaseAPISchema):
     def projects(self):
         return self.swagger_auto_schema(
             operation_summary='Update assessor projects',
-            operation_description='Update assessor projects',
+            operation_description='Change a specific assessor projects list.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique assessor ID'
+                    description='Unique assessor ID.'
                 )
             ],
             responses={
@@ -171,13 +171,13 @@ class AssessorSchema(BaseAPISchema):
     def skills(self):
         return self.swagger_auto_schema(
             operation_summary='Update assessor skills',
-            operation_description='Update assessor skills',
+            operation_description='Change a specific assessor skills list.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique assessor ID'
+                    description='Unique assessor ID.'
                 )
             ],
             responses={
@@ -188,14 +188,16 @@ class AssessorSchema(BaseAPISchema):
 
     def vacation(self):
         return self.swagger_auto_schema(
-            operation_summary='Send / return assessor to vacation',
-            operation_description='Send / return a specific assessor to vacation.',
+            operation_summary='Assessor vacation',
+            operation_description='Send a specific assessor on vacation or '
+                                  'return from vacation.\n\n'
+                                  'vacation_date - required field when sending an assessor on vacation.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique assessor ID'
+                    description='Unique assessor ID.'
                 )
             ],
             responses={
@@ -207,9 +209,10 @@ class AssessorSchema(BaseAPISchema):
     def free_resource(self):
         return self.swagger_auto_schema(
             operation_summary='Send / return assessor to free resources',
-            operation_description='Send / return a specific assessor to free resources.\n'
+            operation_description='Send a specific assessor to free resources or '
+                                  'return from free resources.\n'
                                   'Reason is required only when adding to free resources.\n'
-                                  'Reasons:\n'
+                                  'Available reasons:\n'
                                   '- free_time (Есть свободное время)\n'
                                   '- project_reduction (Сокращение проекта)\n'
                                   '- project_mismatch (Не подходит текущему проекту)',
@@ -218,7 +221,7 @@ class AssessorSchema(BaseAPISchema):
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique assessor ID'
+                    description='Unique assessor ID.'
                 )
             ],
             responses={
@@ -234,7 +237,7 @@ class AssessorSchema(BaseAPISchema):
                                   'If a manager is specified, the assessor will be assigned '
                                   'to him, otherwise assessor will be added to free resources '
                                   'as assessor without a team.\n'
-                                  'Reasons:\n'
+                                  'Available reasons:\n'
                                   '- project (Не смог работать со спецификой проекта)\n'
                                   '- work (Не сработались)\n'
                                   '- transfer (Передача проекта другому менеджеру)',
@@ -243,7 +246,7 @@ class AssessorSchema(BaseAPISchema):
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique assessor ID'
+                    description='Unique assessor ID.'
                 )
             ],
             responses={
@@ -258,13 +261,13 @@ class AssessorSchema(BaseAPISchema):
             operation_description='If the reason has blacklist=True, then '
                                   'the assessor will be added to the blacklist. '
                                   'The "date" parameter is optional (the date '
-                                  'when you can return to the assessor)',
+                                  'when you can return to the assessor).',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique assessor ID'
+                    description='Unique assessor ID.'
                 )
             ],
             responses={
@@ -278,25 +281,29 @@ class CheckAssessorSchema(BaseAPISchema):
     def get(self):
         return self.swagger_auto_schema(
             operation_summary='Check assessor',
-            operation_description='Check if assessor exists',
+            operation_description='Check if assessor exists.\n'
+                                  'Full_name or username must be specified.',
             manual_parameters=[
                 openapi.Parameter(
-                    name='last_name',
+                    name='full_name',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='New assessor last name'
+                    description='New assessor full name.'
                 ),
                 openapi.Parameter(
-                    name='first_name',
+                    name='username',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='New assessor first name'
+                    description='New assessor username.'
                 ),
                 openapi.Parameter(
-                    name='middle_name',
-                    in_=openapi.IN_QUERY,
+                    name='ordering',
                     type=openapi.TYPE_STRING,
-                    description='New assessor middle name')
+                    in_=openapi.IN_QUERY,
+                    description='Which field to use when ordering the results.\n'
+                                'Available fields: pk, username, last_name, '
+                                'manager__last_name, status, projects.'
+                )
             ],
             responses={
                 200: serializers.CheckAssessorSerializer,
@@ -309,13 +316,20 @@ class AssessorCredentialsSchema(BaseAPISchema):
     def retrieve(self):
         return self.swagger_auto_schema(
             operation_summary='Get assessor credentials',
-            operation_description='Get a specific assessor credentials',
+            operation_description='Get a specific assessor credentials info.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique assessor credentials ID'
+                    description='Unique assessor credentials ID.'
+                ),
+                openapi.Parameter(
+                    name='ordering',
+                    type=openapi.TYPE_STRING,
+                    in_=openapi.IN_QUERY,
+                    description='Which field to use when ordering the results. '
+                                'Available fields: pk, assessor.'
                 )
             ],
             responses={
@@ -327,20 +341,20 @@ class AssessorCredentialsSchema(BaseAPISchema):
     def list(self):
         return self.swagger_auto_schema(
             operation_summary='List assessor credentials',
-            operation_description='Get list of assessor credentials',
+            operation_description='Get list of assessor credentials.',
             manual_parameters=[
                 openapi.Parameter(
                     name='assessor',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by assessor id'
+                    description='Case-independent filtering by assessor id.'
                 ),
                 openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
-                    description='Which field to use when ordering the results. '
-                                'Available fields: pk, assessor'
+                    description='Which field to use when ordering the results.\n'
+                                'Available fields: pk, assessor.'
                 )
             ],
             responses={**self.get_responses(401, 403)}
@@ -349,7 +363,7 @@ class AssessorCredentialsSchema(BaseAPISchema):
     def create(self):
         return self.swagger_auto_schema(
             operation_summary='Create assessor credentials',
-            operation_description='Create assessor credentials',
+            operation_description='Create a specific assessor credentials.',
             responses={
                 201: serializers.CreateUpdateAssessorCredentialsSerializer(),
                 **self.get_responses(400, 403, 401)
@@ -359,13 +373,13 @@ class AssessorCredentialsSchema(BaseAPISchema):
     def partial_update(self):
         return self.swagger_auto_schema(
             operation_summary='Update assessor credentials',
-            operation_description='Update assessor credentials',
+            operation_description='Update a specific assessor credentials.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique assessor credentials ID'
+                    description='Unique credentials ID.'
                 )
             ],
             responses={
@@ -377,13 +391,13 @@ class AssessorCredentialsSchema(BaseAPISchema):
     def destroy(self):
         return self.swagger_auto_schema(
             operation_summary='Delete assessor credentials',
-            operation_description='Delete assessor credentials',
+            operation_description='Delete a specific assessor credentials.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique assessor credentials ID'
+                    description='Unique credentials ID.'
                 )
             ],
             responses={**self.get_responses(204, 401, 403, 404)}
@@ -394,13 +408,13 @@ class FreeResourcesSchema(BaseAPISchema):
     def retrieve(self):
         return self.swagger_auto_schema(
             operation_summary='Get free resource',
-            operation_description='Get a specific free resource',
+            operation_description='Get a specific free resource info.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique assessor ID'
+                    description='Unique assessor ID.'
                 )
             ],
             responses={**self.get_responses(401, 404)}
@@ -409,25 +423,25 @@ class FreeResourcesSchema(BaseAPISchema):
     def list(self):
         return self.swagger_auto_schema(
             operation_summary='List free resources',
-            operation_description='Get list of free resources',
+            operation_description='Get list of free resources.',
             manual_parameters=[
                 openapi.Parameter(
                     name='username',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by assessor username'
+                    description='Case-independent filtering by assessor username.'
                 ),
                 openapi.Parameter(
                     name='full_name',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by assessor full name'
+                    description='Case-independent filtering by assessor full name.'
                 ),
                 openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
-                    description='Which field to use when ordering the results. '
+                    description='Which field to use when ordering the results.\n'
                                 'Available fields: pk, username, last_name, manager__last_name.'
                 )
             ],
@@ -437,15 +451,15 @@ class FreeResourcesSchema(BaseAPISchema):
     def partial_update(self):
         return self.swagger_auto_schema(
             operation_summary='Take free resource',
-            operation_description='If the assessor does not have a team, then it\'s necessary '
+            operation_description='If an assessor doesn\'t have a team, then it\'s necessary '
                                   'to specify the "manager" field, otherwise specify the '
-                                  '"second_manager" and "projects" fields',
+                                  '"second_manager" and "project" fields',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique assessor ID'
+                    description='Unique assessor ID.'
                 )
             ],
             responses={

@@ -1,6 +1,7 @@
 from copy import copy
-from typing import Dict, Union
+from typing import Dict, Union, List
 
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -175,19 +176,21 @@ class AssessorSerializer(serializers.ModelSerializer):
     projects = ProjectSerializer(read_only=True, many=True)
     skills = SkillSerializer(read_only=True, many=True)
     second_manager = UserSerializer(read_only=True, many=True)
-    working_hours = serializers.SerializerMethodField(method_name='get_working_hours')
-    workload_status = serializers.SerializerMethodField(method_name='get_workload_status')
+    working_hours = serializers.SerializerMethodField(method_name='get_working_hours', read_only=True)
+    workload_status = serializers.SerializerMethodField(method_name='get_workload_status', read_only=True)
 
     class Meta:
         model = Assessor
         fields = '__all__'
 
-    def get_working_hours(self, obj: Assessor) -> Dict:
+    @swagger_serializer_method(serializer_or_field=ProjectWorkingHoursSimpleSerializer(many=True))
+    def get_working_hours(self, obj: Assessor) -> List[Dict]:
         wh = ProjectWorkingHours.objects.filter(assessor=obj, project__in=obj.projects.all())
         serialized = ProjectWorkingHoursSimpleSerializer(wh, many=True)
         return serialized.data
 
-    def get_workload_status(self, obj: Assessor) -> Dict:
+    @swagger_serializer_method(serializer_or_field=WorkLoadStatusSerializer(many=True))
+    def get_workload_status(self, obj: Assessor) -> List[Dict]:
         ws = WorkLoadStatus.objects.filter(assessor=obj, project__in=obj.projects.all())
         serialized = WorkLoadStatusSerializer(ws, many=True)
         return serialized.data
