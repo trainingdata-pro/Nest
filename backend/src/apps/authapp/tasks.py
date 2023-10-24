@@ -1,15 +1,40 @@
 from uuid import UUID
 
-from celery import shared_task
+import django.utils.timezone
+from django.conf import settings
+from django.core.mail import send_mail
 
-from .utils.mail import send_user_confirmation_code, send_reset_password_token
+from config.celery import app
+from .models import PasswordResetToken
 
 
-@shared_task
+@app.task
 def send_confirmation_code(email: str, code: str) -> None:
-    send_user_confirmation_code(email, code)
+    subject = 'Активация аккаунта'
+    message = f'Для активации аккаунта, пожалуйста, перейдите по следующий ссылке:\n' \
+              f'{settings.MAIN_HOST}/signup/confirmation/{code}'
+    send_mail(
+        subject=subject,
+        message=message,
+        from_email=None,
+        recipient_list=[email]
+    )
 
 
-@shared_task
+@app.task
 def reset_password(email: str, token: UUID) -> None:
-    send_reset_password_token(email, token)
+    subject = 'Сброс пароля'
+    message = 'Для сброса пароля, пожалуйста, перейдите по следующей ссылке:\n' \
+              f'{settings.MAIN_HOST}/password/reset/{token}'
+    send_mail(
+        subject=subject,
+        message=message,
+        from_email=None,
+        recipient_list=[email]
+    )
+
+
+@app.task
+def remove_old_tokens() -> None:
+    date = django.utils.timezone.now() - django.utils.timezone.timedelta(days=7)
+    PasswordResetToken.objects.filter(expiration_time__lt=date).delete()
