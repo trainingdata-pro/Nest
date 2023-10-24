@@ -1,5 +1,6 @@
 from typing import Dict
 
+from django.contrib.postgres.search import SearchVector
 from django.db.models import Q, QuerySet
 from django.utils.decorators import method_decorator
 from rest_framework import status, viewsets, generics
@@ -185,31 +186,32 @@ class AssessorCheckAPIView(generics.ListAPIView):
     queryset = Assessor.objects.all().select_related('manager')
     serializer_class = serializers.CheckAssessorSerializer
     permission_classes = (IsAuthenticated,)
-
-    def __extract_request_data(self) -> Dict:
-        last_name = self.request.GET.get('last_name')
-        first_name = self.request.GET.get('first_name')
-        middle_name = self.request.GET.get('middle_name')
-        if last_name is None or first_name is None:
-            raise ValidationError(
-                {'detail': ['You have to specify at least last_name and first_name.']}
-            )
-        return {
-            'last_name': last_name,
-            'first_name': first_name,
-            'middle_name': middle_name
-        }
+    ordering_fields = [
+        'pk',
+        'username',
+        'last_name',
+        'manager__last_name',
+        'status',
+        'projects'
+    ]
 
     def filter_queryset(self, queryset: QuerySet[Assessor]) -> QuerySet[Assessor]:
-        data = self.__extract_request_data()
-        last_name = data.get('last_name')
-        first_name = data.get('first_name')
-        middle_name = data.get('middle_name')
+        full_name = self.request.GET.get('full_name')
+        username = self.request.GET.get('username')
+        if full_name is None and username is None:
+            raise ValidationError(
+                {'detail': ['Укажите ФИО или username исполнителя.']}
+            )
 
-        result = queryset.filter(Q(last_name__iexact=last_name) & Q(first_name__iexact=first_name))
-        if middle_name is not None:
-            return result.filter(middle_name__iexact=middle_name)
-        return result
+        if full_name:
+            queryset = queryset.annotate(
+                search=SearchVector('last_name') + SearchVector('first_name') + SearchVector('middle_name')
+            ).filter(search=full_name)
+
+        if username:
+            queryset = queryset.filter(username__iexact=username)
+
+        return queryset
 
 
 @method_decorator(name='retrieve', decorator=schemas.credentials_schema.retrieve())
