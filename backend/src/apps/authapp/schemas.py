@@ -8,16 +8,18 @@ class ResetPasswordSchema(BaseAPISchema):
     def reset(self):
         return self.swagger_auto_schema(
             operation_summary='Reset user password',
-            operation_description='Generate and send a unique password reset token.',
+            operation_description='Accepts the user\'s email, verifies it, '
+                                  'and sends a password reset confirmation code.',
             responses={
-                **self.get_responses(204)
+                **self.get_responses(204, 400)
             }
         )
 
     def set(self):
         return self.swagger_auto_schema(
             operation_summary='Set user password',
-            operation_description='Set new user password.',
+            operation_description='Accepts a unique password reset token and a new password. '
+                                  'If validation is successful, sets a new password.',
             responses={
                 **self.get_responses(204, 400)
             }
@@ -26,7 +28,9 @@ class ResetPasswordSchema(BaseAPISchema):
     def change(self):
         return self.swagger_auto_schema(
             operation_summary='Change user password',
-            operation_description='Change a specific user password.',
+            operation_description='Accepts the user\'s old and new password and, '
+                                  'if verified successfully, changes the password '
+                                  'to the new one.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
@@ -45,7 +49,8 @@ class UserActivateSchema(BaseAPISchema):
     def post(self):
         return self.swagger_auto_schema(
             operation_summary='Activate user',
-            operation_description='Activate user',
+            operation_description='Checks the activation code and '
+                                  'activates the user account.',
             responses={
                 200: UserSerializer(),
                 **self.get_responses(400)

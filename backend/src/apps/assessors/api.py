@@ -1,5 +1,3 @@
-from typing import Dict
-
 from django.contrib.postgres.search import SearchVector
 from django.db.models import Q, QuerySet
 from django.utils.decorators import method_decorator

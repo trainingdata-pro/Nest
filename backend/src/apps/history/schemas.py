@@ -8,14 +8,14 @@ class HistorySchema(BaseAPISchema):
     def get(self):
         return self.swagger_auto_schema(
             operation_summary='Get history',
-            operation_description='Get a specific assessor history',
+            operation_description='Get a specific assessor history info.',
             manual_parameters=[
                 openapi.Parameter(
                     name='assessor',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_QUERY,
                     required=True,
-                    description='Unique assessor ID'
+                    description='Unique assessor ID.'
                 ),
                 openapi.Parameter(
                     name='action',
@@ -24,7 +24,7 @@ class HistorySchema(BaseAPISchema):
                     description='Case-independent filtering by action.\n'
                                 'Example: host.com/?event=created.\n\n'
                                 f'Available events:\n'
-                                f'{", ".join([f"{item[0]} - {item[1]}" for item in HistoryAction.choices])}'
+                                f'{", ".join([f"{item[0]} ({item[1]})" for item in HistoryAction.choices])}'
                 ),
                 openapi.Parameter(
                     name='attribute',
@@ -33,7 +33,7 @@ class HistorySchema(BaseAPISchema):
                     description='Case-independent filtering by attribute.\n'
                                 'Example: host.com/?attribute=project.\n\n'
                                 f'Available attributes:\n'
-                                f'{", ".join([f"{item[0]} - {item[1]}" for item in HistoryAttribute.choices])}'
+                                f'{", ".join([f"{item[0]} ({item[1]})" for item in HistoryAttribute.choices])}'
                 ),
                 openapi.Parameter(
                     name='ordering',

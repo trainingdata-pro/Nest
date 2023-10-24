@@ -12,7 +12,6 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from . import schemas, serializers
-from .services import ExportType
 
 
 @method_decorator(name='get', decorator=schemas.export_schema.status())
@@ -50,7 +49,10 @@ class DownloadReportAPIView(generics.GenericAPIView):
             )
             return response
         else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                data={'detail': f'File "{filename}" not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
     @staticmethod
     def _check_if_file_exists(path) -> bool:

@@ -1,6 +1,7 @@
 from drf_yasg import openapi
 
 from core.schemas import BaseAPISchema
+from core.users import UserStatus
 from . import serializers
 
 
@@ -8,13 +9,13 @@ class BaseUserSchema(BaseAPISchema):
     def retrieve(self):
         return self.swagger_auto_schema(
             operation_summary='Get user',
-            operation_description='Get a specific user',
+            operation_description='Get a specific user info.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique user ID'
+                    description='Unique user ID.'
                 )
             ],
             responses={
@@ -26,7 +27,7 @@ class BaseUserSchema(BaseAPISchema):
     def list(self):
         return self.swagger_auto_schema(
             operation_summary='List users',
-            operation_description='Get Get list of users',
+            operation_description='Get list of users.',
             manual_parameters=[
                 openapi.Parameter(
                     name='full_name',
@@ -38,14 +39,14 @@ class BaseUserSchema(BaseAPISchema):
                     name='status',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Filtering by status. You can chose a few statuses. '
-                                'Example: Example: host.com/?status=admin,manager'
+                    description='Filtering by status. You can chose a few statuses.\n'
+                                'Example: host.com/?status=admin,manager'
                 ),
                 openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
-                    description='Which field to use when ordering the results. '
+                    description='Which field to use when ordering the results.\n'
                                 'Available fields: pk, username, last_name.'
                 )
             ],
@@ -55,8 +56,8 @@ class BaseUserSchema(BaseAPISchema):
     def create(self):
         return self.swagger_auto_schema(
             operation_summary='Create user',
-            operation_description='Create new user.\n'
-                                  'Available statuses: admin, manager.',
+            operation_description='Available statuses:\n'
+                                  f'{", ".join([f"{item[0]} ({item[1]})" for item in UserStatus.choices])}',
             responses={
                 201: serializers.UserSerializer(),
                 **self.get_responses(400)
@@ -66,13 +67,13 @@ class BaseUserSchema(BaseAPISchema):
     def partial_update(self):
         return self.swagger_auto_schema(
             operation_summary='Update user',
-            operation_description='Update user',
+            operation_description='Update a specific user.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique user ID'
+                    description='Unique user ID.'
                 )
             ],
             responses={
@@ -86,13 +87,13 @@ class ManagerProfileSchema(BaseAPISchema):
     def retrieve(self):
         return self.swagger_auto_schema(
             operation_summary='Get manager profile',
-            operation_description='Get a specific manager profile',
+            operation_description='Get a specific manager profile.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique manager profile ID'
+                    description='Unique manager profile ID.'
                 )
             ],
             responses={
@@ -104,7 +105,7 @@ class ManagerProfileSchema(BaseAPISchema):
     def list(self):
         return self.swagger_auto_schema(
             operation_summary='List managers',
-            operation_description='Get list of manager profiles',
+            operation_description='Get list of manager profiles.',
             manual_parameters=[
                 openapi.Parameter(
                     name='is_teamlead',
@@ -122,7 +123,7 @@ class ManagerProfileSchema(BaseAPISchema):
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
-                    description='Which field to use when ordering the results. '
+                    description='Which field to use when ordering the results.\n'
                                 'Available fields: pk.'
                 )
             ],
@@ -132,13 +133,13 @@ class ManagerProfileSchema(BaseAPISchema):
     def partial_update(self):
         return self.swagger_auto_schema(
             operation_summary='Update manager profile',
-            operation_description='Update a specific manager profile',
+            operation_description='Update a specific manager profile.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique manager profile ID'
+                    description='Unique manager profile ID.'
                 )
             ],
             responses={

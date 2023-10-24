@@ -12,13 +12,13 @@ class ReasonSchema(BaseAPISchema):
     def retrieve(self):
         return self.swagger_auto_schema(
             operation_summary='Get fire reason',
-            operation_description='Get a specific fire reason',
+            operation_description='Get a specific fire reason info.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique fire reason ID'
+                    description='Unique reason ID.'
                 )
             ],
             responses={
@@ -30,25 +30,25 @@ class ReasonSchema(BaseAPISchema):
     def list(self):
         return self.swagger_auto_schema(
             operation_summary='List fire reasons',
-            operation_description='Get list of fire reasons',
+            operation_description='Get list of fire reasons.',
             manual_parameters=[
                 openapi.Parameter(
                     name='title',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by title'
+                    description='Case-independent filtering by reason title.'
                 ),
                 openapi.Parameter(
                     name='blacklist_reason',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_BOOLEAN,
-                    description='Case-independent filtering by blacklist_reason value'
+                    description='Case-independent filtering by reason blacklist_reason value.'
                 ),
                 openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
-                    description='Which field to use when ordering the results. '
+                    description='Which field to use when ordering the results.\n'
                                 'Available fields: pk, title, blacklist_reason'
                 )
             ],
@@ -60,13 +60,13 @@ class FiredSchema(BaseAPISchema):
     def retrieve_blacklist(self):
         return self.swagger_auto_schema(
             operation_summary='Get assessor from blacklist',
-            operation_description='Get a specific assessor from blacklist',
+            operation_description='Get a specific assessor info from blacklist.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique assessor ID'
+                    description='Unique assessor ID.'
                 )
             ],
             responses={
@@ -78,25 +78,25 @@ class FiredSchema(BaseAPISchema):
     def list_blacklist(self):
         return self.swagger_auto_schema(
             operation_summary='All blacklist',
-            operation_description='Get all blacklist',
+            operation_description='Get all assessors in blacklist.',
             manual_parameters=[
                 openapi.Parameter(
                     name='username',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by assessor username'
+                    description='Case-independent filtering by assessor username.'
                 ),
                 openapi.Parameter(
                     name='full_name',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
-                    description='Case-independent filtering by assessor full name'
+                    description='Case-independent filtering by assessor full name.'
                 ),
                 openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
-                    description='Which field to use when ordering the results. '
+                    description='Which field to use when ordering the results.\n'
                                 'Available fields: pk'
                 )
             ],
@@ -106,13 +106,13 @@ class FiredSchema(BaseAPISchema):
     def retrieve_fired(self):
         return self.swagger_auto_schema(
             operation_summary='Get fired assessor',
-            operation_description='Get a specific fired assessor',
+            operation_description='Get a specific assessor info from fired.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique fired assessor ID'
+                    description='Unique fired assessor ID.'
                 )
             ],
             responses={
@@ -124,25 +124,25 @@ class FiredSchema(BaseAPISchema):
     def list_fired(self):
         return self.swagger_auto_schema(
             operation_summary='List fired assessors',
-            operation_description='Get list of fired assessors',
+            operation_description='Get all assessors in fired.',
             manual_parameters=[
                 openapi.Parameter(
                     name='username',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by assessor username'
+                    description='Case-independent filtering by assessor username.'
                 ),
                 openapi.Parameter(
                     name='full_name',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
-                    description='Case-independent filtering by assessor full name'
+                    description='Case-independent filtering by assessor full name.'
                 ),
                 openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
-                    description='Which field to use when ordering the results. '
+                    description='Which field to use when ordering the results.\n'
                                 'Available fields: pk'
                 )
             ],
@@ -152,13 +152,13 @@ class FiredSchema(BaseAPISchema):
     def back(self):
         return self.swagger_auto_schema(
             operation_summary='Return assessor to a team',
-            operation_description='Return assessor to a team.\n',
+            operation_description='Return a specific assessor to a team.',
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
                     type=openapi.TYPE_INTEGER,
                     in_=openapi.IN_PATH,
-                    description='Unique fired item ID'
+                    description='Unique fired item ID.'
                 )
             ],
             responses={
@@ -172,14 +172,14 @@ class ExportBlackListSchema(BaseAPISchema):
     def export(self):
         return self.swagger_auto_schema(
             operation_summary='Export blacklist',
-            operation_description='Returns unique celery task ID',
+            operation_description='Returns unique celery task ID.',
             manual_parameters=[
                 openapi.Parameter(
                     name='type',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
                     required=True,
-                    description=f'Output file type. Available types: {", ".join(allowed_types())}'
+                    description=f'Output file type.\nAvailable types: {", ".join(allowed_types())}'
                 ),
                 openapi.Parameter(
                     name='items',
