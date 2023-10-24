@@ -7,7 +7,7 @@ from rest_framework.exceptions import ValidationError
 
 from apps.history.services import history
 from apps.assessors.models import Assessor, AssessorState
-from apps.assessors.serializers import AssessorSerializer
+from apps.assessors.serializers import SimpleAssessorSerializer
 from apps.assessors.services import assessors_service
 from apps.users.models import BaseUser
 from core.utils import current_date
@@ -107,7 +107,7 @@ class FireAssessorSerializer(GetUserMixin, serializers.Serializer):
 
 
 class FiredSerializer(serializers.ModelSerializer):
-    assessor = AssessorSerializer(read_only=True)
+    assessor = SimpleAssessorSerializer(read_only=True)
     reason = ReasonSerializer(read_only=True)
     last_manager = serializers.SerializerMethodField(method_name='get_last_manager', read_only=True)
     last_project = serializers.SerializerMethodField(method_name='get_last_project', read_only=True)
@@ -124,7 +124,7 @@ class FiredSerializer(serializers.ModelSerializer):
 
 
 class BlackListSerializer(serializers.ModelSerializer):
-    assessor = AssessorSerializer(read_only=True)
+    assessor = SimpleAssessorSerializer(read_only=True)
     reason = ReasonSerializer(read_only=True)
     last_manager = serializers.SerializerMethodField(method_name='get_last_manager', read_only=True)
     last_project = serializers.SerializerMethodField(method_name='get_last_project', read_only=True)

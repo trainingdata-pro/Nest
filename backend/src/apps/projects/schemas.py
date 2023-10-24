@@ -4,6 +4,7 @@ from apps.export.services import allowed_types
 from apps.export.serializers import ExportSerializer
 from core.schemas import BaseAPISchema
 from .models import Status, ProjectStatuses
+from .serializers import ProjectWorkingHoursSerializer
 
 
 class ProjectSchema(BaseAPISchema):
@@ -202,7 +203,10 @@ class ProjectWorkingHoursSchema(BaseAPISchema):
     def create(self):
         return self.swagger_auto_schema(
             operation_summary='Create project working hours',
-            responses={**self.get_responses(400, 401, 403)}
+            responses={
+                201: ProjectWorkingHoursSerializer(),
+                **self.get_responses(400, 401, 403)
+            }
         )
 
     def partial_update(self):
@@ -217,7 +221,10 @@ class ProjectWorkingHoursSchema(BaseAPISchema):
                     description='Unique project working hours ID.'
                 )
             ],
-            responses={**self.get_responses(400, 401, 403, 404)}
+            responses={
+                200: ProjectWorkingHoursSerializer(),
+                **self.get_responses(400, 401, 403, 404)
+            }
         )
 
 
