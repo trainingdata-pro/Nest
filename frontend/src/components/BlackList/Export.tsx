@@ -28,7 +28,7 @@ const Export = ({setIsExportBlackList, items}:{
                 }
             }
             const exportData = await ProjectService.downloadFile(filename)
-            fileDownload(exportData.data, filename)
+            fileDownload(new Blob([exportData.data]), filename)
             successNotification('Черный список успешно экспортирован')
         },
         onError: () => {

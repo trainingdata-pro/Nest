@@ -13,6 +13,7 @@ const ReturnFromFreeResources = ({assessorId, show}:{assessorId:string|number|un
         onSuccess: () => {
             queryClient.invalidateQueries(['currentAssessor', assessorId])
             queryClient.invalidateQueries(['assessorHistory', assessorId])
+            queryClient.invalidateQueries('freeResources')
             successNotification('Ассессор возвращен в команду')
             show(false)
         }, onError: (error:any) => {

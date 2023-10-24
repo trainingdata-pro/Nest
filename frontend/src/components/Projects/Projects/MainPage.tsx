@@ -1,28 +1,27 @@
-import React, {useState} from 'react';
-import ProjectService from '../../services/ProjectService';
-import {observer} from "mobx-react-lite";
-import Loader from "../UI/Loader";
-import ProjectForm from "./ProjectForm";
-import Dialog from "../UI/Dialog";
-import {useQuery} from "react-query";
-import Table from "../UI/Table";
+import React, {useEffect, useState} from 'react';
+import Header from "../../Header/Header";
 import {
     createColumnHelper,
     getCoreRowModel,
-    getPaginationRowModel,
-    getSortedRowModel, SortingState,
+    getPaginationRowModel, getSortedRowModel,
+    SortingState,
     useReactTable
 } from "@tanstack/react-table";
-import {Project} from "../../models/ProjectResponse";
+import {Project} from "../../../models/ProjectResponse";
 import {useNavigate} from "react-router-dom";
-import MyButton from "../UI/MyButton";
-
+import {useQuery} from "react-query";
+import ProjectService from "../../../services/ProjectService";
+import Loader from "../../UI/Loader";
+import Dialog from "../../UI/Dialog";
+import ProjectForm from "../ProjectForm";
+import MyButton from "../../UI/MyButton";
+import Table from "../../UI/Table";
 const statusObject = {
     "active": "Активный",
     "pause": "На паузе",
     "completed": "Завершенный"
 }
-const PersonalAccountTable = () => {
+const MainPage = () => {
     const columnHelper = createColumnHelper<Project>()
     const navigation = useNavigate()
     const columns = [
@@ -35,7 +34,7 @@ const PersonalAccountTable = () => {
             cell: info => <div className="cursor-pointer h-full w-full text-center break-all" onClick={() => {
                 setProjectId(info.row.original.id)
                 setShowSidebar(true)
-            }}>{info.getValue()}</div>,
+            }}><p className='hover:border-b hover:border-black w-fit mx-auto'>{info.getValue()}</p></div>,
             header: 'Название',
             enableSorting: false
         }),
@@ -49,7 +48,7 @@ const PersonalAccountTable = () => {
         columnHelper.accessor('assessors_count', {
             header: 'Количество ассессеров',
             cell: info => <div className="cursor-pointer h-full w-full text-center break-all"
-                              onClick={() => navigation(`/dashboard/projects/${info.row.original.id}/assessors/?name=${info.row.original.name}`)}>{info.getValue()}</div>,
+                               onClick={() => navigation(`/dashboard/projects/${info.row.original.id}/assessors/?name=${info.row.original.name}`)}><p className='hover:border-b border-black w-fit mx-auto'>{info.getValue()}</p></div>,
             enableSorting: true
         }),
         columnHelper.accessor('status', {
@@ -103,34 +102,40 @@ const PersonalAccountTable = () => {
         onRowSelectionChange: setRowSelection,
         debugTable: false,
     })
+    useEffect(() => {
+        console.log(sorting)
+    }, [sorting])
     if (isLoading) {
         return <Loader width={"16"}/>
     }
 
     return (
-        <div className="pt-20 items-center pb-6">
-            <Dialog isOpen={showSidebar} setIsOpen={setShowSidebar}>
-                <ProjectForm projectId={projectsId}
-                             closeSidebar={setShowSidebar}/>
-            </Dialog>
-            <div className="h-full w-full px-8">
+        <div>
+            <Header/>
+            <div className="pt-20 items-center pb-6">
+                <Dialog isOpen={showSidebar} setIsOpen={setShowSidebar}>
+                    <ProjectForm projectId={projectsId}
+                                 closeSidebar={setShowSidebar}/>
+                </Dialog>
+                <div className="h-full w-full px-8">
 
-                <div className="flex-col items-center">
-                    <div className="flex justify-between my-2">
-                        <div className='my-auto'>
-                            <p>Всего активных проектов: {data?.length}</p>
+                    <div className="flex-col items-center">
+                        <div className="flex justify-between my-2">
+                            <div className='my-auto'>
+                                <p>Всего активных проектов: {data?.length}</p>
+                            </div>
+                            <MyButton onClick={() => {
+                                setProjectId(0)
+                                setShowSidebar(true)
+                            }}>Добавить проект
+                            </MyButton>
                         </div>
-                        <MyButton onClick={() => {
-                            setProjectId(0)
-                            setShowSidebar(true)
-                        }}>Добавить проект
-                        </MyButton>
+                        <Table pages={true} rowSelection={rowSelection} table={table}/>
                     </div>
-                    <Table pages={true} rowSelection={rowSelection} table={table}/>
                 </div>
             </div>
         </div>
     );
 };
 
-export default PersonalAccountTable;
+export default MainPage;

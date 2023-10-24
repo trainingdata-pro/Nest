@@ -12,9 +12,10 @@ const Header = () => {
     const [isOpenCheck, setIsOpenCheck] = useState(false)
     return (
         <>
-            <Dialog isOpen={isOpen} setIsOpen={setIsOpen}>
-                <Profile setIsOpen={setIsOpen}/>
-            </Dialog>
+            {/*<Dialog isOpen={isOpen} setIsOpen={setIsOpen}>*/}
+            {/*    <Profile setIsOpen={setIsOpen}/>*/}
+            {/*</Dialog>*/}
+
             <Dialog isOpen={isOpenCheck} setIsOpen={setIsOpenCheck}>
                 <CheckAssessor setIsOpenCheck={setIsOpenCheck}/>
             </Dialog>
@@ -26,17 +27,13 @@ const Header = () => {
                             className="inline-flex bg-[#7a8df8] text-[16px] items-center text-white justify-center rounded-md text-sm font-medium py-[6px] px-[16px]"
                         >
                             <NavLink
-                                to='/dashboard/main'>{store.user_data.username}</NavLink>
+                                to='/projects'>{store.user_data.username}</NavLink>
                         </div>
                         <nav className="relative z-10 flex items-center justify-between text-white">
                             <ul className="flex list-none items-center space-x-1">
 
                                 <div className="flex justify-end">
-                                    <li>
-                                        <button
-                                            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4"
-                                            onClick={() => setIsOpen(true)}>Профиль</button>
-                                    </li>
+                                    <Profile/>
                                     <li>
                                         <button
                                             className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4"

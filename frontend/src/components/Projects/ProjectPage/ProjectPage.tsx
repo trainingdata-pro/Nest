@@ -13,9 +13,9 @@ import AddAssessorForm from "../../Assessors/AddAssessorForm";
 import Header from '../../Header/Header';
 import {useQuery} from "react-query";
 import AssessorService from "../../../services/AssessorService";
-import ProjectMenu from "../ProjectMenu";
+import ProjectMenu from "./ProjectMenu";
 import DeleteFromProjects from "../../AssessorManagement/DeleteFromProjects";
-import AddToProject from "../AddToProject";
+import AddToProject from "./AddToProject";
 import MyButton from "../../UI/MyButton";
 import Export from "../Export";
 import {columns} from './columns'

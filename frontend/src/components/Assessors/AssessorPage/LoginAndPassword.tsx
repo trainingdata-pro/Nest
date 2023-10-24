@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useContext} from "react";
-import AssessorService, {ILoginAndPassword} from "../../services/AssessorService";
-import {Context} from "../../index";
+import AssessorService, {ILoginAndPassword} from "../../../services/AssessorService";
+import {Context} from "../../../index";
 import {observer} from "mobx-react-lite";
 import {useMutation, useQuery, useQueryClient} from "react-query";
 import {useForm} from "react-hook-form";

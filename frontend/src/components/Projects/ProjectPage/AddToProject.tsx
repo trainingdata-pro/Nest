@@ -1,5 +1,5 @@
 import React from 'react';
-import MyButton from "../UI/MyButton";
+import MyButton from "../../UI/MyButton";
 
 const AddToProject = ({setAddToProject}: {
     setAddToProject: React.Dispatch<boolean>

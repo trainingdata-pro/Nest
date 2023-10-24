@@ -2,6 +2,9 @@ import React from "react";
 import {createColumnHelper} from "@tanstack/react-table";
 import {NavLink} from "react-router-dom";
 import {IFired} from "../../../models/AssessorResponse";
+import FreeResourceEdit from "../FreeResorces/FreeResourceEdit";
+import OwnDesires from "./OwnDesires";
+import OwnDesiresEdit from "./OwnDesiresEdit";
 export interface FiredAssessor extends IFired {
     last_manager: string,
     last_project: string
@@ -63,6 +66,11 @@ export const columns = [
     columnHelper.accessor('possible_return_date', {
         header: 'Предполагаемая дата возращения',
         cell: info => info.getValue(),
+        enableSorting:false
+    }),
+    columnHelper.accessor('id', {
+        header: '',
+        cell: info => <OwnDesiresEdit assessor={info.row.original}/>,
         enableSorting:false
     })
 ]

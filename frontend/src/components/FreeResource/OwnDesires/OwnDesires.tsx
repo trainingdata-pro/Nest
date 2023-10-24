@@ -21,7 +21,7 @@ const OwnDesires = ({globalFilter, setGlobalFilter}:{
     const [rowSelection, setRowSelection] = React.useState({})
 
     const fired = useQuery(['fired'], () => fetchAllData(), {
-        keepPreviousData: true
+        keepPreviousData: true,
     })
     async function fetchAllData() {
         const allData = [];

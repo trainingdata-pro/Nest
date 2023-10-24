@@ -35,7 +35,6 @@ export default class AssessorService{
     static fetchHistoryByAssessor = (assessorId: string | number | undefined, page: string | number = 1) => $api.get<IHistoryResponse>(`/api/history/?ordering=-timestamp&assessor=${assessorId}&page=${page}`).then(res => res.data)
     static fetchAssessorHistory = (id: string | number | undefined, attribute: string) => $api.get<IHistoryResponse>(`/api/history/?attribute=${attribute}&ordering=-timestamp&assessor=${id}`).then(res => res.data)
     static getBlackList = (page: string | number = 1) => $api.get<IBlackListResponse>(`/api/blacklist/?page=${page}`).then(res => res.data)
-    static fetchWorkloadStatusProject = (projectId: string | number| undefined = undefined) => $api.get<WorkloadStatusResponse>(`/api/workload_status/?project=${projectId}`).then(res => res.data)
     static fetchWorkloadStatus = (assessorID: string | number | undefined, projectId: string | number| undefined = undefined) => $api.get<WorkloadStatusResponse>(`/api/workload_status/?assessor=${assessorID}&project=${projectId}`).then(res => res.data)
     static fetchWorkingHours = (assessorID: string | number | undefined, projectId: string | number| undefined = undefined) => $api.get<WorkingHoursResponse>(`/api/working_hours/?assessor=${assessorID}&project=${projectId}`).then(res => res.data)
     static fetchSkills = () => $api.get<SkillResponse>('/api/skills/')
@@ -43,6 +42,9 @@ export default class AssessorService{
     static patchWorkloadStatus(workloadId: string | number | undefined, status: string ){
         return $api.patch(`/api/workload_status/${workloadId}/`, status)
     }
+    static patchAssessorSkills = (id: string | number, skills: string[]|number[]) => $api.patch(`/api/assessors/${id}/skills/`, {
+        skills : skills
+    })
     static createWorkloadStatus = (data: any ) => $api.post(`/api/workload_status/`, data).then(res => res.data)
     static patchWorkingHours(workingHoursId: string | number, data:any ){
         return $api.patch(`/api/working_hours/${workingHoursId}/`, data)
@@ -71,5 +73,5 @@ export default class AssessorService{
     static exportBlackList = (type: string, items:string) => $api.get(`/api/export/blacklist/?type=${type}&items=${items}`).then(res => res.data)
     static checkAssessor = (last_name: string = '', first_name: string = '', middle_name:string = '') => $api.get(`/api/assessors/check/?last_name=${last_name}&first_name=${first_name}&middle_name=${middle_name}`)
     static checkAssessorWithoutMiddleName = (last_name: string = '', first_name: string = '') => $api.get(`/api/assessors/check/?last_name=${last_name}&first_name=${first_name}`)
-
+    static takeFromOwnDesires = (firedId: string | number, data:any) => $api.patch(`/api/fired/${firedId}/back/`, data)
 }

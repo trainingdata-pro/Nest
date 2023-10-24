@@ -17,11 +17,11 @@ import {useNavigate} from "react-router-dom";
 import {ToastContainer} from "react-toastify";
 import MyButton from "../UI/MyButton";
 import $api from "../../http";
-import AssessorsManagement from "./AssessorsManagement";
-import ChangeProjects from "./ChangeProjects";
+import AssessorsManagement from "./AssessorsManagement/AssessorsManagement";
+import ChangeProjects from "./AssessorsManagement/ChangeProjects/ChangeProjects";
 import TableCheckBox from '../UI/TableCheckBox';
-import AddToProject from "./AddToProject";
-import RemoveAssessorsFromProjects from "./RemoveAssessorsFromProjects";
+import AddToProject from "./AssessorsManagement/AddToProject";
+import RemoveAssessorsFromProjects from "./AssessorsManagement/RemoveAssessorsFromProjects";
 import {Context} from "../../index";
 
 const columnHelper = createColumnHelper<Assessor>()
@@ -175,7 +175,7 @@ const AssessorsPage = () => {
             </Dialog>
             <Dialog isOpen={showChangeProject} setIsOpen={setShowChangeProject}>
                 <ChangeProjects show={setShowChangeProject} selectedAssessor={getSelectedAssessors()}
-                                extendProjects={getUnavailableProjects()}/>
+                                extendProjects={getUnavailableProjects()} resetSelection={table.resetRowSelection}/>
             </Dialog>
             <Dialog isOpen={showAddProject} setIsOpen={setShowAddProject}>
                 <AddToProject show={setShowAddProject} selectedAssessor={getSelectedAssessors()}

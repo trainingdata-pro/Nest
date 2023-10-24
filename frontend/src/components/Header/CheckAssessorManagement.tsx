@@ -1,7 +1,7 @@
 import React, {useContext, useState} from 'react';
 import Dialog from "../UI/Dialog";
 import {Assessor} from "../../models/AssessorResponse";
-import AssessorHistory from "../Assessors/AssessorHistory";
+import AssessorHistory from "../Assessors/AssessorPage/AssessorHistory";
 
 
 

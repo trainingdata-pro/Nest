@@ -26,7 +26,7 @@ export default class ProjectService {
     static fetchProjectAssessors(id:any): Promise<AxiosResponse<AssessorResponse>> {
         return $api.get<AssessorResponse>(`/api/projects/${id}/assessors/`)
     }
-    static downloadFile = (filename: string) => $api.get(`/api/export/download/${filename}/`)
+    static downloadFile = (filename: string) => $api.get(`/api/export/download/${filename}/`, {responseType: 'blob'})
     static exportProjects =(type: string) => $api.get(`/api/export/projects/?type=${type}`).then(res => res.data)
     static checkStatus = (taskId: string) => $api.get(`/api/export/status/${taskId}/`).then(res => res.data)
     static fetchProjectsByAssessorID = (id: string | number | undefined) => $api.get<ProjectResponse>(`/api/projects/?assessor_id=${id}`).then(res => res.data)

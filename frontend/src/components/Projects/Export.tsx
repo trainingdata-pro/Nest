@@ -31,7 +31,7 @@ const Export = ({setIsExportProjects, exportType ,project}:{
                 }
             }
             const exportData = await ProjectService.downloadFile(filename)
-            fileDownload(exportData.data, filename)
+            fileDownload(new Blob([exportData.data]), filename)
             successNotification('')
         },
         onError: () => {

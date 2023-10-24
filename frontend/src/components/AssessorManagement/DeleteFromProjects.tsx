@@ -52,7 +52,7 @@ const DeleteFromProjects = ({projectId, assessorsProjects, close}) => {
                 <input name='reason' onChange={(event) => setSelectedReason(event.target.value)} id='reason3' type="radio" value='Не понадобился'/>
                 <label htmlFor='reason3'>Не понадобился</label>
             </div>
-            <div className='flex space-x-2'>
+            <div className='flex justify-between space-x-2'>
                 <MyButton onClick={() => close(true)}>Назад</MyButton>
                 <MyButton onClick={submit}>Применить</MyButton>
             </div>
