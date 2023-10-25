@@ -30,6 +30,12 @@ class BaseUserSchema(BaseAPISchema):
             operation_description='Get list of users.',
             manual_parameters=[
                 openapi.Parameter(
+                    name='username',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Case-independent filtering by user username.'
+                ),
+                openapi.Parameter(
                     name='full_name',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
