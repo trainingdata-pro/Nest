@@ -1,4 +1,4 @@
-from django.db.models import QuerySet, Q
+from django.db.models import QuerySet
 from django_filters import rest_framework as filters
 
 from core.mixins import SplitStringFilterMixin, FilterByFullNameMixin
