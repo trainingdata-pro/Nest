@@ -22,23 +22,23 @@ export const useSorting = () => {
             return sorting[key]
         }).join(',')
     }
-    const [selectedRows, setSelectedRows] = useState<number[]>([])
+    // const [selectedRows, setSelectedRows] = useState<number[]>([])
     const columnHelper = createColumnHelper<FreeAssessor>()
     const columns = [
-        columnHelper.accessor('id', {
-            header: ({table}) => (
-                <div className="px-1">
-                    <TableCheckBox selectedRows={selectedRows} setSelectedRows={setSelectedRows} table={table} value={table.getPreFilteredRowModel().rows.map(row => row.original.id)}/>
-                </div>
-            ),
-            cell: ({row}) => (
-                <div className="px-1">
-                    <TableCheckBox selectedRows={selectedRows} setSelectedRows={setSelectedRows} table={undefined} value={row.original.id}/>
-                </div>
-            ),
-            enableSorting: false,
-            maxSize: 30
-        }),
+        // columnHelper.accessor('id', {
+        //     header: ({table}) => (
+        //         <div className="px-1">
+        //             <TableCheckBox selectedRows={selectedRows} setSelectedRows={setSelectedRows} table={table} value={table.getPreFilteredRowModel().rows.map(row => row.original.id)}/>
+        //         </div>
+        //     ),
+        //     cell: ({row}) => (
+        //         <div className="px-1">
+        //             <TableCheckBox selectedRows={selectedRows} setSelectedRows={setSelectedRows} table={undefined} value={row.original.id}/>
+        //         </div>
+        //     ),
+        //     enableSorting: false,
+        //     maxSize: 30
+        // }),
         columnHelper.accessor('last_name', {
             header: 'Фамилия',
             cell: info => <NavLink to={`/assessor/${info.row.original.id}`}>{info.getValue()}</NavLink>,
@@ -97,5 +97,5 @@ export const useSorting = () => {
             enableSorting:false
         })
     ]
-    return {columns,sorting, selectedRows, getSortingString}
+    return {columns,sorting, getSortingString}
 }

@@ -18,11 +18,11 @@ export interface FreeAssessor extends IFreeResources {
     last_project: string
 }
 
-const FreeResource = ({globalFilter, setGlobalFilter}: {
+const FreeResource = ({globalFilter, skillsFilter}: {
     globalFilter: string,
-    setGlobalFilter: React.Dispatch<string>
+    skillsFilter: string
 }) => {
-    const {columns, sorting,selectedRows, getSortingString} = useSorting()
+    const {columns, sorting, getSortingString} = useSorting()
     const [rowSelection, setRowSelection] = React.useState({})
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
@@ -30,14 +30,13 @@ const FreeResource = ({globalFilter, setGlobalFilter}: {
     const {
         data,
         isLoading
-    } = useQuery(['freeResources', currentPage, sorting], () => AssessorService.fetchFreeResource(currentPage, getSortingString()), {
+    } = useQuery(['freeResources', currentPage, sorting, globalFilter,skillsFilter], () => AssessorService.fetchFreeResource(currentPage, getSortingString(), globalFilter, skillsFilter), {
         keepPreviousData: true,
         onSuccess: data => {
             setTotalRows(data.count)
             setTotalPages(Math.ceil(data.count / 10))
         }
     })
-    console.log(selectedRows)
     const table = useReactTable({
         data: data ? data.results : [],
         columns,

@@ -37,7 +37,7 @@ export default class AssessorService{
     static getBlackList = (page: string | number = 1) => $api.get<IBlackListResponse>(`/api/blacklist/?page=${page}`).then(res => res.data)
     static fetchWorkloadStatus = (assessorID: string | number | undefined, projectId: string | number| undefined = undefined) => $api.get<WorkloadStatusResponse>(`/api/workload_status/?assessor=${assessorID}&project=${projectId}`).then(res => res.data)
     static fetchWorkingHours = (assessorID: string | number | undefined, projectId: string | number| undefined = undefined) => $api.get<WorkingHoursResponse>(`/api/working_hours/?assessor=${assessorID}&project=${projectId}`).then(res => res.data)
-    static fetchSkills = () => $api.get<SkillResponse>('/api/skills/')
+    static fetchSkills = () => $api.get<SkillResponse>('/api/skills/').then(res => res.data)
     static patchAssessor = (assessorId: string | number|undefined, data:any) => $api.patch(`/api/assessors/${assessorId}/`, data)
     static patchWorkloadStatus(workloadId: string | number | undefined, status: string ){
         return $api.patch(`/api/workload_status/${workloadId}/`, status)
@@ -61,7 +61,7 @@ export default class AssessorService{
     static fetchAssessorSkills(id: string | number):Promise<AxiosResponse<SkillResponse>>{
         return $api.get<SkillResponse>(`/api/skills/${id}/`)
     }
-    static fetchFreeResource = (page = 1, ordering: string) => $api.get<IFreeResourcesResponse>(`/api/free_resources/?page=${page}&page_size=10&ordering=${ordering}`).then(res => res.data)
+    static fetchFreeResource = (page = 1, ordering: string, nameFilter:string,skillsFilter:string) => $api.get<IFreeResourcesResponse>(`/api/free_resources/?page=${page}&page_size=10&ordering=${ordering}&name=${nameFilter}&skills=${skillsFilter}`).then(res => res.data)
     static patchVacation = (assessorId: string | number |undefined, data: any) => $api.patch(`/api/assessors/${assessorId}/vacation/`, data).then(res => res.data)
     static fetchReasons = () => $api.get<IReasonResponse>('/api/reasons/').then(res => res.data)
     static addAssessorToFired = (id: string| number| undefined, data: any) => $api.patch(`/api/assessors/${id}/fire/`, data).then(res => res.data)

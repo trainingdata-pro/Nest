@@ -44,7 +44,7 @@ const Skills = ({assessor}: {
         <div className='w-full flex align-middle text-center'>
             <div className='flex-[10%] bg-[#E7EAFF] px-[30px] py-[20px] text-center border-r border-black'>Skills</div>
             <div className='flex flex-[90%] justify-between px-4 bg-white'>
-                {skills.data?.data.results.map(skill => {
+                {skills.data?.results.map(skill => {
                     return (<div key={skill.id} className='my-auto align-middle text-center'>{skill.title} <input
                         type='checkbox' disabled={isDisabled} {...register(skill.id.toString())}/></div>)
                 })}
