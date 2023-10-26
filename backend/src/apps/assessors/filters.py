@@ -1,4 +1,4 @@
-from django.db.models import QuerySet, Q
+from django.db.models import QuerySet, Q, Count
 from django_filters import rest_framework as filters
 
 from core.mixins import (SplitStringFilterMixin, FilterByFullNameMixin)
@@ -38,7 +38,9 @@ class AssessorFilter(SplitStringFilterMixin, FilterByFullNameMixin, filters.Filt
 
     def filter_skills(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
         skills = self.get_id_for_filtering(value)
-        return queryset.filter(skills__in=skills).distinct()
+        return queryset.annotate(
+            matching_skills=Count('skills', filter=Q(skills__in=skills))
+        ).filter(matching_skills__gte=len(skills))
 
     def filter_second_manager(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
         managers = self.get_id_for_filtering(value)
@@ -75,4 +77,6 @@ class FreeResourcesFilter(SplitStringFilterMixin, filters.FilterSet):
 
     def filter_skills(self, queryset: QuerySet[Assessor], name: str, value: str):
         skills = self.get_id_for_filtering(value)
-        return queryset.filter(skills__in=skills).distinct()
+        return queryset.annotate(
+            matching_skills=Count('skills', filter=Q(skills__in=skills))
+        ).filter(matching_skills__gte=len(skills))
