@@ -159,6 +159,8 @@ class HistoryService:
                         **self.__get_base_action_data(user, action=action)
                     }
                 )
+                # To use None action for second update when state updates wil be checked
+                use_none_action_for_state = True
             elif new_assessor.manager is None and new_assessor.state in AssessorState.fired_states():
                 action = HistoryAction.FIRE
                 updates.append(
@@ -181,8 +183,7 @@ class HistoryService:
                     }
                 )
             elif old_assessor.manager is not None and new_assessor.manager is not None:
-                action1 = HistoryAction.UNPIN
-                action2 = HistoryAction.TO_TEAM
+                action = HistoryAction.UNPIN
                 updates.extend(
                     [
                         {
@@ -190,13 +191,13 @@ class HistoryService:
                             'old_value': old_assessor.manager.full_name,
                             'new_value': None,
                             'reason': unpin_reason,
-                            **self.__get_base_action_data(user, action=action1)
+                            **self.__get_base_action_data(user, action=action)
                         },
                         {
                             'attribute': HistoryAttribute.MANAGER,
                             'old_value': None,
                             'new_value': new_assessor.manager.full_name,
-                            **self.__get_base_action_data(user, action=action2)
+                            **self.__get_base_action_data(user)
                         }
                     ]
                 )

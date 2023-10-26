@@ -158,9 +158,11 @@ class AssessorService:
         instance.status = None
         return instance
 
-    @staticmethod
-    def __to_new_team(instance: Assessor, manager: BaseUser, state: Optional[str] = None) -> Assessor:
+    def __to_new_team(self, instance: Assessor, manager: BaseUser, state: Optional[str] = None) -> Assessor:
         instance.manager = manager
+        if manager in instance.second_manager.all():
+            self.__remove_second_manager_m2m(instance, manager)
+
         if state is not None:
             instance.state = state
         else:
