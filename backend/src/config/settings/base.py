@@ -22,7 +22,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-q#cm-@xnl4)mrxs2mzmzeldzo^-o!5j!a_vc*@lr+wqf%4d0x8')
 
-
 # Application definition
 DJANGO_APPS = [
     'django.contrib.admin',
@@ -39,7 +38,6 @@ THIRD_PARTY_APP = [
     'django_filters',
     'corsheaders',
     'debug_toolbar',
-    'django_celery_beat',
     'rest_framework.authtoken'
 ]
 
@@ -209,17 +207,42 @@ SWAGGER_SETTINGS = {
     'OPERATIONS_SORTER': 'alpha'
 }
 
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/1')
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379')
 CELERY_TIMEZONE = TIME_ZONE
 
-CELERY_BEAT_SCHEDULE = {
-    'update_status_task': {
-        'task': 'apps.assessors.tasks.update_assessor_status',
-        'schedule': crontab(hour='00', minute='00')
+logging_dir = 'logging'
+logging_dir_path = os.path.join(BASE_DIR.parent, logging_dir)
+
+if not os.path.exists(logging_dir_path):
+    os.makedirs(logging_dir_path)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '[%(asctime)s] %(levelname)s %(name)s: %(message)s'
+        }
     },
-    'remove_files_task': {
-        'task': 'apps.export.tasks.remove_old_files',
-        'schedule': crontab(hour='01', minute='00')
-    }
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': f'{os.path.join(logging_dir_path, "backend.log")}',
+            'formatter': 'standard'
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard'
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        }
+    },
 }

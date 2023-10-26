@@ -2,11 +2,11 @@ from django.db.models import Count, QuerySet
 from django_filters import rest_framework as filters
 
 from apps.assessors.models import Assessor
-from core.mixins import FilteringMixin
+from core.mixins import SplitStringFilterMixin
 from .models import Project, ProjectWorkingHours, WorkLoadStatus
 
 
-class ProjectFilter(FilteringMixin, filters.FilterSet):
+class ProjectFilter(SplitStringFilterMixin, filters.FilterSet):
     name = filters.CharFilter(lookup_expr='icontains')
     manager = filters.CharFilter(method='filter_manager')
     assessors_count = filters.NumberFilter(method='filter_assessors_count')
@@ -42,7 +42,7 @@ class ProjectFilter(FilteringMixin, filters.FilterSet):
         return queryset.filter(status__in=statuses)
 
 
-class ProjectWorkingHoursFilter(FilteringMixin, filters.FilterSet):
+class ProjectWorkingHoursFilter(SplitStringFilterMixin, filters.FilterSet):
     assessor = filters.CharFilter(method='filter_assessor')
     project = filters.CharFilter(method='filter_project')
 

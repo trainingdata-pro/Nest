@@ -1,7 +1,7 @@
 from django.db.models import QuerySet, Q
 from django_filters import rest_framework as filters
 
-from core.mixins import FilteringMixin
+from core.mixins import (SplitStringFilterMixin, FilterByFullNameMixin)
 from .models import Assessor, Skill, AssessorCredentials
 
 
@@ -13,7 +13,7 @@ class SkillsFilter(filters.FilterSet):
         fields = ['title']
 
 
-class AssessorFilter(FilteringMixin, filters.FilterSet):
+class AssessorFilter(SplitStringFilterMixin, FilterByFullNameMixin, filters.FilterSet):
     username = filters.CharFilter(lookup_expr='icontains')
     full_name = filters.CharFilter(method='filter_full_name')
     manager = filters.NumberFilter()
@@ -44,13 +44,6 @@ class AssessorFilter(FilteringMixin, filters.FilterSet):
         managers = self.get_id_for_filtering(value)
         return queryset.filter(second_manager__in=managers).distinct()
 
-    def filter_full_name(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
-        return queryset.filter(
-            Q(last_name__icontains=value)
-            | Q(first_name__icontains=value)
-            | Q(middle_name__icontains=value)
-        )
-
 
 class AssessorCredentialsFilter(filters.FilterSet):
     class Meta:
@@ -58,20 +51,28 @@ class AssessorCredentialsFilter(filters.FilterSet):
         fields = ['assessor']
 
 
-class FreeResourcesFilter(filters.FilterSet):
-    username = filters.CharFilter(lookup_expr='icontains')
-    full_name = filters.CharFilter(method='filter_full_name')
+class FreeResourcesFilter(SplitStringFilterMixin, filters.FilterSet):
+    name = filters.CharFilter(method='filter_name')
+    skills = filters.CharFilter(method='filter_skills')
 
     class Meta:
         model = Assessor
         fields = [
-            'username',
-            'full_name'
+            'name',
+            'skills'
         ]
 
-    def filter_full_name(self, queryset: QuerySet, name: str, value: str) -> QuerySet:
-        return queryset.filter(
-            Q(last_name__icontains=value)
-            | Q(first_name__icontains=value)
-            | Q(middle_name__icontains=value)
-        )
+    def filter_name(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
+        values = value.split(' ')
+        q_objects = Q()
+        for item in values:
+            q_objects |= (Q(username__icontains=item)
+                          | Q(last_name__icontains=item)
+                          | Q(first_name__icontains=item)
+                          | Q(middle_name__icontains=item))
+
+        return queryset.filter(q_objects)
+
+    def filter_skills(self, queryset: QuerySet[Assessor], name: str, value: str):
+        skills = self.get_id_for_filtering(value)
+        return queryset.filter(skills__in=skills).distinct()

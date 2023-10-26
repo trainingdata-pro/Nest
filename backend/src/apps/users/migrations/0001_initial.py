@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('token', models.UUIDField(default=uuid.uuid4, editable=False)),
-                ('expiration_time', models.DateTimeField(default=apps.authapp.utils.common.create_expiration_date)),
+                ('expiration_time', models.DateTimeField(default=apps.authapp.utils.create_expiration_date)),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='users.baseuser')),
             ],
         ),

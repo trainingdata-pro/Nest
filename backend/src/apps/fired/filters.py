@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.db.models import QuerySet, Q
 from django_filters import rest_framework as filters
 
@@ -13,25 +15,25 @@ class ReasonFilter(filters.FilterSet):
 
 
 class FiredFilter(filters.FilterSet):
-    username = filters.CharFilter(method='filter_username')
-    full_name = filters.CharFilter(method='filter_full_name')
+    name = filters.CharFilter(method='filter_name')
 
     class Meta:
         model = Fired
-        fields = ['username', 'full_name']
+        fields = ['name']
 
-    def filter_username(self, queryset: QuerySet, name: str, value: str) -> QuerySet:
-        return queryset.filter(assessor__username__icontains=value)
+    def filter_name(self, queryset: QuerySet[Any], name: str, value: str) -> QuerySet[Any]:
+        values = value.split(' ')
+        q_objects = Q()
+        for item in values:
+            q_objects |= (Q(assessor__username__icontains=item)
+                          | Q(assessor__last_name__icontains=item)
+                          | Q(assessor__first_name__icontains=item)
+                          | Q(assessor__middle_name__icontains=item))
 
-    def filter_full_name(self, queryset: QuerySet, name: str, value: str) -> QuerySet:
-        return queryset.filter(
-            Q(assessor__last_name__icontains=value)
-            | Q(assessor__first_name__icontains=value)
-            | Q(assessor__middle_name__icontains=value)
-        )
+        return queryset.filter(q_objects)
 
 
 class BlackListFilter(FiredFilter):
     class Meta:
         model = BlackList
-        fields = ['username', 'full_name']
+        fields = ['name']

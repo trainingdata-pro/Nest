@@ -81,16 +81,10 @@ class FiredSchema(BaseAPISchema):
             operation_description='Get all assessors in blacklist.',
             manual_parameters=[
                 openapi.Parameter(
-                    name='username',
+                    name='name',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by assessor username.'
-                ),
-                openapi.Parameter(
-                    name='full_name',
-                    type=openapi.TYPE_STRING,
-                    in_=openapi.IN_QUERY,
-                    description='Case-independent filtering by assessor full name.'
+                    description='Case-independent filtering by assessor username or full name.'
                 ),
                 openapi.Parameter(
                     name='ordering',
@@ -127,16 +121,10 @@ class FiredSchema(BaseAPISchema):
             operation_description='Get all assessors in fired.',
             manual_parameters=[
                 openapi.Parameter(
-                    name='username',
+                    name='name',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='Case-independent filtering by assessor username.'
-                ),
-                openapi.Parameter(
-                    name='full_name',
-                    type=openapi.TYPE_STRING,
-                    in_=openapi.IN_QUERY,
-                    description='Case-independent filtering by assessor full name.'
+                    description='Case-independent filtering by assessor username or full name.'
                 ),
                 openapi.Parameter(
                     name='ordering',

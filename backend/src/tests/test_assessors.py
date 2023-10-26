@@ -6,8 +6,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from apps.assessors.models import AssessorState
-from apps.assessors.services import assessors_service
-from apps.fired.models import Fired, BlackList, Reason
+from apps.fired.models import Reason
 from apps.projects.services import project_service
 from core.utils import current_date
 from .common import base_test_config as config

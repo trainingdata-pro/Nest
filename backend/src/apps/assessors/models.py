@@ -167,7 +167,7 @@ class Assessor(models.Model):
         ordering = ['id']
 
     def __str__(self):
-        return self.full_name
+        return f'{self.full_name} (pk {self.pk})'
 
     @property
     def full_name(self) -> str:

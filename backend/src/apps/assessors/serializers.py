@@ -497,6 +497,18 @@ class UnpinAssessorSerializer(GetUserMixin, serializers.ModelSerializer):
                              'исполнителя.']}
             )
 
+        if self.instance.projects.exists():
+            if manager is None:
+                raise ValidationError(
+                    {'manager': ['Исполнитель работает на проектах других менеджеров в рамках аренды. '
+                                 'Выберите ответственного менеджера.']}
+                )
+            else:
+                if not self.instance.projects.filter(manager=manager).exists():
+                    raise ValidationError(
+                        {'manager': ['Выбранный менеджер не связан с текущими проектами исполнителя.']}
+                    )
+
         return super().validate(attrs)
 
     def save(self, **kwargs) -> Assessor:

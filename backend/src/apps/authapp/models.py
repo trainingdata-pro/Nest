@@ -3,7 +3,7 @@ import uuid
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from apps.authapp.utils.common import create_expiration_date
+from apps.authapp.utils import create_expiration_date
 
 
 class Code(models.Model):

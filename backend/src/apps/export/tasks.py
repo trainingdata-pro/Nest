@@ -1,13 +1,13 @@
 import os
 from datetime import datetime
 
-from celery import shared_task
 from django.conf import settings
 
+from config.celery import app
 from core.utils import current_date
 
 
-@shared_task
+@app.task
 def remove_old_files():
     today = current_date()
     for file in os.listdir(settings.MEDIA_ROOT):
