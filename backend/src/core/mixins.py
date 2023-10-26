@@ -35,7 +35,7 @@ class GetUserMixin:
 class SplitStringFilterMixin:
     @staticmethod
     def get_id_for_filtering(string: str) -> List[int]:
-        return [int(val) for val in string.split(',') if val.isdigit()]
+        return [int(val) for val in string.split(',') if val.strip().isdigit()]
 
     @staticmethod
     def get_string_for_filtering(string: str) -> List[str]:
