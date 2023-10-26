@@ -34,7 +34,9 @@ class AssessorFilter(SplitStringFilterMixin, FilterByFullNameMixin, filters.Filt
 
     def filter_projects(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
         projects = self.get_id_for_filtering(value)
-        return queryset.filter(projects__in=projects).distinct()
+        return queryset.annotate(
+            matching_projects=Count('projects', filter=Q(projects__in=projects))
+        ).filter(matching_projects__gte=len(projects))
 
     def filter_skills(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
         skills = self.get_id_for_filtering(value)
@@ -44,7 +46,9 @@ class AssessorFilter(SplitStringFilterMixin, FilterByFullNameMixin, filters.Filt
 
     def filter_second_manager(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
         managers = self.get_id_for_filtering(value)
-        return queryset.filter(second_manager__in=managers).distinct()
+        return queryset.annotate(
+            matching_managers=Count('second_manager', filter=Q(second_manager__in=managers))
+        ).filter(matching_managers__gte=len(managers))
 
 
 class AssessorCredentialsFilter(filters.FilterSet):
