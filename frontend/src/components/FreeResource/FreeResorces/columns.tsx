@@ -6,7 +6,7 @@ import React, {useState} from "react";
 import Sorting from "./sorting";
 import TableCheckBox from "../../UI/TableCheckBox";
 
-export const useSorting = () => {
+export const useFreeResourcesSorting = () => {
     const [sorting, setSorting] = React.useState({
         manager__last_name: '',
         projects: '',

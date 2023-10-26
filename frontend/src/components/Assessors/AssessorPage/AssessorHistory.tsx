@@ -9,7 +9,6 @@ import {
     getSortedRowModel, SortingState,
     useReactTable
 } from "@tanstack/react-table";
-import {columns, FiredAssessor} from "../../FreeResource/OwnDesires/columns";
 import {IHistory} from "../../../models/AssessorResponse";
 import Table from "../../UI/Table";
 

@@ -65,7 +65,7 @@ export default class AssessorService{
     static patchVacation = (assessorId: string | number |undefined, data: any) => $api.patch(`/api/assessors/${assessorId}/vacation/`, data).then(res => res.data)
     static fetchReasons = () => $api.get<IReasonResponse>('/api/reasons/').then(res => res.data)
     static addAssessorToFired = (id: string| number| undefined, data: any) => $api.patch(`/api/assessors/${id}/fire/`, data).then(res => res.data)
-    static fetchFired = (page = 1) => $api.get<IFiredResponse>(`/api/fired/?page=${page}`).then(res => res.data)
+    static fetchFired = (page = 1,ordering: string, nameFilter:string,skillsFilter:string) => $api.get<IFiredResponse>(`/api/fired/?page=${page}&page_size=10&ordering=${ordering}&name=${nameFilter}&skills=${skillsFilter}`).then(res => res.data)
     static takeFromFreeResource = (assessorId: string | number, data: any) => $api.patch(`/api/free_resources/${assessorId}/`, data).then(res => res.data)
     static unpinAssessor = (assessorId: string | number, data: any) => $api.patch(`/api/assessors/${assessorId}/unpin/`, data).then(res => res.data)
     static returnFromFreeResources = (assessorId:number| string | undefined, data:any) => $api.patch(`/api/assessors/${assessorId}/free_resource/`, data).then(res => res.data)

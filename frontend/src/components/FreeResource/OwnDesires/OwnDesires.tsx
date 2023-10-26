@@ -10,57 +10,36 @@ import {
     SortingState,
     useReactTable
 } from "@tanstack/react-table";
-import {columns} from "./columns";
 import Table from "../../UI/Table";
+import TablePagination from "../../UI/TablePagination";
+import {IFired} from "../../../models/AssessorResponse";
+import {useOwnDesiresSorting} from "./columns";
 
-const OwnDesires = ({globalFilter, setGlobalFilter}:{
+const OwnDesires = ({globalFilter, skillsFilter}: {
     globalFilter: string,
-    setGlobalFilter: React.Dispatch<string>
+    skillsFilter: string
 }) => {
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [rowSelection, setRowSelection] = React.useState({})
-
-    const fired = useQuery(['fired'], () => fetchAllData(), {
+    const {columns, sorting, getSortingString} = useOwnDesiresSorting()
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
+    const [totalRows, setTotalRows] = useState<number>(0)
+    const fired = useQuery(['fired', currentPage, sorting, globalFilter,skillsFilter], () => AssessorService.fetchFired(currentPage, getSortingString(), globalFilter,skillsFilter), {
         keepPreviousData: true,
     })
-    async function fetchAllData() {
-        const allData = [];
-        let currentPage = 1;
-        let hasMoreData = true;
-        while (hasMoreData) {
-            const data = await AssessorService.fetchFired(currentPage);
-            allData.push(...data.results);
-            if (data.next !== null) {
-                currentPage++;
-            } else {
-                hasMoreData = false;
-            }
-        }
-        return allData;
-    }
+
     const table = useReactTable({
-        data: fired.data ? fired.data : [],
+        data: fired.data ? fired.data.results : [],
         columns,
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        onSortingChange: setSorting,
-        getSortedRowModel: getSortedRowModel(),
-        globalFilterFn: "includesString",
-        state: {
-            rowSelection,
-            sorting,
-            globalFilter,
-        },
-        onGlobalFilterChange: setGlobalFilter,
-        getFilteredRowModel: getFilteredRowModel(),
-        enableRowSelection: true,
-        onRowSelectionChange: setRowSelection,
-        debugTable: false,
     })
 
 
     return (
+        <>
             <Table table={table}/>
+            <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                             setCurrentPage={setCurrentPage}/>
+        </>
     );
 };
 

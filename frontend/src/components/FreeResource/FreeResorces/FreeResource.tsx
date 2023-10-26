@@ -11,7 +11,7 @@ import Table from "../../UI/Table";
 import Loader from "../../UI/Loader";
 import {observer} from "mobx-react-lite";
 import TablePagination from "../../UI/TablePagination";
-import {useSorting} from "./columns";
+import {useFreeResourcesSorting} from "./columns";
 
 export interface FreeAssessor extends IFreeResources {
     last_manager: string,
@@ -22,8 +22,7 @@ const FreeResource = ({globalFilter, skillsFilter}: {
     globalFilter: string,
     skillsFilter: string
 }) => {
-    const {columns, sorting, getSortingString} = useSorting()
-    const [rowSelection, setRowSelection] = React.useState({})
+    const {columns, sorting, getSortingString} = useFreeResourcesSorting()
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
     const [totalRows, setTotalRows] = useState<number>(0)
@@ -41,12 +40,6 @@ const FreeResource = ({globalFilter, skillsFilter}: {
         data: data ? data.results : [],
         columns,
         getCoreRowModel: getCoreRowModel(),
-        state: {
-            rowSelection,
-        },
-        enableRowSelection: true,
-        onRowSelectionChange: setRowSelection,
-        debugTable: true,
     })
     if (isLoading) return <Loader width={40}/>
     return (

@@ -135,6 +135,10 @@ export interface IBlackListResponse {
     results: IBlackList[],
     next: string
 }
+export interface FiredAssessor extends IFired {
+    last_manager: string,
+    last_project: string
+}
 
 export interface IFired {
     id: number,

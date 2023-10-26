@@ -62,17 +62,15 @@ const FreeResourcePage = () => {
 
                         <MyButton onClick={() => {
                             setCurrentDataType('free')
-                            setGlobalFilter('')
                         }}>Свободные ресурсы</MyButton>
                         <MyButton onClick={() => {
                             setCurrentDataType('fired')
-                            setGlobalFilter('')
                         }}>По собственному желанию</MyButton>
                     </div>
                 </div>
                 <div>
                     <div className='rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
-                    {currentDataType === 'free' ? <FreeResource skillsFilter={skillsFilter.join(',')} globalFilter={globalFilter}/> : <OwnDesires setGlobalFilter={setGlobalFilter} globalFilter={globalFilter}/>}
+                    {currentDataType === 'free' ? <FreeResource skillsFilter={skillsFilter.join(',')} globalFilter={globalFilter}/> : <OwnDesires skillsFilter={skillsFilter.join(',')} globalFilter={globalFilter}/>}
                     </div>
                     </div>
             </div>
