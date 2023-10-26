@@ -60,7 +60,7 @@ const OwnDesires = ({globalFilter, setGlobalFilter}:{
 
 
     return (
-            <Table pages={true} rowSelection={rowSelection} table={table}/>
+            <Table table={table}/>
     );
 };
 

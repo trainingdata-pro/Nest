@@ -81,7 +81,7 @@ const BlackList = () => {
                     </div>
                     <MyButton onClick={() => setIsExportBlackList(true)}>Экспорт данных</MyButton>
                 </div>
-                <Table pages={true} rowSelection={rowSelection} table={table}/>
+                <Table table={table}/>
             </div>
         </>
     );

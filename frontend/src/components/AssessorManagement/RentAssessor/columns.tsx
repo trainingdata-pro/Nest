@@ -6,18 +6,18 @@ import React from "react";
 const columnHelperT = createColumnHelper<Project>()
 export const columns = [
     columnHelperT.accessor('id', {
-        cell: ({row}) => (
-            <div className="px-1">
-                <TableCheckBox
-                    {...{
-                        checked: row.getIsSelected(),
-                        disabled: !row.getCanSelect(),
-                        indeterminate: row.getIsSomeSelected(),
-                        onChange: row.getToggleSelectedHandler(),
-                    }}
-                />
-            </div>
-        ),
+        // cell: ({row}) => (
+        //     <div className="px-1">
+        //         <TableCheckBox
+        //             {...{
+        //                 checked: row.getIsSelected(),
+        //                 disabled: !row.getCanSelect(),
+        //                 indeterminate: row.getIsSomeSelected(),
+        //                 onChange: row.getToggleSelectedHandler(),
+        //             }}
+        //         />
+        //     </div>
+        // ),
         header: '',
         enableSorting: false,
         maxSize: 30

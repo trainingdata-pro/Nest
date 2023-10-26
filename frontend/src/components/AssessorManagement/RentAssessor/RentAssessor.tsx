@@ -42,7 +42,7 @@ const RentAssessor = ({assessorId, show}:{
     return (
         <div>
                 <h1 className='px-4 border-b border-black mb-2'>Аренда ассессора</h1>
-                <Table pages={true} rowSelection={rowSelection} table={table}/>
+                <Table table={table}/>
                 <div className='flex justify-between space-x-2'>
                     <MyButton onClick={() => show(false)}>Назад</MyButton>
                     <MyButton onClick={submit}>Сохранить</MyButton>

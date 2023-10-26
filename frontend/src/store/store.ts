@@ -34,8 +34,18 @@ export default class Store {
     cookies = new Cookies()
     authError = ''
     isOpenProfile = false
+    freeResourcesSorting = {
+        manager: '',
+        projects: '',
+        username: ''
+    }
+
+
     constructor() {
         makeAutoObservable(this)
+    }
+    setFreeResourcesSorting(key: 'projects'  | 'manager' | 'username', value: string){
+        this.freeResourcesSorting[key] = value
     }
     setIsOpenProfile(bool: boolean) {
         this.isOpenProfile = bool

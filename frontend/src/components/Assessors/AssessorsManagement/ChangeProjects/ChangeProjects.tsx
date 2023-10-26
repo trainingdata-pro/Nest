@@ -112,7 +112,7 @@ const ChangeProjects = ({selectedAssessor, extendProjects, show, resetSelection}
                 <div className='bg-white pb-4'>
                     {reasons.map(reason => <Reason key={reason.id} label={reason.label} setSelectedReason={setSelectedReason} name={reason.name} value={reason.value} id={reason.id}/>)}
                 </div>
-                <Table pages={true} rowSelection={rowSelection} table={table}/>
+                <Table table={table}/>
                 <div className='flex justify-between space-x-2'>
                     <MyButton onClick={() => show(false)}>Назад</MyButton>
                     <MyButton onClick={submit}>Сохранить</MyButton>

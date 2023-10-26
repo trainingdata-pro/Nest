@@ -113,7 +113,7 @@ const CompletedProjects = () => {
                 <div className='my-2 flex justify-end'>
                     <MyButton onClick={() => setIsExportProjects(true)}>Экспорт</MyButton>
                 </div>
-                <Table pages={true} rowSelection={rowSelection} table={table}/>
+                <Table table={table}/>
             </div>
         </div>
     );

@@ -59,31 +59,31 @@ const AssessorsPage = () => {
 
     const navigation = useNavigate()
     const columns = [
-        columnHelper.accessor('id', {
-            header: ({table}) => (
-                <TableCheckBox
-                    {...{
-                        checked: table.getIsAllRowsSelected(),
-                        indeterminate: table.getIsSomeRowsSelected(),
-                        onChange: table.getToggleAllRowsSelectedHandler(),
-                    }}
-                />
-            ),
-            cell: ({row}) => (
-                <div className="px-1">
-                    <TableCheckBox
-                        {...{
-                            checked: row.getIsSelected(),
-                            disabled: !row.getCanSelect(),
-                            indeterminate: row.getIsSomeSelected(),
-                            onChange: row.getToggleSelectedHandler(),
-                        }}
-                    />
-                </div>
-            ),
-            enableSorting: false,
-            maxSize: 30
-        }),
+        // columnHelper.accessor('id', {
+        //     header: ({table}) => (
+        //         <TableCheckBox
+        //             {...{
+        //                 checked: table.getIsAllRowsSelected(),
+        //                 indeterminate: table.getIsSomeRowsSelected(),
+        //                 onChange: table.getToggleAllRowsSelectedHandler(),
+        //             }}
+        //         />
+        //     ),
+        //     cell: ({row}) => (
+        //         <div className="px-1">
+        //             <TableCheckBox
+        //                 {...{
+        //                     checked: row.getIsSelected(),
+        //                     disabled: !row.getCanSelect(),
+        //                     indeterminate: row.getIsSomeSelected(),
+        //                     onChange: row.getToggleSelectedHandler(),
+        //                 }}
+        //             />
+        //         </div>
+        //     ),
+        //     enableSorting: false,
+        //     maxSize: 30
+        // }),
         columnHelper.accessor('last_name', {
             header: 'Фамилия',
             cell: info =>
@@ -204,7 +204,7 @@ const AssessorsPage = () => {
                 </nav>
                 </div>
                 <div className="flex px-8">
-                    <MyTable table={table} rowSelection={rowSelection} pages={true}/>
+                    <MyTable table={table}/>
                 </div>
 
             </div>

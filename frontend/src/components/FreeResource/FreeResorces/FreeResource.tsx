@@ -1,73 +1,62 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {useQuery} from "react-query";
 import AssessorService from "../../../services/AssessorService";
 
 import {
     getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel, SortingState,
     useReactTable
 } from "@tanstack/react-table";
 import {IFreeResources} from "../../../models/AssessorResponse";
 import Table from "../../UI/Table";
-import {columns} from "./columns";
+import Loader from "../../UI/Loader";
+import {observer} from "mobx-react-lite";
+import TablePagination from "../../UI/TablePagination";
+import {useSorting} from "./columns";
 
-export interface FreeAssessor extends IFreeResources{
+export interface FreeAssessor extends IFreeResources {
     last_manager: string,
     last_project: string
 }
 
-const FreeResource = ({globalFilter, setGlobalFilter}:{
+const FreeResource = ({globalFilter, setGlobalFilter}: {
     globalFilter: string,
     setGlobalFilter: React.Dispatch<string>
 }) => {
-    const [sorting, setSorting] = React.useState<SortingState>([])
+    const {columns, sorting,selectedRows, getSortingString} = useSorting()
     const [rowSelection, setRowSelection] = React.useState({})
-    const freeResources = useQuery(['freeResources'], () => fetchAllData(), {
-        keepPreviousData: true
-    })
-
-    async function fetchAllData() {
-        const allData = [];
-        let currentPage = 1;
-        let hasMoreData = true;
-        while (hasMoreData) {
-            const data = await AssessorService.fetchFreeResource(currentPage);
-            allData.push(...data.results);
-            if (data.next !== null) {
-                currentPage++;
-            } else {
-                hasMoreData = false;
-            }
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
+    const [totalRows, setTotalRows] = useState<number>(0)
+    const {
+        data,
+        isLoading
+    } = useQuery(['freeResources', currentPage, sorting], () => AssessorService.fetchFreeResource(currentPage, getSortingString()), {
+        keepPreviousData: true,
+        onSuccess: data => {
+            setTotalRows(data.count)
+            setTotalPages(Math.ceil(data.count / 10))
         }
-        return allData;
-    }
+    })
+    console.log(selectedRows)
     const table = useReactTable({
-        data: freeResources.data ? freeResources.data : [],
+        data: data ? data.results : [],
         columns,
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        onSortingChange: setSorting,
-        getSortedRowModel: getSortedRowModel(),
-        globalFilterFn: "includesString",
         state: {
             rowSelection,
-            sorting,
-            globalFilter,
         },
-        onGlobalFilterChange: setGlobalFilter,
-        getFilteredRowModel: getFilteredRowModel(),
         enableRowSelection: true,
         onRowSelectionChange: setRowSelection,
-        debugTable: false,
+        debugTable: true,
     })
-
+    if (isLoading) return <Loader width={40}/>
     return (
-        <>
-        <Table pages={true} rowSelection={rowSelection} table={table}/>
-        </>
-            );
+        <div>
+            <Table table={table}/>
+            <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                             setCurrentPage={setCurrentPage}/>
+        </div>
+    );
 };
 
-export default FreeResource;
+export default observer(FreeResource);

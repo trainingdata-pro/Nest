@@ -130,7 +130,7 @@ const MainPage = () => {
                             }}>Добавить проект
                             </MyButton>
                         </div>
-                        <Table pages={true} rowSelection={rowSelection} table={table}/>
+                        <Table table={table}/>
                     </div>
                 </div>
             </div>

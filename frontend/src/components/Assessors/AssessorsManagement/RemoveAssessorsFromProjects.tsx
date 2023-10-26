@@ -15,31 +15,31 @@ import {errorNotification, successNotification} from "../../UI/Notify";
 const RemoveAssessorsFromProjects = ({assessorsProjects, assessorsRow, show}) => {
     const columnHelperT = createColumnHelper<Project>()
     const columns = [
-        columnHelperT.accessor('id', {
-            header: ({table}) => (
-                <TableCheckBox
-                    {...{
-                        checked: table.getIsAllRowsSelected(),
-                        indeterminate: table.getIsSomeRowsSelected(),
-                        onChange: table.getToggleAllRowsSelectedHandler(),
-                    }}
-                />
-            ),
-            cell: ({row}) => (
-                <div className="px-1">
-                    <TableCheckBox
-                        {...{
-                            checked: row.getIsSelected(),
-                            disabled: !row.getCanSelect(),
-                            indeterminate: row.getIsSomeSelected(),
-                            onChange: row.getToggleSelectedHandler(),
-                        }}
-                    />
-                </div>
-            ),
-            enableSorting: false,
-            maxSize: 30
-        }),
+        // columnHelperT.accessor('id', {
+        //     header: ({table}) => (
+        //         <TableCheckBox
+        //             {...{
+        //                 checked: table.getIsAllRowsSelected(),
+        //                 indeterminate: table.getIsSomeRowsSelected(),
+        //                 onChange: table.getToggleAllRowsSelectedHandler(),
+        //             }}
+        //         />
+        //     ),
+        //     cell: ({row}) => (
+        //         <div className="px-1">
+        //             <TableCheckBox
+        //                 {...{
+        //                     checked: row.getIsSelected(),
+        //                     disabled: !row.getCanSelect(),
+        //                     indeterminate: row.getIsSomeSelected(),
+        //                     onChange: row.getToggleSelectedHandler(),
+        //                 }}
+        //             />
+        //         </div>
+        //     ),
+        //     enableSorting: false,
+        //     maxSize: 30
+        // }),
         columnHelperT.accessor('asana_id', {
             header: 'Asana ID',
             cell: info => info.getValue(),
@@ -125,7 +125,7 @@ const RemoveAssessorsFromProjects = ({assessorsProjects, assessorsRow, show}) =>
                                                    value={reason.value} id={reason.id}/>)}
                 </div>
                 <div>
-                    <Table pages={true} rowSelection={rowSelection} table={table}/>
+                    <Table table={table}/>
                 </div>
                 <div className='flex justify-between space-x-2'>
                     <MyButton onClick={() => show(false)}>Назад</MyButton>

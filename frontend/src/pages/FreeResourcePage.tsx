@@ -17,7 +17,7 @@ const FreeResourcePage = () => {
     return (
         <>
             <Header/>
-            <div className='pt-20 mx-8 rounded-[8px]'>
+            <div className='pt-20 mx-8 rounded-[8px] pb-[20px]'>
                 <div className='flex justify-between mb-2'>
                     <div className="flex space-x-2 items-center">
                         <div className="relative">

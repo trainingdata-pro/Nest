@@ -21,12 +21,15 @@ const queryClient = new QueryClient()
 const store = new RootStore()
 export const Context = createContext<State>({store});
 root.render(
+
     <Context.Provider value={{store}}>
         <QueryClientProvider client={queryClient}>
             <ToastContainer />
+            <React.StrictMode/>
             <App/>
         </QueryClientProvider>
     </Context.Provider>
+
 );
 
 reportWebVitals();

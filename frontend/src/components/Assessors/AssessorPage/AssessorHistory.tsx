@@ -88,7 +88,7 @@ const AssessorHistory = ({assessorId}: {
                 <h1 className='px-4 py-2'>История</h1>
             </div>
             <div className='px-2 mt-2'>
-                <Table pages={true} rowSelection={rowSelection} table={table}/>
+                <Table table={table}/>
             </div>
         </>
     );

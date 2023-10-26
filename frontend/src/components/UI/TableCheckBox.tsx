@@ -1,25 +1,41 @@
-import React, {HTMLProps} from 'react';
+import React, {Dispatch, useState} from 'react';
 
-function TableCheckBox({
-                           indeterminate,
-                           className = '',
-                           ...rest
-                       }: { indeterminate?: boolean } & HTMLProps<HTMLInputElement>) {
-    const ref = React.useRef<HTMLInputElement>(null!)
 
-    React.useEffect(() => {
-        if (typeof indeterminate === 'boolean') {
-            ref.current.indeterminate = !rest.checked && indeterminate
+const TableCheckBox = ({selectedRows, setSelectedRows, value,table}:{
+    selectedRows: number[],
+    value: number | number [],
+    setSelectedRows: Dispatch<any>,
+    table: any | undefined
+
+}) => {
+    const changeHandler = (event:  React.ChangeEvent<HTMLInputElement>) => {
+        if (typeof value === "number"){
+            if (event.target.checked) {
+                setSelectedRows([...selectedRows, value])
+            } else {
+                setSelectedRows([...selectedRows.filter(id => id !== value)])
+            }
         }
-    }, [ref, indeterminate])
-
+         else {
+            if (event.target.checked) {
+                setSelectedRows(Array.from(new Set([...selectedRows, ...value])))
+            } else {
+                setSelectedRows([...selectedRows.filter(row => value.find(id => row === id) === undefined)])
+            }
+        }
+    }
+    const getChecked = () => {
+        if (typeof value === 'object' && table){
+            return table.getPreFilteredRowModel().rows.filter((row:any) => selectedRows.find(id => id === row.original.id) !== undefined).length === value.length
+        }
+    }
     return (
         <input
             type="checkbox"
+            className='cursor-pointer'
+            onChange={changeHandler}
             name='sel'
-            ref={ref}
-            className={className + ' cursor-pointer'}
-            {...rest}
+            checked={selectedRows.find((id:number) => id === value) !== undefined || getChecked()}
         />
     )
 }
