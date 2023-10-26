@@ -51,9 +51,10 @@ class AssessorCredentialsFilter(filters.FilterSet):
         fields = ['assessor']
 
 
-class FreeResourcesFilter(FilterByFullNameMixin, filters.FilterSet):
+class FreeResourcesFilter(SplitStringFilterMixin, FilterByFullNameMixin, filters.FilterSet):
     username = filters.CharFilter(lookup_expr='icontains')
     full_name = filters.CharFilter(method='filter_full_name')
+    skills = filters.CharFilter(method='filter_skills')
 
     class Meta:
         model = Assessor
@@ -61,3 +62,7 @@ class FreeResourcesFilter(FilterByFullNameMixin, filters.FilterSet):
             'username',
             'full_name'
         ]
+
+    def filter_skills(self, queryset: QuerySet[Assessor], name: str, value: str):
+        skills = self.get_id_for_filtering(value)
+        return queryset.filter(skills__in=skills).distinct()
