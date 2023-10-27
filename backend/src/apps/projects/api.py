@@ -1,6 +1,5 @@
 from typing import Iterable, Any
 
-import rest_framework.serializers
 from django.db.models import Count, QuerySet
 from django.db.models.query import EmptyQuerySet
 from django.utils.decorators import method_decorator
@@ -13,7 +12,6 @@ from rest_framework.response import Response
 
 from apps.assessors.models import Assessor
 from apps.assessors.serializers import AssessorSerializer
-from apps.assessors.services import assessors_service
 from apps.export.serializers import ExportSerializer
 from apps.export.services import ExportType
 from apps.users.models import BaseUser
@@ -31,7 +29,6 @@ from .models import (
     ProjectWorkingHours,
     WorkLoadStatus
 )
-from .services import project_service
 from .tasks import (
     make_report_projects,
     make_report_assessors
@@ -77,8 +74,7 @@ class ProjectAPIViewSet(BaseAPIViewSet):
         'retrieve': serializers.ProjectSerializer,
         'list': serializers.ProjectSerializer,
         'create': serializers.CreateUpdateProjectSerializer,
-        'partial_update': serializers.CreateUpdateProjectSerializer,
-        # 'clear': rest_framework.serializers.Serializer
+        'partial_update': serializers.CreateUpdateProjectSerializer
 
     }
     http_method_names = ['get', 'post', 'patch', 'delete']
