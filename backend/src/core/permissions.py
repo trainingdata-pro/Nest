@@ -26,13 +26,13 @@ class IsManager(BasePermission):
 class ProjectPermission(BasePermission):
     def has_object_permission(self, request: Request, view: APIView, obj: Project) -> bool:
         return (request.user in obj.manager.all() or
-                (has_manager_profile(request) and request.user.manager_profile.is_tramlead))
+                (has_manager_profile(request) and request.user.manager_profile.is_teamlead))
 
 
 class ProjectIsActive(BasePermission):
     def has_object_permission(self, request: Request, view: APIView, obj: Project) -> bool:
         if (obj.status == ProjectStatuses.COMPLETED and
-                (has_manager_profile(request) and not request.user.manager_profile.is_tramlead)):
+                (has_manager_profile(request) and not request.user.manager_profile.is_teamlead)):
             return False
         return True
 
