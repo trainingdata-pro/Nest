@@ -15,7 +15,7 @@ class ProjectTag(models.Model):
         ordering = ['id']
 
     def __str__(self):
-        return self.name
+        return f'{self.name} (pk {self.pk})'
 
 
 class ProjectStatuses(models.TextChoices):
@@ -103,7 +103,7 @@ class Project(models.Model):
         ordering = ['id']
 
     def __str__(self):
-        return self.name
+        return f'{self.name} (pk {self.pk})'
 
     @property
     def managers(self) -> str:
@@ -172,6 +172,9 @@ class ProjectWorkingHours(models.Model):
                 + int(self.thursday) + int(self.friday) + int(self.saturday)
                 + int(self.sunday))
 
+    def __str__(self):
+        return f'Project working hours (pk {self.pk})'
+
 
 class Status(models.TextChoices):
     FULL = ('full', 'Полная загрузка')
@@ -202,3 +205,6 @@ class WorkLoadStatus(models.Model):
         verbose_name = 'статус загрузки'
         verbose_name_plural = 'статусы загрузки'
         ordering = ['id']
+
+    def __str__(self):
+        return f'Workload status (pk {self.pk})'

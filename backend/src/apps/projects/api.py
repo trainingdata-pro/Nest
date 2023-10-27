@@ -4,6 +4,7 @@ from django.db.models import Count, QuerySet
 from django.db.models.query import EmptyQuerySet
 from django.utils.decorators import method_decorator
 from rest_framework import status, generics
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -32,6 +33,7 @@ from .tasks import (
     make_report_projects,
     make_report_assessors
 )
+from .utils import remove_assessors_from_project
 from . import serializers, schemas
 
 
@@ -40,6 +42,7 @@ from . import serializers, schemas
 @method_decorator(name='create', decorator=schemas.project_schema.create())
 @method_decorator(name='partial_update', decorator=schemas.project_schema.partial_update())
 @method_decorator(name='destroy', decorator=schemas.project_schema.destroy())
+@method_decorator(name='clear', decorator=schemas.project_schema.clear())
 class ProjectAPIViewSet(BaseAPIViewSet):
     permission_classes = {
         'retrieve': (IsAuthenticated,),
@@ -59,6 +62,12 @@ class ProjectAPIViewSet(BaseAPIViewSet):
             permissions.IsManager,
             permissions.ProjectPermission,
             permissions.ProjectIsActive,
+        ),
+        'clear': (
+            IsAuthenticated,
+            permissions.IsManager,
+            permissions.ProjectPermission,
+            permissions.ProjectIsActive
         )
     }
     serializer_class = {
@@ -71,7 +80,7 @@ class ProjectAPIViewSet(BaseAPIViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
     filterset_class = ProjectFilter
     ordering_fields = ['pk', 'name', 'manager__last_name', 'assessors_count',
-                       'status', 'date_of_creation']
+                       'status', 'date_of_creation', 'date_of_completion']
 
     def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
@@ -97,6 +106,17 @@ class ProjectAPIViewSet(BaseAPIViewSet):
         self.check_project(instance)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=['patch'])
+    def clear(self, request: Request, *args, **kwarg) -> Response:
+        project = self.get_object()
+        if project.assessors.exists():
+            remove_assessors_from_project(
+                project,
+                user=request.user.full_name
+            )
+        serializer = serializers.ProjectSerializer(project)
+        return Response(serializer.data)
 
     @staticmethod
     def check_project(project: Project) -> Project:

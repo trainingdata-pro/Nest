@@ -1,10 +1,11 @@
 from drf_yasg import openapi
+from drf_yasg.utils import no_body
 
 from apps.export.services import allowed_types
 from apps.export.serializers import ExportSerializer
 from core.schemas import BaseAPISchema
 from .models import Status, ProjectStatuses
-from .serializers import ProjectWorkingHoursSerializer
+from .serializers import ProjectWorkingHoursSerializer, ProjectSerializer
 
 
 class ProjectSchema(BaseAPISchema):
@@ -67,7 +68,7 @@ class ProjectSchema(BaseAPISchema):
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results.\n'
                                 'Available fields: pk, name, manager__last_name, '
-                                'assessors_count, status, date_of_creation'
+                                'assessors_count, status, date_of_creation, date_of_completion.'
                 )
             ],
             responses={**self.get_responses(401)}
@@ -78,7 +79,7 @@ class ProjectSchema(BaseAPISchema):
             operation_summary='Create project',
             operation_description='The "manager" field is required if the user who '
                                   'creates the project is an operational manager.\n'
-                                  'Allowed statuses: new, pilot, active, pause, completed',
+                                  'Allowed statuses: new, pilot, active, pause, completed.',
             responses={**self.get_responses(400, 401)}
         )
 
@@ -112,6 +113,25 @@ class ProjectSchema(BaseAPISchema):
             responses={**self.get_responses(204, 400, 401, 403, 404)}
         )
 
+    def clear(self):
+        return self.swagger_auto_schema(
+            operation_summary='Remove assessors',
+            operation_description='Remove all assessors from a specific project.',
+            request_body=no_body,
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique project ID.'
+                )
+            ],
+            responses={
+                200: ProjectSerializer,
+                **self.get_responses(401, 403, 404)
+            }
+        )
+
 
 class AssessorsForProjectSchema(BaseAPISchema):
     def get(self):
@@ -131,7 +151,7 @@ class AssessorsForProjectSchema(BaseAPISchema):
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results.\n'
                                 'Available fields: pk, username, last_name, '
-                                'manager__last_name, status'
+                                'manager__last_name, status.'
                 )
             ],
             responses={**self.get_responses(401)}
@@ -149,7 +169,7 @@ class TagsSchema(BaseAPISchema):
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results.\n'
-                                'Available fields: pk, name'
+                                'Available fields: pk, name.'
                 )
             ],
             responses={**self.get_responses(401)}
@@ -194,7 +214,7 @@ class ProjectWorkingHoursSchema(BaseAPISchema):
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results.\n'
-                                'Available fields: pk'
+                                'Available fields: pk.'
                 )
             ],
             responses={**self.get_responses(401)}
@@ -274,7 +294,7 @@ class WorkLoadStatusSchema(BaseAPISchema):
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results.\n'
-                                'Available fields: pk'
+                                'Available fields: pk.'
                 )
             ],
             responses={**self.get_responses(401)}
@@ -328,7 +348,7 @@ class ExportProjectsSchema(BaseAPISchema):
         return self.swagger_auto_schema(
             operation_summary='Export assessors',
             operation_description='Export assessors for a specific project.\n\n'
-                                  'Returns unique celery task ID',
+                                  'Returns unique celery task ID.',
             manual_parameters=[
                 openapi.Parameter(
                     name='type',

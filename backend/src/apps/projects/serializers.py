@@ -1,12 +1,9 @@
-from copy import copy
 from typing import Dict
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from apps.assessors.models import Assessor, AssessorState
-from apps.assessors.services import assessors_service
-from apps.history.services import history
 from apps.users.models import BaseUser
 from apps.users.serializers import UserSerializer
 from core.utils import current_date
@@ -20,6 +17,7 @@ from .models import (
     ProjectWorkingHours,
     WorkLoadStatus
 )
+from .utils import remove_assessors_from_project
 
 
 class ProjectTagSerializer(serializers.ModelSerializer):
@@ -99,7 +97,11 @@ class CreateUpdateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
                 instance=project,
                 date=self.validated_data.get('date_of_completion')
             )
-            self._remove_assessors_from_completed_project(project)
+            remove_assessors_from_project(
+                project,
+                user=self.get_user().full_name,
+                completed_project=True
+            )
             project_service.remove_related(project)
         else:
             project = project_service.set_completion_date(
@@ -108,29 +110,6 @@ class CreateUpdateProjectSerializer(GetUserMixin, serializers.ModelSerializer):
             )
 
         return project
-
-    def _remove_assessors_from_completed_project(self, project: Project) -> None:
-        managers = project.manager.all()
-        assessors = project.assessors.all()
-        if assessors:
-            for instance in assessors:
-                instance_before_update = copy(instance)
-                projects_before_update = [pr.pk for pr in instance.projects.all()]
-                instance.projects.remove(project)
-                for manager in managers:
-                    if (not instance.projects.filter(manager__in=[manager]).exists()
-                            and manager in instance.second_manager.all()):
-                        instance.second_manager.remove(manager)
-
-                assessors_service.check_and_update_state(instance)
-
-                history.updated_assessor_history(
-                    old_assessor=instance_before_update,
-                    new_assessor=instance,
-                    user=self.get_user().full_name,
-                    old_projects=projects_before_update,
-                    completed_project=True
-                )
 
 
 class ProjectSerializer(serializers.ModelSerializer):

@@ -19,7 +19,7 @@ class Reason(models.Model):
         ordering = ['id']
 
     def __str__(self):
-        return str(self.title)
+        return f'{self.title} (pk {self.pk})'
 
 
 class BaseStateModel(models.Model):
@@ -35,9 +35,6 @@ class BaseStateModel(models.Model):
 
     class Meta:
         abstract = True
-
-    def __str__(self):
-        return str(self.assessor)
 
 
 class Fired(BaseStateModel):
@@ -58,6 +55,9 @@ class Fired(BaseStateModel):
         verbose_name_plural = 'уволенные'
         ordering = ['id']
 
+    def __str__(self):
+        return f'{self.assessor} (Fired pk {self.pk})'
+
 
 class BlackList(BaseStateModel):
     reason = models.ForeignKey(
@@ -71,3 +71,6 @@ class BlackList(BaseStateModel):
         verbose_name = 'черный список'
         verbose_name_plural = 'черный список'
         ordering = ['id']
+
+    def __str__(self):
+        return f'{self.assessor} (Blacklist pk {self.pk})'
