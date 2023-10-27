@@ -1,5 +1,6 @@
 from typing import Iterable, Any
 
+import rest_framework.serializers
 from django.db.models import Count, QuerySet
 from django.db.models.query import EmptyQuerySet
 from django.utils.decorators import method_decorator
@@ -35,6 +36,7 @@ from .tasks import (
     make_report_projects,
     make_report_assessors
 )
+from .utils import remove_assessors_from_project
 from . import serializers, schemas
 
 
@@ -43,6 +45,7 @@ from . import serializers, schemas
 @method_decorator(name='create', decorator=schemas.project_schema.create())
 @method_decorator(name='partial_update', decorator=schemas.project_schema.partial_update())
 @method_decorator(name='destroy', decorator=schemas.project_schema.destroy())
+@method_decorator(name='clear', decorator=schemas.project_schema.clear())
 class ProjectAPIViewSet(BaseAPIViewSet):
     permission_classes = {
         'retrieve': (IsAuthenticated,),
@@ -75,7 +78,7 @@ class ProjectAPIViewSet(BaseAPIViewSet):
         'list': serializers.ProjectSerializer,
         'create': serializers.CreateUpdateProjectSerializer,
         'partial_update': serializers.CreateUpdateProjectSerializer,
-        # 'clear': serializers.ProjectAssessorsSerializer
+        # 'clear': rest_framework.serializers.Serializer
 
     }
     http_method_names = ['get', 'post', 'patch', 'delete']
@@ -110,7 +113,12 @@ class ProjectAPIViewSet(BaseAPIViewSet):
 
     @action(detail=True, methods=['patch'])
     def clear(self, request: Request, *args, **kwarg) -> Response:
-        project = project_service.remove_assessors(self.get_object())
+        project = self.get_object()
+        if project.assessors.exists():
+            remove_assessors_from_project(
+                project,
+                user=request.user.full_name
+            )
         serializer = serializers.ProjectSerializer(project)
         return Response(serializer.data)
 
