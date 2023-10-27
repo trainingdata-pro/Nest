@@ -75,4 +75,4 @@ class History(models.Model):
         ordering = ['-timestamp']
 
     def __str__(self):
-        return str(self.attribute)
+        return f'{self.attribute} (pk {self.pk})'

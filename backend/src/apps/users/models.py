@@ -93,7 +93,7 @@ class BaseUser(AbstractUser):
         ordering = ['id']
 
     def __str__(self):
-        return str(self.email)
+        return f'{self.email} (pk {self.pk})'
 
     @property
     def full_name(self) -> str:
@@ -134,3 +134,6 @@ class ManagerProfile(models.Model):
         verbose_name = 'профиль менеджера'
         verbose_name_plural = 'профили менеджеров'
         ordering = ['id']
+
+    def __str__(self):
+        return f'Manager profile (pk {self.pk})'

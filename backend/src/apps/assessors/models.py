@@ -60,10 +60,14 @@ class Skill(models.Model):
         ordering = ['id']
 
     def __str__(self):
+        string = ''
         if len(str(self.title)) > 30:
-            return f'{str(self.title)[:27]}...'
+            string += f'{str(self.title)[:27]}...'
+        else:
+            string = str(self.title)
 
-        return self.title
+        string += f' (pk {self.pk})'
+        return string
 
 
 class Assessor(models.Model):
@@ -203,4 +207,4 @@ class AssessorCredentials(models.Model):
         ordering = ['id']
 
     def __str__(self):
-        return str(self.tool)
+        return f'{self.tool} (pk {self.pk})'
