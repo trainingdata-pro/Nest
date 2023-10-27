@@ -21,7 +21,6 @@ class UserFilter(SplitStringFilterMixin, FilterByFullNameMixin, filters.FilterSe
 
 class ManagerProfileFilter(filters.FilterSet):
     is_teamlead = filters.BooleanFilter()
-#     teamlead = filters.CharFilter(lookup_expr='icontains')
     teamlead = filters.NumberFilter()
     class Meta:
         model = ManagerProfile
