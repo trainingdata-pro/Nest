@@ -46,6 +46,9 @@ class ProjectService:
     def remove_related(self, instance: Project) -> None:
         return self.__remove_related(instance)
 
+    def remove_assessors(self, instance: Project) -> Project:
+        return self.__remove_assessors(instance)
+
     def __create_instance(self, **kwargs) -> Project:
         instance = self.model(**kwargs)
         return instance
@@ -61,6 +64,11 @@ class ProjectService:
         if attr:
             attr.set(values)
 
+        return instance
+
+    @staticmethod
+    def __remove_assessors(instance: Project) -> Project:
+        instance.assessors.clear()
         return instance
 
     @staticmethod

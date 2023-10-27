@@ -4,6 +4,7 @@ from django.db.models import Count, QuerySet
 from django.db.models.query import EmptyQuerySet
 from django.utils.decorators import method_decorator
 from rest_framework import status, generics
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -11,6 +12,7 @@ from rest_framework.response import Response
 
 from apps.assessors.models import Assessor
 from apps.assessors.serializers import AssessorSerializer
+from apps.assessors.services import assessors_service
 from apps.export.serializers import ExportSerializer
 from apps.export.services import ExportType
 from apps.users.models import BaseUser
@@ -28,6 +30,7 @@ from .models import (
     ProjectWorkingHours,
     WorkLoadStatus
 )
+from .services import project_service
 from .tasks import (
     make_report_projects,
     make_report_assessors
@@ -59,13 +62,20 @@ class ProjectAPIViewSet(BaseAPIViewSet):
             permissions.IsManager,
             permissions.ProjectPermission,
             permissions.ProjectIsActive,
+        ),
+        'clear': (
+            IsAuthenticated,
+            permissions.IsManager,
+            permissions.ProjectPermission,
+            permissions.ProjectIsActive
         )
     }
     serializer_class = {
         'retrieve': serializers.ProjectSerializer,
         'list': serializers.ProjectSerializer,
         'create': serializers.CreateUpdateProjectSerializer,
-        'partial_update': serializers.CreateUpdateProjectSerializer
+        'partial_update': serializers.CreateUpdateProjectSerializer,
+        # 'clear': serializers.ProjectAssessorsSerializer
 
     }
     http_method_names = ['get', 'post', 'patch', 'delete']
@@ -97,6 +107,12 @@ class ProjectAPIViewSet(BaseAPIViewSet):
         self.check_project(instance)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=['patch'])
+    def clear(self, request: Request, *args, **kwarg) -> Response:
+        project = project_service.remove_assessors(self.get_object())
+        serializer = serializers.ProjectSerializer(project)
+        return Response(serializer.data)
 
     @staticmethod
     def check_project(project: Project) -> Project:
