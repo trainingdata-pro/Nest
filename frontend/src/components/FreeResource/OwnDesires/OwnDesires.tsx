@@ -1,13 +1,8 @@
 import React, {useState} from 'react';
 import {useQuery} from "react-query";
 import AssessorService from "../../../services/AssessorService";
-import FreeResourceTableRow from "../FreeResorces/FreeResourceEdit";
-import FiredTableRow from "../../../pages/FiredTableRow";
 import {
-    getCoreRowModel, getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    SortingState,
+    getCoreRowModel,
     useReactTable
 } from "@tanstack/react-table";
 import Table from "../../UI/Table";

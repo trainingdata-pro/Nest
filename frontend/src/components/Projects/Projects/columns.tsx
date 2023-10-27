@@ -50,7 +50,7 @@ export const useProjectsSorting =()=> {
         columnHelper.accessor('assessors_count', {
             header: () => <div className='flex'><p>Количество ассессеров</p><Sorting sortingKey={"assessors_count"} func={setSorting} sortingValue={sorting.assessors_count} state={sorting}/></div>,
             cell: info => <div className="cursor-pointer h-full w-full text-center break-all"
-                               onClick={() => navigation(`/dashboard/projects/${info.row.original.id}/assessors/?name=${info.row.original.name}`)}><p className='hover:border-b border-black w-fit mx-auto'>{info.getValue()}</p></div>,
+                               onClick={() => navigation(`/projects/${info.row.original.id}/assessors/?name=${info.row.original.name}`)}><p className='hover:border-b border-black w-fit mx-auto'>{info.getValue()}</p></div>,
             enableSorting: true
         }),
         columnHelper.accessor('status', {

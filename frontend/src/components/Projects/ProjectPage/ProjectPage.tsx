@@ -83,7 +83,7 @@ const ProjectPage = () => {
                             <div className="pl-[15px]">Проект: {data?.name}</div>
                         </div>
                         <div className='flex space-x-2'>
-                            <ProjectManagement project={id}/>
+                            <ProjectManagement project={id} status={data?.status}/>
                             <ProjectMenu setIsDeleteFromProject={setIsDeleteFromProject}
                                          isSelected={selectedRows.length !== 0}/>
                             <MyButton onClick={() => setAddToProject(true)}>Добавить на проект</MyButton>

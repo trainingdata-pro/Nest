@@ -14,8 +14,7 @@ const SetPause = ({show, projectId}: {
     const [value, setValue] = useState<boolean>()
     const pauseProject = useMutation([], () => ProjectService.patchProject(projectId, {status: 'pause'}), {
         onSuccess: () => {
-            queryClient.invalidateQueries('projects')
-            queryClient.invalidateQueries('completedProjects')
+            queryClient.invalidateQueries('projectAssessors')
             successNotification('Проект поставлен на паузу')
             navigate('/projects')
         },
@@ -23,12 +22,21 @@ const SetPause = ({show, projectId}: {
             errorNotification('Ошибка')
         }
     })
+    const clearProject = useMutation([], () => ProjectService.clearProject(Number(projectId)), {
+        onSuccess: () => {
+            queryClient.invalidateQueries('projectAssessors')
+            queryClient.invalidateQueries('projects')
+            pauseProject.mutate()
+        },
+        onError: () => {
+            errorNotification('Ошибка')
+        }})
     const submit =() => {
         if (value === undefined){
-            errorNotification('Выберите причину')
+            errorNotification('Выберите опцию')
         } else {
             if (value){
-
+                clearProject.mutate()
             } else {
                 pauseProject.mutate()
             }

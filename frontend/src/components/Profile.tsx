@@ -43,8 +43,9 @@ const Profile = () => {
         ['TeamLeads'],
         () => ManagerService.fetchTeamLeads(),
         {
+            enabled: !store.user_data.is_teamlead,
             onSuccess: data => {
-                setOptions(data.data.results.map((TeamLead: any) => {
+                setOptions(data.results.map((TeamLead: any) => {
                     return {label: `${TeamLead.user.last_name} ${TeamLead.user.first_name}`, value: TeamLead.user.id}
                 }))
             }
@@ -79,6 +80,7 @@ const Profile = () => {
         onSuccess: () => {
             queryClient.invalidateQueries('currentManager')
             successNotification('Информация обновлена')
+            store.setIsOpenProfile(false)
         },
         onError: () => {
             errorNotification('Ошибка при обновлении данных')
@@ -88,27 +90,28 @@ const Profile = () => {
         onSuccess: () => {
             queryClient.invalidateQueries('currentManager')
             successNotification('TeamLead обновлен')
+            store.setIsOpenProfile(false)
         },
         onError: () => {
             errorNotification('Ошибка при обновлении поля TeamLead')
         }
     })
     const close = () => {
-        if (!getValues('teamlead') || !fetchManagerInfo.data?.teamlead) {
+        if ((!getValues('teamlead') || !fetchManagerInfo.data?.teamlead) && !store.user_data.is_teamlead) {
             errorNotification('Заполните поле TeamLead и нажмите кнопку сохранить')
         } else {
             store.setIsOpenProfile(false)
         }
     }
     const onSubmit = (data: FormProps) => {
-        if (!data.teamlead) {
+        if (!data.teamlead && !store.user_data.is_teamlead) {
             errorNotification('Заполните поле TeamLead')
         } else {
             patchBaseUser.mutate({data: data})
-            if (!fetchManagerInfo.data?.teamlead){
+            if (!fetchManagerInfo.data?.teamlead && !store.user_data.is_teamlead){
                 patchManagerTeamLead.mutate({data: data})
             }
-            store.setIsOpenProfile(false)
+
         }
 
     }
@@ -222,7 +225,7 @@ const Profile = () => {
                                                         message: 'Обязательное поле'
                                                     }
                                                 })}
-                                                isDisabled={!!fetchManagerInfo.data?.teamlead}
+                                                isDisabled={!!fetchManagerInfo.data?.teamlead || store.user_data.is_teamlead}
                                                 options={options}
                                                 value={getSelectValues()}
                                                 onChange={handleChangeTeamLead}

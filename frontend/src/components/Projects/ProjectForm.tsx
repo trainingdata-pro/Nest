@@ -13,6 +13,7 @@ import {AxiosError} from "axios";
 import {errorNotification, successNotification} from "../UI/Notify";
 import CreatableSelect from "react-select/creatable";
 import MyButton from "../UI/MyButton";
+import ManagerService from "../../services/ManagerService";
 
 type ProjectFormProps = {
     name: string,
@@ -59,6 +60,13 @@ const ProjectForm = ({projectId, closeSidebar}: {
             setTagsList(data.results.map(tag => {
                 return {label: tag.name, value: tag.id}
             }))
+        }
+    })
+    const managers = useQuery('managers', () => ManagerService.fetchTeamLeadTeam(store.user_id),{
+        enabled: store.user_data.is_teamlead,
+        retry: 0,
+        onSuccess: data => {
+            console.log(data)
         }
     })
     const currentProject = useQuery(['currentProject', projectId], ({queryKey}) => {

@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import TableCheckBox from "../../UI/TableCheckBox";
-import {createColumnHelper} from "@tanstack/react-table";
+import {createColumnHelper, Row} from "@tanstack/react-table";
 import {Assessor} from "../../../models/AssessorResponse";
 import {useNavigate} from "react-router-dom";
 
@@ -30,7 +30,7 @@ export const useMyAssessorsSorting = () => {
         "blacklist": "Черный список",
         "fired": "Уволен",
     }
-    const [selectedRows, setSelectedRows] = useState<number[]>([])
+    const [selectedRows, setSelectedRows] = useState<Row<Assessor>[]>([])
     const navigation = useNavigate()
     const columns = [
         columnHelper.accessor('id', {

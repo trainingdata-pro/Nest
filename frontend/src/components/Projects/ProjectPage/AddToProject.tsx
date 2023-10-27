@@ -12,7 +12,7 @@ const AddToProject = ({setAddToProject}: {
                     <a href="/assessors/free_resources/" target="_blank">Из свободных ресурсов</a>
                 </MyButton>
                 <MyButton>
-                    <a href="/dashboard/assessors/my/?sorted=asc" target="_blank">Из моих асессоров</a>
+                    <a href="/assessors/my/?sorted=asc" target="_blank">Из моих асессоров</a>
                 </MyButton>
 
             </div>

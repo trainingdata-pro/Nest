@@ -4,8 +4,9 @@ import Dialog from "../../UI/Dialog";
 import SetCompleted from "./SetCompleted";
 import SetPause from "./SetPause";
 
-const ProjectManagement = ({project}:{
-    project: number | string | undefined
+const ProjectManagement = ({project, status}:{
+    project: number | string | undefined,
+    status: string | undefined
 }) => {
     const [open, setOpen] = useState(false);
     const [isShowCompleteProject, setIsShowCompleteProject] = useState(false)
@@ -31,10 +32,20 @@ const ProjectManagement = ({project}:{
                             open ? "block" : "hidden"
                         }`}
                     >
-                        <li onClick={() => setIsShowPauseProject(true)} className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">
+                        <li onClick={() => {
+                            if (status === 'pause') {
+                                errorNotification('Проект уже на паузе')
+                            } else {
+                                setIsShowPauseProject(true)
+                            }}} className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">
                             Поставить проект на паузу
                         </li>
-                        <li onClick={() => setIsShowCompleteProject(true)} className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">
+                        <li onClick={() => {
+                            if (status === 'pause') {
+                                errorNotification('Проект уже на паузе')
+                            } else {
+                                setIsShowCompleteProject(true)
+                            }}} className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">
                             Завершить проект
                         </li>
                     </ul>

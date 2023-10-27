@@ -10,25 +10,27 @@ import Loader from './components/UI/Loader';
 import ProjectPage from "./components/Projects/ProjectPage/ProjectPage";
 import AssessorsPage from "./components/Assessors/AssessorsPage/AssessorsPage";
 import AssessorPage from './components/Assessors/AssessorPage/AssessorPage';
-import CompletedProjects from "./pages/CompletedProjects";
+import CompletedProjects from "./components/Projects/CompletedProjects/CompletedProjects";
 import BlackList from "./components/BlackList/BlackList";
 import FreeResourcePage from "./pages/FreeResourcePage";
 import PasswordReset from "./components/PasswordReset/PasswordReset";
+import {useQuery} from "react-query";
 
 function App() {
     const {store} = useContext(Context)
-
-    useMemo(()=>{
-        if (localStorage.getItem('token')) {
-            store.checkAuth()
-        }
-    },[])
+    const checkAuth = useQuery('auth', () => store.checkAuth(), {
+        enabled: !!localStorage.getItem('token'),
+        refetchOnWindowFocus:false
+    })
+    // useMemo(()=>{
+    //     if (localStorage.getItem('token')) {
+    //         store.checkAuth()
+    //     }
+    // },[])
 
     if (store.isLoading) {
         return (<Loader width={"16"}/>)
     }
-
-
     return (
             <BrowserRouter>
                 {!store.isAuth ? <Routes>
@@ -40,14 +42,13 @@ function App() {
                 </Routes>:
                  <Routes>
                      <Route path={'/projects'} element={<MainPage/>}/>
-                     <Route path={'/dashboard/projects/:id/assessors'} element={<ProjectPage/>}/>
-                     <Route path={'/assessors'} element={<AssessorsPage/>}/>
-                     {/*<Route path={'/dashboard/assessors/rent'} element={<RentAssessors/>}/>*/}
-                     <Route path={'/assessor/:id'} element={<AssessorPage/>}/>
                      <Route path={'/projects/completed'} element={<CompletedProjects/>} />
+                     <Route path={'/projects/:id/assessors'} element={<ProjectPage/>}/>
+                     <Route path={'/assessors'} element={<AssessorsPage/>}/>
+                     <Route path={'/assessor/:id'} element={<AssessorPage/>}/>
                      <Route path={'/blacklist'} element={<BlackList/>} />
                      <Route path={'/free_resources'} element={<FreeResourcePage/>}/>
-                     <Route path="*" element={<Navigate to="/projects" replace/>}/> // TODO: redirect 404
+                     <Route path="*" element={<Navigate to="/projects" replace/>}/>
 
                  </Routes>}
              </BrowserRouter>

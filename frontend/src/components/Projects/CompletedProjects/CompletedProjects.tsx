@@ -1,19 +1,19 @@
 import React, {useState} from 'react';
-import Header from "../components/Header/Header";
-import ProjectService from "../services/ProjectService";
+import Header from "../../Header/Header";
+import ProjectService from "../../../services/ProjectService";
 import {useQuery} from "react-query";
 import {
     getCoreRowModel,
     useReactTable
 } from "@tanstack/react-table";
-import Table from "../components/UI/Table";
-import MyButton from "../components/UI/MyButton";
+import Table from "../../UI/Table";
+import MyButton from "../../UI/MyButton";
 import {observer} from "mobx-react-lite";
-import Dialog from "../components/UI/Dialog";
-import Export from "../components/Projects/Export";
-import {useCompletedProjectsColumns} from "../components/Projects/CompletedProjects/columns";
-import TablePagination from "../components/UI/TablePagination";
-import Loader from "../components/UI/Loader";
+import Dialog from "../../UI/Dialog";
+import Export from "../Export";
+import {useCompletedProjectsColumns} from "./columns";
+import TablePagination from "../../UI/TablePagination";
+import Loader from "../../UI/Loader";
 
 const CompletedProjects = () => {
     const {sorting, getSortingString, columns} = useCompletedProjectsColumns()

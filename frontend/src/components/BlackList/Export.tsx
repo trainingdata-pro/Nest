@@ -6,26 +6,31 @@ import fileDownload from "js-file-download";
 import AssessorService from "../../services/AssessorService";
 import MyButton from "../UI/MyButton";
 
-const Export = ({setIsExportBlackList, items}:{
-    setIsExportBlackList:React.Dispatch<boolean>,
+const Export = ({setIsExportBlackList, items}: {
+    setIsExportBlackList: React.Dispatch<boolean>,
     items: []
 }) => {
     function timeout(delay: number) {
-        return new Promise( res => setTimeout(res, delay) );
+        return new Promise(res => setTimeout(res, delay));
     }
-    const exportBlackList = useMutation([],({type, items}: any) => AssessorService.exportBlackList(type, items), {
+
+    const exportBlackList = useMutation([], ({type, items}: any) => AssessorService.exportBlackList(type, items), {
         onSuccess: async data => {
             warnNotification('Загрузка началась')
             setIsExportBlackList(false)
             let hasMoreData = true;
             let filename = ''
-            while (hasMoreData){
+            while (hasMoreData) {
                 timeout(2000)
                 const res = await ProjectService.checkStatus(data.task_id)
                 filename = res.filename
-                if (res.status === 'SUCCESS'){
+                if (res.status === 'SUCCESS') {
+                    break
+                } else if (res.status === 'FAILURE') {
+                    errorNotification('Произошла ошибка при экспортировании')
                     break
                 }
+
             }
             const exportData = await ProjectService.downloadFile(filename)
             fileDownload(new Blob([exportData.data]), filename)

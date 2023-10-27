@@ -21,20 +21,14 @@ export interface Manager {
     is_teamlead: boolean}
 
 export default class ManagerService{
-    static fetch_manager = (id: number | string) => $api.get<IManager>(`/api/users/${id}`).then(res => res.data)
     static fetchManager = (id: number | string) => $api.get<Manager>(`/api/managers/${id}`).then(res => res.data)
-    static fetchTeamLeads = () => $api.get<any>(`/api/managers/?is_teamlead=true`)
-    static fetch_managers(): Promise<AxiosResponse<UsersResponse>> {
-        return $api.get<UsersResponse>(`/api/users/?is_teamlead=false`)
-    }
-
+    static fetchTeamLeads = () => $api.get<any>(`/api/managers/?is_teamlead=true`).then(res => res.data)
+    static fetchTeamLeadTeam = (teamleadId: number | string) => $api.get(`/api/managers/?teamlead=${teamleadId}&page_size=all`)
     static patchManager = (managerId:number|string, data:any) => $api.patch(`/api/managers/${managerId}/`, {
             teamlead: Number(data.teamlead)
         }).then(res => res.data)
 
-    static patchBaseUser(managerId:number, data:any) {
-        return $api.patch(`/api/users/${managerId}/`, data).then(res => res.data)
-    }
-    static fetchOperationsManagers = () => $api.get('/api/users/?is_teamlead=true').then(res => res.data)
+    static patchBaseUser = (managerId:number, data:any) => $api.patch(`/api/users/${managerId}/`, data).then(res => res.data)
+
 
 }

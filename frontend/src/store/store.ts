@@ -68,7 +68,7 @@ export default class Store {
                 this.cookies.set('refresh', res.data.refresh, {path: '/', maxAge: decodeJwt.exp})
                 const managerId = decodeJwt.user_id
                 const user_data = decodeJwt.user_data
-                if (!user_data.teamlead) {
+                if (!user_data.teamlead && !user_data.is_teamlead) {
                     warnNotification('Заполните поле TeamLead')
                     this.setIsOpenProfile(true)
                 }
@@ -97,7 +97,7 @@ export default class Store {
             const decodeJwt: Token = jwtDecode(response.data.access)
             const managerId = decodeJwt.user_id
             const user_data = decodeJwt.user_data
-            if (!user_data.teamlead) {
+            if (!user_data.teamlead && !user_data.is_teamlead) {
                 warnNotification('Заполните поле TeamLead')
                 this.setIsOpenProfile(true)
             }
