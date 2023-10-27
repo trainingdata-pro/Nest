@@ -218,7 +218,7 @@ const Profile = () => {
                                             <Select
                                                 {...register('teamlead', {
                                                     required: {
-                                                        value: true,
+                                                        value: !store.user_data.is_teamlead,
                                                         message: 'Обязательное поле'
                                                     }
                                                 })}

@@ -53,11 +53,14 @@ const Export = ({setIsExportProjects, exportType ,project}:{
                 filename = res.filename
                 if (res.status === 'SUCCESS') {
                     break
+                } else if (res.status === 'FAILURE'){
+                    errorNotification('Произошла ошибка при экспортировании')
+                    break
                 }
             }
             const exportData = await ProjectService.downloadFile(filename)
             fileDownload(exportData.data, filename)
-            successNotification('анные успешно экспортировались')
+            successNotification('Данные успешно экспортировались')
         },
         onError: () => {
             errorNotification('Ошибка')

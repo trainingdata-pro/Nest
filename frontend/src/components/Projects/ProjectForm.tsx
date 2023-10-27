@@ -247,7 +247,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                     <MyInput className={'pl-[12px]'} placeholder="Скорость в час" type="text" register={{
                         ...register('speed_per_hour', {
                             pattern: {
-                                value: /^-?\d+(\.\d+)?$/,
+                                value: /^([0-9]{0,})[.]?([0-9]{1,})$/,
                                 message: 'Указано неверное значение'
                             }
                         })
@@ -260,22 +260,26 @@ const ProjectForm = ({projectId, closeSidebar}: {
                         <Error>{errors.speed_per_hour && errors.speed_per_hour?.message}</Error>
                     </div>
                     <MyInput className={'pl-[12px]'} placeholder="Цена за единицу для асессора" type="text"
-                             register={{...register('price_for_assessor')}}/>
+                             register={{...register('price_for_assessor', {
+                                     pattern: {
+                                         value: /^-?\d+(\.\d+)?$/,
+                                         message: 'Указано неверное значение'
+                                     }
+                                 })}}/>
                 </FormSection>
 
                 <FormSection>
                     <div className="flex justify-between">
                         <MyLabel required={false}>Цена за единицу для заказчика: </MyLabel>
-                        <Error>{errors.speed_per_hour && errors.speed_per_hour?.message}</Error>
-
+                        <Error>{errors.price_for_costumer && errors.price_for_costumer?.message}</Error>
                     </div>
-                    <MyInput className={'pl-[12px]'} placeholder="Цена за единицу для заказчика" type="text"
+                    <MyInput className={'pl-[12px]'} placeholder="Цена за единицу для заказчика" type=""
                              register={{
                                  ...register('price_for_costumer', {
                                      pattern: {
-                                         value: /^-?\d+(\.\d+)?$/,
+                                         value: /^([0-9]{0,})[.]?([0-9]{1,})$/,
                                          message: 'Указано неверное значение'
-                                     }
+                                     },
                                  })
                              }}/>
                 </FormSection>
@@ -287,7 +291,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                     <MyInput className={'pl-[12px]'} placeholder="Объем выгрузок" type="text" register={{
                         ...register('unloading_value', {
                             pattern: {
-                                value: /^-?\d+(\.\d+)?$/,
+                                value: /^([0-9]{0,})[.]?([0-9]{1,})$/,
                                 message: 'Указано неверное значение'
                             }
                         })
@@ -341,7 +345,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                         <Error>{errors.date_of_creation && errors.date_of_creation?.message}</Error>
                     </div>
                     <MyInput className={'pl-[12px]'} placeholder="Дата старта проекта"
-                             register={{...register('date_of_creation', {required: true})}} type="text"/>
+                             register={{...register('date_of_creation', {required: true})}} type="date"/>
                 </FormSection>
 
                 <MyButton className='w-full'>{projectId === 0 ? 'Добавить' : 'Сохранить'}</MyButton>

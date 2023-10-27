@@ -18,15 +18,25 @@ import DeleteFromProjects from "../../AssessorManagement/DeleteFromProjects";
 import AddToProject from "./AddToProject";
 import MyButton from "../../UI/MyButton";
 import Export from "../Export";
-import {columns} from './columns'
+
+
+import TablePagination from "../../UI/TablePagination";
+import {useProjectAssessorsColumns} from "./columns";
+import ProjectManagement from "./ProjectManagement";
 
 
 const ProjectPage = () => {
         const {id} = useParams()
-        const {isLoading} = useQuery(['projectAssessors', id], () => fetchAllData(), {
+        const {columns,sorting, selectedRows, getSortingString, setSelectedRows} = useProjectAssessorsColumns()
+        const [currentPage, setCurrentPage] = useState(1)
+        const [totalPages, setTotalPages] = useState(1)
+        const [totalRows, setTotalRows] = useState<number>(0)
+        const {isLoading} = useQuery(['projectAssessors', currentPage, id], () => AssessorService.fetchAssessors(currentPage, id), {
             onSuccess: data1 => {
+                setTotalRows(data1.count)
+                setTotalPages(Math.ceil(data1.count / 10))
                 let newData: ProjectAssessors[] = []
-                data1.map((assessor: any) => {
+                data1.results.map((assessor: any) => {
                     assessor.working_hours = assessor.working_hours.find((wh: any) => wh.project.id.toString() === id?.toString())
                     assessor.workload_status = assessor.workload_status.find((ws: any) => ws.project.id.toString() === id?.toString())?.status
                     assessor.projects = assessor.projects.map((project: any) => project.id)
@@ -36,45 +46,13 @@ const ProjectPage = () => {
                 setTableData(newData)
             }
         })
-        async function fetchAllData() {
-            const allData = [];
-            let currentPage = 1;
-            let hasMoreData = true;
-            while (hasMoreData) {
-                const data = await AssessorService.fetchAssessors(currentPage, id);
-                allData.push(...data.results);
-                if (data.next !== null) {
-                    currentPage++;
-                } else {
-                    hasMoreData = false;
-                }
-            }
-            return allData;
-        }
-
         const [tableData, setTableData] = useState<ProjectAssessors[]>([])
-        const [sorting, setSorting] = React.useState<SortingState>([])
-        const [rowSelection, setRowSelection] = React.useState({})
         const table = useReactTable({
             data: tableData,
             columns,
             getCoreRowModel: getCoreRowModel(),
-            getPaginationRowModel: getPaginationRowModel(),
-            onSortingChange: setSorting,
-            getSortedRowModel: getSortedRowModel(),
-            enableMultiSort: true,
-            maxMultiSortColCount: 2,
-            state: {
-                rowSelection,
-                sorting
-            },
-            enableRowSelection: true,
-            onRowSelectionChange: setRowSelection,
-            debugTable: false,
         })
-        const getSelectedAssessors = () => {
-            return table.getPreFilteredRowModel().rows.filter(row => Object.keys(rowSelection).find(key => key.toString() === row.id.toString()))
-        }
+
         const {data} = useQuery(['projectName'], () => ProjectService.fetchProject(id))
         const [addToProject, setAddToProject] = useState(false)
         const [addAssessor, setAddAssessor] = useState(false)
@@ -92,7 +70,7 @@ const ProjectPage = () => {
                                      setShowSidebar={setAddAssessor}/>
                 </Dialog>
                 <Dialog isOpen={idDeleteFromProject} setIsOpen={setIsDeleteFromProject}>
-                    <DeleteFromProjects projectId={id} assessorsProjects={getSelectedAssessors()}
+                    <DeleteFromProjects projectId={id} assessorsProjects={selectedRows}
                                         close={setIsDeleteFromProject}/>
                 </Dialog>
                 <Dialog isOpen={isExportAssessors} setIsOpen={setIsExportAssessors}>
@@ -105,14 +83,19 @@ const ProjectPage = () => {
                             <div className="pl-[15px]">Проект: {data?.name}</div>
                         </div>
                         <div className='flex space-x-2'>
+                            <ProjectManagement project={id}/>
                             <ProjectMenu setIsDeleteFromProject={setIsDeleteFromProject}
-                                         isSelected={Object.keys(rowSelection).length !== 0}/>
+                                         isSelected={selectedRows.length !== 0}/>
                             <MyButton onClick={() => setAddToProject(true)}>Добавить на проект</MyButton>
                             <MyButton onClick={() => setAddAssessor(true)}>Добавить ассессора</MyButton>
                             <MyButton onClick={() => setIsExportAssessors(true)}>Экспорт данных</MyButton>
                         </div>
                     </div>
-                    <Table table={table}/>
+                    <div className='rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
+                        <Table table={table}/>
+                        <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                                         setCurrentPage={setCurrentPage}/>
+                    </div>
                 </div>
 
             </div>

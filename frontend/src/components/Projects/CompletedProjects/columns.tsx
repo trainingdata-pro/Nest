@@ -41,7 +41,7 @@ export const useCompletedProjectsColumns = () => {
             enableSorting: false
         }),
         columnHelper.accessor('assessors_count', {
-            header: 'Количество ассессеров',
+            header: 'Количество асессеров',
             cell: info => info.getValue(),
             enableSorting: false
         }),
