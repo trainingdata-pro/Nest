@@ -8,18 +8,14 @@ import CheckAssessor from "./CheckAssessor";
 
 const Header = () => {
     const {store} = useContext(Context)
-    const [isOpen, setIsOpen] = useState(false)
     const [isOpenCheck, setIsOpenCheck] = useState(false)
     return (
         <>
-            {/*<Dialog isOpen={isOpen} setIsOpen={setIsOpen}>*/}
-            {/*    <Profile setIsOpen={setIsOpen}/>*/}
-            {/*</Dialog>*/}
 
             <Dialog isOpen={isOpenCheck} setIsOpen={setIsOpenCheck}>
                 <CheckAssessor setIsOpenCheck={setIsOpenCheck}/>
             </Dialog>
-            <header className="fixed z-10 left-0 right-0 h-[70px] rounded-b-[20px] border-b border-gray-200 bg-[#5970F6]">
+            <header className="fixed z-10 left-0 top-0 right-0 h-[70px] overflow-hidden rounded-b-[20px] border-b border-gray-200 bg-[#5970F6]">
 
                 <div className="flex mx-auto h-full pr-8 pl-8 items-center">
                     <div className="flex h-full w-full items-center justify-between gap-x-6">
@@ -42,19 +38,19 @@ const Header = () => {
                                     <li>
                                         <NavLink
                                             className={({isActive}) => `${isActive? 'text-black' : ''} inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4`}
-                                            to='/dashboard/projects/free'>Завершенные</NavLink>
+                                            to='/projects/completed'>Завершенные</NavLink>
                                     </li>
                                     <li>
                                         <NavLink
-                                            className={({isActive}) => `${isActive? 'text-black' : ''} inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4`}                                            to='/assessors/blacklist'>Черный список</NavLink>
+                                            className={({isActive}) => `${isActive? 'text-black' : ''} inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4`}                                            to='/blacklist'>Черный список</NavLink>
                                     </li>
                                     <li>
                                         <NavLink
-                                            className={({isActive}) => `${isActive? 'text-black' : ''} inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4`}                                            to='/dashboard/assessors/my'>Мои исполнители</NavLink>
+                                            className={({isActive}) => `${isActive? 'text-black' : ''} inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4`}                                            to='/assessors'>Мои исполнители</NavLink>
                                     </li>
                                     <li>
                                         <NavLink
-                                            className={({isActive}) => `${isActive? 'text-black' : ''} inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4`}                                            to='/assessors/free_resources'>Свободные ресурсы</NavLink>
+                                            className={({isActive}) => `${isActive? 'text-black' : ''} inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 py-2 px-4`}                                            to='/free_resources'>Свободные ресурсы</NavLink>
                                     </li>
                                 </div>
                             </ul>

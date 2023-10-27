@@ -112,7 +112,7 @@ const ProjectPage = () => {
                             <MyButton onClick={() => setIsExportAssessors(true)}>Экспорт данных</MyButton>
                         </div>
                     </div>
-                    <Table pages={true} rowSelection={rowSelection} table={table}/>
+                    <Table table={table}/>
                 </div>
 
             </div>

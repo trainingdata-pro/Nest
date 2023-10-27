@@ -16,95 +16,32 @@ import Dialog from "../../UI/Dialog";
 import ProjectForm from "../ProjectForm";
 import MyButton from "../../UI/MyButton";
 import Table from "../../UI/Table";
-const statusObject = {
-    "active": "Активный",
-    "pause": "На паузе",
-    "completed": "Завершенный"
-}
+import {useProjectsSorting} from "./columns";
+import TablePagination from "../../UI/TablePagination";
+
 const MainPage = () => {
-    const columnHelper = createColumnHelper<Project>()
-    const navigation = useNavigate()
-    const columns = [
-        columnHelper.accessor('asana_id', {
-            header: 'Asana ID',
-            cell: info => info.getValue(),
-            enableSorting: false,
-        }),
-        columnHelper.accessor('name', {
-            cell: info => <div className="cursor-pointer h-full w-full text-center break-all" onClick={() => {
-                setProjectId(info.row.original.id)
-                setShowSidebar(true)
-            }}><p className='hover:border-b hover:border-black w-fit mx-auto'>{info.getValue()}</p></div>,
-            header: 'Название',
-            enableSorting: false
-        }),
-        columnHelper.accessor('manager', {
-            header: 'Менеджер',
-            cell: info => info.getValue().map(manager => {
-                return `${manager.last_name} ${manager.first_name}`
-            }),
-            enableSorting: false
-        }),
-        columnHelper.accessor('assessors_count', {
-            header: 'Количество ассессеров',
-            cell: info => <div className="cursor-pointer h-full w-full text-center break-all"
-                               onClick={() => navigation(`/dashboard/projects/${info.row.original.id}/assessors/?name=${info.row.original.name}`)}><p className='hover:border-b border-black w-fit mx-auto'>{info.getValue()}</p></div>,
-            enableSorting: true
-        }),
-        columnHelper.accessor('status', {
-            header: 'Статус',
-            cell: ({row}) => statusObject[row.original.status],
-            enableSorting: true
-        })
-    ]
+    const {getSortingString,projectsId, sorting, setShowSidebar, setProjectId, columns, showSidebar} = useProjectsSorting()
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
+    const [totalRows, setTotalRows] = useState<number>(0)
     const {
         data,
         isLoading,
-    } = useQuery(['projects'], () => fetchAllData(), {
-        keepPreviousData: true
-    })
-
-    async function fetchAllData() {
-        const allData = [];
-        let currentPage = 1;
-        let hasMoreData = true;
-        while (hasMoreData) {
-            const data = await ProjectService.fetchProjects(currentPage);
-            allData.push(...data.results);
-            if (data.next !== null) {
-                currentPage++;
-            } else {
-                hasMoreData = false;
-            }
+        isSuccess
+    } = useQuery(['projects', sorting], () => ProjectService.fetchProjects(currentPage, getSortingString()), {
+        keepPreviousData: true,
+        onSuccess: data => {
+            setTotalRows(data.count)
+            setTotalPages(Math.ceil(data.count / 10))
         }
-        return allData;
-    }
-
-    const [projectsId, setProjectId] = useState(0)
-    const [showSidebar, setShowSidebar] = useState(false)
-    const [sorting, setSorting] = React.useState<SortingState>([{id: 'assessors_count', desc: true}, {id: 'status', desc: false}])
-    const [rowSelection, setRowSelection] = React.useState({})
+    })
 
     const table = useReactTable({
-        data: data ? data : [],
+        data: isSuccess ? data.results : [],
         columns,
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        onSortingChange: setSorting,
-        getSortedRowModel: getSortedRowModel(),
-        enableMultiSort: true,
-        maxMultiSortColCount: 2,
-        state: {
-            rowSelection,
-            sorting
-        },
-        enableRowSelection: true,
-        onRowSelectionChange: setRowSelection,
-        debugTable: false,
+        enableSorting:false,
     })
-    useEffect(() => {
-        console.log(sorting)
-    }, [sorting])
     if (isLoading) {
         return <Loader width={"16"}/>
     }
@@ -122,7 +59,7 @@ const MainPage = () => {
                     <div className="flex-col items-center">
                         <div className="flex justify-between my-2">
                             <div className='my-auto'>
-                                <p>Всего активных проектов: {data?.length}</p>
+                                <p>Всего активных проектов: {data?.results.length}</p>
                             </div>
                             <MyButton onClick={() => {
                                 setProjectId(0)
@@ -130,8 +67,10 @@ const MainPage = () => {
                             }}>Добавить проект
                             </MyButton>
                         </div>
-                        <Table pages={true} rowSelection={rowSelection} table={table}/>
-                    </div>
+                        <div className='rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
+                        <Table table={table}/>
+                        <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages} setCurrentPage={setCurrentPage}/>
+                        </div></div>
                 </div>
             </div>
         </div>

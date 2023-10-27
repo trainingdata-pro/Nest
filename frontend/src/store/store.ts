@@ -34,6 +34,7 @@ export default class Store {
     cookies = new Cookies()
     authError = ''
     isOpenProfile = false
+
     constructor() {
         makeAutoObservable(this)
     }

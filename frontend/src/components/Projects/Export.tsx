@@ -28,6 +28,9 @@ const Export = ({setIsExportProjects, exportType ,project}:{
                 filename = res.filename
                 if (res.status === 'SUCCESS'){
                     break
+                } else if (res.status === 'FAILURE'){
+                    errorNotification('Произошла ошибка при экспортировании проекта')
+                    break
                 }
             }
             const exportData = await ProjectService.downloadFile(filename)
@@ -79,7 +82,7 @@ const Export = ({setIsExportProjects, exportType ,project}:{
     return (
         <>
         <div className='border-b border-black w-full'>
-            <h1 className='px-4 py-2'>Добавление в свободные ресурсы</h1>
+            <h1 className='px-4 py-2'>Экспорт</h1>
         </div>
         <div className='flex flex-col space-y-2 mt-2'>
             <MyButton onClick={() => exportData('csv')}>CSV</MyButton>

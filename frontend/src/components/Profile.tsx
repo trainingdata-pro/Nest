@@ -26,10 +26,6 @@ const FormSection = ({children}: { children: React.ReactNode }) => {
     return (<div className="text-left">{children}</div>)
 }
 
-function MyDialog() {
-
-
-}
 
 const Profile = () => {
     const queryClient = useQueryClient()

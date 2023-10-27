@@ -1,18 +1,20 @@
-import React, {useContext, useState} from 'react';
-import {useQueryClient} from "react-query";
+import React, {Dispatch, useContext, useState} from 'react';
+import {useMutation, useQuery, useQueryClient} from "react-query";
 import {Context} from "../../../../index";
 import {Project} from "../../../../models/ProjectResponse";
 import {errorNotification, successNotification} from "../../../UI/Notify";
 import Table from "../../../UI/Table";
 import {
     getCoreRowModel,
-    getPaginationRowModel, Row,
+    Row,
     useReactTable
 } from "@tanstack/react-table";
-import {columns} from "./columns";
-import {useChangeAssessorProjects, useFetchProjects} from "./queries";
+import {useChangeAssessorsColumns} from "./columns";
 import MyButton from "../../../UI/MyButton";
 import {Assessor} from "../../../../models/AssessorResponse";
+import ProjectService from "../../../../services/ProjectService";
+import TablePagination from "../../../UI/TablePagination";
+import AssessorService from "../../../../services/AssessorService";
 
 export const Reason = ({setSelectedReason,name, value,id, label}:{
     setSelectedReason:  any
@@ -30,33 +32,47 @@ export const Reason = ({setSelectedReason,name, value,id, label}:{
     )
 }
 
-const ChangeProjects = ({selectedAssessor, extendProjects, show, resetSelection}:{
-    selectedAssessor: Row<Assessor>[],
-    extendProjects: number[],
+const ChangeProjects = ({assessorsRow, show, setAssessorsRow}:{
+    assessorsRow: Row<Assessor>[],
     show:  React.Dispatch<React.SetStateAction<boolean>>,
-    resetSelection: any
+    setAssessorsRow: Dispatch<Row<Assessor>[]>
 }) => {
+    const {selectedRows, columns} = useChangeAssessorsColumns()
     const {store} = useContext(Context)
     const queryClient = useQueryClient()
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
+    const [totalRows, setTotalRows] = useState<number>(0)
+    const fetchProjects = useQuery(['projects', currentPage], () => ProjectService.fetchProjects(1, ''), {
+        onSuccess: data => {
+            let assessorsProjects:number[] = []
+            assessorsRow.map(row => row.original.projects.map((project: Project) => assessorsProjects.push(project.id)))
+            const res = [...data.results.filter(project => assessorsProjects.find(pr => pr.toString() === project.id.toString()) === undefined)]
+            setAvailableProjects(res)
+            setTotalRows(res.length)
+            setTotalPages(Math.ceil(res.length / 10))
+        }
+    })
+    const [availableProjects, setAvailableProjects] = useState<Project[]>([])
+
     const [selectedReason, setSelectedReason] = useState<string>()
-    const {data, isSuccess} = useFetchProjects({extendProjects: extendProjects})
-    const {mutate} = useChangeAssessorProjects()
+    const {mutate} = useMutation('assessors', ({id, data}: any) => AssessorService.addAssessorProject(id, data))
     const submit = () => {
         if (!selectedReason) {
             errorNotification('Выберите причину')
-        } else if (Object.keys(rowSelection).length === 0) {
+        } else if (selectedRows.length === 0) {
             errorNotification('Выбери хотя бы 1 проект')
         } else {
             filterProjects().forEach((assessor: any) =>
                 mutate({
                     id: assessor.assessorId,
-                    data: {projects: [...getSelectedProjects(), ...assessor.notMyProjects], reason: selectedReason},
+                    data: {projects: [...selectedRows.map(row => row.original.id), ...assessor.notMyProjects], reason: selectedReason},
                 }, {
                     onSuccess: () => {
                         queryClient.invalidateQueries('assessors');
                         successNotification('Успешно')
+                        setAssessorsRow([])
                         show(false)
-                        resetSelection(true)
                     },
                     onError: () => {
                         errorNotification('Ошибка')
@@ -68,7 +84,7 @@ const ChangeProjects = ({selectedAssessor, extendProjects, show, resetSelection}
     const filterProjects = () => {
         let assessorsProjects:any[] = []
         // eslint-disable-next-line array-callback-return
-        selectedAssessor.map((row:any) => {
+        assessorsRow.map((row:any) => {
             let myProjects:number[] = []
             let notMyProjects:number[] = []
             // eslint-disable-next-line array-callback-return
@@ -83,23 +99,12 @@ const ChangeProjects = ({selectedAssessor, extendProjects, show, resetSelection}
         })
         return assessorsProjects
     }
-    const [rowSelection, setRowSelection] = React.useState({})
     const table = useReactTable({
-        data:isSuccess ? data : [],
+        data: fetchProjects.isSuccess ? availableProjects : [],
         columns,
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        state: {
-            rowSelection,
-        },
-        enableRowSelection: true,
-        onRowSelectionChange: setRowSelection,
         debugTable: false,
     })
-    const getSelectedProjects = () => {
-        return table.getPreFilteredRowModel().rows.filter(row => Object.keys(rowSelection).find(key => key.toString() === row.id.toString())).map(row => {
-            return row.original.id
-        })}
     const reasons = [
         {id: 'reason1', value: 'Не смог работать со спецификой проекта',name: 'reason',label: 'Не смог работать со спецификой проекта'},
         {id: 'reason2', value: 'Не сработались',name: 'reason', label: 'Не сработались'},
@@ -112,7 +117,8 @@ const ChangeProjects = ({selectedAssessor, extendProjects, show, resetSelection}
                 <div className='bg-white pb-4'>
                     {reasons.map(reason => <Reason key={reason.id} label={reason.label} setSelectedReason={setSelectedReason} name={reason.name} value={reason.value} id={reason.id}/>)}
                 </div>
-                <Table pages={true} rowSelection={rowSelection} table={table}/>
+                <Table table={table}/>
+                <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages} setCurrentPage={setCurrentPage}/>
                 <div className='flex justify-between space-x-2'>
                     <MyButton onClick={() => show(false)}>Назад</MyButton>
                     <MyButton onClick={submit}>Сохранить</MyButton>

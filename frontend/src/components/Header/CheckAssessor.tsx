@@ -162,7 +162,7 @@ const CheckAssessor = ({setIsOpenCheck}: {
                 </section>
             </form>
             <div>
-                {showTable && (data.length === 0 ? 'Совпадений не найдено':<Table pages={true} rowSelection={rowSelection} table={table}/>)}
+                {showTable && (data.length === 0 ? 'Совпадений не найдено':<Table table={table}/>)}
             </div>
         </div>
     );

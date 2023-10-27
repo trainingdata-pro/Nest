@@ -1,5 +1,5 @@
 import React, {useContext, useState} from 'react';
-import {Assessor} from "../../../models/AssessorResponse";
+import {FiredAssessor} from "../../../models/AssessorResponse";
 import {useMutation, useQueryClient} from "react-query";
 import AssessorService from "../../../services/AssessorService";
 import Dialog from "../../UI/Dialog";
@@ -7,14 +7,13 @@ import AssessorHistory from "../../Assessors/AssessorPage/AssessorHistory";
 import {Context} from "../../../index";
 import {errorNotification, successNotification} from "../../UI/Notify";
 import RentAssessor from "../../AssessorManagement/RentAssessor/RentAssessor";
-import {FiredAssessor} from "./columns";
 
 const OwnDesiresEdit = ({assessor}: {
     assessor: FiredAssessor
 }) => {
     const {store} = useContext(Context)
     const queryClient = useQueryClient()
-    const addAssessorToManager = useMutation(['assessors'], () => AssessorService.takeFromOwnDesires(assessor.id, {manager: store.user_id}), {
+    const takeFromOwnDesires = useMutation(['assessors'], () => AssessorService.takeFromOwnDesires(assessor.id, {manager: store.user_id}), {
         onSuccess: () => {
             queryClient.invalidateQueries('assessors')
             queryClient.invalidateQueries('fired')
@@ -38,7 +37,7 @@ const OwnDesiresEdit = ({assessor}: {
             <div className='flex flex-col'>
                 <button onClick={() => setIsShowHistory(true)}>История</button>
                 {assessor.assessor.manager?.id !== store.user_id && (!assessor.assessor.manager?.id ?
-                    <button onClick={() => addAssessorToManager.mutate()}>Забрать в команду</button> :
+                    <button onClick={() => takeFromOwnDesires.mutate()}>Забрать в команду</button> :
                     <button onClick={() => setShowRentAssessor(true)}>Арендовать</button>)}
             </div>
         </>

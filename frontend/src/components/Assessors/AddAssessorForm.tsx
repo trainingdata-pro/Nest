@@ -48,7 +48,7 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
     }) => {
         const {store} = useContext(Context)
         const queryClient = useQueryClient()
-        const availableProjects = useQuery(['availableProjects'], () => ProjectService.fetchProjects(1), {
+        const availableProjects = useQuery(['availableProjects'], () => ProjectService.fetchProjects(1, ''), {
             onSuccess: data => {
                 setAvailableProjectsList(data.results.map(project => {
                         return {label: project.name, value: project.id}
