@@ -247,7 +247,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                     <MyInput className={'pl-[12px]'} placeholder="Скорость в час" type="text" register={{
                         ...register('speed_per_hour', {
                             pattern: {
-                                value: /^([0-9]{0,})[.]?([0-9]{1,})$/,
+                                value: /^([0-9]{0,})$/,
                                 message: 'Указано неверное значение'
                             }
                         })
@@ -257,12 +257,12 @@ const ProjectForm = ({projectId, closeSidebar}: {
                 <FormSection>
                     <div className="flex justify-between">
                         <MyLabel required={false}>Цена за единицу для асессора: </MyLabel>
-                        <Error>{errors.speed_per_hour && errors.speed_per_hour?.message}</Error>
+                        <Error>{errors.price_for_assessor && errors.price_for_assessor?.message}</Error>
                     </div>
                     <MyInput className={'pl-[12px]'} placeholder="Цена за единицу для асессора" type="text"
                              register={{...register('price_for_assessor', {
                                      pattern: {
-                                         value: /^-?\d+(\.\d+)?$/,
+                                         value: /^([0-9]{0,})[.]?([0-9]{1,})$/,
                                          message: 'Указано неверное значение'
                                      }
                                  })}}/>
@@ -273,7 +273,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                         <MyLabel required={false}>Цена за единицу для заказчика: </MyLabel>
                         <Error>{errors.price_for_costumer && errors.price_for_costumer?.message}</Error>
                     </div>
-                    <MyInput className={'pl-[12px]'} placeholder="Цена за единицу для заказчика" type=""
+                    <MyInput className={'pl-[12px]'} placeholder="Цена за единицу для заказчика" type="text"
                              register={{
                                  ...register('price_for_costumer', {
                                      pattern: {

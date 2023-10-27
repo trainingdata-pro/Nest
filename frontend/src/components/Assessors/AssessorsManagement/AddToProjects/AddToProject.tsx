@@ -63,8 +63,7 @@ const AddToProject = ({assessorsRow, show, setAssessorsRow}: {
                 }, {
                     onSuccess: () => {
                         queryClient.invalidateQueries('assessors');
-                        successNotification('Успешно')
-                        setAssessorsRow([])
+                        successNotification('Асессоры добавлены на проект(ы)')
                         show(false)
                     }
                 })
@@ -82,17 +81,18 @@ const AddToProject = ({assessorsRow, show, setAssessorsRow}: {
                                 }
                             }, {
                                 onSuccess: () => {
-                                    successNotification('Успешно')
+                                    successNotification('Статусы ассеора(ов) обновлены')
                                 }
                             })
                         } else {
                             patchWorkloadStatus.mutate({id: res.results[0].id, data: {status: workloadStatus}}, {
                                 onSuccess: () => {
-                                    successNotification('Статусы обновлены')
+                                    successNotification('Статусы ассеора(ов) обновлены')
                                 }
 
                             })
                         }
+                        setAssessorsRow([])
                     })
                 })
 

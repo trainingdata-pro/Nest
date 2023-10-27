@@ -51,7 +51,6 @@ const CompletedProjects = () => {
                     <MyButton onClick={() => setIsExportProjects(true)}>Экспорт</MyButton>
                 </div>
                 <div className='rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
-
                     <Table table={table}/>
                     <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
                                      setCurrentPage={setCurrentPage}/>

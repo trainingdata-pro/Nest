@@ -2,18 +2,22 @@ import React, {useState} from 'react';
 import {errorNotification} from "../../UI/Notify";
 import Dialog from "../../UI/Dialog";
 import SetCompleted from "./SetCompleted";
+import SetPause from "./SetPause";
 
 const ProjectManagement = ({project}:{
     project: number | string | undefined
 }) => {
     const [open, setOpen] = useState(false);
     const [isShowCompleteProject, setIsShowCompleteProject] = useState(false)
+    const [isShowPauseProject, setIsShowPauseProject] = useState(false)
     return (
         <div>
-            {project &&             <Dialog isOpen={isShowCompleteProject} setIsOpen={setIsShowCompleteProject}>
+            {project && <Dialog isOpen={isShowCompleteProject} setIsOpen={setIsShowCompleteProject}>
                 <SetCompleted projectId={project} show={setIsShowCompleteProject}/>
             </Dialog>}
-
+            {project && <Dialog isOpen={isShowPauseProject} setIsOpen={setIsShowPauseProject}>
+                <SetPause show={setIsShowPauseProject} projectId={project}/>
+            </Dialog>}
             <div className="justify-center w-36">
                 <div onMouseLeave={() => setOpen(false)} className="relative">
                     <button
@@ -27,7 +31,7 @@ const ProjectManagement = ({project}:{
                             open ? "block" : "hidden"
                         }`}
                     >
-                        <li className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">
+                        <li onClick={() => setIsShowPauseProject(true)} className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">
                             Поставить проект на паузу
                         </li>
                         <li onClick={() => setIsShowCompleteProject(true)} className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">

@@ -6,8 +6,6 @@ import React, {useState} from "react";
 
 export const useRentAssessorColumns = () => {
     const columnHelperT = createColumnHelper<Project>()
-
-    const columnHelper = createColumnHelper<Project>()
     const [selectedRows, setSelectedRows] = useState<Row<Project>[]>([])
     const columns = [
         columnHelperT.accessor('id', {

@@ -1,10 +1,24 @@
 import React from 'react';
 import MyButton from "../../UI/MyButton";
-import {useMutation} from "react-query";
+import {useMutation, useQueryClient} from "react-query";
 import ProjectService from "../../../services/ProjectService";
+import {useNavigate} from "react-router-dom";
+import {errorNotification, successNotification} from "../../UI/Notify";
 
 const SetCompleted = ({projectId, show}:{projectId: string | number, show:any}) => {
-    const completeProject = useMutation([], () => ProjectService.patchProject(projectId, {status: 'completed'}))
+    const queryClient = useQueryClient()
+    const completeProject = useMutation([], () => ProjectService.patchProject(projectId, {status: 'completed'}), {
+        onSuccess: () => {
+            queryClient.invalidateQueries('projects')
+            queryClient.invalidateQueries('completedProjects')
+            successNotification('Проект завершен')
+            navigate('/projects')
+        },
+        onError: () => {
+            errorNotification('Ошибка')
+        }
+    })
+    const navigate = useNavigate()
     const submit =() => {
         completeProject.mutate()
     }

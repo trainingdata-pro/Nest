@@ -25,19 +25,10 @@ const RentAssessor = ({assessorId, show}:{
             setTotalPages(Math.ceil(data1.count / 10))
         }
     })
-    const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({} as RowSelectionState)
     const table = useReactTable({
         data: isSuccess ? data.results : [],
         columns,
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        state: {
-            rowSelection,
-        },
-        enableRowSelection: true,
-        enableMultiRowSelection: false,
-        onRowSelectionChange: setRowSelection,
-        debugTable: false,
     })
 
     const {mutate} = useRentAssessor({assessorId:assessorId, show:show, project:selectedRows[0]?.original.id})
