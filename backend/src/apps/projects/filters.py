@@ -1,4 +1,4 @@
-from django.db.models import Count, QuerySet
+from django.db.models import Count, QuerySet, Q
 from django_filters import rest_framework as filters
 
 from apps.assessors.models import Assessor
@@ -25,7 +25,9 @@ class ProjectFilter(SplitStringFilterMixin, filters.FilterSet):
 
     def filter_manager(self, queryset: QuerySet[Project], name: str, value: str) -> QuerySet[Project]:
         managers = self.get_id_for_filtering(value)
-        return queryset.filter(manager__in=managers).distinct()
+        return queryset.annotate(
+            matching_managers=Count('manager', filter=Q(manager__in=managers))
+        ).filter(matching_managers__gte=len(managers))
 
     def filter_assessors_count(self, queryset: QuerySet[Project], name: str, value: int) -> QuerySet[Project]:
         return queryset.annotate(assessors_count=Count('assessors')).filter(assessors_count=value)

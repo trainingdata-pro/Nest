@@ -1,8 +1,9 @@
 from typing import Any
 
-from django.db.models import QuerySet, Q
+from django.db.models import QuerySet, Q, Count
 from django_filters import rest_framework as filters
 
+from core.mixins import SplitStringFilterMixin
 from .models import Reason, Fired, BlackList
 
 
@@ -14,12 +15,13 @@ class ReasonFilter(filters.FilterSet):
         fields = ['title', 'blacklist_reason']
 
 
-class FiredFilter(filters.FilterSet):
+class FiredFilter(SplitStringFilterMixin, filters.FilterSet):
     name = filters.CharFilter(method='filter_name')
+    skills = filters.CharFilter(method='filter_skills')
 
     class Meta:
         model = Fired
-        fields = ['name']
+        fields = ['name', 'skills']
 
     def filter_name(self, queryset: QuerySet[Any], name: str, value: str) -> QuerySet[Any]:
         values = value.split(' ')
@@ -31,6 +33,12 @@ class FiredFilter(filters.FilterSet):
                           | Q(assessor__middle_name__icontains=item))
 
         return queryset.filter(q_objects)
+
+    def filter_skills(self, queryset: QuerySet[Any], name: str, value: str) -> QuerySet[Any]:
+        skills = self.get_id_for_filtering(value)
+        return queryset.annotate(
+            matching_skills=Count('assessor__skills', filter=Q(assessor__skills__in=skills))
+        ).filter(matching_skills__gte=len(skills))
 
 
 class BlackListFilter(FiredFilter):

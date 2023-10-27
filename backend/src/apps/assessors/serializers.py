@@ -165,10 +165,11 @@ class AssessorSkillsSerializer(serializers.ModelSerializer):
 
 class SimpleAssessorSerializer(serializers.ModelSerializer):
     manager = UserSerializer(read_only=True)
+    skills = SkillSerializer(many=True, read_only=True)
 
     class Meta:
         model = Assessor
-        exclude = ['projects', 'skills', 'second_manager']
+        exclude = ['projects', 'second_manager']
 
 
 class AssessorSerializer(serializers.ModelSerializer):

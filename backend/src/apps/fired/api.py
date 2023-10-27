@@ -31,19 +31,24 @@ class ReasonAPIViewSet(viewsets.ModelViewSet):
 @method_decorator(name='retrieve', decorator=schemas.fired_schema.retrieve_blacklist())
 @method_decorator(name='list', decorator=schemas.fired_schema.list_blacklist())
 class BlackListAPIViewSet(viewsets.ModelViewSet):
-    queryset = BlackList.objects.all().select_related('assessor', 'reason')
+    queryset = BlackList.objects.all().select_related('assessor', 'reason').order_by('-date')
     serializer_class = serializers.BlackListSerializer
     permission_classes = (IsAuthenticated,)
     http_method_names = ['get']
     filterset_class = BlackListFilter
-    ordering_fields = ['pk']
+    ordering_fields = [
+        'pk',
+        'date',
+        'assessor__username',
+        'assessor__last_name'
+    ]
 
 
 @method_decorator(name='retrieve', decorator=schemas.fired_schema.retrieve_fired())
 @method_decorator(name='list', decorator=schemas.fired_schema.list_fired())
 @method_decorator(name='back', decorator=schemas.fired_schema.back())
 class FiredAPIViewSet(BaseAPIViewSet):
-    queryset = Fired.objects.all().select_related('assessor', 'reason')
+    queryset = Fired.objects.all().select_related('assessor', 'reason').order_by('-date')
     serializer_class = {
         'retrieve': serializers.FiredSerializer,
         'list': serializers.FiredSerializer,
@@ -57,7 +62,12 @@ class FiredAPIViewSet(BaseAPIViewSet):
     }
     http_method_names = ['get', 'patch']
     filterset_class = FiredFilter
-    ordering_fields = ['pk']
+    ordering_fields = [
+        'pk',
+        'date',
+        'assessor__username',
+        'assessor__last_name'
+    ]
 
     @action(detail=True, methods=['patch'])
     def back(self, request: Request, **kwargs) -> Response:

@@ -87,11 +87,18 @@ class FiredSchema(BaseAPISchema):
                     description='Case-independent filtering by assessor username or full name.'
                 ),
                 openapi.Parameter(
+                    name='skills',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by skill ID.\n'
+                                'Example: host.com/?skills=1,2.'
+                ),
+                openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results.\n'
-                                'Available fields: pk'
+                                'Available fields: pk, date, assessor__username, assessor__last_name.'
                 )
             ],
             responses={**self.get_responses(401)}
@@ -127,11 +134,18 @@ class FiredSchema(BaseAPISchema):
                     description='Case-independent filtering by assessor username or full name.'
                 ),
                 openapi.Parameter(
+                    name='skills',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by skill ID.\n'
+                                'Example: host.com/?skills=1,2.'
+                ),
+                openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results.\n'
-                                'Available fields: pk'
+                                'Available fields: pk, date, assessor__username, assessor__last_name.'
                 )
             ],
             responses={**self.get_responses(401)}
