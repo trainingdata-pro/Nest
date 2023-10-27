@@ -1,10 +1,11 @@
 from drf_yasg import openapi
+from drf_yasg.utils import no_body
 
 from apps.export.services import allowed_types
 from apps.export.serializers import ExportSerializer
 from core.schemas import BaseAPISchema
 from .models import Status, ProjectStatuses
-from .serializers import ProjectWorkingHoursSerializer
+from .serializers import ProjectWorkingHoursSerializer, ProjectSerializer
 
 
 class ProjectSchema(BaseAPISchema):
@@ -110,6 +111,25 @@ class ProjectSchema(BaseAPISchema):
                 )
             ],
             responses={**self.get_responses(204, 400, 401, 403, 404)}
+        )
+
+    def clear(self):
+        return self.swagger_auto_schema(
+            operation_summary='Remove assessors',
+            operation_description='Remove all assessors from a specific project.',
+            request_body=no_body,
+            manual_parameters=[
+                openapi.Parameter(
+                    name='id',
+                    type=openapi.TYPE_INTEGER,
+                    in_=openapi.IN_PATH,
+                    description='Unique project ID.'
+                )
+            ],
+            responses={
+                200: ProjectSerializer,
+                **self.get_responses(401, 403, 404)
+            }
         )
 
 
