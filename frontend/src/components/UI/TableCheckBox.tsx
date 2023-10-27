@@ -1,32 +1,44 @@
 import React, {Dispatch, useState} from 'react';
+import {TableRowProps} from "semantic-ui-react";
+import {Row} from "@tanstack/react-table";
 
 
-const TableCheckBox = ({selectedRows, setSelectedRows, value,table}:{
-    selectedRows: number[],
-    value: number | number [],
+const TableCheckBox = ({selectedRows,type, setSelectedRows, value,table}:{
+    selectedRows: any[],
+    value: any | Array<any>,
+    type: 'single' | 'multi',
     setSelectedRows: Dispatch<any>,
     table: any | undefined
 
 }) => {
     const changeHandler = (event:  React.ChangeEvent<HTMLInputElement>) => {
-        if (typeof value === "number"){
+        if (type === 'multi'){
+            if (!Array.isArray(value)) {
+                if (event.target.checked) {
+                    setSelectedRows([...selectedRows, value])
+                } else {
+                    setSelectedRows([...selectedRows.filter(row => row.original.id !== value.original.id)])
+                }
+            }
+            else if (Array.isArray(value)) {
+                if (event.target.checked) {
+                    setSelectedRows(Array.from(new Set([...selectedRows, ...value])))
+                } else {
+                    setSelectedRows([...selectedRows.filter(row => value.find((selRow:any) => row.original.id === selRow.original.id) === undefined)])
+                }
+            }
+        } else if (type === 'single'){
             if (event.target.checked) {
-                setSelectedRows([...selectedRows, value])
-            } else {
-                setSelectedRows([...selectedRows.filter(id => id !== value)])
+                setSelectedRows([value])
             }
         }
-         else {
-            if (event.target.checked) {
-                setSelectedRows(Array.from(new Set([...selectedRows, ...value])))
-            } else {
-                setSelectedRows([...selectedRows.filter(row => value.find(id => row === id) === undefined)])
-            }
-        }
+
     }
     const getChecked = () => {
-        if (typeof value === 'object' && table){
-            return table.getPreFilteredRowModel().rows.filter((row:any) => selectedRows.find(id => id === row.original.id) !== undefined).length === value.length
+        if (Array.isArray(value)){
+            return table.getPreFilteredRowModel().rows.filter((row:any) => selectedRows.find((selRow) => selRow.original?.id === row.original?.id) !== undefined).length === value.length && table.getPreFilteredRowModel().rows.length !== 0
+        } else if (typeof value === 'object') {
+            return selectedRows.find((row:Row<any>) => row.original.id === value.original.id) !== undefined
         }
     }
     return (
@@ -35,7 +47,7 @@ const TableCheckBox = ({selectedRows, setSelectedRows, value,table}:{
             className='cursor-pointer'
             onChange={changeHandler}
             name='sel'
-            checked={selectedRows.find((id:number) => id === value) !== undefined || getChecked()}
+            checked={getChecked()}
         />
     )
 }

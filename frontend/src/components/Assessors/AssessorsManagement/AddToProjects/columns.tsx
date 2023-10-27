@@ -1,41 +1,43 @@
 import {createColumnHelper, Row} from "@tanstack/react-table";
-import {Project} from "../../../models/ProjectResponse";
-import TableCheckBox from "../../UI/TableCheckBox";
+import {Project} from "../../../../models/ProjectResponse";
 import React, {useState} from "react";
+import TableCheckBox from "../../../UI/TableCheckBox";
 
-
-export const useRentAssessorColumns = () => {
-    const columnHelperT = createColumnHelper<Project>()
-
+export const useMyAssessorsColumn = () => {
     const columnHelper = createColumnHelper<Project>()
     const [selectedRows, setSelectedRows] = useState<Row<Project>[]>([])
     const columns = [
-        columnHelperT.accessor('id', {
-            cell: ({row}) => (
+        columnHelper.accessor('id', {
+            header: ({table}) => (
                 <div className="px-1">
-                    <TableCheckBox selectedRows={selectedRows} type={'single'} setSelectedRows={setSelectedRows} table={undefined} value={row}/>
+                    <TableCheckBox selectedRows={selectedRows} type={'multi'} setSelectedRows={setSelectedRows} table={table} value={table.getPreFilteredRowModel().rows}/>
                 </div>
             ),
-            header: '',
+            cell: ({row}) => (
+                <div className="px-1">
+                    <TableCheckBox selectedRows={selectedRows} type={'multi'} setSelectedRows={setSelectedRows} table={undefined} value={row}/>
+                </div>
+            ),
             enableSorting: false,
             maxSize: 30
         }),
-        columnHelperT.accessor('asana_id', {
+        columnHelper.accessor('asana_id', {
             header: 'Asana ID',
             cell: info => info.getValue(),
             enableSorting: false,
 
         }),
-        columnHelperT.accessor('name', {
+        columnHelper.accessor('name', {
             cell: info => info.getValue(),
             header: 'Название',
             enableSorting: false
         }),
-        columnHelperT.accessor('assessors_count', {
+        columnHelper.accessor('assessors_count', {
             header: 'Количество ассессеров',
             cell: info => info.getValue(),
             enableSorting: false
         })
     ]
+
     return {selectedRows, columns}
 }

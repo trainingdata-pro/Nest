@@ -8,17 +8,17 @@ const columnHelper = createColumnHelper<IBlackList>()
 export const columns = [
     columnHelper.accessor('assessor.last_name', {
         header: 'Фамилия',
-        cell: info => <NavLink to={`/assessor/${info.row.original.id}`}>{info.getValue()}</NavLink>,
+        cell: info => info.getValue(),
         enableSorting: false,
     }),
     columnHelper.accessor('assessor.first_name', {
-        cell: info => <NavLink to={`/assessor/${info.row.original.id}`}>{info.getValue()}</NavLink>,
+        cell: info => info.getValue(),
         header: 'Имя',
         enableSorting: false
     }),
     columnHelper.accessor('assessor.middle_name', {
         header: 'Отчество',
-        cell: info => <NavLink to={`/assessor/${info.row.original.id}`}>{info.getValue()}</NavLink>,
+        cell: info => info.getValue(),
         enableSorting: false
     }),
     columnHelper.accessor('assessor.username', {

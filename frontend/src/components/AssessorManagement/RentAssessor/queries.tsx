@@ -12,7 +12,7 @@ export const useGetProjects = () => {
         let currentPage = 1;
         let hasMoreData = true;
         while (hasMoreData) {
-            const data = await ProjectService.fetchProjects(currentPage);
+            const data = await ProjectService.fetchProjects(currentPage, '');
             allData.push(...data.results);
             if (data.next !== null) {
                 currentPage++;

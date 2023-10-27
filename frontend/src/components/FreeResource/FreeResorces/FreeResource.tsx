@@ -41,7 +41,7 @@ const FreeResource = ({globalFilter, skillsFilter}: {
         columns,
         getCoreRowModel: getCoreRowModel(),
     })
-    if (isLoading) return <Loader width={40}/>
+    if (isLoading) return <Loader width={30}/>
     return (
         <div>
             <Table table={table}/>

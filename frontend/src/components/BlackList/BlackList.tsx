@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import AssessorService from "../../services/AssessorService";
 
-import {useMutation, useQuery} from "react-query";
+import {useQuery} from "react-query";
 import Header from "../Header/Header";
 import {MagnifyingGlassIcon} from "@heroicons/react/24/solid";
 import {
@@ -16,54 +16,31 @@ import Table from "../UI/Table";
 import Dialog from "../UI/Dialog";
 import Export from "./Export";
 import MyButton from "../UI/MyButton";
+import TablePagination from "../UI/TablePagination";
+import Loader from "../UI/Loader";
 
 const BlackList = () => {
     const [globalFilter, setGlobalFilter] = React.useState('')
-    const blacklist = useQuery(['blacklist'], () => fetchAllData())
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [rowSelection, setRowSelection] = React.useState({})
-    async function fetchAllData() {
-        const allData = [];
-        let currentPage = 1;
-        let hasMoreData = true;
-        while (hasMoreData) {
-            const data = await AssessorService.getBlackList(currentPage);
-            allData.push(...data.results);
-            if (data.next !== null) {
-                currentPage++;
-            } else {
-                hasMoreData = false;
-            }
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
+    const [totalRows, setTotalRows] = useState<number>(0)
+    const blacklist = useQuery(['blacklist', currentPage, globalFilter], () => AssessorService.getBlackList(currentPage, globalFilter), {
+        keepPreviousData: true,
+        onSuccess: data1 => {
+            setTotalRows(data1.count)
+            setTotalPages(Math.ceil(data1.count / 10))
         }
-        return allData;
-    }
+    })
 
 
     const table = useReactTable({
-        data: blacklist.data ? blacklist.data : [],
+        data: blacklist.isSuccess ? blacklist.data.results : [],
         columns,
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        onSortingChange: setSorting,
-        getSortedRowModel: getSortedRowModel(),
-        globalFilterFn: "includesString",
-        state: {
-            rowSelection,
-            sorting,
-            globalFilter,
-        },
-        onGlobalFilterChange: setGlobalFilter,
-        getFilteredRowModel: getFilteredRowModel(),
-        enableRowSelection: true,
-        enableSorting:true,
-        onRowSelectionChange: setRowSelection,
-        debugTable: false,
     })
     const [filteredRows, setFilteredRows] = useState<any>([])
     const [isExportBlackList, setIsExportBlackList] = useState(false)
-    useEffect(() => {
-        setFilteredRows(table.getFilteredRowModel().rows.map(row => row.original.id))
-    }, [globalFilter,sorting]);
+    if (blacklist.isLoading) return <Loader width={30}/>
     return (
         <>
             <Header/>
@@ -81,7 +58,11 @@ const BlackList = () => {
                     </div>
                     <MyButton onClick={() => setIsExportBlackList(true)}>Экспорт данных</MyButton>
                 </div>
+                <div className='rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
                 <Table table={table}/>
+                <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                                 setCurrentPage={setCurrentPage}/>
+                </div>
             </div>
         </>
     );

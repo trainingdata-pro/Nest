@@ -85,7 +85,8 @@ export interface AssessorWorkingTime {
 
 export interface AssessorResponse {
     results: Assessor[]
-    next: string
+    next: string,
+    count: number
 }
 
 export interface IFreeResources extends Assessor{
@@ -133,7 +134,8 @@ export interface IBlackList {
 }
 export interface IBlackListResponse {
     results: IBlackList[],
-    next: string
+    next: string,
+    count: number
 }
 export interface FiredAssessor extends IFired {
     last_manager: string,
