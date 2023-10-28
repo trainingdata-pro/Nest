@@ -13,7 +13,7 @@ import {useQuery} from "react-query";
 import ProjectService from "../../../services/ProjectService";
 import Loader from "../../UI/Loader";
 import Dialog from "../../UI/Dialog";
-import ProjectForm from "../ProjectForm";
+import ProjectForm from "../ProjectForm/ProjectForm";
 import MyButton from "../../UI/MyButton";
 import Table from "../../UI/Table";
 import {useProjectsSorting} from "./columns";
