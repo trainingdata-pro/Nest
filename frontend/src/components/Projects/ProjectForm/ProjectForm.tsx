@@ -1,6 +1,5 @@
-import React, {Dispatch, useContext, useState} from 'react';
+import React, {Dispatch, useContext} from 'react';
 import {useForm} from 'react-hook-form'
-import ProjectService from "../../../services/ProjectService";
 import {Context} from "../../../index";
 import Select from "react-select";
 import MyInput from "../../UI/MyInput";
@@ -8,7 +7,6 @@ import {format} from 'date-fns';
 import {observer} from "mobx-react-lite";
 import MyLabel from "../../UI/MyLabel";
 import Error from "../../UI/Error";
-import {useQuery} from "react-query";
 import CreatableSelect from "react-select/creatable";
 import MyButton from "../../UI/MyButton";
 import {useRegularity, useStatus, useTags, useTeam} from "./hooks";
@@ -126,7 +124,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                              register={{
                                  ...register('speed_per_hour', {
                                      pattern: {
-                                         value: /^([0-9]{0,})$/,
+                                         value: /^([0-9]*)$/,
                                          message: 'Указано неверное значение'
                                      }
                                  })
@@ -142,7 +140,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                              register={{
                                  ...register('price_for_assessor', {
                                      pattern: {
-                                         value: /^([0-9]{0,})[.]?([0-9]{1,})$/,
+                                         value: /^([0-9]*)[.]?([0-9]+)$/,
                                          message: 'Указано неверное значение'
                                      }
                                  })
@@ -158,7 +156,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                              register={{
                                  ...register('price_for_costumer', {
                                      pattern: {
-                                         value: /^([0-9]{0,})[.]?([0-9]{1,})$/,
+                                         value: /^([0-9]*)[.]?([0-9]+)$/,
                                          message: 'Указано неверное значение'
                                      },
                                  })
@@ -174,7 +172,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                              register={{
                                  ...register('unloading_value', {
                                      pattern: {
-                                         value: /^([0-9]{0,})[.]?([0-9]{1,})$/,
+                                         value: /^([0-9]*)[.]?([0-9]+)$/,
                                          message: 'Указано неверное значение'
                                      }
                                  })
