@@ -33,8 +33,8 @@ const Fired = ({assessorId, close}: {
     const [options, setOptions] = useState<any[]>([])
     const [selectedReason, setSelectedReason] = useState<number>()
     const [isOpenCalendar, setIsOpenCalendar] = useState(false)
-    const checkBlackList = (value: string) => {
-        return reasons.data?.results.find(reason => reason.id.toString() === value.toString())?.blacklist_reason
+    const checkBlackList = (value: string | number | undefined) => {
+        return reasons.data?.results.find(reason => reason.id.toString() === value?.toString())?.blacklist_reason
     }
     const onChangeReason = (newValue: any) => {
         setSelectedReason(newValue.value)
@@ -69,21 +69,22 @@ const Fired = ({assessorId, close}: {
                 <Select
                     options={options}
                     isSearchable={false}
+                    placeholder='Выберите причину увольнения'
                     value={getValueReason()}
                     onChange={onChangeReason}
                 />
                 <div className='h-[70px] my-3'>
-                {isOpenCalendar ? <div>
+                {isOpenCalendar && <div>
                     <h2 className='px-4'>Предполагаемая дата возвращения</h2>
                     <Datepicker
-                        containerClassName=''
                         i18n={'ru'}
                         useRange={false}
                         asSingle={true}
                         value={calendarValue}
                         onChange={handleValueCalendarChange}
                     />
-                </div> : <p className='text-red-600'>Выбрав эту причину асессор попадет в черный список</p>}
+                </div>}
+                    {checkBlackList(selectedReason) && <p className='text-red-600'>Выбрав эту причину асессор попадет в черный список</p>}
                 </div>
                 <div className='flex justify-between space-x-2 mt-3'>
                     <MyButton onClick={() => close(false)}>Назад</MyButton>
