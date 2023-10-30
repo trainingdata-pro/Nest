@@ -43,7 +43,7 @@ services:
     command: bash -c "celery -A config.celery worker --loglevel=info --logfile=../logging/celery.log"
     volumes:
       - media_volume:/backend/src/media
-      - ./backend/logging:/home/assessors/backend/logging
+      - ./backend/logging:/backend/logging
     depends_on:
       - redis
     networks:
@@ -56,7 +56,7 @@ services:
       - ./backend/.env
     command: bash -c "celery -A config.celery beat --loglevel=info --logfile=../logging/celery-beat.log"
     volumes:
-      - ./backend/logging:/home/assessors/backend/logging
+      - ./backend/logging:/backend/logging
     depends_on:
       - redis
     networks:
