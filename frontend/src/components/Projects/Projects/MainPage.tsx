@@ -28,7 +28,7 @@ const MainPage = () => {
         data,
         isLoading,
         isSuccess
-    } = useQuery(['projects', sorting], () => ProjectService.fetchProjects(currentPage, getSortingString()), {
+    } = useQuery(['projects', sorting, currentPage], () => ProjectService.fetchProjects(currentPage, getSortingString()), {
         keepPreviousData: true,
         onSuccess: data => {
             setTotalRows(data.count)
