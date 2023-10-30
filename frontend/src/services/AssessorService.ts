@@ -12,6 +12,9 @@ import {
     WorkingHoursResponse,
     WorkloadStatusResponse
 } from "../models/AssessorResponse";
+import {Project} from "../models/ProjectResponse";
+import {Manager} from "./ManagerService";
+import {IUser} from "../models/ManagerResponse";
 
 export type ILoginAndPassword = {
     id: number,
@@ -22,6 +25,26 @@ export type ILoginAndPassword = {
 }
 export type LoginAndPasswordResponse = {
     results: ILoginAndPassword[]
+}
+
+
+export interface ICheckAssessor {
+    pk: number,
+    last_name: string,
+    first_name: string,
+    middle_name: string,
+    projects: Project[],
+    manager: IUser,
+    state: "available" | "busy" | "free_resource" | "vacation" | "blacklist" | "fired",
+    username: string,
+    last_project: string,
+    last_manager: string
+}
+
+export type CheckAssessorResponse = {
+    results: ICheckAssessor[],
+    count: number
+
 }
 export default class AssessorService{
     static fetchAssessors = (page: number | string,projectId: any) => $api.get<AssessorResponse>(`/api/assessors/?projects=${projectId}&page=${page}&page_size=10`).then(res => res.data)
@@ -72,7 +95,7 @@ export default class AssessorService{
     static returnFromFreeResources = (assessorId:number| string | undefined, data:any) => $api.patch(`/api/assessors/${assessorId}/free_resource/`, data).then(res => res.data)
     static exportProjectAssessors = (type: string, projectId: number | string) => $api.get(`/api/export/assessors/?type=${type}&project=${projectId}`).then(res => res.data)
     static exportBlackList = (type: string, items:string) => $api.get(`/api/export/blacklist/?type=${type}&items=${items}`).then(res => res.data)
-    static checkAssessor = (last_name: string = '', first_name: string = '', middle_name:string = '') => $api.get(`/api/assessors/check/?last_name=${last_name}&first_name=${first_name}&middle_name=${middle_name}`)
+    static checkAssessor = (page: number, name: string) => $api.get<CheckAssessorResponse>(`/api/assessors/check/?name=${name}&page=${page}&page_size=10`).then(res => res.data)
     static checkAssessorWithoutMiddleName = (last_name: string = '', first_name: string = '') => $api.get(`/api/assessors/check/?last_name=${last_name}&first_name=${first_name}`)
     static takeFromOwnDesires = (firedId: string | number, data:any) => $api.patch(`/api/fired/${firedId}/back/`, data)
 }
