@@ -8,7 +8,7 @@ import {useCalendarState} from "@mui/x-date-pickers/internals";
 import {Context} from "../../../index";
 import {errorNotification, successNotification} from "../../UI/Notify";
 import RentAssessor from "../../AssessorManagement/RentAssessor/RentAssessor";
-import ReturnFromFreeResources from "../../AssessorManagement/ReturnFromFreeResources";
+import ReturnFromFreeResources from "../../AssessorManagement/FreeResources/ReturnFreeResource/ReturnFromFreeResources";
 
 const FreeResourceEdit = ({assessor}: {
     assessor: Assessor

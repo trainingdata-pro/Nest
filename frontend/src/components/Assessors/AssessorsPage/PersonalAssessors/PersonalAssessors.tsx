@@ -29,7 +29,8 @@ const PersonalAssessors = () => {
     })
     if (assessors.isLoading) return <Loader width={30}/>
     return (
-        <><div className='flex justify-end'>
+        <>
+            <div className='flex justify-end'>
             <AssessorsManagement type={'personal'}
                                  availablePopup={selectedRows.length !== 0}
                                  setSelectedRow={setSelectedRows}

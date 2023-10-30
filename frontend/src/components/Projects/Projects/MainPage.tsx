@@ -59,7 +59,7 @@ const MainPage = () => {
                     <div className="flex-col items-center">
                         <div className="flex justify-between my-2">
                             <div className='my-auto'>
-                                <p>Всего активных проектов: {data?.results.length}</p>
+                                <p>Всего проектов: {data?.results.length}</p>
                             </div>
                             <MyButton onClick={() => {
                                 setProjectId(0)

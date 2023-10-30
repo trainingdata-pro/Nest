@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import {useParams} from "react-router-dom";
 import {
     getCoreRowModel,
-    getPaginationRowModel, getSortedRowModel, SortingState,
     useReactTable
 } from "@tanstack/react-table";
 import {ProjectAssessors} from "../../../models/AssessorResponse";
@@ -14,7 +13,7 @@ import Header from '../../Header/Header';
 import {useQuery} from "react-query";
 import AssessorService from "../../../services/AssessorService";
 import ProjectMenu from "./ProjectMenu";
-import DeleteFromProjects from "../../AssessorManagement/DeleteFromProjects";
+import DeleteFromProjects from "../../AssessorManagement/DeleteFromProjects/DeleteFromProjects";
 import AddToProject from "./AddToProject";
 import MyButton from "../../UI/MyButton";
 import Export from "../Export";
@@ -70,8 +69,8 @@ const ProjectPage = () => {
                                      setShowSidebar={setAddAssessor}/>
                 </Dialog>
                 <Dialog isOpen={idDeleteFromProject} setIsOpen={setIsDeleteFromProject}>
-                    <DeleteFromProjects projectId={id} assessorsProjects={selectedRows}
-                                        close={setIsDeleteFromProject}/>
+                    {id && <DeleteFromProjects projectId={id} assessorsProjects={selectedRows}
+                                        close={setIsDeleteFromProject}/>}
                 </Dialog>
                 <Dialog isOpen={isExportAssessors} setIsOpen={setIsExportAssessors}>
                     <Export setIsExportProjects={setIsExportAssessors} exportType='projectAssessors' project={id}/>

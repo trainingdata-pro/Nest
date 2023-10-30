@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
 import Datepicker from "react-tailwindcss-datepicker";
 import {useMutation, useQuery, useQueryClient} from "react-query";
-import AssessorService from "../../services/AssessorService";
+import AssessorService from "../../../services/AssessorService";
 import Select from "react-select";
-import {errorNotification, successNotification} from "../UI/Notify";
+import {errorNotification, successNotification} from "../../UI/Notify";
 import {useNavigate} from "react-router-dom";
-import MyButton from "../UI/MyButton";
+import MyButton from "../../UI/MyButton";
 
 const Fired = ({assessorId, close}: {
     assessorId: number | string | undefined,
@@ -68,11 +68,12 @@ const Fired = ({assessorId, close}: {
                 <h1 className='px-4 border-b border-black mb-2'>Увольнение</h1>
                 <Select
                     options={options}
+                    isSearchable={false}
                     value={getValueReason()}
                     onChange={onChangeReason}
                 />
                 <div className='h-[70px] my-3'>
-                {isOpenCalendar && <div>
+                {isOpenCalendar ? <div>
                     <h2 className='px-4'>Предполагаемая дата возвращения</h2>
                     <Datepicker
                         containerClassName=''
@@ -81,7 +82,8 @@ const Fired = ({assessorId, close}: {
                         asSingle={true}
                         value={calendarValue}
                         onChange={handleValueCalendarChange}
-                    /></div>}
+                    />
+                </div> : <p className='text-red-600'>Выбрав эту причину асессор попадет в черный список</p>}
                 </div>
                 <div className='flex justify-between space-x-2 mt-3'>
                     <MyButton onClick={() => close(false)}>Назад</MyButton>

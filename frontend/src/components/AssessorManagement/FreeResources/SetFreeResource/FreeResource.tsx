@@ -1,14 +1,10 @@
-import React, {useEffect, useState} from 'react';
-import Dialog from "../UI/Dialog";
-import {useMutation, useQueryClient} from "react-query";
-import AssessorService from "../../services/AssessorService";
-import {errorNotification, successNotification} from "../UI/Notify";
-interface Props {
-    assessorId: any,
-    data:any
-}
+import React, {useState} from 'react';
+import {errorNotification,} from "../../../UI/Notify";
+import MyButton from "../../../UI/MyButton";
+import {useSetFreeResource} from "./queries";
+
 const FreeResource = ({assessorId, setShowAddToFreeResource}: {
-    assessorId: string | number | undefined,
+    assessorId: string | number,
     setShowAddToFreeResource: any
 }) => {
     const status = {
@@ -22,21 +18,17 @@ const FreeResource = ({assessorId, setShowAddToFreeResource}: {
         "reason": '',
         "free_resource": true
     })
-    const queryClient = useQueryClient()
-    const addToFreeResource = useMutation(['currentAssessor', assessorId], ({assessorId, data}: Props) => AssessorService.addToFreeResource(assessorId, data),{
-        onSuccess: () => {
-            queryClient.invalidateQueries(['currentAssessor', assessorId])
-            queryClient.invalidateQueries(['assessorHistory', assessorId])
-            successNotification('Ассесор успешно добавлен в свободные ресурсы')
-            setShowAddToFreeResource(false)
-        },
-        onError: (error:any) => {
-            const jsonError = JSON.parse(error.request.responseText)
-            console.log(jsonError[Object.keys(jsonError)[0]])
-            errorNotification(jsonError[Object.keys(jsonError)[0]][0])}
-    })
+    const {mutate} = useSetFreeResource({assessorId, setShowAddToFreeResource})
     const submit = () => {
-        addToFreeResource.mutate({assessorId:assessorId, data: capacity})
+        if (capacity.free_resource_weekday_hours === ''){
+            errorNotification('Выберите рабочее время в будние дни')
+        } else if (capacity.free_resource_day_off_hours === '') {
+            errorNotification('Выберите рабочее время в выходные дни')
+        } else if (capacity.reason === "") {
+            errorNotification('Выберите причину')
+        } else {
+            mutate({assessorId:assessorId, data: capacity})
+        }
     }
     return (
             <div className='px-4'>
@@ -54,21 +46,21 @@ const FreeResource = ({assessorId, setShowAddToFreeResource}: {
                                 ...capacity,
                                 [event.target.name]: event.target.value
                             })} id='day1' type="radio" value='2-4'/>
-                            <label htmlFor='day1'>2-4 часа</label>
+                            <label className='pl-[5px]' htmlFor='day1'>2-4 часа</label>
                         </div>
                         <div>
                             <input name='free_resource_weekday_hours' onChange={(event) => setCapacity({
                                 ...capacity,
                                 [event.target.name]: event.target.value
                             })} id='day2' type="radio" value='4-6'/>
-                            <label htmlFor='day2'>4-6 часа</label>
+                            <label className='pl-[5px]' htmlFor='day2'>4-6 часа</label>
                         </div>
                         <div>
                             <input name='free_resource_weekday_hours' onChange={(event) => setCapacity({
                                 ...capacity,
                                 [event.target.name]: event.target.value
                             })} id='day3' type="radio" value='6-8'/>
-                            <label htmlFor='day3'>6-8 часа</label>
+                            <label className='pl-[5px]' htmlFor='day3'>6-8 часа</label>
                         </div>
                     </div>
                     <div className='flex flex-col'>
@@ -78,43 +70,43 @@ const FreeResource = ({assessorId, setShowAddToFreeResource}: {
                                 ...capacity,
                                 [event.target.name]: event.target.value
                             })} id='weekday1' type="radio" value='0'/>
-                            <label htmlFor='weekday1'>0 часов</label>
+                            <label className='pl-[10px]' htmlFor='weekday1'>0 часов</label>
                         </div>
                         <div>
                             <input name='free_resource_day_off_hours' onChange={(event) => setCapacity({
                                 ...capacity,
                                 [event.target.name]: event.target.value
                             })} id='weekday2' type="radio" value='2-4'/>
-                            <label htmlFor='weekday2'>2-4 часа</label>
+                            <label className='pl-[5px]' htmlFor='weekday2'>2-4 часа</label>
                         </div>
                         <div>
                             <input name='free_resource_day_off_hours' onChange={(event) => setCapacity({
                                 ...capacity,
                                 [event.target.name]: event.target.value
                             })} id='weekday3' type="radio" value='4-6'/>
-                            <label htmlFor='weekday3'>4-6 часа</label>
+                            <label className='pl-[5px]' htmlFor='weekday3'>4-6 часа</label>
                         </div>
                         <div>
                             <input name='free_resource_day_off_hours' onChange={(event) => setCapacity({
                                 ...capacity,
                                 [event.target.name]: event.target.value
                             })} id='weekday4' type="radio" value='6-8'/>
-                            <label htmlFor='weekday4'>6-8 часа</label>
+                            <label className='pl-[5px]' htmlFor='weekday4'>6-8 часа</label>
                         </div>
                     </div>
                 </div>
-                <div>
-                    <select className='outline-none border border-black' name='reason' required
+                <div className='my-4'>
+                    <select className='outline-none border border-black w-full' name='reason' required defaultValue={""}
                             onChange={(event) => setCapacity({...capacity, [event.target.name]: event.target.value})}>
-                        <option className='opacity-50' selected disabled>Выберите причину</option>
+                        <option className='opacity-50' value="" disabled>Выберите причину</option>
                         <option value="free_time">{status.free_time}</option>
                         <option value="project_reduction">{status.project_reduction}</option>
                         <option value="project_mismatch">{status.project_mismatch}</option>
                     </select>
                 </div>
-                <div className='flex space-x-2'>
-                    <button className="bg-[#5970F6] text-white w-full rounded-md mt-2 py-2">Назад</button>
-                    <button className="bg-[#5970F6] text-white w-full rounded-md mt-2 py-2" onClick={submit}>Применить</button>
+                <div className='flex justify-between space-x-2'>
+                    <MyButton className='min-w-[120px]' onClick={() => setShowAddToFreeResource(false)}>Назад</MyButton>
+                    <MyButton className='min-w-[120px]' onClick={submit}>Применить</MyButton>
                 </div>
             </div>
     );

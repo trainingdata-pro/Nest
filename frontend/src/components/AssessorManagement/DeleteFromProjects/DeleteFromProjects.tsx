@@ -1,11 +1,19 @@
-import React, {useState} from 'react';
+import React, {Dispatch, useState} from 'react';
 import {useMutation, useQueryClient} from "react-query";
-import AssessorService from "../../services/AssessorService";
-import MyButton from "../UI/MyButton";
+import AssessorService from "../../../services/AssessorService";
+import MyButton from "../../UI/MyButton";
 import "react-toastify/dist/ReactToastify.css";
-import {successNotification, errorNotification} from "../UI/Notify";
-// @ts-ignore
-const DeleteFromProjects = ({projectId, assessorsProjects, close}) => {
+import {successNotification, errorNotification} from "../../UI/Notify";
+import {Row} from "@tanstack/react-table";
+import {Assessor} from "../../../models/AssessorResponse";
+
+interface DeleteFromProjectsProps {
+    projectId: number | string,
+    assessorsProjects: Row<Assessor>[],
+    close: Dispatch<boolean>
+}
+
+const DeleteFromProjects = ({projectId, assessorsProjects, close}: DeleteFromProjectsProps) => {
     const queryClient = useQueryClient()
     const deleteFromProject = useMutation([], ({id, data}:any) => AssessorService.addAssessorProject(id,data))
     const [selectedReason, setSelectedReason] = useState<string>()

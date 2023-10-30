@@ -1,8 +1,8 @@
 import TableCheckBox from "../../UI/TableCheckBox";
 import React, {useState} from "react";
-import {createColumnHelper} from "@tanstack/react-table";
+import {createColumnHelper, Row} from "@tanstack/react-table";
 import {NavLink} from "react-router-dom";
-import {ProjectAssessors} from "../../../models/AssessorResponse";
+import {Assessor, ProjectAssessors} from "../../../models/AssessorResponse";
 
 
 export const useProjectAssessorsColumns = () => {
@@ -27,7 +27,7 @@ export const useProjectAssessorsColumns = () => {
         }).join(',')
     }
 
-    const [selectedRows, setSelectedRows] = useState<number[]>([])
+    const [selectedRows, setSelectedRows] = useState<Row<Assessor>[]>([])
     const columnHelper = createColumnHelper<ProjectAssessors>()
     const columns = [
         columnHelper.accessor('id', {

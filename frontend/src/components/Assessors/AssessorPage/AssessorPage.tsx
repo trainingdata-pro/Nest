@@ -1,5 +1,5 @@
-import React, {useContext, useMemo, useState} from 'react';
-import {NavLink, useNavigate, useParams} from "react-router-dom";
+import React, {useContext, useState} from 'react';
+import {useNavigate, useParams} from "react-router-dom";
 import AssessorService from "../../../services/AssessorService";
 import Header from "../../Header/Header";
 import PersonalAssessorInfo from "./PersonalAssessorInfo";
@@ -9,35 +9,11 @@ import {observer} from "mobx-react-lite";
 import AssessorProjects from "./AssessorProjects";
 import AssessorHistory from "./AssessorHistory";
 import Skills from "./Skills";
-import FreeResource from "../../AssessorManagement/FreeResource";
-import Vacation from "../../AssessorManagement/Vacation";
 import CurrentState from "./CurrentState";
 import {useQuery} from 'react-query';
 import Management from "../../AssessorManagement/Management";
-import Fired from "../../AssessorManagement/Fired";
 import Loader from "../../UI/Loader";
-import VacationReturn from "../../AssessorManagement/VacationReturn";
-import {toast, ToastContainer} from "react-toastify";
-import Unpin from "../../AssessorManagement/Unpin";
-import ReturnFromFreeResources from "../../AssessorManagement/ReturnFromFreeResources";
 import {Context} from "../../../index";
-
-
-export interface AssessorPatch {
-    username: string,
-    last_name: string,
-    first_name: string,
-    middle_name: string,
-    email: string,
-    country: string,
-    state: string,
-    is_free_resource: boolean,
-    free_resource_weekday_hours: number | string,
-    free_resource_day_off_hours: number | string,
-    manager: string,
-    projects: number[],
-    skills: number[]
-}
 
 const AssessorPage = () => {
     const id = useParams()["id"]
@@ -48,55 +24,25 @@ const AssessorPage = () => {
                 navigate(-1)
             }
         },
-        onSuccess: data => {
-            setAssessorState(data.state)
-        }
     })
     const {store} = useContext(Context)
-    const [assessorState, setAssessorState] = useState('')
     const [isShowLoginAndPassword, setIsShowLoginAndPassword] = useState(false)
     const [isShowHistory, setIsShowHistory] = useState(false)
-    const [showAddToFreeResource, setShowAddToFreeResource] = useState(false)
-    const [openVacation, setOpenVacation] = useState(false)
-    const [isOpenFired, setIsOpenFired] = useState(false)
-    const [isReturnVacation, setIsReturnVacation] = useState(false)
-    const [unpin, setUnpin] = useState(false)
-    const [isReturnFromFreeResources, setIsReturnFromFreeResources] = useState(false)
     if (assessor.isLoading) {
         return <Loader width={50}/>
     } else {
         return (
             <div>
-
-                <Dialog isOpen={isReturnVacation} setIsOpen={setIsReturnVacation}>
-                    <VacationReturn assessorId={id} setIsReturnVacation={setIsReturnVacation}/>
-                </Dialog>
-                <Dialog isOpen={showAddToFreeResource} setIsOpen={setShowAddToFreeResource}>
-                    <FreeResource assessorId={id} setShowAddToFreeResource={setShowAddToFreeResource}/>
-                </Dialog>
-                <Dialog isOpen={isReturnFromFreeResources} setIsOpen={setIsReturnFromFreeResources}>
-                    <ReturnFromFreeResources assessorId={id} show={setIsReturnFromFreeResources}/>
-                </Dialog>
-                <Dialog isOpen={openVacation} setIsOpen={setOpenVacation}>
-                    <Vacation assessorId={id} close={setOpenVacation}/>
-                </Dialog>
-                <Dialog isOpen={isShowHistory} setIsOpen={setIsShowHistory}>
-                    <AssessorHistory assessorId={id}/>
-                </Dialog>
-                <Dialog isOpen={isOpenFired} setIsOpen={setIsOpenFired}>
-                    <Fired assessorId={id} close={setIsOpenFired}/>
-                </Dialog>
-                <Dialog isOpen={unpin} setIsOpen={setUnpin}>
-                    <Unpin assessor={assessor.data} assessorId={id} close={setUnpin}/>
-                </Dialog>
                 <Dialog isOpen={isShowLoginAndPassword} setIsOpen={setIsShowLoginAndPassword}>
                     <TableLog assessorId={id} setIsShowLoginAndPassword={setIsShowLoginAndPassword}
                               assessorName={`${assessor.data?.last_name} ${assessor.data?.first_name} ${assessor.data?.middle_name}`}/>
                 </Dialog>
+                <Dialog isOpen={isShowHistory} setIsOpen={setIsShowHistory}>
+                    <AssessorHistory assessorId={id}/>
+                </Dialog>
                 <Header/>
                 <div className="px-8 pt-20 space-x-2 flex justify-end mb-2">
-                    {assessor.data?.manager.id === store.user_id && <Management setIsReturnFromFreeResources={setIsReturnFromFreeResources} setUnpin={setUnpin} assessorState={assessorState} setIsReturnVacation={setIsReturnVacation} setOpenVacation={setOpenVacation} setIsOpenFired={setIsOpenFired}
-                                setShowAddToFreeResource={setShowAddToFreeResource}/>}
+                    {assessor.data?.manager.id === store.user_id && id && <Management assessor={assessor} id={id}/>}
                     <button className='bg-[#5970F6] rounded-md text-white px-4 py-2'
                             onClick={() => setIsShowHistory(true)}>История
                     </button>
