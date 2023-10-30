@@ -12,7 +12,7 @@ const ProjectMenu = ({setIsDeleteFromProject, isSelected}) => {
                         onMouseOver={() => setOpen(true)}
                         className="flex justify-center bg-[#5970F6] rounded-md w-full text-white px-auto py-2"
                     >
-                        <span className="">Управление</span>
+                        <span className="">Меню проекта</span>
                     </button>
                     <ul
                         className={`absolute border border-black right-0 bg-white w-full items-center z-10 ${
