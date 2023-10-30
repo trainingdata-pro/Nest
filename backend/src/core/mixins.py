@@ -47,6 +47,8 @@ class FilterByFullNameMixin:
         values = value.split(' ')
         q_objects = Q()
         for item in values:
-            q_objects |= Q(last_name__icontains=item) | Q(first_name=item) | Q(middle_name=item)
+            q_objects |= (Q(last_name__icontains=item)
+                          | Q(first_name__icontains=item)
+                          | Q(middle_name__icontains=item))
 
         return queryset.filter(q_objects)
