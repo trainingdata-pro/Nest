@@ -194,22 +194,21 @@ class AssessorCheckAPIView(generics.ListAPIView):
     ]
 
     def filter_queryset(self, queryset: QuerySet[Assessor]) -> QuerySet[Assessor]:
-        full_name = self.request.GET.get('full_name')
-        username = self.request.GET.get('username')
-        if full_name is None and username is None:
+        name = self.request.GET.get('name')
+        if name is None:
             raise ValidationError(
                 {'detail': ['Укажите ФИО или username исполнителя.']}
             )
 
-        if full_name:
-            queryset = queryset.annotate(
-                search=SearchVector('last_name') + SearchVector('first_name') + SearchVector('middle_name')
-            ).filter(search=full_name)
+        values = name.split(' ')
+        q_objects = Q()
+        for item in values:
+            q_objects |= (Q(username__icontains=item)
+                          | Q(last_name__icontains=item)
+                          | Q(first_name__icontains=item)
+                          | Q(middle_name__icontains=item))
 
-        if username:
-            queryset = queryset.filter(username__iexact=username)
-
-        return queryset
+        return queryset.filter(q_objects)
 
 
 @method_decorator(name='retrieve', decorator=schemas.credentials_schema.retrieve())

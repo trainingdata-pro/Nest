@@ -285,16 +285,10 @@ class CheckAssessorSchema(BaseAPISchema):
                                   'Full_name or username must be specified.',
             manual_parameters=[
                 openapi.Parameter(
-                    name='full_name',
+                    name='name',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='New assessor full name.'
-                ),
-                openapi.Parameter(
-                    name='username',
-                    in_=openapi.IN_QUERY,
-                    type=openapi.TYPE_STRING,
-                    description='New assessor username.'
+                    description='New assessor username or full name.'
                 ),
                 openapi.Parameter(
                     name='ordering',
