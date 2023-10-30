@@ -1,12 +1,15 @@
 import {createColumnHelper} from "@tanstack/react-table";
 import {Project} from "../../../models/ProjectResponse";
-import React, {useContext} from "react";
+import React, {Dispatch, useContext} from "react";
 import {Context} from "../../../index";
 import {PencilSquareIcon} from "@heroicons/react/24/solid";
 import Sorting from "../../FreeResource/FreeResorces/sorting";
 
 
-export const useCompletedProjectsColumns = () => {
+export const useCompletedProjectsColumns = ({setProjectId, setShowSidebar}: {
+    setProjectId: Dispatch<number>,
+    setShowSidebar: Dispatch<boolean>
+}) => {
     const columnHelper = createColumnHelper<Project>()
     const [sorting, setSorting] = React.useState({
         date_of_creation: '',
@@ -57,9 +60,15 @@ export const useCompletedProjectsColumns = () => {
         }),
         columnHelper.accessor('id', {
             header: '',
-            cell: () => <button className='disabled:opacity-50 disabled:cursor-default'
-                                disabled={!store.user_data.is_teamlead}><PencilSquareIcon
-                className="h-6 w-6 text-gray-500"/></button>,
+            cell: (info) => <>
+
+                <button className='disabled:opacity-50 disabled:cursor-default' onClick={() => {
+                    setProjectId(info.row.original.id)
+                    setShowSidebar(true)
+                }}
+                        disabled={!store.user_data.is_teamlead}><PencilSquareIcon
+                    className="h-6 w-6 text-gray-500"/></button>
+            </>,
             enableSorting: false,
             size:40
         }),
