@@ -281,14 +281,14 @@ class CheckAssessorSchema(BaseAPISchema):
     def get(self):
         return self.swagger_auto_schema(
             operation_summary='Check assessor',
-            operation_description='Check if assessor exists.\n'
-                                  'Full_name or username must be specified.',
+            operation_description='Check if assessor exists.',
             manual_parameters=[
                 openapi.Parameter(
                     name='name',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
-                    description='New assessor username or full name.'
+                    description='New assessor username or full name.',
+                    required=True
                 ),
                 openapi.Parameter(
                     name='ordering',

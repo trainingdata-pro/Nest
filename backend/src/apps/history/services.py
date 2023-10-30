@@ -27,7 +27,7 @@ class HistoryService:
             old_projects: Optional[List[int]] = None,
             old_second_managers: Optional[List[int]] = None,
             completed_project: bool = False,
-            state_reason: Optional[str] = None,
+            reason: Optional[str] = None,
             unpin_reason: Optional[str] = None,
             use_none_action_for_state: bool = False
     ) -> None:
@@ -38,7 +38,7 @@ class HistoryService:
             old_projects=old_projects,
             old_second_managers=old_second_managers,
             completed_project=completed_project,
-            state_reason=state_reason,
+            reason=reason,
             unpin_reason=unpin_reason,
             use_none_action_for_state=use_none_action_for_state
         )
@@ -102,7 +102,7 @@ class HistoryService:
             old_projects: Optional[List[int]] = None,
             old_second_managers: Optional[List[int]] = None,
             completed_project: bool = False,
-            state_reason: Optional[str] = None,
+            reason: Optional[str] = None,
             unpin_reason: Optional[str] = None,
             use_none_action_for_state: bool = False
     ) -> List[Dict]:
@@ -159,7 +159,7 @@ class HistoryService:
                         **self.__get_base_action_data(user, action=action)
                     }
                 )
-                # To use None action for second update when state updates wil be checked
+                # To use None action for second update when state updates will be checked
                 use_none_action_for_state = True
             elif new_assessor.manager is None and new_assessor.state in AssessorState.fired_states():
                 action = HistoryAction.FIRE
@@ -225,7 +225,7 @@ class HistoryService:
                         'attribute': HistoryAttribute.PROJECT,
                         'old_value': old_projects_names,
                         'new_value': new_projects_without_removed_names,
-                        'reason': state_reason,
+                        'reason': reason,
                         **self.__get_base_action_data(user, action=action)
                     }
                 )
@@ -269,7 +269,6 @@ class HistoryService:
                     'attribute': HistoryAttribute.STATE,
                     'old_value': AssessorState.get_value(old_assessor.state),
                     'new_value': AssessorState.get_value(new_assessor.state),
-                    'reason': state_reason,
                     **self.__get_base_action_data(user, action=action)
                 }
             )

@@ -151,7 +151,7 @@ class AssessorProjectsSerializer(GetUserMixin, serializers.ModelSerializer):
             user=self.get_user().full_name,
             old_projects=self.projects_before_update,
             old_second_managers=self.second_managers_before_update,
-            state_reason=validated_data.get('reason')
+            reason=validated_data.get('reason')
         )
 
         return assessor
@@ -442,7 +442,7 @@ class AssessorFreeResourceSerializer(GetUserMixin, serializers.ModelSerializer):
             old_assessor=self.instance_before_update,
             new_assessor=assessor,
             user=self.get_user().full_name,
-            state_reason=reason
+            reason=reason
         )
         return assessor
 
