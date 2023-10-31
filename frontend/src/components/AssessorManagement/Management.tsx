@@ -42,8 +42,6 @@ const Management = ({id, assessor}: ManagerProps) => {
             <Dialog isOpen={unpin} setIsOpen={setUnpin}>
                 {assessor.isSuccess && id && <Unpin assessor={assessor.data} assessorId={id} close={setUnpin}/>}
             </Dialog>
-
-
         <div className="justify-center w-36">
             <div onMouseLeave={() => setOpen(false)} className="relative">
                 <button

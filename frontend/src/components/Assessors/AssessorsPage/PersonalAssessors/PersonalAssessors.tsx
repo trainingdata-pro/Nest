@@ -1,50 +1,50 @@
-import React, {useContext, useState} from 'react';
+import React from 'react';
 import {useMyAssessorsSorting} from "../columns";
-import {useQuery} from "react-query";
-import AssessorService from "../../../../services/AssessorService";
-import {Context} from "../../../../index";
-import {getCoreRowModel, useReactTable} from "@tanstack/react-table";
-import MyTable from "../../../UI/Table";
 import TablePagination from "../../../UI/TablePagination";
 import Loader from "../../../UI/Loader";
 import AssessorsManagement from "../../AssessorsManagement/AssessorsManagement";
+import Select from "react-select";
+import {useFetchAssessors, useFilterSKills} from "./queries";
+import NewTable from "../../../UI/NewTable";
 
 const PersonalAssessors = () => {
-    const {columns, selectedRows, setSelectedRows} = useMyAssessorsSorting()
-    const [currentPage, setCurrentPage] = useState(1)
-    const [totalPages, setTotalPages] = useState(1)
-    const [totalRows, setTotalRows] = useState<number>(0)
-    const assessors = useQuery(['assessors', currentPage], () => AssessorService.fetchManagersAssessors(currentPage, store.user_id), {
-        onSuccess: data => {
-            setTotalRows(data.count)
-            setTotalPages(Math.ceil(data.count / 10))
-        }
+    const {columns, sorting, selectedRows, getSortingString, setSelectedRows} = useMyAssessorsSorting()
+    const {skills, skillsFilter, onSkillsChange, getValueSkills} = useFilterSKills()
+    const {assessors, totalRows, totalPages, setCurrentPage, currentPage} = useFetchAssessors({
+        sorting: sorting,
+        sortingString: getSortingString(),
+        skillsFilter: skillsFilter
     })
-    const {store} = useContext(Context)
-    const table = useReactTable({
-        data: assessors.isSuccess ? assessors.data.results : [],
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        debugTable: false,
-    })
+
     if (assessors.isLoading) return <Loader width={30}/>
     return (
         <>
-            <div className='flex justify-end'>
-            <AssessorsManagement type={'personal'}
-                                 availablePopup={selectedRows.length !== 0}
-                                 setSelectedRow={setSelectedRows}
-                                 selectedRows={selectedRows}
-            />
-        </div>
-        <div className='rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
-            <MyTable table={table}/>
-            <TablePagination
-                totalRows={totalRows}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                setCurrentPage={setCurrentPage}/>
-        </div>
+            <div className='flex justify-between'>
+                <div className="min-w-[220px]">
+                    <Select
+                        placeholder='Фильтр по навыкам'
+                        options={skills.isSuccess ? skills.data : []}
+                        isMulti
+                        value={getValueSkills()}
+                        isSearchable={false}
+                        onChange={onSkillsChange}
+                    />
+
+                </div>
+                <AssessorsManagement type={'personal'}
+                                     availablePopup={selectedRows.length !== 0}
+                                     setSelectedRow={setSelectedRows}
+                                     selectedRows={selectedRows}
+                />
+            </div>
+            <div className='rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
+                <NewTable data={assessors.isSuccess ? assessors.data.results : []} columns={columns} />
+                <TablePagination
+                    totalRows={totalRows}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    setCurrentPage={setCurrentPage}/>
+            </div>
         </>
     );
 };

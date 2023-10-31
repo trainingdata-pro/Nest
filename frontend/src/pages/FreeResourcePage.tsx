@@ -1,11 +1,8 @@
-import React, {useMemo, useState} from 'react';
-import {useNavigate} from "react-router-dom";
-import {MagnifyingGlassIcon, PencilSquareIcon} from "@heroicons/react/24/solid";
-import ProjectService, {Tag} from "../services/ProjectService";
+import React, {useState} from 'react';
+import {MagnifyingGlassIcon} from "@heroicons/react/24/solid";
 import AssessorService from "../services/AssessorService";
 import Header from "../components/Header/Header";
 import {useQuery} from "react-query";
-import FreeResourceTableRow from "../components/FreeResource/FreeResorces/FreeResourceEdit";
 import FreeResource from "../components/FreeResource/FreeResorces/FreeResource";
 import OwnDesires from "../components/FreeResource/OwnDesires/OwnDesires";
 import MyButton from "../components/UI/MyButton";

@@ -1,20 +1,18 @@
-import {ColumnDef, ColumnHelper, flexRender, getCoreRowModel, useReactTable} from "@tanstack/react-table";
+import {flexRender, getCoreRowModel, useReactTable} from "@tanstack/react-table";
 import Icon from "@mdi/react";
 import {mdiSort, mdiSortAscending, mdiSortDescending} from "@mdi/js";
-import React, {useState} from "react";
-import TablePagination from "./TablePagination";
+import React from "react";
 
 
-export const useTable = ({data, columns}: {data:any[], columns: ColumnDef<any>[]}) => {
-    const [currentPage, setCurrentPage] = useState(1)
-    const [totalPages, setTotalPages] = useState(1)
-    const [totalRows, setTotalRows] = useState<number>(0)
+const NewTable = ({data, columns}: { data: any[], columns: any[] }) => {
+
     const table = useReactTable({
-        data: data ? data: [],
+        data: data ? data : [],
         columns,
         getCoreRowModel: getCoreRowModel(),
     })
-    const htmlTable = () => <div className="w-full">
+    return (
+        <div className="w-full">
             <div className="rounded-t-[20px] bg-white overflow-hidden">
                 <table className="w-full">
                     <thead>
@@ -85,10 +83,9 @@ export const useTable = ({data, columns}: {data:any[], columns: ColumnDef<any>[]
                     }
                     </tbody>
                 </table>
-                <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages} setCurrentPage={setCurrentPage}/>
             </div>
         </div>
+    );
+};
 
-    return {htmlTable, setTotalRows, setTotalPages, currentPage}
-
-}
+export default NewTable;

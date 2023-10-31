@@ -38,9 +38,7 @@ export const useCompletedProjectsColumns = ({setProjectId, setShowSidebar}: {
         }),
         columnHelper.accessor('manager', {
             header: 'Менеджер',
-            cell: info => info.getValue().map(manager => {
-                return `${manager.last_name} ${manager.first_name}`
-            }),
+            cell: info => <div className='flex flex-col'>{info.getValue().map(manager => <div key={manager.id}>{`${manager.last_name} ${manager.first_name}`}</div>)}</div>,
             enableSorting: false
         }),
         columnHelper.accessor('assessors_count', {

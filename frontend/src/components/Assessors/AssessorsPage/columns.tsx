@@ -3,13 +3,14 @@ import TableCheckBox from "../../UI/TableCheckBox";
 import {createColumnHelper, Row} from "@tanstack/react-table";
 import {Assessor} from "../../../models/AssessorResponse";
 import {useNavigate} from "react-router-dom";
+import Sorting from "../../FreeResource/FreeResorces/sorting";
 
 export const useMyAssessorsSorting = () => {
     const [sorting, setSorting] = React.useState({
         manager__last_name: '',
         projects: '',
         username: '',
-        last_name: 'last_name'
+        last_name: '-last_name'
     })
     const getSortingString = () => {
         return Object.keys(sorting).filter(key => {
@@ -48,7 +49,7 @@ export const useMyAssessorsSorting = () => {
             maxSize: 30
         }),
         columnHelper.accessor('last_name', {
-            header: 'Фамилия',
+            header: () => <div className='flex'><p>Фамилия</p><Sorting sortingKey={"last_name"} func={setSorting} sortingValue={sorting.last_name} state={sorting}/></div>,
             cell: info =>
                 <div className='w-full h-full text-center  cursor-pointer'
                      onClick={() => navigation(`/assessor/${info.row.original.id}`)}>{info.getValue()}</div>,

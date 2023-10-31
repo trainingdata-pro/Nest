@@ -42,7 +42,7 @@ const AssessorPage = () => {
                 </Dialog>
                 <Header/>
                 <div className="px-8 pt-20 space-x-2 flex justify-end mb-2">
-                    {assessor.data?.manager.id === store.user_id && id && <Management assessor={assessor} id={id}/>}
+                    {((assessor.data?.manager.id === store.user_id ) || store.user_data.is_teamlead)&& id && <Management assessor={assessor} id={id}/>}
                     <button className='bg-[#5970F6] rounded-md text-white px-4 py-2'
                             onClick={() => setIsShowHistory(true)}>История
                     </button>

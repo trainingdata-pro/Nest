@@ -1,132 +1,25 @@
 import React, {useState} from 'react';
-import MyInput from "../UI/MyInput";
-import {useForm} from "react-hook-form";
-import MyButton from "../UI/MyButton";
-import Error from "../UI/Error";
-import AssessorService, {ICheckAssessor} from "../../services/AssessorService";
-import {errorNotification} from "../UI/Notify";
-import Table from "../UI/Table";
-import TableCheckBox from "../UI/TableCheckBox";
-import {
-    createColumnHelper,
-    getCoreRowModel, getFilteredRowModel,
-    getPaginationRowModel, getSortedRowModel,
-    SortingState,
-    useReactTable
-} from "@tanstack/react-table";
-import {Assessor} from "../../models/AssessorResponse";
-import {useMutation, useQuery} from "react-query";
 import TablePagination from "../UI/TablePagination";
-import FreeResourceEdit from "../FreeResource/FreeResorces/FreeResourceEdit";
 import Dialog from "../UI/Dialog";
 import AssessorHistory from "../Assessors/AssessorPage/AssessorHistory";
-import {Project} from "../../models/ProjectResponse";
-import {Manager} from "../../services/ManagerService";
-import {IUser} from "../../models/ManagerResponse";
+import {useCheckAssessorColumns} from "./columns";
+import NewTable from "../UI/NewTable";
+import {useCheckAssessor} from "./queries";
 
-interface FormProps{
-    name: string,
-}
-const stateObject = {
-    "available": "Доступен",
-    "busy": "Занят",
-    "free_resource": "Свободный ресурс",
-    "vacation": "Отпуск",
-    "blacklist": "Черный список",
-    "fired": "Уволен",
-}
 
 const CheckAssessor = () => {
-    const columnHelper = createColumnHelper<ICheckAssessor>()
     const [name, setName] = useState<string>('')
     const [isShowHistory, setIsShowHistory] = useState(false)
-    const columns = [
-        columnHelper.accessor('last_name', {
-            header: 'Фамилия',
-            cell: info => info.getValue(),
-            enableSorting: false,
-        }),
-        columnHelper.accessor('first_name', {
-            cell: info => info.getValue(),
-            header: 'Имя',
-            enableSorting: false
-        }),
-        columnHelper.accessor('middle_name', {
-            header: 'Отчество',
-            cell: info =>info.getValue(),
-            enableSorting: false
-        }),
-        columnHelper.accessor('username', {
-            header: 'Ник в ТГ',
-            cell: info => info.renderValue(),
-            enableSorting: false
-        }),
-        columnHelper.accessor('projects', {
-            header: 'Проект',
-            cell: info => {
-                if (info.row.original.last_project){
-                    return info.row.original.last_project
-                } else {
-                    return info.row.original.projects?.map(project => project.name).join(', ')
-                }
-            },
-            enableSorting: false
-        }),
-        columnHelper.accessor('manager', {
-            header: 'Менеджер',
-            cell: info => {
-                if (info.row.original.last_manager){
-                    return info.row.original.last_manager
-                } else if (info.row.original.manager) {
-                    return `${info.row.original.manager.last_name} ${info.row.original.manager.first_name}`
-                } else {
-                    return ''
-                }
+    const [idToShow, setIdToShow] = useState(0)
+    const {columns} = useCheckAssessorColumns({setIsShowHistory: setIsShowHistory, setIdToShow: setIdToShow})
 
-            },
-            enableSorting: false
-        }),
-        columnHelper.accessor('state', {
-            header: 'Состояние',
-            cell: info => stateObject[info.row.original.state],
-            enableSorting: false
-        }),
-        columnHelper.display( {
-            id: 'assessorId',
-            header: '',
-            cell: info => <>
-                <Dialog topLayer={true} isOpen={isShowHistory} setIsOpen={setIsShowHistory}>
-                    <AssessorHistory assessorId={info.row.original.pk}/>
-                </Dialog>
-                <div className='cursor-pointer' onClick={() => setIsShowHistory(true)}>История</div>
-            </>,
-            enableSorting:false
-        })
-    ]
-
-    const [data, setData] = useState<any>([])
-    const table = useReactTable({
-        data: data? data:[],
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        debugTable: false,
-    })
-    const [currentPage, setCurrentPage] = useState(1)
-    const [totalPages, setTotalPages] = useState(1)
-    const [totalRows, setTotalRows] = useState<number>(0)
-    const checkAssessors = useQuery(['checkAssessor', currentPage, name], () => AssessorService.checkAssessor(currentPage, name), {
-        enabled: name.length >= 3,
-        keepPreviousData:true,
-        onSuccess: data1 => {
-            setTotalRows(data1.count)
-            setTotalPages(Math.ceil(data1.count / 10))
-            setData([...data1.results])
-        }
-    })
+    const {setCurrentPage,currentPage, totalPages, totalRows, checkAssessors} = useCheckAssessor({name: name})
 
     return (
         <div className='w-[800px]'>
-
+            <Dialog isOpen={isShowHistory} setIsOpen={setIsShowHistory}>
+                <AssessorHistory assessorId={idToShow}/>
+            </Dialog>
                 <section className="flex justify-between my-2 space-x-2">
                     <div className={'w-full'}>
                         <input
@@ -143,8 +36,8 @@ const CheckAssessor = () => {
             <div>
                 {checkAssessors.isLoading ? 'Загрузка...' :
                     <>
-                    <Table table={table}/>
-                    <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages} setCurrentPage={setCurrentPage}/>
+                    <NewTable data={name.length >= 3 && checkAssessors.isSuccess ? checkAssessors.data.results : []} columns={columns}/>
+                    <TablePagination totalRows={name.length >= 3 ? totalRows : 0} currentPage={currentPage} totalPages={name.length >= 3 ? totalPages : 1} setCurrentPage={setCurrentPage}/>
                     </>
             }
             </div>
