@@ -41,17 +41,17 @@ export const useFreeResourcesSorting = () => {
         // }),
         columnHelper.accessor('last_name', {
             header: 'Фамилия',
-            cell: info => <NavLink to={`/assessor/${info.row.original.id}`}>{info.getValue()}</NavLink>,
+            cell: info => info.getValue(),
             enableSorting: false,
         }),
         columnHelper.accessor('first_name', {
-            cell: info => <NavLink to={`/assessor/${info.row.original.id}`}>{info.getValue()}</NavLink>,
+            cell: info => info.getValue(),
             header: 'Имя',
             enableSorting: false
         }),
         columnHelper.accessor('middle_name', {
             header: 'Отчество',
-            cell: info => <NavLink to={`/assessor/${info.row.original.id}`}>{info.getValue()}</NavLink>,
+            cell: info => info.getValue(),
             enableSorting: false
         }),
         columnHelper.accessor('username', {

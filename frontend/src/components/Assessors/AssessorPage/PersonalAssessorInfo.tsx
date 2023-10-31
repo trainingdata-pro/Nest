@@ -141,13 +141,20 @@ const PersonalAssessorInfo = ({assessorId}: { assessorId: string | number | unde
                             {countryList.map(country => <option key={country} value={country}>{country}</option>)}
                         </select>}
                 </FromCell>
-                <button className='px-[7px]'>{
+                {store.user_data.is_teamlead ? <button disabled={store.team.find(manager => manager.user.id === assessor.data?.manager?.id) === undefined} className='px-[7px]'>{
+
+                    store.team.find(manager => manager.user.id === assessor.data?.manager?.id) !== undefined ? (isDisabled ?
+                            <PencilSquareIcon className="h-6 w-6 text-black cursor-pointer"/> :
+                            <CheckIcon className="h-6 w-6 text-black cursor-pointer"/>) :
+                        <PencilSquareIcon className="h-6 w-6 text-gray-400"/>
+                }</button> :
+                <button className='px-[7px]' disabled={assessor.data?.manager?.id !== store.user_id}>{
                     assessor.data?.manager?.id === store.user_id ?
                         (isDisabled ?
                             <PencilSquareIcon className="h-6 w-6 text-black cursor-pointer"/> :
                             <CheckIcon className="h-6 w-6 text-black cursor-pointer"/>) :
                         <PencilSquareIcon className="h-6 w-6 text-gray-400"/>
-                }</button>
+                }</button>}
             </div>
             </form>
         </div>
