@@ -9,7 +9,7 @@ from .models import Assessor
 
 
 @receiver(m2m_changed, sender=Assessor.projects.through)
-def remove_project_working_hours(
+def remove_project_related_objects(
         sender: ModelBase,
         instance: Assessor,
         action: str,
