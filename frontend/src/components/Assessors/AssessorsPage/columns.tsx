@@ -10,7 +10,8 @@ export const useMyAssessorsSorting = () => {
         manager__last_name: '',
         projects: '',
         username: '',
-        last_name: '-last_name'
+        total_working_hours: '-total_working_hours',
+        last_name: '-last_name',
     })
     const getSortingString = () => {
         return Object.keys(sorting).filter(key => {
@@ -81,7 +82,7 @@ export const useMyAssessorsSorting = () => {
             enableSorting: false
         }),
         columnHelper.accessor('working_hours', {
-            header: 'Всего рабочих часов',
+            header: () => <div className='flex'><p>Всего рабочих часов</p><Sorting sortingKey={"total_working_hours"} func={setSorting} sortingValue={sorting.total_working_hours} state={sorting}/></div>,
             cell: info => info.row.original.working_hours.map(wh => wh.total).reduce((a, v) => a = a + v, 0),
             enableSorting: false,
             maxSize: 120
