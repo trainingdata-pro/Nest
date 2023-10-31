@@ -41,10 +41,14 @@ const FreeResourceEdit = ({assessor}: {
                 <ReturnFromFreeResources assessorId={assessor.id} show={setIsShowReturnFromFreeResources}/>
             </Dialog>
             <div className='flex flex-col'>
+
             <button onClick={() => setIsShowHistory(true)}>История</button>
-            {assessor.manager?.id !== store.user_id ? (!assessor.manager?.id ?
-                <button onClick={() => addAssessorToManager.mutate()}>Забрать в команду</button> :
-                <button onClick={() => setShowRentAssessor(true)}>Арендовать</button>) : <button onClick={() => setIsShowReturnFromFreeResources(true)}>Забрать из СР</button>}
+                {store.user_data.is_teamlead ? (
+                    store.team.find(manager => manager.id === assessor.manager?.id) !== undefined ? <button onClick={() => setIsShowReturnFromFreeResources(true)}>Забрать из СР</button> : ''
+                ) : (assessor.manager?.id !== store.user_id  ? (!assessor.manager?.id ?
+                        <button onClick={() => addAssessorToManager.mutate()}>Забрать в команду</button> :
+                        <button onClick={() => setShowRentAssessor(true)}>Арендовать</button>) :
+                    <button onClick={() => setIsShowReturnFromFreeResources(true)}>Забрать из СР</button>)}
             </div>
             </>
     );

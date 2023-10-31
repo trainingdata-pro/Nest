@@ -5,6 +5,7 @@ import jwtDecode from "jwt-decode";
 import {API_URL} from "../http";
 import Cookies from 'universal-cookie';
 import {warnNotification} from "../components/UI/Notify";
+import ManagerService, {Manager} from "../services/ManagerService";
 
 interface UserData {
     is_admin: boolean,
@@ -34,9 +35,12 @@ export default class Store {
     cookies = new Cookies()
     authError = ''
     isOpenProfile = false
-
+    team: Manager[] = []
     constructor() {
         makeAutoObservable(this)
+    }
+    setTeam(team: Manager[]){
+        this.team = team
     }
     setIsOpenProfile(bool: boolean) {
         this.isOpenProfile = bool
@@ -72,6 +76,9 @@ export default class Store {
                     warnNotification('Заполните поле TeamLead')
                     this.setIsOpenProfile(true)
                 }
+                if (user_data.is_teamlead){
+                    ManagerService.fetchTeamLeadTeam(managerId).then(res => this.setTeam(res.results))
+                }
                 this.setUserData(user_data)
                 this.setUserId(managerId)
                 this.setAuth(true)
@@ -100,6 +107,9 @@ export default class Store {
             if (!user_data.teamlead && !user_data.is_teamlead) {
                 warnNotification('Заполните поле TeamLead')
                 this.setIsOpenProfile(true)
+            }
+            if (user_data.is_teamlead){
+                ManagerService.fetchTeamLeadTeam(managerId).then(res => this.setTeam(res.results))
             }
             this.setUserId(managerId)
             this.setUserData(user_data)
