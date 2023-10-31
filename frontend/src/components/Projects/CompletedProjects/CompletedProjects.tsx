@@ -1,7 +1,5 @@
 import React, {useState} from 'react';
 import Header from "../../Header/Header";
-import ProjectService from "../../../services/ProjectService";
-import {useQuery} from "react-query";
 import {
     getCoreRowModel,
     useReactTable
@@ -14,35 +12,31 @@ import Export from "../Export";
 import {useCompletedProjectsColumns} from "./columns";
 import TablePagination from "../../UI/TablePagination";
 import Loader from "../../UI/Loader";
+import {useCompletedProjects} from "./queries";
+import ProjectForm from "../ProjectForm/ProjectForm";
 
 const CompletedProjects = () => {
-    const {sorting, getSortingString, columns} = useCompletedProjectsColumns()
-    const [currentPage, setCurrentPage] = useState(1)
-    const [totalPages, setTotalPages] = useState(1)
-    const [totalRows, setTotalRows] = useState<number>(0)
-    const {
-        data,
-        isSuccess,
-        isLoading
-    } = useQuery(['completedProjects', currentPage, sorting], () => ProjectService.fetchCompletedProjects(currentPage, getSortingString()), {
-        keepPreviousData: true,
-        onSuccess: data => {
-            setTotalRows(data.count)
-            setTotalPages(Math.ceil(data.count / 10))
-        }
-    })
+    const [showSidebar, setShowSidebar] = useState(false)
+    const [projectId, setProjectId] = useState(0)
+    const {sorting, getSortingString, columns} = useCompletedProjectsColumns({setProjectId,setShowSidebar})
+    const {currentPage, setCurrentPage, totalPages, totalRows, completedProjects} = useCompletedProjects({sorting, getSortingString})
 
     const table = useReactTable({
-        data: isSuccess ? data.results : [],
+        data: completedProjects.isSuccess ? completedProjects.data.results : [],
         columns,
         getCoreRowModel: getCoreRowModel(),
         enableSorting: false
     })
+
     const [isExportProjects, setIsExportProjects] = useState(false)
-    if (isLoading) return <Loader width={30}/>
+    if (completedProjects.isLoading) return <Loader width={30}/>
     return (
         <div>
             <Header/>
+            <Dialog isOpen={showSidebar} setIsOpen={setShowSidebar}>
+                <ProjectForm projectId={projectId}
+                             closeSidebar={setShowSidebar}/>
+            </Dialog>
             <Dialog isOpen={isExportProjects} setIsOpen={setIsExportProjects}>
                 <Export setIsExportProjects={setIsExportProjects} exportType='completedProjects' project={undefined}/>
             </Dialog>

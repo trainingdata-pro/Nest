@@ -13,7 +13,7 @@ const Header = () => {
         <>
 
             <Dialog isOpen={isOpenCheck} setIsOpen={setIsOpenCheck}>
-                <CheckAssessor setIsOpenCheck={setIsOpenCheck}/>
+                <CheckAssessor/>
             </Dialog>
             <header className="fixed z-10 left-0 top-0 right-0 h-[70px] overflow-hidden rounded-b-[20px] border-b border-gray-200 bg-[#5970F6]">
 

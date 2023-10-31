@@ -47,7 +47,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
     const {fetchTeam, onManagerChange, getManager, setSelectedManagers} = useTeam({setValue})
     const {regOptions, onChangeRegularity, getRegularity, setRegularity, setRegOptions} = useRegularity({setValue})
     const {statusList, getValueStatus, onChangeStatus, setCurrentStatus} = useStatus({setValue})
-    const {isFetching} = useFetchProject({
+    const {isFetching, data} = useFetchProject({
         projectId,
         setValue,
         setSelectedManagers,
@@ -201,6 +201,7 @@ const ProjectForm = ({projectId, closeSidebar}: {
                             required: 'Обязательное поле'
                         })}
                         placeholder={isFetching ? "Загрузка" : 'Статус'}
+                        isDisabled={!!data?.status && !store.user_data.is_teamlead}
                         options={statusList}
                         value={getValueStatus()}
                         onChange={onChangeStatus}

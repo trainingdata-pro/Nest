@@ -3,7 +3,7 @@ import MyInput from "../UI/MyInput";
 import {useForm} from "react-hook-form";
 import MyButton from "../UI/MyButton";
 import Error from "../UI/Error";
-import AssessorService from "../../services/AssessorService";
+import AssessorService, {ICheckAssessor} from "../../services/AssessorService";
 import {errorNotification} from "../UI/Notify";
 import Table from "../UI/Table";
 import TableCheckBox from "../UI/TableCheckBox";
@@ -15,13 +15,17 @@ import {
     useReactTable
 } from "@tanstack/react-table";
 import {Assessor} from "../../models/AssessorResponse";
+import {useMutation, useQuery} from "react-query";
+import TablePagination from "../UI/TablePagination";
 import FreeResourceEdit from "../FreeResource/FreeResorces/FreeResourceEdit";
-import CheckAssessorManagement from "./CheckAssessorManagement";
+import Dialog from "../UI/Dialog";
+import AssessorHistory from "../Assessors/AssessorPage/AssessorHistory";
+import {Project} from "../../models/ProjectResponse";
+import {Manager} from "../../services/ManagerService";
+import {IUser} from "../../models/ManagerResponse";
 
 interface FormProps{
-    last_name: string,
-    first_name: string,
-    middle_name: string
+    name: string,
 }
 const stateObject = {
     "available": "Доступен",
@@ -31,18 +35,11 @@ const stateObject = {
     "blacklist": "Черный список",
     "fired": "Уволен",
 }
-interface CheckAssessor extends Assessor{
-    last_manager: string,
-    last_project: string
-}
-const CheckAssessor = ({setIsOpenCheck}: {
-    setIsOpenCheck: React.Dispatch<boolean>
-}) => {
-    const columnHelper = createColumnHelper<CheckAssessor>()
 
-    const {register,getValues, formState:{
-        errors
-    }, handleSubmit} = useForm<FormProps>()
+const CheckAssessor = () => {
+    const columnHelper = createColumnHelper<ICheckAssessor>()
+    const [name, setName] = useState<string>('')
+    const [isShowHistory, setIsShowHistory] = useState(false)
     const columns = [
         columnHelper.accessor('last_name', {
             header: 'Фамилия',
@@ -94,75 +91,62 @@ const CheckAssessor = ({setIsOpenCheck}: {
             cell: info => stateObject[info.row.original.state],
             enableSorting: false
         }),
+        columnHelper.display( {
+            id: 'assessorId',
+            header: '',
+            cell: info => <>
+                <Dialog topLayer={true} isOpen={isShowHistory} setIsOpen={setIsShowHistory}>
+                    <AssessorHistory assessorId={info.row.original.pk}/>
+                </Dialog>
+                <div className='cursor-pointer' onClick={() => setIsShowHistory(true)}>История</div>
+            </>,
+            enableSorting:false
+        })
     ]
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [rowSelection, setRowSelection] = React.useState({})
-    const [data, setData] = useState([])
+
+    const [data, setData] = useState<any>([])
     const table = useReactTable({
         data: data? data:[],
         columns,
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        onSortingChange: setSorting,
-        getSortedRowModel: getSortedRowModel(),
-        globalFilterFn: "includesString",
-        state: {
-            rowSelection,
-            sorting
-        },
-        getFilteredRowModel: getFilteredRowModel(),
-        enableRowSelection: true,
-        onRowSelectionChange: setRowSelection,
         debugTable: false,
     })
-    const [showTable, setShowTable] = useState(false)
-    const submit = () => {
-        const {last_name, first_name, middle_name} = getValues()
-        if (middle_name){
-            AssessorService.checkAssessor(last_name, first_name, middle_name).then(res => setData(res.data.results)).catch(() => {
-                errorNotification('Заполните все поля')
-            })
-        } else {
-            AssessorService.checkAssessorWithoutMiddleName(last_name, first_name).then(res => setData(res.data.results)).catch(() => {
-                errorNotification('Ошибка')
-            })
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
+    const [totalRows, setTotalRows] = useState<number>(0)
+    const checkAssessors = useQuery(['checkAssessor', currentPage, name], () => AssessorService.checkAssessor(currentPage, name), {
+        enabled: name.length >= 3,
+        keepPreviousData:true,
+        onSuccess: data1 => {
+            setTotalRows(data1.count)
+            setTotalPages(Math.ceil(data1.count / 10))
+            setData([...data1.results])
         }
-        setShowTable(true)
-    }
+    })
+
     return (
-        <div className='max-w-[800px] overflow-x-hidden'>
-            <form onSubmit={handleSubmit(submit)}>
-                <section className="flex justify-between my-2 space-x-2 box-border">
-                    <div className={'w-full'}>
-                        <MyInput register={{...register('last_name')}}
-                                 type="text"
-                                 name="last_name"
-                                 placeholder="Фамилия"/>
+        <div className='w-[800px]'>
 
-                        <Error>{errors.last_name && errors.last_name?.message}</Error>
-                    </div>
+                <section className="flex justify-between my-2 space-x-2">
                     <div className={'w-full'}>
-                        <MyInput
-                            register={{...register('first_name')}}
+                        <input
+                            value={name}
+                            onChange={(event) => setName(event.target.value)}
+                            className='py-[12px] bg-[#F4F8F7] rounded-[8px] w-full text-left disabled:opacity-50 pl-[15px]'
                             type="text"
-                            name="first_name"
-                            placeholder="Имя"/>
-                        <Error>{errors.first_name && errors.first_name?.message}</Error>
-                    </div>
-                    <div className={'w-full'}>
+                            name="name"
+                            placeholder="Поиск по ФИО/Ник в ТГ"/>
+                        {name.length <3 && <p className='flex justify-start my-[5px]'>Минимальная длина запроса 3 символа</p>}
 
-                        <MyInput
-                            register={{...register('middle_name')}}
-                            type="text"
-                            name="middle_name"
-                            placeholder="Отчество"/>
-                        <Error>{errors.middle_name && errors.middle_name?.message}</Error>
                     </div>
-                    <MyButton>Проверить</MyButton>
                 </section>
-            </form>
             <div>
-                {showTable && (data.length === 0 ? 'Совпадений не найдено':<Table table={table}/>)}
+                {checkAssessors.isLoading ? 'Загрузка...' :
+                    <>
+                    <Table table={table}/>
+                    <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages} setCurrentPage={setCurrentPage}/>
+                    </>
+            }
             </div>
         </div>
     );

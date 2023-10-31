@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import AssessorService from "../../../services/AssessorService";
 import {useQuery} from "react-query";
 import {
@@ -11,29 +11,22 @@ import {
 } from "@tanstack/react-table";
 import {IHistory} from "../../../models/AssessorResponse";
 import Table from "../../UI/Table";
+import TablePagination from "../../UI/TablePagination";
 
 const columnHelper = createColumnHelper<IHistory>()
 const AssessorHistory = ({assessorId}: {
     assessorId: number | string | undefined
 }) => {
-
-    const {data} = useQuery(['fullAssessorHistory', assessorId], () => fetchAllData(), {})
-
-    async function fetchAllData() {
-        const allData = [];
-        let currentPage = 1;
-        let hasMoreData = true;
-        while (hasMoreData) {
-            const data = await AssessorService.fetchHistoryByAssessor(assessorId, currentPage);
-            allData.push(...data.results);
-            if (data.next !== null) {
-                currentPage++;
-            } else {
-                hasMoreData = false;
-            }
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
+    const [totalRows, setTotalRows] = useState<number>(0)
+    const {data, isSuccess} = useQuery(['fullAssessorHistory', assessorId, currentPage], () => AssessorService.fetchHistoryByAssessor(assessorId, currentPage), {
+        keepPreviousData: true,
+        onSuccess: data => {
+            setTotalRows(data.count)
+            setTotalPages(Math.ceil(data.count / 10))
         }
-        return allData;
-    }
+    })
 
     const columns = [
         columnHelper.accessor('timestamp', {
@@ -64,7 +57,7 @@ const AssessorHistory = ({assessorId}: {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [rowSelection, setRowSelection] = React.useState({})
     const table = useReactTable({
-        data: data ? data : [],
+        data: isSuccess ? data.results : [],
         columns,
         enableSorting: false,
         getCoreRowModel: getCoreRowModel(),
@@ -88,6 +81,7 @@ const AssessorHistory = ({assessorId}: {
             </div>
             <div className='px-2 mt-2'>
                 <Table table={table}/>
+                <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages} setCurrentPage={setCurrentPage}/>
             </div>
         </>
     );

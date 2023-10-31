@@ -30,6 +30,7 @@ export const usePatchProject = ({closeSidebar} : {
     return useMutation((data: MyParams) => ProjectService.patchProject(data.id, data.data), {
         onSuccess: () => {
             queryClient.invalidateQueries('projects');
+            queryClient.invalidateQueries('completedProjects')
             successNotification('Проект успешно обновлен')
             closeSidebar(false)
         },
@@ -50,6 +51,7 @@ export const usePostProject = ({closeSidebar} : {
     return useMutation((data: ProjectFormProps) => ProjectService.postProject(data), {
         onSuccess: () => {
             queryClient.invalidateQueries('projects')
+            queryClient.invalidateQueries('completedProjects')
             successNotification('Проект успешно создан')
             closeSidebar(false)
         },

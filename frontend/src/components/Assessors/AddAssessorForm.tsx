@@ -78,6 +78,7 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
                     }
                 })
                 queryClient.invalidateQueries('projectAssessors')
+                queryClient.invalidateQueries('assessors')
                 successNotification('Ассессор успешно назначен на проект')
                 setShowSidebar(false)
             },
@@ -89,6 +90,7 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
         const createWorkloadStatus = useMutation(['projectAssessors'], ({data}: any) => AssessorService.createWorkloadStatus(data), {
             onSuccess: () => {
                 queryClient.invalidateQueries('projectAssessors')
+                queryClient.invalidateQueries('assessors')
                 successNotification('Ассессору успешно присвоен статус')
                 setShowSidebar(false)
             },
@@ -104,6 +106,7 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
                     data: {projects: [getValues('projects')]}
                 })
                 queryClient.invalidateQueries('projectAssessors')
+                queryClient.invalidateQueries('assessors')
                 successNotification('Ассессор успешно создан')
                 setShowSidebar(false)
             },

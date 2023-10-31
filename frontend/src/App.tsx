@@ -14,19 +14,14 @@ import CompletedProjects from "./components/Projects/CompletedProjects/Completed
 import BlackList from "./components/BlackList/BlackList";
 import FreeResourcePage from "./pages/FreeResourcePage";
 import PasswordReset from "./components/PasswordReset/PasswordReset";
-import {useQuery} from "react-query";
 
 function App() {
     const {store} = useContext(Context)
-    const checkAuth = useQuery('auth', () => store.checkAuth(), {
-        enabled: !!localStorage.getItem('token'),
-        refetchOnWindowFocus:false
-    })
-    // useMemo(()=>{
-    //     if (localStorage.getItem('token')) {
-    //         store.checkAuth()
-    //     }
-    // },[])
+    useMemo(()=>{
+        if (localStorage.getItem('token')) {
+            store.checkAuth()
+        }
+    },[])
 
     if (store.isLoading) {
         return (<Loader width={"16"}/>)

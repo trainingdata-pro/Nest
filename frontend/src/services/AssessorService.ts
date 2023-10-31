@@ -12,6 +12,9 @@ import {
     WorkingHoursResponse,
     WorkloadStatusResponse
 } from "../models/AssessorResponse";
+import {Project} from "../models/ProjectResponse";
+import {Manager} from "./ManagerService";
+import {IUser} from "../models/ManagerResponse";
 
 export type ILoginAndPassword = {
     id: number,
@@ -23,6 +26,26 @@ export type ILoginAndPassword = {
 export type LoginAndPasswordResponse = {
     results: ILoginAndPassword[]
 }
+
+
+export interface ICheckAssessor {
+    pk: number,
+    last_name: string,
+    first_name: string,
+    middle_name: string,
+    projects: Project[],
+    manager: IUser,
+    state: "available" | "busy" | "free_resource" | "vacation" | "blacklist" | "fired",
+    username: string,
+    last_project: string,
+    last_manager: string
+}
+
+export type CheckAssessorResponse = {
+    results: ICheckAssessor[],
+    count: number
+
+}
 export default class AssessorService{
     static fetchAssessors = (page: number | string,projectId: any) => $api.get<AssessorResponse>(`/api/assessors/?projects=${projectId}&page=${page}&page_size=10`).then(res => res.data)
     static addAssessor = (data:any) => $api.post<Assessor>('/api/assessors/', data).then(res => res.data)
@@ -33,7 +56,7 @@ export default class AssessorService{
     static fetchCredentials = (id: string | number | undefined) => $api.get<LoginAndPasswordResponse>(`/api/credentials/?assessor=${id}`).then((res) => res.data)
     static patchCredentials = (credId: string | number | undefined, data:any) => $api.patch(`/api/credentials/${credId}/`, data)
     static postCredentials = (data:any) => $api.post(`/api/credentials/`, data)
-    static fetchHistoryByAssessor = (assessorId: string | number | undefined, page: string | number = 1) => $api.get<IHistoryResponse>(`/api/history/?ordering=-timestamp&assessor=${assessorId}&page=${page}`).then(res => res.data)
+    static fetchHistoryByAssessor = (assessorId: string | number | undefined, page: string | number = 1) => $api.get<IHistoryResponse>(`/api/history/?ordering=-timestamp&assessor=${assessorId}&page=${page}&page_size=10`).then(res => res.data)
     static fetchAssessorHistory = (id: string | number | undefined, attribute: string) => $api.get<IHistoryResponse>(`/api/history/?attribute=${attribute}&ordering=-timestamp&assessor=${id}`).then(res => res.data)
     static getBlackList = (page: string | number = 1,filter:string, sorting:string = '') => $api.get<IBlackListResponse>(`/api/blacklist/?page=${page}&name=${filter}&ordering=${sorting}&page_size=10`).then(res => res.data)
     static fetchWorkloadStatus = (assessorID: string | number | undefined, projectId: string | number| undefined = undefined) => $api.get<WorkloadStatusResponse>(`/api/workload_status/?assessor=${assessorID}&project=${projectId}`).then(res => res.data)
@@ -72,7 +95,7 @@ export default class AssessorService{
     static returnFromFreeResources = (assessorId:number| string | undefined, data:any) => $api.patch(`/api/assessors/${assessorId}/free_resource/`, data).then(res => res.data)
     static exportProjectAssessors = (type: string, projectId: number | string) => $api.get(`/api/export/assessors/?type=${type}&project=${projectId}`).then(res => res.data)
     static exportBlackList = (type: string, items:string) => $api.get(`/api/export/blacklist/?type=${type}&items=${items}`).then(res => res.data)
-    static checkAssessor = (last_name: string = '', first_name: string = '', middle_name:string = '') => $api.get(`/api/assessors/check/?last_name=${last_name}&first_name=${first_name}&middle_name=${middle_name}`)
+    static checkAssessor = (page: number, name: string) => $api.get<CheckAssessorResponse>(`/api/assessors/check/?name=${name}&page=${page}&page_size=10`).then(res => res.data)
     static checkAssessorWithoutMiddleName = (last_name: string = '', first_name: string = '') => $api.get(`/api/assessors/check/?last_name=${last_name}&first_name=${first_name}`)
     static takeFromOwnDesires = (firedId: string | number, data:any) => $api.patch(`/api/fired/${firedId}/back/`, data)
 }
