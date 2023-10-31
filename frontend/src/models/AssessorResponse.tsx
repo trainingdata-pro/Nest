@@ -101,8 +101,8 @@ export interface IFreeResourcesResponse {
 }
 
 export interface IHistory {
-    action: string,
-    attribute: string,
+    action: 'created' | 'to_team' | 'rent' | 'add_project' | 'remove_project' | 'complete_project' | 'left' | 'unpin' | 'add_to_free_resource' | 'return_from_free_resource' | 'to_vacation' | 'from_vacation',
+    attribute: 'full_name' | 'username' | 'manager' | 'project' | 'state',
     id: number,
     new_value: string,
     old_value: string,

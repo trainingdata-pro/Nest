@@ -13,6 +13,27 @@ import {IHistory} from "../../../models/AssessorResponse";
 import Table from "../../UI/Table";
 import TablePagination from "../../UI/TablePagination";
 
+const action = {
+    'created' : 'Создать исполнителя',
+    'to_team' : 'Забрать в команду',
+    'rent' : 'Арендовать',
+    'add_project' : 'Добавить проект',
+    'remove_project' : 'Удалить с проекта',
+    'complete_project' : 'Завершить проект',
+    'left' : 'Уволить',
+    'unpin' : 'Открепить от себя',
+    'add_to_free_resource' : 'Отправить в свободные ресурсы',
+    'return_from_free_resource' : 'Вернуть из свободных ресурсов',
+    'to_vacation' : 'Отправить в отпуск',
+    'from_vacation': 'Вернуть из отпуска'
+}
+const attribute = {
+    'full_name': 'ФИО' ,
+    'username': 'Никнейм в Telegram',
+    'manager': 'Руководитель',
+    'project': 'Проект',
+    'state': 'Состояние'
+}
 const columnHelper = createColumnHelper<IHistory>()
 const AssessorHistory = ({assessorId}: {
     assessorId: number | string | undefined
@@ -20,7 +41,10 @@ const AssessorHistory = ({assessorId}: {
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
     const [totalRows, setTotalRows] = useState<number>(0)
-    const {data, isSuccess} = useQuery(['fullAssessorHistory', assessorId, currentPage], () => AssessorService.fetchHistoryByAssessor(assessorId, currentPage), {
+    const {
+        data,
+        isSuccess
+    } = useQuery(['fullAssessorHistory', assessorId, currentPage], () => AssessorService.fetchHistoryByAssessor(assessorId, currentPage), {
         keepPreviousData: true,
         onSuccess: data => {
             setTotalRows(data.count)
@@ -34,7 +58,8 @@ const AssessorHistory = ({assessorId}: {
             cell: info => info.getValue().split('.')[0].replace('T', ' ')
         }),
         columnHelper.accessor('attribute', {
-            header: 'Аттрибут'
+            header: 'Аттрибут',
+            cell: info => attribute[info.getValue()]
         }),
         columnHelper.accessor('old_value', {
             header: 'Старое значение'
@@ -43,7 +68,8 @@ const AssessorHistory = ({assessorId}: {
             header: 'Новое значение'
         }),
         columnHelper.accessor('action', {
-            header: 'Действие'
+            header: 'Действие',
+            cell: info => action[info.getValue()]
         }),
         columnHelper.accessor('reason', {
             header: 'Причина'
@@ -81,7 +107,8 @@ const AssessorHistory = ({assessorId}: {
             </div>
             <div className='px-2 mt-2'>
                 <Table table={table}/>
-                <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages} setCurrentPage={setCurrentPage}/>
+                <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                                 setCurrentPage={setCurrentPage}/>
             </div>
         </>
     );
