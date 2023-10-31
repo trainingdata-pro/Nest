@@ -9,6 +9,16 @@ from apps.projects.models import Project, ProjectStatuses, ProjectWorkingHours
 from apps.users.models import UserStatus, ManagerProfile, BaseUser
 
 
+def _attribute_error(method):
+    def wrapper(*args, **kwargs):
+        try:
+            return method(*args, **kwargs)
+        except AttributeError:
+            return False
+
+    return wrapper
+
+
 def has_manager_profile(request: Request) -> bool:
     return hasattr(request.user, 'manager_profile')
 
@@ -24,12 +34,16 @@ class IsManager(BasePermission):
 
 
 class ProjectPermission(BasePermission):
+    @_attribute_error
     def has_object_permission(self, request: Request, view: APIView, obj: Project) -> bool:
-        return (request.user in obj.manager.all() or
-                (has_manager_profile(request) and request.user.manager_profile.is_teamlead))
+        return (request.user in obj.manager.all()
+                or (has_manager_profile(request)
+                    and request.user.manager_profile.is_teamlead
+                    and obj.manager.filter(teamlead=request.user).exists()))
 
 
 class ProjectIsActive(BasePermission):
+    @_attribute_error
     def has_object_permission(self, request: Request, view: APIView, obj: Project) -> bool:
         if (obj.status == ProjectStatuses.COMPLETED and
                 (has_manager_profile(request) and not request.user.manager_profile.is_teamlead)):
@@ -38,6 +52,7 @@ class ProjectIsActive(BasePermission):
 
 
 class ProjectRelatedPermission(BasePermission):
+    @_attribute_error
     def has_object_permission(self, request: Request, view: APIView, obj: ProjectWorkingHours) -> bool:
         return (request.user.pk == obj.assessor.manager.pk
                 or (has_manager_profile(request)
@@ -46,6 +61,7 @@ class ProjectRelatedPermission(BasePermission):
 
 
 class AssessorPermission(BasePermission):
+    @_attribute_error
     def has_object_permission(self, request: Request, view: APIView, obj: Assessor) -> bool:
         return (obj.manager
                 and (request.user.pk == obj.manager.pk
@@ -54,6 +70,7 @@ class AssessorPermission(BasePermission):
 
 
 class AssessorPermissionExtended(BasePermission):
+    @_attribute_error
     def has_object_permission(self, request: Request, view: APIView, obj: Assessor) -> bool:
         return (obj.manager
                 and request.user.pk == obj.manager.pk
