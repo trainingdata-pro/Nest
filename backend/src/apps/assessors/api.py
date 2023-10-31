@@ -1,5 +1,4 @@
-from django.contrib.postgres.search import SearchVector
-from django.db.models import Q, QuerySet
+from django.db.models import Q, QuerySet, Sum
 from django.utils.decorators import method_decorator
 from rest_framework import status, viewsets, generics
 from rest_framework.decorators import action
@@ -113,7 +112,8 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         'last_name',
         'manager__last_name',
         'status',
-        'projects'
+        'projects',
+        'total_working_hours'
     ]
 
     def get_queryset(self) -> QuerySet[Assessor]:
@@ -127,10 +127,18 @@ class AssessorAPIViewSet(BaseAPIViewSet):
             else:
                 queryset = Assessor.objects.filter(Q(manager=user) | Q(second_manager__in=[user]))
 
-        return (queryset.select_related('manager')
+        return (queryset.annotate()
+                .select_related('manager')
                 .prefetch_related('projects__manager', 'second_manager')
                 .order_by('manager__last_name', 'last_name')
-                .distinct())
+                .distinct()
+                .annotate(total_working_hours=(Sum('project_working_hours__monday')
+                                               + Sum('project_working_hours__tuesday')
+                                               + Sum('project_working_hours__wednesday')
+                                               + Sum('project_working_hours__thursday')
+                                               + Sum('project_working_hours__friday')
+                                               + Sum('project_working_hours__saturday')
+                                               + Sum('project_working_hours__sunday'))))
 
     def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
