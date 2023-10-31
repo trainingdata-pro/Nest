@@ -127,10 +127,8 @@ class AssessorAPIViewSet(BaseAPIViewSet):
             else:
                 queryset = Assessor.objects.filter(Q(manager=user) | Q(second_manager__in=[user]))
 
-        return (queryset.annotate()
-                .select_related('manager')
+        return (queryset.select_related('manager')
                 .prefetch_related('projects__manager', 'second_manager')
-                .order_by('manager__last_name', 'last_name')
                 .distinct()
                 .annotate(total_working_hours=(Sum('project_working_hours__monday')
                                                + Sum('project_working_hours__tuesday')
@@ -138,7 +136,8 @@ class AssessorAPIViewSet(BaseAPIViewSet):
                                                + Sum('project_working_hours__thursday')
                                                + Sum('project_working_hours__friday')
                                                + Sum('project_working_hours__saturday')
-                                               + Sum('project_working_hours__sunday'))))
+                                               + Sum('project_working_hours__sunday')))
+                .order_by('manager__last_name', 'last_name'))
 
     def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
