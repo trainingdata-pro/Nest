@@ -4,7 +4,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.prod
-    command: bash -c "python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+    command: bash -c "python manage.py migrate --noinput && gunicorn config.wsgi:application -c ../gunicorn.conf.py --bind 0.0.0.0:8000"
     volumes:
       - static_volume:/home/assessors/backend/src/static
       - media_volume:/home/assessors/backend/src/media
