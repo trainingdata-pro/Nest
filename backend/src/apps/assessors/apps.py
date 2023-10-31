@@ -6,3 +6,6 @@ class AssessorsConfig(AppConfig):
     name = 'apps.assessors'
     verbose_name = 'исполнитель'
     verbose_name_plural = 'исполнители'
+
+    def ready(self):
+        import apps.assessors.signals
