@@ -152,7 +152,7 @@ const AssessorProjectRow = ({project, assessorId}: {
                                                className='w-[25px] text-center disabled:opacity-50' {...register('workingHours.sunday')} />
             </td>
             <td className={tdClassName}>{workingHours.data?.results[0]?.total}</td>
-            <td className="whitespace-nowrap px-[5px] py-[20px] flex justify-center">{project.manager.filter(manager => manager.id === store.user_id).length > 0 ? (isDisabled ?
+            <td className="whitespace-nowrap px-[5px] py-[20px] flex justify-center">{project.manager.filter(manager => manager.id === store.user_id).length > 0 || project.manager.filter(manager => store.team.find(manId => manId.user.id === manager.id) !==undefined).length > 0? (isDisabled ?
                     <PencilSquareIcon onClick={edit}
                                       className="h-6 w-6 text-black cursor-pointer"/> :
                     <CheckIcon onClick={edit} className="h-6 w-6 text-black cursor-pointer"/>) :

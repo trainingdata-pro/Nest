@@ -18,8 +18,8 @@ const CurrentState = ({assessorId, vacationDate}: {
                 </thead>
                 <tbody>
                     <tr className="text-center border-t dark:border-neutral-500">
-                        <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[2px]">{data && data.results[0].new_value}</td>
-                        <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[2px]">{data && data.results[0].timestamp.split('T')[0]}</td>
+                        <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[2px]">{data && data.results[0]?.new_value}</td>
+                        <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[2px]">{data && data.results[0]?.timestamp.split('T')[0]}</td>
                         <td className="whitespace-nowrap px-[5px] py-[2px]">{vacationDate && vacationDate}</td>
                     </tr>
                 </tbody>

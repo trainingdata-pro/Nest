@@ -48,7 +48,7 @@ const Skills = ({assessor}: {
                     return (<div key={skill.id} className='my-auto align-middle text-center'>{skill.title} <input
                         type='checkbox' disabled={isDisabled} {...register(skill.id.toString())}/></div>)
                 })}
-                <button>{(assessor?.manager?.id === store.user_id || assessor?.second_manager?.find(manager => manager.id === store.user_id) !== undefined) ? ( isDisabled ? <PencilSquareIcon onClick={submit} className="h-6 w-6 text-black cursor-pointer"/> : <CheckIcon onClick={submit} className="h-6 w-6 text-black cursor-pointer"/>): <PencilSquareIcon className="h-6 w-6 text-gray-400"/>}</button>
+                <button>{(assessor?.manager?.id === store.user_id || assessor?.second_manager?.find(manager => manager.id === store.user_id) !== undefined || store.user_data.is_teamlead) ? ( isDisabled ? <PencilSquareIcon onClick={submit} className="h-6 w-6 text-black cursor-pointer"/> : <CheckIcon onClick={submit} className="h-6 w-6 text-black cursor-pointer"/>): <PencilSquareIcon className="h-6 w-6 text-gray-400"/>}</button>
             </div>
 
         </div>
