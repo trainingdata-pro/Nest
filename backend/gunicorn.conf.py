@@ -23,7 +23,8 @@ logconfig_dict = {
     },
     'loggers': {
         'gunicorn.error': {
-            'handlers': ['file', 'console'],
+            # 'handlers': ['file', 'console'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
         },
