@@ -86,8 +86,9 @@ class AssessorSchema(BaseAPISchema):
                 openapi.Parameter(
                     name='manager',
                     in_=openapi.IN_QUERY,
-                    type=openapi.TYPE_INTEGER,
-                    description='Filtering by manager ID.'
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by manager ID.\n'
+                                'Example: host.com/?manager=1,2.'
                 ),
                 openapi.Parameter(
                     name='projects',

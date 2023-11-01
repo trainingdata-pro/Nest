@@ -16,7 +16,7 @@ class SkillsFilter(filters.FilterSet):
 class AssessorFilter(SplitStringFilterMixin, FilterByFullNameMixin, filters.FilterSet):
     username = filters.CharFilter(lookup_expr='icontains')
     full_name = filters.CharFilter(method='filter_full_name')
-    manager = filters.NumberFilter()
+    manager = filters.CharFilter(method='filter_managers')
     projects = filters.CharFilter(method='filter_projects')
     skills = filters.CharFilter(method='filter_skills')
     second_manager = filters.CharFilter(method='filter_second_manager')
@@ -31,6 +31,10 @@ class AssessorFilter(SplitStringFilterMixin, FilterByFullNameMixin, filters.Filt
             'skills',
             'second_manager'
         ]
+
+    def filter_managers(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
+        managers = self.get_id_for_filtering(value)
+        return queryset.filter(manager__in=managers)
 
     def filter_projects(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
         projects = self.get_id_for_filtering(value)
