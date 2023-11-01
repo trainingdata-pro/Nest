@@ -149,7 +149,7 @@ const PersonalAssessorInfo = ({assessorId}: { assessorId: string | number | unde
                         <PencilSquareIcon className="h-6 w-6 text-gray-400"/>
                 }</button> :
                 <button className='px-[7px]' disabled={assessor.data?.manager?.id !== store.user_id}>{
-                    assessor.data?.manager?.id === store.user_id ?
+                    assessor.data?.manager?.id === store.user_id|| (store.user_data.is_teamlead && assessor.data?.second_manager.find(man => man.id === store.user_id) !== undefined) ?
                         (isDisabled ?
                             <PencilSquareIcon className="h-6 w-6 text-black cursor-pointer"/> :
                             <CheckIcon className="h-6 w-6 text-black cursor-pointer"/>) :
