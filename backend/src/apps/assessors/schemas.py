@@ -112,6 +112,15 @@ class AssessorSchema(BaseAPISchema):
                                 'Example: host.com/?second_manager=1,2.'
                 ),
                 openapi.Parameter(
+                    name='exclude_rented',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_BOOLEAN,
+                    description='If "true", then the results will contain only '
+                                'the main assessors of the managers in a team, '
+                                'otherwise only rented ones.\n'
+                                'It works only for users with status "manager".'
+                ),
+                openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,

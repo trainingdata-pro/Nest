@@ -1,7 +1,9 @@
 from django.db.models import QuerySet, Q, Count
 from django_filters import rest_framework as filters
 
-from core.mixins import (SplitStringFilterMixin, FilterByFullNameMixin)
+from core.mixins import SplitStringFilterMixin, FilterByFullNameMixin
+from core.users import UserStatus
+from apps.users.models import BaseUser
 from .models import Assessor, Skill, AssessorCredentials
 
 
@@ -20,6 +22,7 @@ class AssessorFilter(SplitStringFilterMixin, FilterByFullNameMixin, filters.Filt
     projects = filters.CharFilter(method='filter_projects')
     skills = filters.CharFilter(method='filter_skills')
     second_manager = filters.CharFilter(method='filter_second_manager')
+    exclude_rented = filters.BooleanFilter(method='filter_rented')
 
     class Meta:
         model = Assessor
@@ -29,7 +32,8 @@ class AssessorFilter(SplitStringFilterMixin, FilterByFullNameMixin, filters.Filt
             'manager',
             'projects',
             'skills',
-            'second_manager'
+            'second_manager',
+            'exclude_rented'
         ]
 
     def filter_managers(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
@@ -53,6 +57,23 @@ class AssessorFilter(SplitStringFilterMixin, FilterByFullNameMixin, filters.Filt
         return queryset.annotate(
             matching_managers=Count('second_manager', filter=Q(second_manager__in=managers))
         ).filter(matching_managers__gte=len(managers))
+
+    def filter_rented(self, queryset: QuerySet[Assessor], name: str, value: bool) -> QuerySet[Assessor]:
+        user = self.request.user
+        if user.is_superuser or user.status == UserStatus.ANALYST:
+            return queryset
+
+        if user.manager_profile.is_teamlead:
+            team = BaseUser.objects.filter(status=UserStatus.MANAGER, manager_profile__teamlead=user)
+            if value:
+                return queryset.exclude(second_manager__in=team)
+            else:
+                return queryset.exclude(manager__in=team)
+        else:
+            if value:
+                return queryset.exclude(second_manager__in=[user])
+            else:
+                return queryset.exclude(manager=user)
 
 
 class AssessorCredentialsFilter(filters.FilterSet):
