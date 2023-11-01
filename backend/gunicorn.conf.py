@@ -9,12 +9,12 @@ logconfig_dict = {
         },
     },
     'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join('logging', 'backend.log'),
-            'formatter': 'standard'
-        },
+        # 'file': {
+        #     'level': 'INFO',
+        #     'class': 'logging.FileHandler',
+        #     'filename': os.path.join('logging', 'backend.log'),
+        #     'formatter': 'standard'
+        # },
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
