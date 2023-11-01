@@ -39,7 +39,7 @@ class ProjectPermission(BasePermission):
         return (request.user in obj.manager.all()
                 or (has_manager_profile(request)
                     and request.user.manager_profile.is_teamlead
-                    and obj.manager.filter(teamlead=request.user).exists()))
+                    and obj.manager.manager_profile.filter(teamlead=request.user).exists()))
 
 
 class ProjectIsActive(BasePermission):
