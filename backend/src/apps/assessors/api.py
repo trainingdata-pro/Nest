@@ -137,7 +137,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
                                                + Sum('project_working_hours__friday')
                                                + Sum('project_working_hours__saturday')
                                                + Sum('project_working_hours__sunday')))
-                .order_by('manager__last_name', 'last_name'))
+                .order_by('pk'))
 
     def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
