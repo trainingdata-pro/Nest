@@ -3,7 +3,7 @@ import {FiredAssessor} from "../../../models/AssessorResponse";
 import {useMutation, useQueryClient} from "react-query";
 import AssessorService from "../../../services/AssessorService";
 import Dialog from "../../UI/Dialog";
-import AssessorHistory from "../../Assessors/AssessorPage/AssessorHistory";
+import AssessorHistory from "../../Assessors/AssessorPage/AssessorHistory/AssessorHistory";
 import {Context} from "../../../index";
 import {errorNotification, successNotification} from "../../UI/Notify";
 import RentAssessor from "../../AssessorManagement/RentAssessor/RentAssessor";

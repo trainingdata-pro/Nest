@@ -49,7 +49,7 @@ export type CheckAssessorResponse = {
 export default class AssessorService{
     static fetchAssessors = (page: number | string,projectId: any) => $api.get<AssessorResponse>(`/api/assessors/?projects=${projectId}&page=${page}&page_size=10`).then(res => res.data)
     static addAssessor = (data:any) => $api.post<Assessor>('/api/assessors/', data).then(res => res.data)
-    static fetchManagersAssessors = ( page:number|string, manager: string | number, sorting: string = '', skills: string='') => $api.get<AssessorResponse>(`/api/assessors/?page=${page}&page_size=10&manager=${manager}&ordering=${sorting}&skills=${skills}`).then(res => res.data)
+    static fetchManagersAssessors = ( page:number|string, manager: string | number = '', sorting: string = '', skills: string='') => $api.get<AssessorResponse>(`/api/assessors/?page=${page}&page_size=10&ordering=${sorting}&skills=${skills}`).then(res => res.data)
     static fetchRentAssessors = (page: number | string, second_manager: number | string, sorting: string = '', skills: string='') => $api.get<AssessorResponse>(`/api/assessors/?page=${page}&page_size=10&second_manager=${second_manager}&ordering=${sorting}&skills=${skills}`).then(res => res.data)
     static fetchAssessor = (id: any) => $api.get<Assessor>(`/api/assessors/${id}/`).then(res => res.data)
     static addAssessorProject = (id: string | number, data: any) => $api.patch<Assessor>(`/api/assessors/${id}/projects/`, data).then(res => res.data)

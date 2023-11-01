@@ -3,7 +3,7 @@ import {Assessor} from "../../../models/AssessorResponse";
 import {useMutation, useQuery, useQueryClient} from "react-query";
 import AssessorService from "../../../services/AssessorService";
 import Dialog from "../../UI/Dialog";
-import AssessorHistory from "../../Assessors/AssessorPage/AssessorHistory";
+import AssessorHistory from "../../Assessors/AssessorPage/AssessorHistory/AssessorHistory";
 import {useCalendarState} from "@mui/x-date-pickers/internals";
 import {Context} from "../../../index";
 import {errorNotification, successNotification} from "../../UI/Notify";

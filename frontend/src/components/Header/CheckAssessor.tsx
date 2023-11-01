@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import TablePagination from "../UI/TablePagination";
 import Dialog from "../UI/Dialog";
-import AssessorHistory from "../Assessors/AssessorPage/AssessorHistory";
+import AssessorHistory from "../Assessors/AssessorPage/AssessorHistory/AssessorHistory";
 import {useCheckAssessorColumns} from "./columns";
 import NewTable from "../UI/NewTable";
 import {useCheckAssessor} from "./queries";

@@ -7,7 +7,7 @@ import Dialog from "../../UI/Dialog";
 import TableLog from "./LoginAndPassword";
 import {observer} from "mobx-react-lite";
 import AssessorProjects from "./AssessorProjects";
-import AssessorHistory from "./AssessorHistory";
+import AssessorHistory from "./AssessorHistory/AssessorHistory";
 import Skills from "./Skills";
 import CurrentState from "./CurrentState";
 import {useQuery} from 'react-query';
