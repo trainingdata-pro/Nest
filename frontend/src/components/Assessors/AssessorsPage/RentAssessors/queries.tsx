@@ -52,7 +52,7 @@ export const useFetchRentAssessors = ({sorting, sortingString, skillsFilter}: {
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
     const [totalRows, setTotalRows] = useState<number>(0)
-    const rentAssessors = useQuery(['rentAssessors', currentPage, sorting, skillsFilter], () => AssessorService.fetchRentAssessors(currentPage, getManagersIds(), sortingString, skillsFilter.join(',')),{
+    const rentAssessors = useQuery(['rentAssessors', currentPage, sorting, skillsFilter], () => AssessorService.fetchRentAssessors(currentPage, sortingString, skillsFilter.join(',')),{
         keepPreviousData: true,
         onSuccess: data => {
             setTotalRows(data.count)
