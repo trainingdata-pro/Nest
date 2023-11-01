@@ -10,6 +10,7 @@ const NewTable = ({data, columns}: { data: any[], columns: any[] }) => {
         data: data ? data : [],
         columns,
         getCoreRowModel: getCoreRowModel(),
+        enableSorting: false
     })
     return (
         <div className="w-full">

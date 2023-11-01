@@ -6,9 +6,9 @@ import fileDownload from "js-file-download";
 import AssessorService from "../../services/AssessorService";
 import MyButton from "../UI/MyButton";
 
-const Export = ({setIsExportBlackList, items}: {
+const Export = ({setIsExportBlackList, filter}: {
     setIsExportBlackList: React.Dispatch<boolean>,
-    items: []
+    filter: string
 }) => {
     function timeout(delay: number) {
         return new Promise(res => setTimeout(res, delay));
@@ -41,11 +41,13 @@ const Export = ({setIsExportBlackList, items}: {
         }
     })
 
-    const exportData = (type: string) => {
+    const exportData = async (type: string) => {
         if (type === 'csv') {
-            exportBlackList.mutate({type: type, items: items})
+            const res = await AssessorService.getBlackListAll(filter).then(res => res.results.map(el => el.id))
+            exportBlackList.mutate({type: type, items: res})
         } else {
-            exportBlackList.mutate({type: type, items: items})
+            const res = await AssessorService.getBlackListAll(filter).then(res => res.results.map(el => el.id))
+            exportBlackList.mutate({type: type, items: res})
         }
     }
     return (
