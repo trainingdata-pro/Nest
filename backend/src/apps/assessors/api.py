@@ -123,21 +123,21 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         else:
             if user.manager_profile.is_teamlead:
                 team = BaseUser.objects.filter(status=UserStatus.MANAGER, manager_profile__teamlead=user)
-                queryset = Assessor.objects.filter(manager__in=team)
+                queryset = Assessor.objects.filter(Q(manager__in=team) | Q(second_manager__in=team))
             else:
                 queryset = Assessor.objects.filter(Q(manager=user) | Q(second_manager__in=[user]))
 
         return (queryset.select_related('manager')
                 .prefetch_related('projects__manager', 'second_manager')
                 .distinct()
-                .annotate(total_working_hours=(Sum('project_working_hours__monday')
-                                               + Sum('project_working_hours__tuesday')
-                                               + Sum('project_working_hours__wednesday')
-                                               + Sum('project_working_hours__thursday')
-                                               + Sum('project_working_hours__friday')
-                                               + Sum('project_working_hours__saturday')
-                                               + Sum('project_working_hours__sunday')))
-                .order_by('manager__last_name', 'last_name'))
+                .annotate(total_working_hours=(Sum('project_working_hours__monday', default=0)
+                                               + Sum('project_working_hours__tuesday', default=0)
+                                               + Sum('project_working_hours__wednesday', default=0)
+                                               + Sum('project_working_hours__thursday', default=0)
+                                               + Sum('project_working_hours__friday', default=0)
+                                               + Sum('project_working_hours__saturday', default=0)
+                                               + Sum('project_working_hours__sunday', default=0)))
+                .order_by('pk'))
 
     def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
