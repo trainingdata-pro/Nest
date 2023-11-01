@@ -123,7 +123,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         else:
             if user.manager_profile.is_teamlead:
                 team = BaseUser.objects.filter(status=UserStatus.MANAGER, manager_profile__teamlead=user)
-                queryset = Assessor.objects.filter(manager__in=team)
+                queryset = Assessor.objects.filter(Q(manager__in=team) | Q(second_manager__in=team))
             else:
                 queryset = Assessor.objects.filter(Q(manager=user) | Q(second_manager__in=[user]))
 
