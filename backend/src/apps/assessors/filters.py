@@ -66,14 +66,14 @@ class AssessorFilter(SplitStringFilterMixin, FilterByFullNameMixin, filters.Filt
         if user.manager_profile.is_teamlead:
             team = BaseUser.objects.filter(status=UserStatus.MANAGER, manager_profile__teamlead=user)
             if value:
-                return queryset.exclude(second_manager__in=team)
+                return queryset.filter(manager__in=team)
             else:
-                return queryset.exclude(manager__in=team)
+                return queryset.filter(second_manager__in=team)
         else:
             if value:
-                return queryset.exclude(second_manager__in=[user])
+                return queryset.filter(manager=user)
             else:
-                return queryset.exclude(manager=user)
+                return queryset.filter(second_manager__in=[user])
 
 
 class AssessorCredentialsFilter(filters.FilterSet):
