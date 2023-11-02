@@ -44,6 +44,29 @@ class ProjectFilter(SplitStringFilterMixin, filters.FilterSet):
         return queryset.filter(status__in=statuses)
 
 
+class AllAssessorsForProjectFilter(SplitStringFilterMixin, filters.FilterSet):
+    skills = filters.CharFilter(method='filter_skills')
+    workload_status = filters.CharFilter(method='filter_workload_status')
+
+    class Meta:
+        model = Assessor
+        fields = [
+            'skills',
+            'workload_status'
+        ]
+
+    def filter_skills(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
+        skills = self.get_id_for_filtering(value)
+        return queryset.annotate(
+            matching_skills=Count('skills', filter=Q(skills__in=skills))
+        ).filter(matching_skills__gte=len(skills))
+
+    def filter_workload_status(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
+        statuses = self.get_string_for_filtering(value)
+        print(statuses)
+        return queryset.filter(workload_status__status__in=statuses)
+
+
 class ProjectWorkingHoursFilter(SplitStringFilterMixin, filters.FilterSet):
     assessor = filters.CharFilter(method='filter_assessor')
     project = filters.CharFilter(method='filter_project')

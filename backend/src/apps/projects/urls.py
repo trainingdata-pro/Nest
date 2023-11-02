@@ -16,6 +16,6 @@ _export = [
 urlpatterns = [
     path('', include(router.urls)),
     path('export/', include(_export)),
-    path('projects/<int:pk>/assessors/', api.GetAllAssessorForProject.as_view()),
+    path('projects/<int:pk>/assessors/', api.GetAllAssessorsForProject.as_view()),
     path('tags/', api.TagsApiView.as_view()),
 ]
