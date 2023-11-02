@@ -3,6 +3,7 @@ import React, {useState} from "react";
 import {createColumnHelper, Row} from "@tanstack/react-table";
 import {NavLink} from "react-router-dom";
 import {ProjectAssessor} from "../../../models/AssessorResponse";
+import Sorting from "../../FreeResource/FreeResorces/sorting";
 
 
 export const useProjectAssessorsColumns = () => {
@@ -15,7 +16,7 @@ export const useProjectAssessorsColumns = () => {
         manager__last_name: '',
         projects: '',
         username: '',
-        last_name: 'last_name'
+        total_working_hours: 'total_working_hours'
     })
     const getSortingString = () => {
         return Object.keys(sorting).filter(key => {
@@ -119,7 +120,7 @@ export const useProjectAssessorsColumns = () => {
         }),
         columnHelper.accessor('working_hours', {
             id: 'total',
-            header: () => 'Всего',
+            header: () => <div className='flex'><p>Всего</p><Sorting sortingKey={"total_working_hours"} func={setSorting} sortingValue={sorting.total_working_hours} state={sorting}/></div>,
             cell: info => info.row.original.working_hours.length !==0 ?info.row.original.working_hours[0]?.total : 0,
 
             enableSorting: false

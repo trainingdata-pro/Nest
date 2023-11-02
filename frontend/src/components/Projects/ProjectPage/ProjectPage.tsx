@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {useNavigate, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
 import ProjectService from "../../../services/ProjectService";
 import Dialog from "../../UI/Dialog";
 import AddAssessorForm from "../../Assessors/AddAssessorForm";
@@ -21,8 +21,7 @@ import {useFetchProjectAssessors} from "./queries";
 
 const ProjectPage = () => {
         const {id} = useParams()
-        const navigate = useNavigate()
-        const {columns, sorting, selectedRows, getSortingString, setSelectedRows} = useProjectAssessorsColumns()
+        const {columns, sorting, selectedRows, getSortingString} = useProjectAssessorsColumns()
 
         const projectInfo = useQuery(['projectName'], () => ProjectService.fetchProject(id), {
             retry: false,
@@ -33,14 +32,14 @@ const ProjectPage = () => {
             setCurrentPage,
             totalPages,
             totalRows,
-        } = useFetchProjectAssessors({enabled: projectInfo.isSuccess, projectId: id})
+        } = useFetchProjectAssessors({enabled: projectInfo.isSuccess, projectId: id, sorting: sorting, sortingString: getSortingString()})
 
         const [addToProject, setAddToProject] = useState(false)
         const [addAssessor, setAddAssessor] = useState(false)
         const [idDeleteFromProject, setIsDeleteFromProject] = useState(false)
         const [isExportAssessors, setIsExportAssessors] = useState(false)
 
-        if (projectInfo.isLoading || projectAssessors.isLoading) return <Loader/>
+        if (projectInfo.isLoading) return <Loader/>
         if (projectInfo.isError || projectAssessors.isError) return <Page404/>
 
         return (
