@@ -138,6 +138,7 @@ class AssessorsForProjectSchema(BaseAPISchema):
         return self.swagger_auto_schema(
             operation_summary='Assessors for a project',
             operation_description='Get all assessors for a specific project.',
+            request_body=no_body,
             manual_parameters=[
                 openapi.Parameter(
                     name='id',
@@ -154,7 +155,7 @@ class AssessorsForProjectSchema(BaseAPISchema):
                                 'manager__last_name, status.'
                 )
             ],
-            responses={**self.get_responses(401)}
+            responses={**self.get_responses(401, 403, 404)}
         )
 
 

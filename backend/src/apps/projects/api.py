@@ -2,10 +2,12 @@ from typing import Iterable, Any
 
 from django.db.models import Count, QuerySet
 from django.db.models.query import EmptyQuerySet
+from django.http import Http404
 from django.utils.decorators import method_decorator
 from rest_framework import status, generics
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -63,6 +65,12 @@ class ProjectAPIViewSet(BaseAPIViewSet):
             permissions.ProjectPermission,
             permissions.ProjectIsActive,
         ),
+        'assessors': {
+            IsAuthenticated,
+            permissions.IsManager,
+            permissions.ProjectPermission,
+            permissions.ProjectIsActive
+        },
         'clear': (
             IsAuthenticated,
             permissions.IsManager,
@@ -103,9 +111,16 @@ class ProjectAPIViewSet(BaseAPIViewSet):
 
     def destroy(self, request: Request, *args, **kwargs) -> Response:
         instance = self.get_object()
-        self.check_project(instance)
+        self._check_project(instance)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    # @action(detail=True, methods=['get'])
+    # def assessors(self, request: Request, *args, **kwargs) -> Response:
+    #     obj = self.get_object()
+    #     assessors = obj.assessors.all()
+    #     serializer = self.get_serializer(data=assessors)
+    #     return Response(serializer.data)
 
     @action(detail=True, methods=['patch'])
     def clear(self, request: Request, *args, **kwarg) -> Response:
@@ -119,7 +134,7 @@ class ProjectAPIViewSet(BaseAPIViewSet):
         return Response(serializer.data)
 
     @staticmethod
-    def check_project(project: Project) -> Project:
+    def _check_project(project: Project) -> Project:
         if project.assessors.exists():
             raise ValidationError(
                 {'detail': ['Снимите исполнителей с текущего проекта, чтобы продолжить.']}
@@ -151,9 +166,12 @@ class ProjectAPIViewSet(BaseAPIViewSet):
 
 @method_decorator(name='get', decorator=schemas.project_schema2.get())
 class GetAllAssessorForProject(generics.ListAPIView):
-    queryset = Assessor.objects.all()
     serializer_class = AssessorSerializer
-    permission_classes = (IsAuthenticated, permissions.IsManager)
+    permission_classes = (
+        IsAuthenticated,
+        permissions.IsManager
+    )
+    lookup_field = 'pk'
     ordering_fields = [
         'pk',
         'username',
@@ -162,13 +180,33 @@ class GetAllAssessorForProject(generics.ListAPIView):
         'status'
     ]
 
+    def list(self, request: Request, *args, **kwargs):
+        project_pk = kwargs.get('pk')
+        self._can_view_project(project_pk)
+        queryset = self.get_queryset().filter(projects__in=[project_pk])
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
     def get_queryset(self) -> QuerySet[Assessor]:
-        project_pk = self.kwargs.get('pk')
         return (Assessor.objects
-                .filter(projects__in=[project_pk])
                 .select_related('manager')
                 .prefetch_related('projects__manager', 'second_manager')
                 .order_by('last_name'))
+
+    def _can_view_project(self, pk):
+        obj = get_object_or_404(Project, pk=pk)
+        permission = permissions.ProjectPermission()
+        if not permission.has_object_permission(
+            request=self.request,
+            view=self,
+            obj=obj
+        ):
+            raise Http404
 
 
 @method_decorator(name='get', decorator=schemas.tags_schema.get())
@@ -304,9 +342,9 @@ class ExportProjectsAPIView(generics.GenericAPIView):
 
     def _get_team(self) -> Iterable[int]:
         managers = BaseUser.objects.filter(
-                status=UserStatus.MANAGER,
-                manager_profile__is_teamlead=False
-            )
+            status=UserStatus.MANAGER,
+            manager_profile__is_teamlead=False
+        )
         user = self.request.user
         if user.is_superuser:
             return list(managers.values_list('pk', flat=True))
