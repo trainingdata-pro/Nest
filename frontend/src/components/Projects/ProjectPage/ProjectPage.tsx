@@ -24,47 +24,37 @@ import {useProjectAssessorsColumns} from "./columns";
 import ProjectManagement from "./ProjectManagement";
 import {AxiosError} from "axios";
 import NewTable from "../../UI/NewTable";
+import Page404 from "../../../pages/Page404";
+import Loader from "../../UI/Loader";
+import {useFetchProjectAssessors} from "./queries";
 
 
 const ProjectPage = () => {
         const {id} = useParams()
         const navigate = useNavigate()
-        const {columns,sorting, selectedRows, getSortingString, setSelectedRows} = useProjectAssessorsColumns()
-        const [currentPage, setCurrentPage] = useState(1)
-        const [totalPages, setTotalPages] = useState(1)
-        const [totalRows, setTotalRows] = useState<number>(0)
+        const {columns, sorting, selectedRows, getSortingString, setSelectedRows} = useProjectAssessorsColumns()
+
         const projectInfo = useQuery(['projectName'], () => ProjectService.fetchProject(id), {
             retry: false,
-            onError: (err:AxiosError) => {
-                console.log(err.response?.status)
-                if (err.response?.status === 404){
-                    navigate('/projects')
-                }
-            }
         })
-        const {isLoading} = useQuery(['projectAssessors', currentPage, id], () => AssessorService.fetchAssessors(currentPage, id), {
-            enabled: projectInfo.isSuccess,
-            onSuccess: data1 => {
-                setTotalRows(data1.count)
-                setTotalPages(Math.ceil(data1.count / 10))
-                let newData: ProjectAssessors[] = []
-                data1.results.map((assessor: any) => {
-                    assessor.working_hours = assessor.working_hours.find((wh: any) => wh.project.id.toString() === id?.toString())
-                    assessor.workload_status = assessor.workload_status.find((ws: any) => ws.project.id.toString() === id?.toString())?.status
-                    assessor.projects = assessor.projects.map((project: any) => project.id)
-                    newData.push({...assessor})
-                    return 0
-                })
-                setTableData(newData)
-            }
-        })
-        const [tableData, setTableData] = useState<ProjectAssessors[]>([])
+        const {
+            tableData,
+            isLoading,
+            currentPage,
+            setCurrentPage,
+            totalPages,
+            totalRows,
+            isError
+        } = useFetchProjectAssessors({enabled: projectInfo.isSuccess, projectId: id})
+
         const [addToProject, setAddToProject] = useState(false)
         const [addAssessor, setAddAssessor] = useState(false)
         const [idDeleteFromProject, setIsDeleteFromProject] = useState(false)
         const [isExportAssessors, setIsExportAssessors] = useState(false)
 
-        if (isLoading || projectInfo.isLoading) return <div>Загрузка</div>
+        if (projectInfo.isLoading || isLoading) return <Loader/>
+        if (projectInfo.isError || isError) return <Page404/>
+
         return (
             <div>
                 <Dialog isOpen={addToProject} setIsOpen={setAddToProject}>
@@ -76,7 +66,7 @@ const ProjectPage = () => {
                 </Dialog>
                 <Dialog isOpen={idDeleteFromProject} setIsOpen={setIsDeleteFromProject}>
                     {id && <DeleteFromProjects projectId={id} assessorsProjects={selectedRows}
-                                        close={setIsDeleteFromProject}/>}
+                                               close={setIsDeleteFromProject}/>}
                 </Dialog>
                 <Dialog isOpen={isExportAssessors} setIsOpen={setIsExportAssessors}>
                     <Export setIsExportProjects={setIsExportAssessors} exportType='projectAssessors' project={id}/>

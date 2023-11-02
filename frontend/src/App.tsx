@@ -14,6 +14,7 @@ import CompletedProjects from "./components/Projects/CompletedProjects/Completed
 import BlackList from "./components/BlackList/BlackList";
 import FreeResourcePage from "./pages/FreeResourcePage";
 import PasswordReset from "./components/PasswordReset/PasswordReset";
+import Page404 from "./pages/Page404";
 function App() {
     const {store} = useContext(Context)
     useMemo(()=>{
