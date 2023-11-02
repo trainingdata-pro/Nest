@@ -186,12 +186,22 @@ class AssessorSerializer(serializers.ModelSerializer):
 
     @swagger_serializer_method(serializer_or_field=ProjectWorkingHoursSimpleSerializer(many=True))
     def get_working_hours(self, obj: Assessor) -> List[Dict]:
-        serialized = ProjectWorkingHoursSimpleSerializer(obj.project_working_hours.all(), many=True)
+        wh = obj.project_working_hours.all()
+        project_pk = self.context.get('project_pk')
+        if project_pk:
+            wh = wh.filter(project__pk=project_pk)
+
+        serialized = ProjectWorkingHoursSimpleSerializer(wh, many=True)
         return serialized.data
 
     @swagger_serializer_method(serializer_or_field=WorkLoadStatusSerializer(many=True))
     def get_workload_status(self, obj: Assessor) -> List[Dict]:
-        serialized = WorkLoadStatusSerializer(obj.workload_status.all(), many=True)
+        ws = obj.workload_status.all()
+        project_pk = self.context.get('project_pk')
+        if project_pk:
+            ws = ws.filter(project__pk=project_pk)
+
+        serialized = WorkLoadStatusSerializer(ws, many=True)
         return serialized.data
 
 
