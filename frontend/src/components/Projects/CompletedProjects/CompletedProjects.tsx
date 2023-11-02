@@ -29,7 +29,7 @@ const CompletedProjects = () => {
     })
 
     const [isExportProjects, setIsExportProjects] = useState(false)
-    if (completedProjects.isLoading) return <Loader width={30}/>
+    if (completedProjects.isLoading) return <Loader/>
     return (
         <div>
             <Header/>

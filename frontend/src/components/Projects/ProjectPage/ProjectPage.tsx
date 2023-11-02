@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {useParams} from "react-router-dom";
+import {redirect, useNavigate, useParams} from "react-router-dom";
 import {
     getCoreRowModel,
     useReactTable
@@ -22,15 +22,28 @@ import Export from "../Export";
 import TablePagination from "../../UI/TablePagination";
 import {useProjectAssessorsColumns} from "./columns";
 import ProjectManagement from "./ProjectManagement";
+import {AxiosError} from "axios";
+import NewTable from "../../UI/NewTable";
 
 
 const ProjectPage = () => {
         const {id} = useParams()
+        const navigate = useNavigate()
         const {columns,sorting, selectedRows, getSortingString, setSelectedRows} = useProjectAssessorsColumns()
         const [currentPage, setCurrentPage] = useState(1)
         const [totalPages, setTotalPages] = useState(1)
         const [totalRows, setTotalRows] = useState<number>(0)
+        const projectInfo = useQuery(['projectName'], () => ProjectService.fetchProject(id), {
+            retry: false,
+            onError: (err:AxiosError) => {
+                console.log(err.response?.status)
+                if (err.response?.status === 404){
+                    navigate('/projects')
+                }
+            }
+        })
         const {isLoading} = useQuery(['projectAssessors', currentPage, id], () => AssessorService.fetchAssessors(currentPage, id), {
+            enabled: projectInfo.isSuccess,
             onSuccess: data1 => {
                 setTotalRows(data1.count)
                 setTotalPages(Math.ceil(data1.count / 10))
@@ -46,26 +59,19 @@ const ProjectPage = () => {
             }
         })
         const [tableData, setTableData] = useState<ProjectAssessors[]>([])
-        const table = useReactTable({
-            data: tableData,
-            columns,
-            getCoreRowModel: getCoreRowModel(),
-        })
-
-        const {data} = useQuery(['projectName'], () => ProjectService.fetchProject(id))
         const [addToProject, setAddToProject] = useState(false)
         const [addAssessor, setAddAssessor] = useState(false)
         const [idDeleteFromProject, setIsDeleteFromProject] = useState(false)
         const [isExportAssessors, setIsExportAssessors] = useState(false)
 
-        if (isLoading) return <div>Загрузка</div>
+        if (isLoading || projectInfo.isLoading) return <div>Загрузка</div>
         return (
             <div>
                 <Dialog isOpen={addToProject} setIsOpen={setAddToProject}>
                     <AddToProject setAddToProject={setAddToProject}/>
                 </Dialog>
                 <Dialog isOpen={addAssessor} setIsOpen={setAddAssessor}>
-                    <AddAssessorForm assessorId={data?.id} project={data}
+                    <AddAssessorForm assessorId={projectInfo.data?.id} project={projectInfo.data}
                                      setShowSidebar={setAddAssessor}/>
                 </Dialog>
                 <Dialog isOpen={idDeleteFromProject} setIsOpen={setIsDeleteFromProject}>
@@ -79,10 +85,10 @@ const ProjectPage = () => {
                 <div className="flex-col mx-auto pt-[70px] pr-8 pl-8 items-center">
                     <div className="flex justify-between my-2">
                         <div className="flex items-center">
-                            <div className="pl-[15px]">Проект: {data?.name}</div>
+                            <div className="pl-[15px]">Проект: {projectInfo.data?.name}</div>
                         </div>
                         <div className='flex space-x-2'>
-                            <ProjectManagement project={id} status={data?.status}/>
+                            <ProjectManagement project={id} status={projectInfo.data?.status}/>
                             <ProjectMenu setIsDeleteFromProject={setIsDeleteFromProject}
                                          isSelected={selectedRows.length !== 0}/>
                             <MyButton onClick={() => setAddToProject(true)}>Добавить на проект</MyButton>
@@ -91,7 +97,7 @@ const ProjectPage = () => {
                         </div>
                     </div>
                     <div className='rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
-                        <Table table={table}/>
+                        <NewTable data={tableData} columns={columns}/>
                         <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
                                          setCurrentPage={setCurrentPage}/>
                     </div>

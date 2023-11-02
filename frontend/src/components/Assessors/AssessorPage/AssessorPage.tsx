@@ -29,7 +29,7 @@ const AssessorPage = () => {
     const [isShowLoginAndPassword, setIsShowLoginAndPassword] = useState(false)
     const [isShowHistory, setIsShowHistory] = useState(false)
     if (assessor.isLoading) {
-        return <Loader width={50}/>
+        return <Loader/>
     } else {
         return (
             <div>

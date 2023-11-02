@@ -14,7 +14,6 @@ import CompletedProjects from "./components/Projects/CompletedProjects/Completed
 import BlackList from "./components/BlackList/BlackList";
 import FreeResourcePage from "./pages/FreeResourcePage";
 import PasswordReset from "./components/PasswordReset/PasswordReset";
-
 function App() {
     const {store} = useContext(Context)
     useMemo(()=>{
@@ -24,7 +23,7 @@ function App() {
     },[])
 
     if (store.isLoading) {
-        return (<Loader width={"16"}/>)
+        return (<Loader/>)
     }
     return (
             <BrowserRouter>
