@@ -22,6 +22,7 @@ from core.mixins import BaseAPIViewSet
 from core.users import UserStatus
 from .filters import (
     ProjectFilter,
+    AllAssessorsForProjectFilter,
     ProjectWorkingHoursFilter,
     WorkLoadStatusFilter
 )
@@ -165,12 +166,13 @@ class ProjectAPIViewSet(BaseAPIViewSet):
 
 
 @method_decorator(name='get', decorator=schemas.project_schema2.get())
-class GetAllAssessorForProject(generics.ListAPIView):
+class GetAllAssessorsForProject(generics.ListAPIView):
     serializer_class = AssessorSerializer
     permission_classes = (
         IsAuthenticated,
         permissions.IsManager
     )
+    filterset_class = AllAssessorsForProjectFilter
     ordering_fields = [
         'pk',
         'username',
@@ -188,7 +190,7 @@ class GetAllAssessorForProject(generics.ListAPIView):
     def list(self, request: Request, *args, **kwargs):
         project_pk = kwargs.get('pk')
         self._can_view_project(project_pk)
-        queryset = self.get_queryset().filter(projects__in=[project_pk])
+        queryset = self.filter_queryset(self.get_queryset()).filter(projects__in=[project_pk])
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -208,7 +210,7 @@ class GetAllAssessorForProject(generics.ListAPIView):
                                                + Sum('project_working_hours__friday', default=0)
                                                + Sum('project_working_hours__saturday', default=0)
                                                + Sum('project_working_hours__sunday', default=0)))
-                .order_by('last_name'))
+                .order_by('pk'))
 
     def _can_view_project(self, pk):
         obj = get_object_or_404(Project, pk=pk)

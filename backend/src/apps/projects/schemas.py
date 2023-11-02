@@ -147,6 +147,22 @@ class AssessorsForProjectSchema(BaseAPISchema):
                     description='Unique project ID.'
                 ),
                 openapi.Parameter(
+                    name='skills',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by skill ID.\n'
+                                'Example: host.com/?skills=1,2.'
+                ),
+                openapi.Parameter(
+                    name='workload_status',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by workload status.\n'
+                                'Available statuses:  '
+                                f'{", ".join([f"{item[0]} ({item[1]})" for item in Status.choices])}.\n'
+                                'Example: host.com/?workload_status=full,partial.'
+                ),
+                openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
