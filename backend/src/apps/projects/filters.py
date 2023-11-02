@@ -63,7 +63,6 @@ class AllAssessorsForProjectFilter(SplitStringFilterMixin, filters.FilterSet):
 
     def filter_workload_status(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
         statuses = self.get_string_for_filtering(value)
-        print(statuses)
         return queryset.filter(workload_status__status__in=statuses)
 
 

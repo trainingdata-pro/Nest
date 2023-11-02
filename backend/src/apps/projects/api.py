@@ -1,6 +1,6 @@
 from typing import Iterable, Any
 
-from django.db.models import Count, QuerySet, Sum
+from django.db.models import Count, QuerySet, Sum, OuterRef, Q
 from django.db.models.query import EmptyQuerySet
 from django.http import Http404
 from django.utils.decorators import method_decorator
@@ -200,16 +200,31 @@ class GetAllAssessorsForProject(generics.ListAPIView):
         return Response(serializer.data)
 
     def get_queryset(self) -> QuerySet[Assessor]:
+        project_pk = self.kwargs.get('pk')
         return (Assessor.objects
                 .select_related('manager')
                 .prefetch_related('projects__manager', 'second_manager')
-                .annotate(total_working_hours=(Sum('project_working_hours__monday', default=0)
-                                               + Sum('project_working_hours__tuesday', default=0)
-                                               + Sum('project_working_hours__wednesday', default=0)
-                                               + Sum('project_working_hours__thursday', default=0)
-                                               + Sum('project_working_hours__friday', default=0)
-                                               + Sum('project_working_hours__saturday', default=0)
-                                               + Sum('project_working_hours__sunday', default=0)))
+                .annotate(total_working_hours=(Sum('project_working_hours__monday',
+                                                   default=0,
+                                                   filter=Q(project_working_hours__project__pk=project_pk))
+                                               + Sum('project_working_hours__tuesday',
+                                                     default=0,
+                                                     filter=Q(project_working_hours__project__pk=project_pk))
+                                               + Sum('project_working_hours__wednesday',
+                                                     default=0,
+                                                     filter=Q(project_working_hours__project__pk=project_pk))
+                                               + Sum('project_working_hours__thursday',
+                                                     default=0,
+                                                     filter=Q(project_working_hours__project__pk=project_pk))
+                                               + Sum('project_working_hours__friday',
+                                                     default=0,
+                                                     filter=Q(project_working_hours__project__pk=project_pk))
+                                               + Sum('project_working_hours__saturday',
+                                                     default=0,
+                                                     filter=Q(project_working_hours__project__pk=project_pk))
+                                               + Sum('project_working_hours__sunday',
+                                                     default=0,
+                                                     filter=Q(project_working_hours__project__pk=project_pk))))
                 .order_by('pk'))
 
     def _can_view_project(self, pk):
