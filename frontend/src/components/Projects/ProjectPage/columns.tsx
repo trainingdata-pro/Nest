@@ -13,10 +13,7 @@ export const useProjectAssessorsColumns = () => {
         "reserved": "Зарезервирован",
     }
     const [sorting, setSorting] = React.useState({
-        manager__last_name: '',
-        projects: '',
-        username: '',
-        total_working_hours: 'total_working_hours'
+        total_working_hours: '-total_working_hours'
     })
     const getSortingString = () => {
         return Object.keys(sorting).filter(key => {

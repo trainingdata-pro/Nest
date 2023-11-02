@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import {successNotification, errorNotification} from "../../UI/Notify";
 import {Row} from "@tanstack/react-table";
 import {Assessor} from "../../../models/AssessorResponse";
+import {Project} from "../../../models/ProjectResponse";
 
 interface DeleteFromProjectsProps {
     projectId: number | string,
@@ -20,7 +21,7 @@ const DeleteFromProjects = ({projectId, assessorsProjects, close}: DeleteFromPro
     const submit = ()=> {
         if (selectedReason){
             assessorsProjects.forEach((row:any) => {
-                const newProjects = row.original.projects.filter((pr: any) => pr.toString() !== projectId.toString())
+                const newProjects = row.original.projects.filter((pr: Project) => pr.id.toString() !== projectId.toString()).map((project:Project) => project.id)
                 deleteFromProject.mutate({
                         id: row.original.id,
                         data: {
