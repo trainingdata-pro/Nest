@@ -152,7 +152,7 @@ class AssessorsForProjectSchema(BaseAPISchema):
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results.\n'
                                 'Available fields: pk, username, last_name, '
-                                'manager__last_name, status.'
+                                'manager__last_name, status, total_working_hours.'
                 )
             ],
             responses={**self.get_responses(401, 403, 404)}
