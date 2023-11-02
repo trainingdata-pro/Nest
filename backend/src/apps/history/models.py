@@ -34,7 +34,8 @@ class History(models.Model):
     assessor = models.ForeignKey(
         Assessor,
         verbose_name='исполнитель',
-        on_delete=models.PROTECT
+        on_delete=models.PROTECT,
+        related_name='history'
     )
     action = models.CharField(
         max_length=30,
