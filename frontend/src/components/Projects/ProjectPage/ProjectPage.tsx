@@ -1,28 +1,18 @@
 import React, {useState} from 'react';
-import {redirect, useNavigate, useParams} from "react-router-dom";
-import {
-    getCoreRowModel,
-    useReactTable
-} from "@tanstack/react-table";
-import {ProjectAssessors} from "../../../models/AssessorResponse";
-import Table from "../../UI/Table";
+import {useNavigate, useParams} from "react-router-dom";
 import ProjectService from "../../../services/ProjectService";
 import Dialog from "../../UI/Dialog";
 import AddAssessorForm from "../../Assessors/AddAssessorForm";
 import Header from '../../Header/Header';
 import {useQuery} from "react-query";
-import AssessorService from "../../../services/AssessorService";
 import ProjectMenu from "./ProjectMenu";
 import DeleteFromProjects from "../../AssessorManagement/DeleteFromProjects/DeleteFromProjects";
 import AddToProject from "./AddToProject";
 import MyButton from "../../UI/MyButton";
 import Export from "../Export";
-
-
 import TablePagination from "../../UI/TablePagination";
 import {useProjectAssessorsColumns} from "./columns";
 import ProjectManagement from "./ProjectManagement";
-import {AxiosError} from "axios";
 import NewTable from "../../UI/NewTable";
 import Page404 from "../../../pages/Page404";
 import Loader from "../../UI/Loader";
@@ -38,13 +28,11 @@ const ProjectPage = () => {
             retry: false,
         })
         const {
-            tableData,
-            isLoading,
+            projectAssessors,
             currentPage,
             setCurrentPage,
             totalPages,
             totalRows,
-            isError
         } = useFetchProjectAssessors({enabled: projectInfo.isSuccess, projectId: id})
 
         const [addToProject, setAddToProject] = useState(false)
@@ -52,8 +40,8 @@ const ProjectPage = () => {
         const [idDeleteFromProject, setIsDeleteFromProject] = useState(false)
         const [isExportAssessors, setIsExportAssessors] = useState(false)
 
-        if (projectInfo.isLoading || isLoading) return <Loader/>
-        if (projectInfo.isError || isError) return <Page404/>
+        if (projectInfo.isLoading || projectAssessors.isLoading) return <Loader/>
+        if (projectInfo.isError || projectAssessors.isError) return <Page404/>
 
         return (
             <div>
@@ -87,7 +75,7 @@ const ProjectPage = () => {
                         </div>
                     </div>
                     <div className='rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
-                        <NewTable data={tableData} columns={columns}/>
+                        <NewTable data={projectAssessors.isSuccess ? projectAssessors.data.results : []} columns={columns}/>
                         <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
                                          setCurrentPage={setCurrentPage}/>
                     </div>

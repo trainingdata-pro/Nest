@@ -2,7 +2,7 @@ import TableCheckBox from "../../UI/TableCheckBox";
 import React, {useState} from "react";
 import {createColumnHelper, Row} from "@tanstack/react-table";
 import {NavLink} from "react-router-dom";
-import {Assessor, ProjectAssessors} from "../../../models/AssessorResponse";
+import {ProjectAssessor} from "../../../models/AssessorResponse";
 
 
 export const useProjectAssessorsColumns = () => {
@@ -27,8 +27,8 @@ export const useProjectAssessorsColumns = () => {
         }).join(',')
     }
 
-    const [selectedRows, setSelectedRows] = useState<Row<Assessor>[]>([])
-    const columnHelper = createColumnHelper<ProjectAssessors>()
+    const [selectedRows, setSelectedRows] = useState<Row<ProjectAssessor>[]>([])
+    const columnHelper = createColumnHelper<ProjectAssessor>()
     const columns = [
         columnHelper.accessor('id', {
             header: '',
@@ -68,57 +68,65 @@ export const useProjectAssessorsColumns = () => {
         columnHelper.group({
             header: 'Количество рабочих часов',
             columns: [
-                columnHelper.accessor('working_hours.monday', {
+                columnHelper.accessor('working_hours', {
+                    id: 'monday',
                     header: () => 'ПН',
-                    cell: info => info.row.original.working_hours ? info.getValue() : 0,
+                    cell: info => info.row.original.working_hours.length !==0 ? info.row.original.working_hours[0]?.monday : 0,
                     enableSorting: false
                 }),
-                columnHelper.accessor('working_hours.tuesday', {
+                columnHelper.accessor('working_hours', {
+                    id: 'tuesday',
                     header: () => 'ВТ',
                     enableSorting: false,
-                    cell: info => info.row.original.working_hours ? info.getValue() : 0,
+                    cell: info => info.row.original.working_hours.length !==0 ? info.row.original.working_hours[0]?.tuesday : 0,
 
                 }),
-                columnHelper.accessor('working_hours.wednesday', {
+                columnHelper.accessor('working_hours', {
+                    id: 'wednesday',
                     header: () => 'СР',
-                    cell: info => info.row.original.working_hours ? info.getValue() : 0,
+                    cell: info => info.row.original.working_hours.length !==0 ? info.row.original.working_hours[0]?.wednesday : 0,
 
                     enableSorting: false
                 }),
-                columnHelper.accessor('working_hours.thursday', {
+                columnHelper.accessor('working_hours', {
+                    id: 'thursday',
                     header: () => 'ЧТ',
-                    cell: info => info.row.original.working_hours ? info.getValue() : 0,
+                    cell: info => info.row.original.working_hours.length !==0 ? info.row.original.working_hours[0]?.thursday : 0,
 
                     enableSorting: false
                 }),
-                columnHelper.accessor('working_hours.friday', {
+                columnHelper.accessor('working_hours', {
+                    id: 'friday',
                     header: () => 'ПТ',
-                    cell: info => info.row.original.working_hours ? info.getValue() : 0,
+                    cell: info => info.row.original.working_hours.length !==0 ? info.row.original.working_hours[0]?.friday : 0,
 
                     enableSorting: false
                 }),
-                columnHelper.accessor('working_hours.saturday', {
+                columnHelper.accessor('working_hours', {
+                    id: 'saturday',
                     header: () => 'СБ',
-                    cell: info => info.row.original.working_hours ? info.getValue() : 0,
+                    cell: info => info.row.original.working_hours.length !==0 ? info.row.original.working_hours[0]?.saturday : 0,
 
                     enableSorting: false
                 }),
-                columnHelper.accessor('working_hours.sunday', {
+                columnHelper.accessor('working_hours', {
+                    id: 'sunday',
                     header: () => 'ВС',
-                    cell: info => info.row.original.working_hours ? info.getValue() : 0,
+                    cell: info => info.row.original.working_hours.length !==0 ? info.row.original.working_hours[0]?.sunday : 0,
                     enableSorting: false
                 }),
             ],
         }),
-        columnHelper.accessor('working_hours.total', {
+        columnHelper.accessor('working_hours', {
+            id: 'total',
             header: () => 'Всего',
-            cell: info => info.row.original.working_hours ? info.getValue() : 0,
+            cell: info => info.row.original.working_hours.length !==0 ?info.row.original.working_hours[0]?.total : 0,
 
             enableSorting: false
         }),
         columnHelper.accessor('workload_status', {
             header: () => 'Статус',
-            cell: info => info.row.original.workload_status ? statusObject[info.getValue()] : '',
+            cell: info => info.row.original.workload_status ? statusObject[info.getValue()[0]?.status] : '',
             enableSorting: false
         }),
         columnHelper.accessor('skills', {
