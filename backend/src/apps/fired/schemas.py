@@ -98,7 +98,8 @@ class FiredSchema(BaseAPISchema):
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
                     description='Which field to use when ordering the results.\n'
-                                'Available fields: pk, date, assessor__username, assessor__last_name.'
+                                'Available fields: pk, date, assessor__username, '
+                                'assessor__last_name, last_manager, last_project.'
                 )
             ],
             responses={**self.get_responses(401)}

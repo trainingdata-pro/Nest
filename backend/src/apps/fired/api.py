@@ -1,3 +1,4 @@
+from django.db.models import OuterRef, Subquery
 from django.db.models.query import EmptyQuerySet
 from django.utils.decorators import method_decorator
 from rest_framework import viewsets, status, generics
@@ -9,6 +10,7 @@ from rest_framework.response import Response
 from apps.assessors.serializers import AssessorSerializer
 from apps.export.serializers import ExportSerializer
 from apps.export.services import ExportType
+from apps.history.models import History, HistoryAttribute
 from core.mixins import BaseAPIViewSet
 from core.permissions import IsManager
 from .filters import ReasonFilter, FiredFilter, BlackListFilter
@@ -31,7 +33,6 @@ class ReasonAPIViewSet(viewsets.ModelViewSet):
 @method_decorator(name='retrieve', decorator=schemas.fired_schema.retrieve_blacklist())
 @method_decorator(name='list', decorator=schemas.fired_schema.list_blacklist())
 class BlackListAPIViewSet(viewsets.ModelViewSet):
-    queryset = BlackList.objects.all().select_related('assessor', 'reason').order_by('-date')
     serializer_class = serializers.BlackListSerializer
     permission_classes = (IsAuthenticated,)
     http_method_names = ['get']
@@ -40,8 +41,27 @@ class BlackListAPIViewSet(viewsets.ModelViewSet):
         'pk',
         'date',
         'assessor__username',
-        'assessor__last_name'
+        'assessor__last_name',
+        'last_manager',
+        'last_project'
     ]
+
+    def get_queryset(self):
+        last_manager_sq = History.objects.filter(
+            assessor=OuterRef('assessor'),
+            attribute=HistoryAttribute.MANAGER
+        ).values('old_value')[:1]
+
+        last_project_sq = History.objects.filter(
+            assessor=OuterRef('assessor'),
+            attribute=HistoryAttribute.PROJECT
+        ).values('old_value')[:1]
+
+        return (BlackList.objects
+                .annotate(last_manager=Subquery(last_manager_sq))
+                .annotate(last_project=Subquery(last_project_sq))
+                .select_related('assessor', 'reason')
+                .order_by('-date'))
 
 
 @method_decorator(name='retrieve', decorator=schemas.fired_schema.retrieve_fired())
