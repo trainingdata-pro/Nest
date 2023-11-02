@@ -1,6 +1,6 @@
 from typing import Iterable, Any
 
-from django.db.models import Count, QuerySet
+from django.db.models import Count, QuerySet, Sum
 from django.db.models.query import EmptyQuerySet
 from django.http import Http404
 from django.utils.decorators import method_decorator
@@ -176,7 +176,8 @@ class GetAllAssessorForProject(generics.ListAPIView):
         'username',
         'last_name',
         'manager__last_name',
-        'status'
+        'status',
+        'total_working_hours'
     ]
 
     def get_serializer_context(self):
@@ -200,15 +201,22 @@ class GetAllAssessorForProject(generics.ListAPIView):
         return (Assessor.objects
                 .select_related('manager')
                 .prefetch_related('projects__manager', 'second_manager')
+                .annotate(total_working_hours=(Sum('project_working_hours__monday', default=0)
+                                               + Sum('project_working_hours__tuesday', default=0)
+                                               + Sum('project_working_hours__wednesday', default=0)
+                                               + Sum('project_working_hours__thursday', default=0)
+                                               + Sum('project_working_hours__friday', default=0)
+                                               + Sum('project_working_hours__saturday', default=0)
+                                               + Sum('project_working_hours__sunday', default=0)))
                 .order_by('last_name'))
 
     def _can_view_project(self, pk):
         obj = get_object_or_404(Project, pk=pk)
         permission = permissions.ProjectPermission()
         if not permission.has_object_permission(
-            request=self.request,
-            view=self,
-            obj=obj
+                request=self.request,
+                view=self,
+                obj=obj
         ):
             raise Http404
 
