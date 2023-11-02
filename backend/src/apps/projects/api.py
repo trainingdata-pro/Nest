@@ -171,7 +171,6 @@ class GetAllAssessorForProject(generics.ListAPIView):
         IsAuthenticated,
         permissions.IsManager
     )
-    lookup_field = 'pk'
     ordering_fields = [
         'pk',
         'username',
@@ -179,6 +178,11 @@ class GetAllAssessorForProject(generics.ListAPIView):
         'manager__last_name',
         'status'
     ]
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['project_pk'] = self.kwargs.get('pk')
+        return context
 
     def list(self, request: Request, *args, **kwargs):
         project_pk = kwargs.get('pk')
