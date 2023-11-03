@@ -166,7 +166,7 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
                                  ...register('last_name', {
                                      required: "Обязательное поле",
                                      pattern: {
-                                         value: /^[А-ЯЁа-яёA-Za-z]+$/,
+                                         value: /^[А-ЯЁа-яёA-Za-z\s-]+$/,
                                          message: "Поле должно содержать символы: A-z,А-я"
                                      }
                                  })
@@ -182,7 +182,7 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
                         ...register('first_name', {
                             required: "Обязательное поле",
                             pattern: {
-                                value: /^[А-ЯЁа-яёA-Za-z]+$/,
+                                value: /^[А-ЯЁа-яёA-Za-z\s-]+$/,
                                 message: "Поле должно содержать символы: A-z,А-я"
                             }
                         })
@@ -201,7 +201,7 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
                     <MyInput register={{
                         ...register('middle_name', {
                             pattern: {
-                                value: /^[А-ЯЁа-яёA-Za-z]+$/,
+                                value: /^[А-ЯЁа-яёA-Za-z\s-]+$/,
                                 message: "Поле должно содержать символы: A-z,А-я"
                             }
                         })
