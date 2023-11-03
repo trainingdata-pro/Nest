@@ -16,29 +16,48 @@ import ProjectManagement from "./ProjectManagement";
 import NewTable from "../../UI/NewTable";
 import Page404 from "../../../pages/Page404";
 import Loader from "../../UI/Loader";
-import {useFetchProjectAssessors} from "./queries";
+import {useFetchProjectAssessors, useFetchProjectInfo} from "./queries";
+import AssessorService from "../../../services/AssessorService";
+import Select from "react-select";
 
 
 const ProjectPage = () => {
         const {id} = useParams()
         const {columns, sorting, selectedRows, getSortingString} = useProjectAssessorsColumns()
+        const [skillsFilter, setSkillsFilter] = useState<number[]>([])
 
-        const projectInfo = useQuery(['projectName'], () => ProjectService.fetchProject(id), {
-            retry: false,
-        })
+        const {projectInfo} = useFetchProjectInfo({projectId: id})
         const {
             projectAssessors,
             currentPage,
             setCurrentPage,
             totalPages,
             totalRows,
-        } = useFetchProjectAssessors({enabled: projectInfo.isSuccess, projectId: id, sorting: sorting, sortingString: getSortingString()})
+        } = useFetchProjectAssessors({enabled: projectInfo.isSuccess, projectId: id, sorting: sorting, sortingString: getSortingString(), skillsFilter: skillsFilter})
 
         const [addToProject, setAddToProject] = useState(false)
         const [addAssessor, setAddAssessor] = useState(false)
         const [idDeleteFromProject, setIsDeleteFromProject] = useState(false)
         const [isExportAssessors, setIsExportAssessors] = useState(false)
-
+        useQuery(['skills'], () => AssessorService.fetchSkills(), {
+            onSuccess: data => {
+                setSkillsList(data.results.map(tag => {
+                    return {label: tag.title, value: tag.id}
+                }))
+            }
+        })
+        const [skillsList, setSkillsList] = useState<any>([])
+        const onSkillsChange = (newValue: any) => {
+            const tagsId = newValue.map((value: any) => value.value)
+            setSkillsFilter(tagsId)
+        }
+        const getValueSkills = () => {
+            if (skillsFilter) {
+                return skillsList.filter((tag: any) => skillsFilter.indexOf(tag.value) >= 0)
+            } else {
+                return []
+            }
+        }
         if (projectInfo.isLoading) return <Loader/>
         if (projectInfo.isError || projectAssessors.isError) return <Page404/>
 
@@ -73,11 +92,29 @@ const ProjectPage = () => {
                             <MyButton onClick={() => setIsExportAssessors(true)}>Экспорт данных</MyButton>
                         </div>
                     </div>
-                    <div className='rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
-                        <NewTable data={projectAssessors.isSuccess ? projectAssessors.data.results : []} columns={columns}/>
-                        <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
-                                         setCurrentPage={setCurrentPage}/>
+                    <div className='flex space-x-2'>
+                        <div className='flex-[16%] flex-col'>
+                            <div className="">
+                                <Select
+                                    placeholder='Фильтр по навыкам'
+                                    options={skillsList}
+                                    isMulti
+                                    value={getValueSkills()}
+                                    isSearchable={false}
+                                    onChange={onSkillsChange}
+                                />
+
+                            </div>
+                            <p>dfsdfsd</p>
+                        </div>
+                        <div className='flex-[84%] rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
+                            <NewTable data={projectAssessors.isSuccess ? projectAssessors.data.results : []}
+                                      columns={columns}/>
+                            <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                                             setCurrentPage={setCurrentPage}/>
+                        </div>
                     </div>
+
                 </div>
 
             </div>

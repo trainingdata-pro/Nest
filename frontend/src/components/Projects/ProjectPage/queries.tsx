@@ -1,18 +1,20 @@
 import {useQuery} from "react-query";
 import AssessorService from "../../../services/AssessorService";
 import {useState} from "react";
+import ProjectService from "../../../services/ProjectService";
 
 
-export const useFetchProjectAssessors = ({enabled, projectId,sorting, sortingString}: {
+export const useFetchProjectAssessors = ({enabled, projectId,sorting, sortingString, skillsFilter}: {
     enabled: boolean,
     projectId: number | string | undefined,
     sorting:any,
-    sortingString: string
+    sortingString: string,
+    skillsFilter: number[]
 }) => {
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
     const [totalRows, setTotalRows] = useState<number>(0)
-    const projectAssessors = useQuery(['projectAssessors', currentPage, projectId, sorting], () => AssessorService.fetchAssessors(currentPage, projectId, sortingString), {
+    const projectAssessors = useQuery(['projectAssessors', currentPage, projectId, sorting,skillsFilter], () => AssessorService.fetchAssessors(currentPage, projectId, sortingString,skillsFilter.join(',')), {
         enabled: enabled,
         onSuccess: data1 => {
             setTotalRows(data1.count)
@@ -22,4 +24,13 @@ export const useFetchProjectAssessors = ({enabled, projectId,sorting, sortingStr
     })
 
     return {projectAssessors, currentPage, setCurrentPage, totalPages, totalRows}
+}
+
+export const useFetchProjectInfo = ({projectId}:{
+    projectId: number | string | undefined
+}) => {
+    const projectInfo = useQuery(['projectName', projectId], () => ProjectService.fetchProject(projectId), {
+        retry: false,
+    })
+    return {projectInfo}
 }
