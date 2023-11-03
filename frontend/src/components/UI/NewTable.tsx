@@ -63,10 +63,10 @@ const NewTable = ({data, columns}: { data: any[], columns: any[] }) => {
                                     "border-b transition-colors hover:bg-gray-100"}>
                                 {row.getVisibleCells().map(cell => {
                                     return (
-                                        <td className='border-r border-r-gray-300 last:border-none' key={cell.id}
+                                        <td className='border-r border-r-gray-300 h-20 align-middle last:border-none' key={cell.id}
                                             colSpan={1}>
                                             <div
-                                                className="flex justify-center text-center items-center align-middle py-2 break-words">
+                                                className="flex justify-center text-center h-full items-center align-middle break-words">
                                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                             </div>
                                         </td>

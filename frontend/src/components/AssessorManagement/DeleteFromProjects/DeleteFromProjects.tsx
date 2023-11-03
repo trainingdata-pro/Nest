@@ -62,7 +62,7 @@ const DeleteFromProjects = ({projectId, assessorsProjects, close}: DeleteFromPro
                 <label htmlFor='reason3'>Не понадобился</label>
             </div>
             <div className='flex justify-between space-x-2'>
-                <MyButton onClick={() => close(true)}>Назад</MyButton>
+                <MyButton onClick={() => close(false)}>Назад</MyButton>
                 <MyButton onClick={submit}>Применить</MyButton>
             </div>
         </div>

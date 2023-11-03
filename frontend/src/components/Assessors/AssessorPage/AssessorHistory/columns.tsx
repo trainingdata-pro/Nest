@@ -36,13 +36,15 @@ export const useHistoryColumns = () => {
         }),
         columnHelper.accessor('old_value', {
             header: 'Старое значение',
-            cell: (info) => <div className="cursor-pointer h-full w-full text-center break-all"><p
-                className='hover:border-b hover:border-black w-fit mx-auto'>{info.getValue()}</p></div>
+            cell: (info) => <div className="flex flex-col justify-center bg-red-200 h-full w-full items-center text-center break-words">
+                {info.getValue()?.split('; ').map(val => <p
+                className='w-fit mx-auto'>{val}</p>)}</div>
         }),
         columnHelper.accessor('new_value', {
             header: 'Новое значение',
-            cell: (info) => <div className="cursor-pointer h-full w-full text-center break-all"><p
-                className='hover:border-b hover:border-black w-fit mx-auto'>{info.getValue()}</p></div>
+            cell: (info) => <div className="flex flex-col justify-center bg-green-200 h-full w-full items-center text-center break-words">
+                {info.getValue()?.split('; ').map(val => <p
+                    className='w-fit mx-auto'>{val}</p>)}</div>
         }),
         columnHelper.accessor('action', {
             header: 'Действие',

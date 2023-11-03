@@ -40,7 +40,7 @@ export const useOwnDesiresSorting = () => {
         }),
         columnHelper.accessor('assessor.username', {
             header: 'Ник в ТГ',
-            cell: info => info.renderValue(),
+            cell: info => <a className={'text-[#102ede]'} href={`https://t.me/${info.getValue()}`}>{info.getValue()}</a>,
             enableSorting: false
         }),
         columnHelper.accessor('last_manager', {
