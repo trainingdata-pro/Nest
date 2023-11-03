@@ -44,7 +44,6 @@ function App() {
                      <Route path={'/blacklist'} element={<BlackList/>} />
                      <Route path={'/free_resources'} element={<FreeResourcePage/>}/>
                      <Route path="*" element={<Navigate to="/projects" replace/>}/>
-
                  </Routes>}
              </BrowserRouter>
     );

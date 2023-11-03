@@ -35,7 +35,7 @@ export const useProjectsSorting =()=> {
             enableSorting: false,
         }),
         columnHelper.accessor('name', {
-            cell: info => <div className="cursor-pointer h-full w-full text-center break-all text-[#102ede] font-bold" onClick={() => {
+            cell: info => <div className="cursor-pointer h-full w-full text-center break-words text-[#102ede] font-bold" onClick={() => {
                 setProjectId(info.row.original.id)
                 setShowSidebar(true)
             }}><p className='w-fit mx-auto'>{info.getValue()}</p></div>,

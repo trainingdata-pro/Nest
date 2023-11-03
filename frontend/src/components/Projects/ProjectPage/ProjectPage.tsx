@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import {useParams} from "react-router-dom";
-import ProjectService from "../../../services/ProjectService";
 import Dialog from "../../UI/Dialog";
 import AddAssessorForm from "../../Assessors/AddAssessorForm";
 import Header from '../../Header/Header';
@@ -25,7 +24,7 @@ const ProjectPage = () => {
         const {id} = useParams()
         const {columns, sorting, selectedRows, getSortingString} = useProjectAssessorsColumns()
         const [skillsFilter, setSkillsFilter] = useState<number[]>([])
-
+        const [selectedStatus, setSelectedStatus] = useState<string[]>([])
         const {projectInfo} = useFetchProjectInfo({projectId: id})
         const {
             projectAssessors,
@@ -33,8 +32,26 @@ const ProjectPage = () => {
             setCurrentPage,
             totalPages,
             totalRows,
-        } = useFetchProjectAssessors({enabled: projectInfo.isSuccess, projectId: id, sorting: sorting, sortingString: getSortingString(), skillsFilter: skillsFilter})
+        } = useFetchProjectAssessors({
+            enabled: projectInfo.isSuccess,
+            projectId: id,
+            sorting: sorting,
+            sortingString: getSortingString(),
+            skillsFilter: skillsFilter,
+            statusFilter: selectedStatus.join(',')
+        })
+        const status = [
+            {value: 'full', label: 'Полная загрузка'},
+            {value: 'partial', label: 'Частичная загрузка'},
+            {value: 'reserved', label: 'Зарезервирован'}
+        ]
+        const handleSelectChangeStatus = (value: any) => {
+            setSelectedStatus(value.map((val:any) => val.value))
+        };
 
+        const getStatusValue = () => {
+            return selectedStatus ? status.filter(status => selectedStatus.find(stat => status.value === stat) !== undefined) : []
+        }
         const [addToProject, setAddToProject] = useState(false)
         const [addAssessor, setAddAssessor] = useState(false)
         const [idDeleteFromProject, setIsDeleteFromProject] = useState(false)
@@ -93,7 +110,7 @@ const ProjectPage = () => {
                         </div>
                     </div>
                     <div className='flex space-x-2'>
-                        <div className='flex-[16%] flex-col'>
+                        <div className='flex-[16%] flex-col space-y-2'>
                             <div className="">
                                 <Select
                                     placeholder='Фильтр по навыкам'
@@ -103,9 +120,17 @@ const ProjectPage = () => {
                                     isSearchable={false}
                                     onChange={onSkillsChange}
                                 />
-
                             </div>
-                            <p>dfsdfsd</p>
+                            <div>
+                                <Select
+                                    placeholder='Фильтр по статусу'
+                                    options={status}
+                                    isMulti
+                                    isSearchable={false}
+                                    value={getStatusValue()}
+                                    onChange={handleSelectChangeStatus}
+                                />
+                            </div>
                         </div>
                         <div className='flex-[84%] rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
                             <NewTable data={projectAssessors.isSuccess ? projectAssessors.data.results : []}
