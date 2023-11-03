@@ -47,7 +47,7 @@ export type CheckAssessorResponse = {
 
 }
 export default class AssessorService{
-    static fetchAssessors = (page: number | string,projectId: any, ordering: string = '', skills: string='') => $api.get<AssessorResponse>(`/api/projects/${projectId}/assessors/?page=${page}&page_size=10&ordering=${ordering}&skills=${skills}`).then(res => {
+    static fetchAssessors = (page: number | string,projectId: any, ordering: string = '', skills: string='', status: string = '') => $api.get<AssessorResponse>(`/api/projects/${projectId}/assessors/?page=${page}&page_size=10&ordering=${ordering}&skills=${skills}&workload_status=${status}`).then(res => {
         return res.data
     })
     static addAssessor = (data:any) => $api.post<Assessor>('/api/assessors/', data).then(res => res.data)
