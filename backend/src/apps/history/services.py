@@ -83,7 +83,7 @@ class HistoryService:
             },
             {
                 'attribute': HistoryAttribute.MANAGER,
-                'new_value': assessor.manager.full_name,
+                'new_value': assessor.manager.full_name if assessor.manager else None,
                 **self._get_new_assessor_base_action_data(user)
             },
             {
