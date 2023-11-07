@@ -1,10 +1,19 @@
 import {flexRender, getCoreRowModel, useReactTable} from "@tanstack/react-table";
 import Icon from "@mdi/react";
 import {mdiSort, mdiSortAscending, mdiSortDescending} from "@mdi/js";
-import React from "react";
+import React, {Dispatch} from "react";
+import TablePagination from "./TablePagination";
 
 
-const NewTable = ({data, columns}: { data: any[], columns: any[] }) => {
+const NewTable = ({data, columns, totalRows, currentPage, totalPages, setCurrentPage, pages}: {
+    data: any[],
+    columns: any[],
+    totalRows?: number,
+    currentPage?: number,
+    totalPages?: number,
+    setCurrentPage?: Dispatch<number>,
+    pages?: boolean
+}) => {
 
     const table = useReactTable({
         data: data ? data : [],
@@ -63,7 +72,8 @@ const NewTable = ({data, columns}: { data: any[], columns: any[] }) => {
                                     "border-b transition-colors hover:bg-gray-100"}>
                                 {row.getVisibleCells().map(cell => {
                                     return (
-                                        <td className='border-r border-r-gray-300 h-full align-middle last:border-none' key={cell.id}
+                                        <td className='border-r border-r-gray-300 h-full align-middle last:border-none'
+                                            key={cell.id}
                                             colSpan={1}>
                                             <div
                                                 className="flex justify-center text-center h-full items-center align-middle break-words">
@@ -84,6 +94,9 @@ const NewTable = ({data, columns}: { data: any[], columns: any[] }) => {
                     }
                     </tbody>
                 </table>
+                {pages && totalRows && totalPages && currentPage && setCurrentPage && <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                                                           setCurrentPage={setCurrentPage}/>}
+
             </div>
         </div>
     );
