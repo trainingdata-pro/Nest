@@ -15,7 +15,7 @@ const NewTable = ({data, columns}: { data: any[], columns: any[] }) => {
     return (
         <div className="w-full">
             <div className="rounded-t-[20px] bg-white overflow-hidden">
-                <table className="w-full">
+                <table className="w-full h-full">
                     <thead>
                     {table.getHeaderGroups().map(headerGroup => (
                         <tr key={headerGroup.id}
@@ -55,7 +55,7 @@ const NewTable = ({data, columns}: { data: any[], columns: any[] }) => {
                         </tr>
                     ))}
                     </thead>
-                    <tbody>
+                    <tbody className='h-full'>
                     {table.getRowModel().rows.length !== 0 ?
                         (table.getRowModel().rows.map(row => (
                             <tr key={row.id}
@@ -63,7 +63,7 @@ const NewTable = ({data, columns}: { data: any[], columns: any[] }) => {
                                     "border-b transition-colors hover:bg-gray-100"}>
                                 {row.getVisibleCells().map(cell => {
                                     return (
-                                        <td className='border-r border-r-gray-300 h-20 align-middle last:border-none' key={cell.id}
+                                        <td className='border-r border-r-gray-300 h-full align-middle last:border-none' key={cell.id}
                                             colSpan={1}>
                                             <div
                                                 className="flex justify-center text-center h-full items-center align-middle break-words">
