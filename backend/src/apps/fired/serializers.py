@@ -95,10 +95,10 @@ class FireAssessorSerializer(GetUserMixin, serializers.Serializer):
                 possible_return_date=possible_return_date
             )
 
-        fired_assessor = assessors_service.fire(assessor)
+        assessors_service.fire(assessor)
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
-            new_assessor=fired_assessor,
+            new_assessor=assessor,
             user=self.get_user().full_name,
             unpin_reason=reason.title,
             use_none_action_for_state=True
