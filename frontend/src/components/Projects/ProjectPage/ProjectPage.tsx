@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {useParams} from "react-router-dom";
 import Dialog from "../../UI/Dialog";
-import AddAssessorForm from "../../Assessors/AddAssessorForm";
+import AddAssessorForm from "../../Assessors/AssessorForm/AddAssessorForm";
 import Header from '../../Header/Header';
 import {useQuery} from "react-query";
 import ProjectMenu from "./ProjectMenu";
@@ -84,8 +84,7 @@ const ProjectPage = () => {
                     <AddToProject setAddToProject={setAddToProject}/>
                 </Dialog>
                 <Dialog isOpen={addAssessor} setIsOpen={setAddAssessor}>
-                    <AddAssessorForm assessorId={projectInfo.data?.id} project={projectInfo.data}
-                                     setShowSidebar={setAddAssessor}/>
+                    <AddAssessorForm project={projectInfo.data} setShowSidebar={setAddAssessor}/>
                 </Dialog>
                 <Dialog isOpen={idDeleteFromProject} setIsOpen={setIsDeleteFromProject}>
                     {id && <DeleteFromProjects projectId={id} assessorsProjects={selectedRows}

@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 
-import AddAssessorForm from "../AddAssessorForm";
+import AddAssessorForm from "../AssessorForm/AddAssessorForm";
 import Dialog from "../../UI/Dialog";
 import Header from "../../Header/Header";
 
@@ -15,7 +15,7 @@ const AssessorsPage = () => {
     return (
         <>
             <Dialog isOpen={showSidebar} setIsOpen={setShowSidebar}>
-                <AddAssessorForm assessorId={undefined} project={undefined} setShowSidebar={setShowSidebar}/>
+                <AddAssessorForm project={undefined} setShowSidebar={setShowSidebar}/>
             </Dialog>
             <Header/>
             <div className='mt-20 mx-8 rounded-[8px] pb-[20px]'>
