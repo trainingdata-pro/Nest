@@ -23,22 +23,28 @@ const OwnDesiresEdit = ({assessor}: {
             errorNotification('Произошла ошибка')
         }
     })
-
+    const getPermissions = () => {
+        if (store.user_data.is_teamlead){
+            return;
+        } else {
+            if(assessor.assessor.manager?.id !== store.user_id){
+                return <button onClick={() => takeFromOwnDesires.mutate()}>Забрать в команду</button>
+            }
+        }
+    }
     const [isShowHistory, setIsShowHistory] = useState(false)
     const [showRentAssessor, setShowRentAssessor] = useState(false)
     return (
         <>
             <Dialog isOpen={isShowHistory} setIsOpen={setIsShowHistory}>
-                <AssessorHistory assessorId={assessor.id}/>
+                <AssessorHistory assessorId={assessor.assessor.id}/>
             </Dialog>
             <Dialog isOpen={showRentAssessor} setIsOpen={setShowRentAssessor}>
-                <RentAssessor assessorId={assessor.id} show={setShowRentAssessor}/>
+                <RentAssessor assessorId={assessor.assessor.id} show={setShowRentAssessor}/>
             </Dialog>
             <div className='flex flex-col'>
                 <button onClick={() => setIsShowHistory(true)}>История</button>
-                {assessor.assessor.manager?.id !== store.user_id && (!assessor.assessor.manager?.id ?
-                    <button onClick={() => takeFromOwnDesires.mutate()}>Забрать в команду</button> :
-                    <button onClick={() => setShowRentAssessor(true)}>Арендовать</button>)}
+                {getPermissions()}
             </div>
         </>
     );
