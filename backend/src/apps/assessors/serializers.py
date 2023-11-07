@@ -6,12 +6,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from apps.history.services import history
-from apps.projects.models import (
-    ProjectStatuses,
-    Project,
-    ProjectWorkingHours,
-    WorkLoadStatus
-)
+from apps.projects.models import ProjectStatuses, Project
 from apps.projects.serializers import (
     ProjectSerializer,
     ProjectWorkingHoursSimpleSerializer,
@@ -552,7 +547,6 @@ class UpdateFreeResourceSerializer(GetUserMixin, serializers.ModelSerializer):
     )
     project = serializers.PrimaryKeyRelatedField(
         queryset=Project.objects.exclude(status=ProjectStatuses.COMPLETED),
-        # many=True,
         required=False
     )
 
@@ -560,7 +554,6 @@ class UpdateFreeResourceSerializer(GetUserMixin, serializers.ModelSerializer):
         super().__init__(instance=instance, *args, **kwargs)
         if instance:
             self.projects_before_update = [pr.pk for pr in instance.projects.all()]
-            self.second_managers_before_update = [man.pk for man in instance.second_manager.all()]
             self.instance_before_update = copy(instance)
 
     class Meta:
