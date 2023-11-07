@@ -71,7 +71,7 @@ const SignInPage = () => {
                                         register={{
                                             ...register('last_name', {
                                                 pattern: {
-                                                    value: /^[А-ЯЁа-яёA-Za-z]+$/,
+                                                    value: /^[А-ЯЁа-яёA-Za-z\s-]+$/,
                                                     message: "Поле должно содержать символы: A-z,А-я"
                                                 },
                                                 required: {
@@ -92,7 +92,7 @@ const SignInPage = () => {
                                         register={{
                                             ...register('first_name', {
                                                 pattern: {
-                                                    value: /^[А-ЯЁа-яёA-Za-z]+$/,
+                                                    value: /^[А-ЯЁа-яёA-Za-z\s-]+$/,
                                                     message: "Поле должно содержать символы: A-z,А-я"
                                                 }, required: {
                                                     value: true,
@@ -111,7 +111,7 @@ const SignInPage = () => {
                                         register={{
                                             ...register('middle_name', {
                                                 pattern: {
-                                                    value: /^[А-ЯЁа-яёA-Za-z]+$/,
+                                                    value: /^[А-ЯЁа-яёA-Za-z\s-]+$/,
                                                     message: "Поле должно содержать символы: A-z,А-я"
                                                 }
                                             })

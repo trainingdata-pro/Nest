@@ -21,7 +21,7 @@ const BlackList = () => {
         totalRows
     } = useFetchBlacklist({globalFilter: globalFilter, sorting: sorting, sortingString: getSortingString()})
     const [isExportBlackList, setIsExportBlackList] = useState(false)
-    if (blacklist.isLoading) return <Loader width={30}/>
+    if (blacklist.isLoading) return <Loader/>
     return (
         <>
             <Header/>

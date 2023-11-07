@@ -16,7 +16,7 @@ const PersonalAssessors = () => {
         skillsFilter: skillsFilter
     })
 
-    if (assessors.isLoading) return <Loader width={30}/>
+    if (assessors.isLoading) return <Loader/>
     return (
         <>
             <div className='flex justify-between'>

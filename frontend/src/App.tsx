@@ -14,7 +14,7 @@ import CompletedProjects from "./components/Projects/CompletedProjects/Completed
 import BlackList from "./components/BlackList/BlackList";
 import FreeResourcePage from "./pages/FreeResourcePage";
 import PasswordReset from "./components/PasswordReset/PasswordReset";
-
+import Page404 from "./pages/Page404";
 function App() {
     const {store} = useContext(Context)
     useMemo(()=>{
@@ -24,7 +24,7 @@ function App() {
     },[])
 
     if (store.isLoading) {
-        return (<Loader width={"16"}/>)
+        return (<Loader/>)
     }
     return (
             <BrowserRouter>
@@ -44,7 +44,6 @@ function App() {
                      <Route path={'/blacklist'} element={<BlackList/>} />
                      <Route path={'/free_resources'} element={<FreeResourcePage/>}/>
                      <Route path="*" element={<Navigate to="/projects" replace/>}/>
-
                  </Routes>}
              </BrowserRouter>
     );

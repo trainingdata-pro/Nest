@@ -69,7 +69,26 @@ export interface Assessor {
     free_resource_day_off_hours: string
 }
 type AssessorState = "available" | "busy" | "free_resource" | "vacation" | "blacklist" | "fired"
-
+export interface ProjectAssessor {
+    id: number,
+    manager: IManager,
+    projects: Project[],
+    skills: Skill[],
+    second_manager: IManager[],
+    username: string,
+    last_name: string,
+    first_name: string,
+    middle_name: string,
+    email: string,
+    country: string,
+    state: AssessorState
+    date_of_registration: string,
+    working_hours: WorkingHours[],
+    workload_status: WorkloadStatus[],
+    vacation_date: string,
+    free_resource_weekday_hours: string,
+    free_resource_day_off_hours: string
+}
 
 
 export interface AssessorWorkingTime {
@@ -84,7 +103,7 @@ export interface AssessorWorkingTime {
 }
 
 export interface AssessorResponse {
-    results: Assessor[]
+    results: ProjectAssessor[]
     next: string,
     count: number
 }

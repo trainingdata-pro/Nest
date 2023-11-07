@@ -1,13 +1,7 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import Table from "../../UI/Table";
-import {PencilSquareIcon} from "@heroicons/react/24/solid";
-import {Project} from "../../../models/ProjectResponse";
-import AssessorService from "../../../services/AssessorService";
+import React from 'react';
 import ProjectService from "../../../services/ProjectService";
-import {IAssessorProjects} from "../../../models/AssessorResponse";
-import AssessorProjectRow from "./AssessorProjectRow";
 import {useQuery} from "react-query";
-import {ToastContainer} from "react-toastify";
+import AssessorProjectRow from "./AssessorProjectRow";
 
 const AssessorProjects = ({assessorId}: { assessorId: string | number | undefined }) => {
     const projects = useQuery(['assessorProjects', assessorId], () => ProjectService.fetchProjectsByAssessorID(assessorId))

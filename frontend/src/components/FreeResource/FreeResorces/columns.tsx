@@ -56,7 +56,7 @@ export const useFreeResourcesSorting = () => {
         }),
         columnHelper.accessor('username', {
             header: () => 'Ник в ТГ',
-            cell: info => info.getValue(),
+            cell: info => <a className={'text-[#102ede]'} href={`https://t.me/${info.getValue()}`}>{info.getValue()}</a>,
             enableSorting: false
         }),
         columnHelper.accessor('manager', {

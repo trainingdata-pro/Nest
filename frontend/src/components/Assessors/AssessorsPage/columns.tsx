@@ -52,14 +52,14 @@ export const useMyAssessorsSorting = () => {
         columnHelper.accessor('last_name', {
             header: () => <div className='flex'><p>Фамилия</p><Sorting sortingKey={"last_name"} func={setSorting} sortingValue={sorting.last_name} state={sorting}/></div>,
             cell: info =>
-                <div className='w-full h-full text-center  cursor-pointer'
+                <div className='text-center cursor-pointer'
                      onClick={() => navigation(`/assessor/${info.row.original.id}`)}>{info.getValue()}</div>,
             enableSorting: false,
 
         }),
         columnHelper.accessor('first_name', {
             cell: info =>
-                <div className='w-full h-full text-center cursor-pointer'
+                <div className='text-center cursor-pointer'
                      onClick={() => navigation(`/assessor/${info.row.original.id}`)}>{info.getValue()}</div>,
             header: 'Имя',
             enableSorting: false
@@ -67,13 +67,13 @@ export const useMyAssessorsSorting = () => {
         columnHelper.accessor('middle_name', {
             header: 'Отчество',
             cell: info =>
-                <div className='w-full h-full text-center cursor-pointer'
+                <div className='text-center cursor-pointer'
                      onClick={() => navigation(`/assessor/${info.row.original.id}`)}>{info.getValue()}</div>,
             enableSorting: false
         }),
         columnHelper.accessor('username', {
             header: 'Ник в ТГ',
-            cell: info => info.renderValue(),
+            cell: info => <a className={'text-[#102ede]'} href={`https://t.me/${info.getValue()}`}>{info.getValue()}</a>,
             enableSorting: false
         }),
         columnHelper.accessor('projects', {

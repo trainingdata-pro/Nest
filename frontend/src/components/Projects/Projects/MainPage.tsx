@@ -43,7 +43,7 @@ const MainPage = () => {
         enableSorting:false,
     })
     if (isLoading) {
-        return <Loader width={"16"}/>
+        return <Loader/>
     }
 
     return (

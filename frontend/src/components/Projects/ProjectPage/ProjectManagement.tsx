@@ -25,7 +25,7 @@ const ProjectManagement = ({project, status}:{
                         onMouseOver={() => setOpen(true)}
                         className="flex justify-center bg-[#5970F6] rounded-md w-full text-white px-auto py-2"
                     >
-                        <span className="">Управление</span>
+                        <span className="">Меню проекта</span>
                     </button>
                     <ul
                         className={`absolute border border-black right-0 bg-white w-full items-center z-10 ${
@@ -40,12 +40,7 @@ const ProjectManagement = ({project, status}:{
                             }}} className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">
                             Поставить проект на паузу
                         </li>
-                        <li onClick={() => {
-                            if (status === 'pause') {
-                                errorNotification('Проект уже на паузе')
-                            } else {
-                                setIsShowCompleteProject(true)
-                            }}} className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">
+                        <li onClick={() => setIsShowCompleteProject(true)} className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">
                             Завершить проект
                         </li>
                     </ul>

@@ -17,7 +17,7 @@ const RentAssessors = () => {
         skillsFilter: skillsFilter
     })
 
-    if (rentAssessors.isLoading) return <Loader width={30}/>
+    if (rentAssessors.isLoading) return <Loader/>
 
     return (
         <>
