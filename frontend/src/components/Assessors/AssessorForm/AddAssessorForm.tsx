@@ -1,17 +1,15 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext} from 'react';
 import {useForm} from "react-hook-form";
-import {Context} from "../../index";
-import MyLabel from "../UI/MyLabel";
-import MyInput from "../UI/MyInput";
-import Error from "../UI/Error";
+import {Context} from "../../../index";
+import MyLabel from "../../UI/MyLabel";
+import MyInput from "../../UI/MyInput";
+import Error from "../../UI/Error";
 import Select from "react-select";
-import AssessorService from "../../services/AssessorService";
-
 import {AtSymbolIcon} from '@heroicons/react/24/solid';
-import {useMutation, useQuery, useQueryClient} from "react-query";
-import ProjectService from "../../services/ProjectService";
-import {errorNotification, successNotification} from "../UI/Notify";
-import MyButton from "../UI/MyButton";
+import MyButton from "../../UI/MyButton";
+import {useAssessorCountry, useAssessorManager, useAssessorProject, useAssessorStatus} from "./hooks";
+import {useCreateAssessor, useFetchAvailableProjects, useFetchManagerProjects} from "./queries";
+import {Project} from "../../../models/ProjectResponse";
 
 
 interface FormProps {
@@ -29,96 +27,34 @@ interface FormProps {
 const FormSection = ({children}: { children: React.ReactNode }) => {
     return <div className="mb-2">{children}</div>
 }
-const countryObject = [
-    {label: "РФ", value: "РФ"},
-    {label: "РБ", value: "РБ"},
-    {label: "ПМР", value: "ПМР"},
-    {label: "Другое", value: "Другое"},
-]
 
-const statusObject = [
-    {value: "full", label: "Полная загрузка"},
-    {value: "partial", label: "Частичная загрузка"},
-    {value: "reserved", label: "Зарезервирован"},
-]
-const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
-        assessorId: number | string | undefined,
+
+const AddAssessorForm = ({project, setShowSidebar}: {
         setShowSidebar: any,
-        project: any
+        project: Project | undefined
     }) => {
         const {store} = useContext(Context)
-        const queryClient = useQueryClient()
-        const availableProjects = useQuery(['availableProjects'], () => ProjectService.fetchProjects(1, ''), {
-            onSuccess: data => {
-                setAvailableProjectsList(data.results.map(project => {
-                        return {label: project.name, value: project.id}
-                    }
-                ))
-            }
-        })
-
-        const [availableProjectsList, setAvailableProjectsList] = useState<any[]>([])
-        const [selectedProjects, setSelectedProjects] = useState<number>()
-        const {register, setValue, watch, reset, getValues, formState: {errors}, handleSubmit} = useForm<FormProps>({
+        const {availableProjects} = useFetchAvailableProjects()
+        const {register, setValue, getValues, formState: {errors}, handleSubmit} = useForm<FormProps>({
             defaultValues: {
-                manager: store.user_id,
+                manager: store.user_data.is_teamlead ? project?.manager[0].id : store.user_id,
                 projects: project?.id
             }
         })
-        const updateAssessorProject = useMutation(['projectAssessors',], ({
-                                                                              id,
-                                                                              data
-                                                                          }: any) => AssessorService.addAssessorProject(id, data), {
-            onSuccess: data => {
-                if (getValues("status")) createWorkloadStatus.mutate({
-                    data: {
-                        assessor: data.id,
-                        project: getValues('projects'),
-                        status: getValues('status')
-                    }
-                })
-                queryClient.invalidateQueries('projectAssessors')
-                queryClient.invalidateQueries('assessors')
-                successNotification('Ассессор успешно назначен на проект')
-                setShowSidebar(false)
-            },
-            onError: (error:any) => {
-                const jsonError = JSON.parse(error.request.responseText)
-                errorNotification(jsonError[Object.keys(jsonError)[0]][0])
-            }
-        })
-        const createWorkloadStatus = useMutation(['projectAssessors'], ({data}: any) => AssessorService.createWorkloadStatus(data), {
-            onSuccess: () => {
-                queryClient.invalidateQueries('projectAssessors')
-                queryClient.invalidateQueries('assessors')
-                successNotification('Ассессору успешно присвоен статус')
-                setShowSidebar(false)
-            },
-            onError: (error:any) => {
-                const jsonError = JSON.parse(error.request.responseText)
-                errorNotification(jsonError[Object.keys(jsonError)[0]][0])}
+        const {createAssessor} = useCreateAssessor({setShowSidebar, getValues})
 
+        const {fetchTeam, onManagerChange, getManager} = useAssessorManager({setValue})
+        const {statusObject, handlerChangeStatus, handlerValueStatus} = useAssessorStatus({setValue})
+        const {countryObject, handlerChangeCountry, handlerValueCountry} = useAssessorCountry({setValue})
+        const {handlerValueProjects, handlerChangeProjects} = useAssessorProject({
+            setValue: setValue,
+            availableProjects: availableProjects.isSuccess ? availableProjects.data : []
         })
-        const createAssessor = useMutation(['projectAssessors'], ({data}:any) => AssessorService.addAssessor(data), {
-            onSuccess: data => {
-                if (getValues("projects")) updateAssessorProject.mutate({
-                    id: data.id,
-                    data: {projects: [getValues('projects')]}
-                })
-                queryClient.invalidateQueries('projectAssessors')
-                queryClient.invalidateQueries('assessors')
-                successNotification('Ассессор успешно создан')
-                setShowSidebar(false)
-            },
-            onError: (error:any) => {
-                const jsonError = JSON.parse(error.request.responseText)
-                errorNotification(jsonError[Object.keys(jsonError)[0]][0])
-            }
-        })
+        const {currentManagerProjects} = useFetchManagerProjects({managerId: getValues('manager') !== 0 ? getValues('manager') : 0})
+
 
         function submit() {
             const data = getValues()
-            // console.log(data)
             if (getValues('email')) {
                 createAssessor.mutate({data: data})
             } else {
@@ -128,30 +64,7 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
 
         }
 
-        const onChangeProjects = (newValue: any) => {
-            setSelectedProjects(newValue.value)
-            setValue('projects', newValue.value)
 
-        }
-        const [currentStatus, setCurrentStatus] = useState<string>()
-        const [currentCountry, setCurrentCountry] = useState<string>('')
-        const getValueProjects = () => {
-            return selectedProjects ? availableProjectsList.find(p => p.value === selectedProjects) : ''
-        }
-        const onChangeStatus = (newValue: any) => {
-            setCurrentStatus(newValue.value)
-            setValue('status', newValue.value)
-        }
-        const getValueStatus = () => {
-            return currentStatus ? statusObject.find(s => s.value === currentStatus) : ''
-        }
-        const onChangeCountry = (newValue: any) => {
-            setCurrentCountry(newValue.value)
-            setValue('country', newValue.value)
-        }
-        const getValueCountry = () => {
-            return currentCountry ? countryObject.find(c => c.value === currentCountry) : ''
-        }
         return (
             <form className='min-w-[30rem] pt-4' onSubmit={handleSubmit(submit)}>
                 <FormSection>
@@ -209,6 +122,23 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
                     />
 
                 </FormSection>
+                {store.user_data.is_teamlead && !project && <FormSection>
+                    <div className="flex justify-between">
+                        <MyLabel required={true}>Менеджер проекта: </MyLabel>
+                        <Error>{errors.manager && errors.manager?.message}</Error>
+                    </div>
+
+                    <Select
+                        options={fetchTeam.isSuccess ? fetchTeam.data : []}
+                        value={getManager()}
+                        isDisabled={!store.user_data.is_teamlead}
+                        placeholder="Менеджер"
+                        isSearchable={false}
+                        {...register('manager', {required: 'Обязательное поле'})}
+                        onChange={onManagerChange}
+                    />
+
+                </FormSection>}
                 <FormSection>
                     <div className='flex justify-between'>
                         <MyLabel required={true}>Ник в ТГ</MyLabel>
@@ -234,11 +164,11 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
                     <Select
                         {...register('projects')}
                         className='text-start'
-                        options={availableProjectsList}
+                        options={getValues('manager') === 0 ? (availableProjects.isSuccess ? availableProjects.data : []) : (currentManagerProjects.isSuccess ? currentManagerProjects.data : [])}
                         isSearchable={false}
                         isDisabled={!!project}
-                        value={project ? {label: project.name, value: project.id}: getValueProjects() }
-                        onChange={onChangeProjects}
+                        value={project ? {label: project.name, value: project.id} : handlerValueProjects()}
+                        onChange={handlerChangeProjects}
                     />
                 </FormSection>
                 <FormSection>
@@ -248,8 +178,8 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
                         className='text-start'
                         isDisabled={!getValues('projects')}
                         options={statusObject}
-                        value={getValueStatus()}
-                        onChange={onChangeStatus}
+                        value={handlerValueStatus()}
+                        onChange={handlerChangeStatus}
                     />
                 </FormSection>
                 <FormSection>
@@ -258,8 +188,8 @@ const AddAssessorForm = ({assessorId,project, setShowSidebar}: {
                         {...register('country')}
                         className='text-start'
                         options={countryObject}
-                        value={getValueCountry()}
-                        onChange={onChangeCountry}
+                        value={handlerValueCountry()}
+                        onChange={handlerChangeCountry}
                     />
                 </FormSection>
                 <FormSection>
