@@ -85,20 +85,25 @@ const PersonalAssessorInfo = ({assessorId}: { assessorId: string | number | unde
             setIsDisabled(false)
         } else {
             let data = getValues()
-            const {manager, ...assessorData} = data
-            if (assessorData.email === '') {
-                const newData = {...assessorData, email: null}
-                patchAssessorInfo.mutate({id: assessorId, data: newData})
-            } else {
-                if (assessorData.email === assessor.data?.email) {
-                    const {email, ...rest} = assessorData
-                    patchAssessorInfo.mutate({id: assessorId, data: rest})
+            if (data.username.length >= 5) {
+                const {manager, ...assessorData} = data
+                if (assessorData.email === '') {
+                    const newData = {...assessorData, email: null}
+                    patchAssessorInfo.mutate({id: assessorId, data: newData})
                 } else {
-                    patchAssessorInfo.mutate({id: assessorId, data: assessorData})
-                }
+                    if (assessorData.email === assessor.data?.email) {
+                        const {email, ...rest} = assessorData
+                        patchAssessorInfo.mutate({id: assessorId, data: rest})
+                    } else {
+                        patchAssessorInfo.mutate({id: assessorId, data: assessorData})
+                    }
 
+                }
+                setIsDisabled(true)
+            } else {
+                errorNotification('Ник ТГ не может быть меньше 5 символов')
             }
-            setIsDisabled(true)
+
 
         }
     }

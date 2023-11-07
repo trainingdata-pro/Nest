@@ -117,7 +117,7 @@ const AssessorProjectRow = ({project, assessorId}: {
 
     return (
         <tr className='border-b border-t border-black'>
-            <td className={tdClassName}>{project.name}</td>
+            <td className={tdClassName + ' max-w-[200px] overflow-hidden'}><div className='break-words whitespace-normal'>{project.name}</div></td>
             <td className={tdClassName}>{project.manager.map(manager => {
                 return <div key={manager.id}>{manager.last_name} {manager.first_name}</div>
             })}</td>
@@ -130,28 +130,28 @@ const AssessorProjectRow = ({project, assessorId}: {
                     onChange={handleSelectChangeStatus} isDisabled={isDisabled}
                 />
             </td>
-            <td className={tdClassName}><input defaultValue={0} disabled={isDisabled}
-                                               className='w-[25px] text-center disabled:opacity-50' {...register('workingHours.monday')} />
+            <td className={tdClassName + ' max-w-[8px]'}><input defaultValue={0} disabled={isDisabled}
+                                               className='w-full text-center disabled:opacity-50' {...register('workingHours.monday')} />
             </td>
-            <td className={tdClassName}><input defaultValue={0} disabled={isDisabled}
-                                               className='w-[25px] text-center disabled:opacity-50' {...register('workingHours.tuesday')} />
+            <td className={tdClassName + ' max-w-[10px]'}><input defaultValue={0} disabled={isDisabled}
+                                               className='w-full text-center disabled:opacity-50' {...register('workingHours.tuesday')} />
             </td>
-            <td className={tdClassName}><input defaultValue={0} disabled={isDisabled}
+            <td className={tdClassName + ' max-w-[10px]'}><input defaultValue={0} disabled={isDisabled}
                                                className='w-[25px] text-center disabled:opacity-50' {...register('workingHours.wednesday')} />
             </td>
-            <td className={tdClassName}><input defaultValue={0} disabled={isDisabled}
+            <td className={tdClassName + ' max-w-[10px]'}><input defaultValue={0} disabled={isDisabled}
                                                className='w-[25px] text-center disabled:opacity-50' {...register('workingHours.thursday')} />
             </td>
-            <td className={tdClassName}><input defaultValue={0} disabled={isDisabled}
+            <td className={tdClassName + ' max-w-[10px]'}><input defaultValue={0} disabled={isDisabled}
                                                className='w-[25px] text-center disabled:opacity-50' {...register('workingHours.friday')} />
             </td>
-            <td className={tdClassName}><input defaultValue={0} disabled={isDisabled}
+            <td className={tdClassName + ' max-w-[10px]'}><input defaultValue={0} disabled={isDisabled}
                                                className='w-[25px] text-center disabled:opacity-50' {...register('workingHours.saturday')} />
             </td>
-            <td className={tdClassName}><input defaultValue={0} disabled={isDisabled}
+            <td className={tdClassName + ' max-w-[10px]'}><input defaultValue={0} disabled={isDisabled}
                                                className='w-[25px] text-center disabled:opacity-50' {...register('workingHours.sunday')} />
             </td>
-            <td className={tdClassName}>{workingHours.data?.results[0]?.total}</td>
+            <td className={tdClassName + ' max-w-[10px]'}>{workingHours.data?.results[0]?.total}</td>
             <td className="whitespace-nowrap px-[5px] py-[20px] flex justify-center">{project.manager.filter(manager => manager.id === store.user_id).length > 0 || project.manager.filter(manager => store.team.find(manId => manId.user.id === manager.id) !==undefined).length > 0? (isDisabled ?
                     <PencilSquareIcon onClick={edit}
                                       className="h-6 w-6 text-black cursor-pointer"/> :
