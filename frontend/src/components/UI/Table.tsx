@@ -5,7 +5,7 @@ import React, {Dispatch} from "react";
 import TablePagination from "./TablePagination";
 
 
-const NewTable = ({data, columns, totalRows, currentPage, totalPages, setCurrentPage, pages, setPageLimit, pageLimit}: {
+const Table = ({data, columns, totalRows, currentPage, totalPages, setCurrentPage, pages, setPageLimit, pageLimit}: {
     data: any[],
     columns: any[],
     totalRows: number,
@@ -104,4 +104,4 @@ const NewTable = ({data, columns, totalRows, currentPage, totalPages, setCurrent
     );
 };
 
-export default NewTable;
+export default Table;
