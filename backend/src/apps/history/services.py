@@ -29,6 +29,7 @@ class HistoryService:
             completed_project: bool = False,
             reason: Optional[str] = None,
             unpin_reason: Optional[str] = None,
+            state_reason: Optional[str] = None,
             use_none_action_for_state: bool = False
     ) -> None:
         updates = self._get_updates_for_existing_assessor(
@@ -40,6 +41,7 @@ class HistoryService:
             completed_project=completed_project,
             reason=reason,
             unpin_reason=unpin_reason,
+            state_reason=state_reason,
             use_none_action_for_state=use_none_action_for_state
         )
         histories = self.create_history_objects(new_assessor, updates)
@@ -104,6 +106,7 @@ class HistoryService:
             completed_project: bool = False,
             reason: Optional[str] = None,
             unpin_reason: Optional[str] = None,
+            state_reason: Optional[str] = None,
             use_none_action_for_state: bool = False
     ) -> List[Dict]:
         updates = []
@@ -269,6 +272,7 @@ class HistoryService:
                     'attribute': HistoryAttribute.STATE,
                     'old_value': AssessorState.get_value(old_assessor.state),
                     'new_value': AssessorState.get_value(new_assessor.state),
+                    'reason': state_reason,
                     **self.__get_base_action_data(user, action=action)
                 }
             )
