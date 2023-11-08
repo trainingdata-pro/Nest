@@ -4,9 +4,8 @@ import {MagnifyingGlassIcon} from "@heroicons/react/24/solid";
 import Dialog from "../UI/Dialog";
 import Export from "./Export";
 import MyButton from "../UI/MyButton";
-import TablePagination from "../UI/TablePagination";
 import Loader from "../UI/Loader";
-import NewTable from "../UI/NewTable";
+import Table from "../UI/Table";
 import {useFetchBlacklist} from "./queries";
 import {useBlacklistColumns} from "./columns";
 
@@ -18,7 +17,9 @@ const BlackList = () => {
         currentPage,
         setCurrentPage,
         totalPages,
-        totalRows
+        totalRows,
+        pageLimit,
+        setPageLimit
     } = useFetchBlacklist({globalFilter: globalFilter, sorting: sorting, sortingString: getSortingString()})
     const [isExportBlackList, setIsExportBlackList] = useState(false)
     if (blacklist.isLoading) return <Loader/>
@@ -40,9 +41,8 @@ const BlackList = () => {
                     <MyButton onClick={() => setIsExportBlackList(true)}>Экспорт данных</MyButton>
                 </div>
                 <div className='rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
-                    <NewTable data={blacklist.isSuccess ? blacklist.data.results : []} columns={columns}/>
-                    <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
-                                     setCurrentPage={setCurrentPage}/>
+                    <Table data={blacklist.isSuccess ? blacklist.data.results : []} columns={columns} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                           setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit} pages={true}/>
                 </div>
             </div>
         </>

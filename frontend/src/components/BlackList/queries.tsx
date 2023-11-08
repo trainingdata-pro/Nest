@@ -12,13 +12,14 @@ export const useFetchBlacklist = ({globalFilter, sorting, sortingString}: {
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
     const [totalRows, setTotalRows] = useState<number>(0)
-    const blacklist = useQuery(['blacklist', currentPage, globalFilter,sorting], () => AssessorService.getBlackList(currentPage, globalFilter, sortingString), {
+    const [pageLimit, setPageLimit] = useState(10)
+    const blacklist = useQuery(['blacklist', currentPage, globalFilter,sorting, pageLimit], () => AssessorService.getBlackList(currentPage, globalFilter, sortingString, pageLimit), {
         keepPreviousData: true,
         onSuccess: data1 => {
             setTotalRows(data1.count)
-            setTotalPages(Math.ceil(data1.count / 10))
+            setTotalPages(Math.ceil(data1.count / pageLimit))
         }
     })
 
-    return {blacklist, currentPage, setCurrentPage, totalPages, totalRows}
+    return {blacklist, currentPage, setCurrentPage, totalPages, totalRows, pageLimit, setPageLimit}
 }
