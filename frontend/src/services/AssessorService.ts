@@ -52,7 +52,7 @@ export default class AssessorService{
     })
     static addAssessor = (data:any) => $api.post<Assessor>('/api/assessors/', data).then(res => res.data)
     static fetchManagersAssessors = ( page:number|string, sorting: string = '', skills: string='', pageLimit: number = 10) => $api.get<AssessorResponse>(`/api/assessors/?page=${page}&page_size=${pageLimit}&ordering=${sorting}&skills=${skills}&exclude_rented=true`).then(res => res.data)
-    static fetchRentAssessors = (page: number | string, sorting: string = '', skills: string='') => $api.get<AssessorResponse>(`/api/assessors/?page=${page}&page_size=10&ordering=${sorting}&skills=${skills}&exclude_rented=false`).then(res => res.data)
+    static fetchRentAssessors = (page: number | string, sorting: string = '', skills: string='', pageLimit: number = 10) => $api.get<AssessorResponse>(`/api/assessors/?page=${page}&page_size=${pageLimit}&ordering=${sorting}&skills=${skills}&exclude_rented=false`).then(res => res.data)
     static fetchAssessor = (id: any) => $api.get<Assessor>(`/api/assessors/${id}/`).then(res => res.data)
     static addAssessorProject = (id: string | number, data: any) => $api.patch<Assessor>(`/api/assessors/${id}/projects/`, data).then(res => res.data)
     static fetchCredentials = (id: string | number | undefined) => $api.get<LoginAndPasswordResponse>(`/api/credentials/?assessor=${id}`).then((res) => res.data)
