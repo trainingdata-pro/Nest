@@ -86,10 +86,7 @@ export default class AssessorService{
         free_resource_weekday_hours: data.free_resource_weekday_hours,
         free_resource_day_off_hours: data.free_resource_day_off_hours
     }).then((res) => res.data)
-    static fetchAssessorSkills(id: string | number):Promise<AxiosResponse<SkillResponse>>{
-        return $api.get<SkillResponse>(`/api/skills/${id}/`)
-    }
-    static fetchFreeResource = (page = 1, ordering: string, nameFilter:string,skillsFilter:string) => $api.get<IFreeResourcesResponse>(`/api/free_resources/?page=${page}&page_size=10&ordering=${ordering}&name=${nameFilter}&skills=${skillsFilter}`).then(res => res.data)
+    static fetchFreeResource = (page = 1, ordering: string, nameFilter:string,skillsFilter:string, pageLimit: number = 10) => $api.get<IFreeResourcesResponse>(`/api/free_resources/?page=${page}&page_size=${pageLimit}&ordering=${ordering}&name=${nameFilter}&skills=${skillsFilter}`).then(res => res.data)
     static patchVacation = (assessorId: string | number |undefined, data: any) => $api.patch(`/api/assessors/${assessorId}/vacation/`, data).then(res => res.data)
     static fetchReasons = () => $api.get<IReasonResponse>('/api/reasons/').then(res => res.data)
     static addAssessorToFired = (id: string| number| undefined, data: any) => $api.patch(`/api/assessors/${id}/fire/`, data).then(res => res.data)
