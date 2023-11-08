@@ -21,6 +21,8 @@ const RemoveAssessorsFromProjects = ({assessorsRow, setAssessorsRow, show}: {
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
     const [totalRows, setTotalRows] = useState<number>(0)
+    const [pageLimit, setPageLimit] = useState(10)
+
     const projects = useQuery('removeProjects', () => ProjectService.fetchProjects(currentPage,''), {
         onSuccess: data => {
             let assessorsProjects:number[] = []
@@ -33,13 +35,7 @@ const RemoveAssessorsFromProjects = ({assessorsRow, setAssessorsRow, show}: {
     })
     const [availableProjects, setAvailableProjects] = useState<Project[]>([])
     const addToProject = useMutation('assessors', ({id, data}: any) => AssessorService.addAssessorProject(id, data));
-    const table = useReactTable({
-        data: projects.isSuccess ? availableProjects: [],
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        debugTable: false,
-    })
+
     const queryClient = useQueryClient()
 
     const [selectedReason, setSelectedReason] = useState<string>()
@@ -85,8 +81,8 @@ const RemoveAssessorsFromProjects = ({assessorsRow, setAssessorsRow, show}: {
                                                    value={reason.value} id={reason.id}/>)}
                 </div>
                 <div>
-                    <Table table={table}/>
-                    <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages} setCurrentPage={setCurrentPage}/>
+                    <Table data={projects.isSuccess ? availableProjects: [] ? availableProjects : []}  columns={columns} pages={true} setPageLimit={setPageLimit} pageLimit={pageLimit} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                           setCurrentPage={setCurrentPage}/>
                 </div>
                 <div className='flex justify-between space-x-2'>
                     <MyButton onClick={() => show(false)}>Назад</MyButton>
