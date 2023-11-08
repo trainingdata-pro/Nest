@@ -1,17 +1,32 @@
-import React from 'react';
-import {flexRender, Table} from "@tanstack/react-table";
+import {flexRender, getCoreRowModel, useReactTable} from "@tanstack/react-table";
 import Icon from "@mdi/react";
 import {mdiSort, mdiSortAscending, mdiSortDescending} from "@mdi/js";
+import React, {Dispatch} from "react";
+import TablePagination from "./TablePagination";
 
-interface TableProps {
-    table: Table<any>
-}
 
-const MyTable = ({table}: TableProps) => {
+const Table = ({data, columns, totalRows, currentPage, totalPages, setCurrentPage, pages, setPageLimit, pageLimit}: {
+    data: any[],
+    columns: any[],
+    totalRows: number,
+    currentPage: number,
+    totalPages: number,
+    setCurrentPage: Dispatch<number>,
+    pages: boolean,
+    setPageLimit: Dispatch<number>,
+    pageLimit: number
+}) => {
+
+    const table = useReactTable({
+        data: data ? data : [],
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        enableSorting: false
+    })
     return (
         <div className="w-full">
             <div className="rounded-t-[20px] bg-white overflow-hidden">
-                <table className="w-full">
+                <table className="w-full h-full">
                     <thead>
                     {table.getHeaderGroups().map(headerGroup => (
                         <tr key={headerGroup.id}
@@ -51,7 +66,7 @@ const MyTable = ({table}: TableProps) => {
                         </tr>
                     ))}
                     </thead>
-                    <tbody>
+                    <tbody className='h-full'>
                     {table.getRowModel().rows.length !== 0 ?
                         (table.getRowModel().rows.map(row => (
                             <tr key={row.id}
@@ -59,10 +74,11 @@ const MyTable = ({table}: TableProps) => {
                                     "border-b transition-colors hover:bg-gray-100"}>
                                 {row.getVisibleCells().map(cell => {
                                     return (
-                                        <td className='border-r border-r-gray-300 last:border-none' key={cell.id}
+                                        <td className='border-r border-r-gray-300 h-full align-middle last:border-none'
+                                            key={cell.id}
                                             colSpan={1}>
                                             <div
-                                                className="flex justify-center text-center items-center align-middle py-2 break-words">
+                                                className="flex justify-center text-center h-full items-center align-middle break-words">
                                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                             </div>
                                         </td>
@@ -80,9 +96,12 @@ const MyTable = ({table}: TableProps) => {
                     }
                     </tbody>
                 </table>
+                {pages && <TablePagination setPageLimit={setPageLimit} pageLimit={pageLimit} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                                                           setCurrentPage={setCurrentPage}/>}
+
             </div>
         </div>
     );
 };
 
-export default MyTable;
+export default Table;

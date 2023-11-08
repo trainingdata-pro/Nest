@@ -6,12 +6,12 @@ import AssessorsManagement from "../../AssessorsManagement/AssessorsManagement";
 import Select from "react-select";
 import {useFetchRentAssessors} from "./queries";
 import {useFilterSKills} from "../PersonalAssessors/queries";
-import NewTable from "../../../UI/NewTable";
+import Table from "../../../UI/Table";
 
 const RentAssessors = () => {
     const {columns, sorting, selectedRows, setSelectedRows, getSortingString} = useMyAssessorsSorting()
     const {skills, skillsFilter, onSkillsChange, getValueSkills} = useFilterSKills()
-    const {rentAssessors, totalRows, totalPages, setCurrentPage, currentPage} = useFetchRentAssessors({
+    const {rentAssessors, totalRows, totalPages, setCurrentPage, currentPage, pageLimit, setPageLimit} = useFetchRentAssessors({
         sorting: sorting,
         sortingString: getSortingString(),
         skillsFilter: skillsFilter
@@ -40,12 +40,8 @@ const RentAssessors = () => {
                 />
             </div>
             <div className='rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
-                <NewTable data={rentAssessors.isSuccess ? rentAssessors.data.results : []} columns={columns}/>
-                <TablePagination
-                    totalRows={totalRows}
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    setCurrentPage={setCurrentPage}/>
+                <Table data={rentAssessors.isSuccess ? rentAssessors.data.results: []}  columns={columns} pages={true} setPageLimit={setPageLimit} pageLimit={pageLimit} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                       setCurrentPage={setCurrentPage}/>
             </div>
         </>
     );

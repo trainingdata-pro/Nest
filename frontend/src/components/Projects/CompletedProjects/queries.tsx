@@ -10,12 +10,14 @@ export const useCompletedProjects = ({sorting, getSortingString}: {
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
     const [totalRows, setTotalRows] = useState<number>(0)
-    const completedProjects = useQuery(['completedProjects', currentPage, sorting], () => ProjectService.fetchCompletedProjects(currentPage, getSortingString()), {
+    const [pageLimit, setPageLimit] = useState(10)
+
+    const completedProjects = useQuery(['completedProjects', currentPage, sorting, pageLimit], () => ProjectService.fetchCompletedProjects(currentPage, getSortingString(), pageLimit), {
         keepPreviousData: true,
         onSuccess: data => {
             setTotalRows(data.count)
-            setTotalPages(Math.ceil(data.count / 10))
+            setTotalPages(Math.ceil(data.count / pageLimit))
         }
     })
-    return {currentPage, setCurrentPage, totalPages, totalRows, completedProjects}
+    return {currentPage, setCurrentPage, totalPages, totalRows, completedProjects, pageLimit, setPageLimit}
 }

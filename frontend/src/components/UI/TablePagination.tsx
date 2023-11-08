@@ -1,19 +1,20 @@
 import React, {Dispatch} from 'react';
 
-const TablePagination = ({totalRows, currentPage, totalPages, setCurrentPage}:{
+const TablePagination = ({totalRows, currentPage, totalPages, setCurrentPage, setPageLimit, pageLimit}:{
     totalRows: number,
     currentPage: number,
     totalPages: number,
-    setCurrentPage: Dispatch<number>
+    setCurrentPage: Dispatch<number>,
+    setPageLimit: Dispatch<number>,
+    pageLimit: number
 }) => {
     return (
         <div className="px-2 py-2">
             <div className="flex items-center justify-between space-x-2">
-                <div className="flex-1 text-sm text-muted-foreground text-gray-400">
+                <div className="text-sm text-muted-foreground text-gray-400">
                     Всего строк: {totalRows}
                 </div>
                 <div className="flex items-center space-x-6" >
-
                     <div className="inline-block text-sm font-medium">
                                              <span className="flex items-center ">
                                                  <div>Страница <strong>
@@ -37,6 +38,21 @@ const TablePagination = ({totalRows, currentPage, totalPages, setCurrentPage}:{
                         >
                             {'<'}
                         </button>
+                        <p>Элементов на странице:</p>
+                        {setPageLimit && <select className='bg-white border border-gray rounded-md'
+                            value={pageLimit}
+                            onChange={e => {
+                                setPageLimit(Number(e.target.value))
+                                setCurrentPage(1)
+                            }}
+                        >
+
+                            {[10, 20, 30, 40, 50].map(pageSize => (
+                                <option key={pageSize} value={pageSize}>
+                                    {pageSize}
+                                </option>
+                            ))}
+                        </select>}
                         <button
                             className={currentPage >= totalPages ? "border rounded p-1 text-gray-300" : "border rounded p-1"}
                             onClick={() => setCurrentPage(currentPage+1)}

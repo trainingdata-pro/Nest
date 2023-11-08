@@ -2,29 +2,23 @@ import {useMutation, useQuery, useQueryClient} from "react-query";
 import ProjectService from "../../../services/ProjectService";
 import AssessorService from "../../../services/AssessorService";
 import {errorNotification, successNotification} from "../../UI/Notify";
-import React, {useContext} from "react";
+import React, {useContext, useState} from "react";
 import {Context} from "../../../index";
 
 
-export const useGetProjects = () => {
-    async function fetchAllData() {
-        const allData = [];
-        let currentPage = 1;
-        let hasMoreData = true;
-        while (hasMoreData) {
-            const data = await ProjectService.fetchProjects(currentPage, '');
-            allData.push(...data.results);
-            if (data.next !== null) {
-                currentPage++;
-            } else {
-                hasMoreData = false;
-            }
+export const useFetchProjects = () => {
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
+    const [totalRows, setTotalRows] = useState<number>(0)
+    const [pageLimit, setPageLimit] = useState(10)
+    const fetchProjects = useQuery(['projects', pageLimit, currentPage], () => ProjectService.fetchProjects(currentPage, '', pageLimit), {
+        keepPreviousData: true,
+        onSuccess: data1 => {
+            setTotalRows(data1.count)
+            setTotalPages(Math.ceil(data1.count / pageLimit))
         }
-        return allData;
-    }
-    return useQuery(['projects'], () => fetchAllData(), {
-        keepPreviousData: true
     })
+    return {fetchProjects, currentPage, setCurrentPage, totalPages, totalRows, pageLimit, setPageLimit}
 }
 
 export const useRentAssessor = ({assessorId, show, project}:{

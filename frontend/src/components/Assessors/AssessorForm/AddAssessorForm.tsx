@@ -122,14 +122,14 @@ const AddAssessorForm = ({project, setShowSidebar}: {
                     />
 
                 </FormSection>
-                {store.user_data.is_teamlead && !project && <FormSection>
+                {store.user_data.is_teamlead && <FormSection>
                     <div className="flex justify-between">
                         <MyLabel required={true}>Менеджер проекта: </MyLabel>
                         <Error>{errors.manager && errors.manager?.message}</Error>
                     </div>
 
                     <Select
-                        options={fetchTeam.isSuccess ? fetchTeam.data : []}
+                        options={fetchTeam.isSuccess ? (project ? fetchTeam.data.filter(manager => project?.manager.find(man => man.id.toString() === manager.value.toString()) !==undefined) : fetchTeam.data) : []}
                         value={getManager()}
                         isDisabled={!store.user_data.is_teamlead}
                         placeholder="Менеджер"

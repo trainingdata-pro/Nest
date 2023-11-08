@@ -17,9 +17,12 @@ interface TagResult {
 }
 
 export default class ProjectService {
-    static fetchProjects = (page = 1, sorting: string) => $api.get<ProjectResponse>(`/api/projects/?page=${page}&status=active,pause&ordering=${sorting}&page_size=10`).then((res) => res.data)
+    static fetchProjects = (page = 1, sorting: string = '', pageLimit: number = 10) => $api.get<ProjectResponse>(`/api/projects/?page=${page}&status=active,pause&ordering=${sorting}&page_size=${pageLimit}`).then((res) => res.data)
+    static fetchExcludedProjects = (page = 1, sorting: string = '', pageLimit: number = 10, assessorsIds: string = '') => $api.get<ProjectResponse>(`/api/projects/?page=${page}&status=active,pause&ordering=${sorting}&page_size=${pageLimit}&exclude_for_assessor=${assessorsIds}`).then((res) => res.data)
+    static fetchProjectsForDelete = (page = 1, sorting: string = '', pageLimit: number = 10, assessorsIds: string = '') => $api.get<ProjectResponse>(`/api/projects/?page=${page}&status=active,pause&ordering=${sorting}&page_size=${pageLimit}&for_assessor=${assessorsIds}`).then((res) => res.data)
+
     static fetchProjectsByManager = (managerId: string | number) => $api.get<ProjectResponse>(`/api/projects/?manager=${managerId}&status=active,pause&page_size=all`).then((res) => res.data)
-    static fetchCompletedProjects = (page = 1, sorting: string) => $api.get<ProjectResponse>(`/api/projects/?page=${page}&page_size=10&status=completed&ordering=${sorting}`).then((res) => res.data)
+    static fetchCompletedProjects = (page = 1, sorting: string, pageLimit: number = 10) => $api.get<ProjectResponse>(`/api/projects/?page=${page}&page_size=${pageLimit}&status=completed&ordering=${sorting}`).then((res) => res.data)
     static fetchProject = (projectId: string | number | undefined) => $api.get<Project>(`/api/projects/${projectId}/`).then((res) => res.data)
     static postProject = (data: ProjectFormProps) => $api.post<Project>(`/api/projects/`, data).then((res) => res.data)
     static fetchProjectTags = () => $api.get<TagResult>('/api/tags/').then((res) => res.data)

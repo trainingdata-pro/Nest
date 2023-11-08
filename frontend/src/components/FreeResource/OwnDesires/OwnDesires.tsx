@@ -7,33 +7,35 @@ import {
 } from "@tanstack/react-table";
 import Table from "../../UI/Table";
 import TablePagination from "../../UI/TablePagination";
-import {IFired} from "../../../models/AssessorResponse";
 import {useOwnDesiresSorting} from "./columns";
+import {useFetchOwnDesires} from "./queries";
 
 const OwnDesires = ({globalFilter, skillsFilter}: {
     globalFilter: string,
     skillsFilter: string
 }) => {
     const {columns, sorting, getSortingString} = useOwnDesiresSorting()
-    const [currentPage, setCurrentPage] = useState(1)
-    const [totalPages, setTotalPages] = useState(1)
-    const [totalRows, setTotalRows] = useState<number>(0)
-    const fired = useQuery(['fired', currentPage, sorting, globalFilter,skillsFilter], () => AssessorService.fetchFired(currentPage, getSortingString(), globalFilter,skillsFilter), {
-        keepPreviousData: true,
-    })
-
-    const table = useReactTable({
-        data: fired.data ? fired.data.results : [],
-        columns,
-        getCoreRowModel: getCoreRowModel(),
+    const {
+        fired,
+        currentPage,
+        setCurrentPage,
+        totalPages,
+        totalRows,
+        pageLimit,
+        setPageLimit
+    } = useFetchOwnDesires({
+        sorting: sorting,
+        sortingString: getSortingString(),
+        globalFilter: globalFilter,
+        skillsFilter: skillsFilter
     })
 
 
     return (
         <>
-            <Table table={table}/>
-            <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
-                             setCurrentPage={setCurrentPage}/>
+            <Table data={fired.data ? fired.data.results : []} columns={columns} totalRows={totalRows}
+                   currentPage={currentPage} totalPages={totalPages}
+                   setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit} pages={true}/>
         </>
     );
 };

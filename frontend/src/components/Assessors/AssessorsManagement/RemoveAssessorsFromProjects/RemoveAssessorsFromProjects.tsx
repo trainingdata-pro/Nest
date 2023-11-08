@@ -3,14 +3,15 @@ import {useMutation, useQuery, useQueryClient} from "react-query";
 import ProjectService from "../../../../services/ProjectService";
 import {Project} from "../../../../models/ProjectResponse";
 import {Reason} from "../ChangeProjects/ChangeProjects";
-import {getCoreRowModel, getPaginationRowModel, Row, useReactTable} from "@tanstack/react-table";
+import {Row} from "@tanstack/react-table";
 import MyButton from "../../../UI/MyButton";
 import Table from "../../../UI/Table";
 import AssessorService from "../../../../services/AssessorService";
 import {errorNotification, successNotification} from "../../../UI/Notify";
 import {useRemoveAssessorsColumns} from "./columns";
-import TablePagination from "../../../UI/TablePagination";
 import {Assessor} from "../../../../models/AssessorResponse";
+import {useFetchProjects} from "../ChangeProjects/queries";
+import {useFetchProjectsToDelete} from "./queries";
 
 const RemoveAssessorsFromProjects = ({assessorsRow, setAssessorsRow, show}: {
     assessorsRow: Row<Assessor>[],
@@ -18,28 +19,9 @@ const RemoveAssessorsFromProjects = ({assessorsRow, setAssessorsRow, show}: {
     setAssessorsRow: Dispatch<Row<Assessor>[]>
 }) => {
     const {selectedRows, columns} = useRemoveAssessorsColumns()
-    const [currentPage, setCurrentPage] = useState(1)
-    const [totalPages, setTotalPages] = useState(1)
-    const [totalRows, setTotalRows] = useState<number>(0)
-    const projects = useQuery('removeProjects', () => ProjectService.fetchProjects(currentPage,''), {
-        onSuccess: data => {
-            let assessorsProjects:number[] = []
-            assessorsRow.map(row => row.original.projects.map((project: Project) => assessorsProjects.push(project.id)))
-            const res = [...data.results.filter(project => assessorsProjects.find(pr => pr.toString() === project.id.toString()) !== undefined)]
-            setAvailableProjects(res)
-            setTotalRows(res.length)
-            setTotalPages(Math.ceil(res.length / 10))
-        },
-    })
-    const [availableProjects, setAvailableProjects] = useState<Project[]>([])
+    const {projects, totalRows, totalPages, setCurrentPage, currentPage, pageLimit, setPageLimit} = useFetchProjectsToDelete({assessorsIds: assessorsRow.map(row => row.original.id).join(',')})
     const addToProject = useMutation('assessors', ({id, data}: any) => AssessorService.addAssessorProject(id, data));
-    const table = useReactTable({
-        data: projects.isSuccess ? availableProjects: [],
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        debugTable: false,
-    })
+
     const queryClient = useQueryClient()
 
     const [selectedReason, setSelectedReason] = useState<string>()
@@ -85,8 +67,8 @@ const RemoveAssessorsFromProjects = ({assessorsRow, setAssessorsRow, show}: {
                                                    value={reason.value} id={reason.id}/>)}
                 </div>
                 <div>
-                    <Table table={table}/>
-                    <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages} setCurrentPage={setCurrentPage}/>
+                    <Table data={projects.isSuccess ? projects.data.results: [] }  columns={columns} pages={true} setPageLimit={setPageLimit} pageLimit={pageLimit} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                           setCurrentPage={setCurrentPage}/>
                 </div>
                 <div className='flex justify-between space-x-2'>
                     <MyButton onClick={() => show(false)}>Назад</MyButton>

@@ -35,29 +35,16 @@ export const useFetchRentAssessors = ({sorting, sortingString, skillsFilter}: {
     sortingString: string,
     skillsFilter: number[]
 }) => {
-    const {store} = useContext(Context)
-    const fetchTeamLeadTeam = useQuery(['TeamLeadTeam'], () => ManagerService.fetchTeamLeadTeam(store.user_id), {
-        enabled: store.user_data.is_teamlead,
-        select: data => {
-            return data.results.map(manager => manager.user.id)
-        }
-    })
-    const getManagersIds  = () => {
-        if (store.user_data.is_teamlead){
-            return fetchTeamLeadTeam.data? fetchTeamLeadTeam.data.join(',') : ''
-        } else {
-            return store.user_id
-        }
-    }
+    const [pageLimit, setPageLimit] = useState(10)
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
     const [totalRows, setTotalRows] = useState<number>(0)
-    const rentAssessors = useQuery(['rentAssessors', currentPage, sorting, skillsFilter], () => AssessorService.fetchRentAssessors(currentPage, sortingString, skillsFilter.join(',')),{
+    const rentAssessors = useQuery(['rentAssessors', currentPage, sorting, skillsFilter,pageLimit], () => AssessorService.fetchRentAssessors(currentPage, sortingString, skillsFilter.join(','), pageLimit),{
         keepPreviousData: true,
         onSuccess: data => {
             setTotalRows(data.count)
-            setTotalPages(Math.ceil(data.count / 10))
+            setTotalPages(Math.ceil(data.count / pageLimit))
         }
     })
-    return {rentAssessors, totalRows, totalPages, setCurrentPage, currentPage}
+    return {rentAssessors, totalRows, totalPages, setCurrentPage, currentPage, pageLimit, setPageLimit}
 }

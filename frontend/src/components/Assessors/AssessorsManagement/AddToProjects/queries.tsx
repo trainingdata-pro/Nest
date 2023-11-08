@@ -1,9 +1,9 @@
-import {useMutation, useQuery} from "react-query";
-import ProjectService from "../../../../services/ProjectService";
-import AssessorService from "../../../../services/AssessorService";
 import {useState} from "react";
+import {useQuery} from "react-query";
+import ProjectService from "../../../../services/ProjectService";
 
-export const useFetchProjects = ({assessorsIds}:{
+
+export const useFetchExcludedProjects = ({assessorsIds}:{
     assessorsIds: string
 }) => {
     const [currentPage, setCurrentPage] = useState(1)
@@ -16,9 +16,6 @@ export const useFetchProjects = ({assessorsIds}:{
             setTotalPages(Math.ceil(data.count / pageLimit))
         }
     })
-    return {projects, totalRows, totalPages, setCurrentPage, currentPage, pageLimit, setPageLimit}
-}
 
-export const useChangeAssessorProjects = () => {
-    return useMutation('assessors', ({id, data}: any) => AssessorService.addAssessorProject(id, data))
+    return {projects, totalRows, totalPages, setCurrentPage, currentPage, pageLimit, setPageLimit}
 }

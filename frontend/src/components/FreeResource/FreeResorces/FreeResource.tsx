@@ -12,6 +12,7 @@ import Loader from "../../UI/Loader";
 import {observer} from "mobx-react-lite";
 import TablePagination from "../../UI/TablePagination";
 import {useFreeResourcesSorting} from "./columns";
+import {useFetchFreeResources} from "./queries";
 
 export interface FreeAssessor extends IFreeResources {
     last_manager: string,
@@ -23,30 +24,27 @@ const FreeResource = ({globalFilter, skillsFilter}: {
     skillsFilter: string
 }) => {
     const {columns, sorting, getSortingString} = useFreeResourcesSorting()
-    const [currentPage, setCurrentPage] = useState(1)
-    const [totalPages, setTotalPages] = useState(1)
-    const [totalRows, setTotalRows] = useState<number>(0)
     const {
-        data,
-        isLoading
-    } = useQuery(['freeResources', currentPage, sorting, globalFilter,skillsFilter], () => AssessorService.fetchFreeResource(currentPage, getSortingString(), globalFilter, skillsFilter), {
-        keepPreviousData: true,
-        onSuccess: data => {
-            setTotalRows(data.count)
-            setTotalPages(Math.ceil(data.count / 10))
-        }
+        fetchFreeResources,
+        currentPage,
+        setCurrentPage,
+        totalPages,
+        totalRows,
+        pageLimit,
+        setPageLimit
+    } = useFetchFreeResources({
+        sorting: sorting,
+        sortingString: getSortingString(),
+        globalFilter: globalFilter,
+        skillsFilter: skillsFilter
     })
-    const table = useReactTable({
-        data: data ? data.results : [],
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-    })
-    if (isLoading) return <Loader/>
+
+    if (fetchFreeResources.isLoading) return <Loader/>
     return (
         <div>
-            <Table table={table}/>
-            <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
-                             setCurrentPage={setCurrentPage}/>
+            <Table data={fetchFreeResources.isSuccess ? fetchFreeResources.data.results : []} columns={columns} totalRows={totalRows} currentPage={currentPage}
+                   totalPages={totalPages}
+                   setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit} pages={true}/>
         </div>
     );
 };

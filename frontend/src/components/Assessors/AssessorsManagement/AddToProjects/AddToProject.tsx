@@ -1,15 +1,15 @@
 import React, {Dispatch, useState} from 'react';
-import {useMutation, useQuery, useQueryClient} from "react-query";
-import ProjectService from "../../../../services/ProjectService";
+import {useMutation, useQueryClient} from "react-query";
 import AssessorService from "../../../../services/AssessorService";
 import {errorNotification, successNotification} from "../../../UI/Notify";
 import {Project} from "../../../../models/ProjectResponse";
 import Table from "../../../UI/Table";
-import {getCoreRowModel, Row, useReactTable} from "@tanstack/react-table";
+import {Row} from "@tanstack/react-table";
 import {Reason} from '../ChangeProjects/ChangeProjects';
 import {Assessor} from "../../../../models/AssessorResponse";
 import {useMyAssessorsColumn} from "./columns";
-import TablePagination from "../../../UI/TablePagination";
+import MyButton from "../../../UI/MyButton";
+import {useFetchExcludedProjects} from "./queries";
 
 
 const AddToProject = ({assessorsRow, show, setAssessorsRow}: {
@@ -19,27 +19,9 @@ const AddToProject = ({assessorsRow, show, setAssessorsRow}: {
 }) => {
     const {selectedRows, columns} = useMyAssessorsColumn()
     const queryClient = useQueryClient()
-    const [currentPage, setCurrentPage] = useState(1)
-    const [totalPages, setTotalPages] = useState(1)
-    const [totalRows, setTotalRows] = useState<number>(0)
-    const projects = useQuery(['projects', currentPage], () => ProjectService.fetchProjects(currentPage, ''), {
-        onSuccess: data => {
-            let assessorsProjects:number[] = []
-            assessorsRow.map(row => row.original.projects.map((project: Project) => assessorsProjects.push(project.id)))
-            const res = [...data.results.filter(project => assessorsProjects.find(pr => pr.toString() === project.id.toString()) === undefined)]
-            setAvailableProjects(res)
-            setTotalRows(res.length)
-            setTotalPages(Math.ceil(res.length / 10))
-        }
-    })
-    const [availableProjects, setAvailableProjects] = useState<Project[]>([])
+    const {projects, totalRows, totalPages, setCurrentPage, currentPage, pageLimit, setPageLimit} = useFetchExcludedProjects({assessorsIds: assessorsRow.map(row => row.original.id).join(',')})
     const addToProject = useMutation('assessors', ({id, data}: any) => AssessorService.addAssessorProject(id, data));
-    const table = useReactTable({
-        data: projects.isSuccess ? availableProjects : [] as Project[],
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        debugTable: false,
-    })
+
     const postWorkloadStatus = useMutation(['assessors'], async ({data}: any) => AssessorService.createWorkloadStatus(data), {})
 
     const [workloadStatus, setWorkloadStatus] = useState('')
@@ -116,17 +98,13 @@ const AddToProject = ({assessorsRow, show, setAssessorsRow}: {
                                                    name={reason.name} value={reason.value} id={reason.id}/>)}
                 </div>
                 <div>
-                    <Table table={table}/>
-                    <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
-                                     setCurrentPage={setCurrentPage}/>
+                    <Table data={projects.isSuccess ? projects.data.results : []}  columns={columns} pages={true} setPageLimit={setPageLimit} pageLimit={pageLimit} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                           setCurrentPage={setCurrentPage}/>
+
                 </div>
-                <div className='flex space-x-2'>
-                    <button className='bg-[#5970F6] text-white w-full rounded-md mt-2 py-2'
-                            onClick={() => show(false)}>Назад
-                    </button>
-                    <button className='bg-[#5970F6] text-white w-full rounded-md mt-2 py-2'
-                            onClick={submit}>Сохранить
-                    </button>
+                <div className='flex justify-between space-x-2'>
+                    <MyButton onClick={() => show(false)}>Назад</MyButton>
+                    <MyButton onClick={submit}>Сохранить</MyButton>
                 </div>
             </div>
         </div>

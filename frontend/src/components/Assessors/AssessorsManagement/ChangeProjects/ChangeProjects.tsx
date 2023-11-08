@@ -15,6 +15,7 @@ import {Assessor} from "../../../../models/AssessorResponse";
 import ProjectService from "../../../../services/ProjectService";
 import TablePagination from "../../../UI/TablePagination";
 import AssessorService from "../../../../services/AssessorService";
+import {useFetchProjects} from "./queries";
 
 export const Reason = ({setSelectedReason,name, value,id, label}:{
     setSelectedReason:  any
@@ -40,21 +41,8 @@ const ChangeProjects = ({assessorsRow, show, setAssessorsRow}:{
     const {selectedRows, columns} = useChangeAssessorsColumns()
     const {store} = useContext(Context)
     const queryClient = useQueryClient()
-    const [currentPage, setCurrentPage] = useState(1)
-    const [totalPages, setTotalPages] = useState(1)
-    const [totalRows, setTotalRows] = useState<number>(0)
-    const fetchProjects = useQuery(['projects', currentPage], () => ProjectService.fetchProjects(1, ''), {
-        onSuccess: data => {
-            let assessorsProjects:number[] = []
-            assessorsRow.map(row => row.original.projects.map((project: Project) => assessorsProjects.push(project.id)))
-            const res = [...data.results.filter(project => assessorsProjects.find(pr => pr.toString() === project.id.toString()) === undefined)]
-            setAvailableProjects(res)
-            setTotalRows(res.length)
-            setTotalPages(Math.ceil(res.length / 10))
-        }
-    })
-    const [availableProjects, setAvailableProjects] = useState<Project[]>([])
 
+    const {projects, totalRows, totalPages, setCurrentPage, currentPage, pageLimit, setPageLimit} = useFetchProjects({assessorsIds: assessorsRow.map(row => row.original.id).join(',')})
     const [selectedReason, setSelectedReason] = useState<string>()
     const {mutate} = useMutation('assessors', ({id, data}: any) => AssessorService.addAssessorProject(id, data))
     const submit = () => {
@@ -84,27 +72,38 @@ const ChangeProjects = ({assessorsRow, show, setAssessorsRow}:{
     const filterProjects = () => {
         let assessorsProjects:any[] = []
         // eslint-disable-next-line array-callback-return
-        assessorsRow.map((row:any) => {
-            let myProjects:number[] = []
-            let notMyProjects:number[] = []
-            // eslint-disable-next-line array-callback-return
-            row.original.projects.map((project: Project) => {
-                if (project.manager.find(manager => manager.id.toString() === store.user_id.toString()) !== undefined) {
-                    myProjects.push(project.id)
-                } else {
-                    notMyProjects.push(project.id)
-                }
+        if (store.user_data.is_teamlead) {
+            assessorsRow.map((row:any) => {
+                let myProjects:number[] = []
+                let notMyProjects:number[] = []
+                // eslint-disable-next-line array-callback-return
+                row.original.projects.map((project: Project) => {
+                    if (project.manager.find(manager => store.team.find(man => man.user.id.toString() === manager.id.toString())) !== undefined) {
+                        myProjects.push(project.id)
+                    } else {
+                        notMyProjects.push(project.id)
+                    }
+                })
+                assessorsProjects.push({'myProjects': myProjects, 'notMyProjects': notMyProjects,'assessorId': row.original.id})
             })
-            assessorsProjects.push({'myProjects': myProjects, 'notMyProjects': notMyProjects,'assessorId': row.original.id})
-        })
+        } else {
+            assessorsRow.map((row:any) => {
+                let myProjects:number[] = []
+                let notMyProjects:number[] = []
+                // eslint-disable-next-line array-callback-return
+                row.original.projects.map((project: Project) => {
+                    if (project.manager.find(manager => manager.id.toString() === store.user_id.toString()) !== undefined) {
+                        myProjects.push(project.id)
+                    } else {
+                        notMyProjects.push(project.id)
+                    }
+                })
+                assessorsProjects.push({'myProjects': myProjects, 'notMyProjects': notMyProjects,'assessorId': row.original.id})
+            })
+        }
         return assessorsProjects
     }
-    const table = useReactTable({
-        data: fetchProjects.isSuccess ? availableProjects : [],
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        debugTable: false,
-    })
+
     const reasons = [
         {id: 'reason1', value: 'Не смог работать со спецификой проекта',name: 'reason',label: 'Не смог работать со спецификой проекта'},
         {id: 'reason2', value: 'Не сработались',name: 'reason', label: 'Не сработались'},
@@ -117,8 +116,8 @@ const ChangeProjects = ({assessorsRow, show, setAssessorsRow}:{
                 <div className='bg-white pb-4'>
                     {reasons.map(reason => <Reason key={reason.id} label={reason.label} setSelectedReason={setSelectedReason} name={reason.name} value={reason.value} id={reason.id}/>)}
                 </div>
-                <Table table={table}/>
-                <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages} setCurrentPage={setCurrentPage}/>
+                <Table data={projects.isSuccess ? projects.data.results : []}  columns={columns} pages={true} setPageLimit={setPageLimit} pageLimit={pageLimit} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                       setCurrentPage={setCurrentPage}/>
                 <div className='flex justify-between space-x-2'>
                     <MyButton onClick={() => show(false)}>Назад</MyButton>
                     <MyButton onClick={submit}>Сохранить</MyButton>
