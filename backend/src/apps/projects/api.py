@@ -1,6 +1,6 @@
 from typing import Iterable, Any
 
-from django.db.models import Count, QuerySet, Sum, OuterRef, Q
+from django.db.models import Count, QuerySet, Sum, Q
 from django.db.models.query import EmptyQuerySet
 from django.http import Http404
 from django.utils.decorators import method_decorator
@@ -115,13 +115,6 @@ class ProjectAPIViewSet(BaseAPIViewSet):
         self._check_project(instance)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-    # @action(detail=True, methods=['get'])
-    # def assessors(self, request: Request, *args, **kwargs) -> Response:
-    #     obj = self.get_object()
-    #     assessors = obj.assessors.all()
-    #     serializer = self.get_serializer(data=assessors)
-    #     return Response(serializer.data)
 
     @action(detail=True, methods=['patch'])
     def clear(self, request: Request, *args, **kwarg) -> Response:
