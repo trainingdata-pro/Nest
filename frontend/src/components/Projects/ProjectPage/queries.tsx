@@ -30,7 +30,7 @@ export const useFetchProjectAssessors = ({enabled, projectId,sorting, sortingStr
 export const useFetchProjectInfo = ({projectId}:{
     projectId: number | string | undefined
 }) => {
-    const projectInfo = useQuery(['projectName', projectId], () => ProjectService.fetchProject(projectId), {
+    const projectInfo = useQuery(['projectInfo', projectId], () => ProjectService.fetchProject(projectId), {
         retry: false,
     })
     return {projectInfo}

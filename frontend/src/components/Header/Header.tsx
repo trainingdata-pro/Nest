@@ -1,7 +1,7 @@
 import {NavLink} from "react-router-dom";
 import React, {useContext, useState} from "react";
 import {Context} from "../../index";
-import Profile from "../Profile";
+import Profile from "./Profile";
 import {observer} from "mobx-react-lite";
 import Dialog from "../UI/Dialog";
 import CheckAssessor from "./CheckAssessor";

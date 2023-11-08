@@ -10,13 +10,13 @@ const SetPause = ({show, projectId}: {
     projectId: number | string
 }) => {
     const queryClient = useQueryClient()
-    const navigate = useNavigate()
     const [value, setValue] = useState<boolean>()
     const pauseProject = useMutation([], () => ProjectService.patchProject(projectId, {status: 'pause'}), {
         onSuccess: () => {
             queryClient.invalidateQueries('projectAssessors')
+            queryClient.invalidateQueries('projectInfo')
             successNotification('Проект поставлен на паузу')
-            navigate('/projects')
+            show(false)
         },
         onError: () => {
             errorNotification('Ошибка')

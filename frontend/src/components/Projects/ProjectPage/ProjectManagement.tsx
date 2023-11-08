@@ -3,6 +3,7 @@ import {errorNotification} from "../../UI/Notify";
 import Dialog from "../../UI/Dialog";
 import SetCompleted from "./SetCompleted";
 import SetPause from "./SetPause";
+import SetActive from "./SetActive";
 
 const ProjectManagement = ({project, status}:{
     project: number | string | undefined,
@@ -11,6 +12,7 @@ const ProjectManagement = ({project, status}:{
     const [open, setOpen] = useState(false);
     const [isShowCompleteProject, setIsShowCompleteProject] = useState(false)
     const [isShowPauseProject, setIsShowPauseProject] = useState(false)
+    const [isShowSetActiveProjects, setIsShowSetActiveProjects] = useState(false)
     return (
         <div>
             {project && <Dialog isOpen={isShowCompleteProject} setIsOpen={setIsShowCompleteProject}>
@@ -18,6 +20,9 @@ const ProjectManagement = ({project, status}:{
             </Dialog>}
             {project && <Dialog isOpen={isShowPauseProject} setIsOpen={setIsShowPauseProject}>
                 <SetPause show={setIsShowPauseProject} projectId={project}/>
+            </Dialog>}
+            {project && <Dialog isOpen={isShowSetActiveProjects} setIsOpen={setIsShowSetActiveProjects}>
+                <SetActive show={setIsShowSetActiveProjects} projectId={project}/>
             </Dialog>}
             <div className="justify-center w-36">
                 <div onMouseLeave={() => setOpen(false)} className="relative">
@@ -32,14 +37,18 @@ const ProjectManagement = ({project, status}:{
                             open ? "block" : "hidden"
                         }`}
                     >
-                        <li onClick={() => {
-                            if (status === 'pause') {
-                                errorNotification('Проект уже на паузе')
-                            } else {
+                        {status === 'pause' ?
+                            <li onClick={() =>
+                                setIsShowSetActiveProjects(true)
+                            }
+                                className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">
+                            Перевести в статус "Активный"
+                        </li> :
+                        <li onClick={() =>
                                 setIsShowPauseProject(true)
-                            }}} className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">
+                            } className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">
                             Поставить проект на паузу
-                        </li>
+                        </li>}
                         <li onClick={() => setIsShowCompleteProject(true)} className="w-full cursor-pointer text-center py-2 text-sm hover:bg-gray-100">
                             Завершить проект
                         </li>

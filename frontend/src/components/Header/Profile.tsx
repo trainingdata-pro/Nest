@@ -1,16 +1,16 @@
 import React, {useContext, useMemo, useRef, useState} from 'react';
-import {Context} from "../index";
+import {Context} from "../../index";
 import {observer} from "mobx-react-lite";
 import {useForm} from "react-hook-form";
-import ManagerService from "../services/ManagerService";
-import MyLabel from "./UI/MyLabel";
-import MyInput from "./UI/MyInput";
+import ManagerService from "../../services/ManagerService";
+import MyLabel from "../UI/MyLabel";
+import MyInput from "../UI/MyInput";
 import Select from "react-select";
 import {useMutation, useQuery, useQueryClient} from "react-query";
-import {errorNotification, successNotification} from "./UI/Notify";
-import Error from "./UI/Error";
+import {errorNotification, successNotification} from "../UI/Notify";
+import Error from "../UI/Error";
 import {Dialog} from "@headlessui/react";
-import MyButton from './UI/MyButton';
+import MyButton from '../UI/MyButton';
 
 
 interface FormProps {
