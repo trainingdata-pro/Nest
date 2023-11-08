@@ -11,7 +11,7 @@ export const useFetchProjects = () => {
     const [totalPages, setTotalPages] = useState(1)
     const [totalRows, setTotalRows] = useState<number>(0)
     const [pageLimit, setPageLimit] = useState(10)
-    const fetchProjects = useQuery(['projects', pageLimit], () => ProjectService.fetchProjects(currentPage, ''), {
+    const fetchProjects = useQuery(['projects', pageLimit, currentPage], () => ProjectService.fetchProjects(currentPage, '', pageLimit), {
         keepPreviousData: true,
         onSuccess: data1 => {
             setTotalRows(data1.count)
