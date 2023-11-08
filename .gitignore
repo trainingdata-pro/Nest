@@ -155,3 +155,5 @@ storage/
 frontend/node_modules/
 *media/
 backend/logging
+backend/db_merge/*.json
+backend/db_merge/*.xlsx
