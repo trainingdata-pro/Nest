@@ -13,6 +13,7 @@ services:
       - ./backend/src:/backend/src
       - ./backend/src/media:/backend/src/media
       - ./backend/logging:/backend/logging
+      - ./backend/db_merge:/backend/db_merge
     networks:
       - dev_network
     depends_on:
