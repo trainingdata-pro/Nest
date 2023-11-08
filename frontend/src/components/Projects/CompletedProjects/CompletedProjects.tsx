@@ -5,17 +5,16 @@ import {observer} from "mobx-react-lite";
 import Dialog from "../../UI/Dialog";
 import Export from "../Export";
 import {useCompletedProjectsColumns} from "./columns";
-import TablePagination from "../../UI/TablePagination";
 import Loader from "../../UI/Loader";
 import {useCompletedProjects} from "./queries";
 import ProjectForm from "../ProjectForm/ProjectForm";
-import NewTable from "../../UI/NewTable";
+import Table from "../../UI/Table";
 
 const CompletedProjects = () => {
     const [showSidebar, setShowSidebar] = useState(false)
     const [projectId, setProjectId] = useState(0)
     const {sorting, getSortingString, columns} = useCompletedProjectsColumns({setProjectId,setShowSidebar})
-    const {currentPage, setCurrentPage, totalPages, totalRows, completedProjects} = useCompletedProjects({sorting, getSortingString})
+    const {currentPage, setCurrentPage, totalPages, totalRows, completedProjects,pageLimit, setPageLimit} = useCompletedProjects({sorting, getSortingString})
     const [isExportProjects, setIsExportProjects] = useState(false)
 
 
@@ -35,9 +34,8 @@ const CompletedProjects = () => {
                     <MyButton onClick={() => setIsExportProjects(true)}>Экспорт</MyButton>
                 </div>
                 <div className='rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
-                    <NewTable data={completedProjects.isSuccess ? completedProjects.data.results : []} columns={columns}/>
-                    <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
-                                     setCurrentPage={setCurrentPage}/>
+                    <Table data={completedProjects.isSuccess ? completedProjects.data.results : []} columns={columns} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                           setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit} pages={true}/>
                 </div>
             </div>
         </div>
