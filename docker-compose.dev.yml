@@ -36,7 +36,7 @@ services:
     container_name: redis
     image: redis
     volumes:
-      - ./storage/redis-data:/data
+      - ./storage/redis-data:/var/lib/redis
     networks:
       - dev_network
 

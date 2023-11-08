@@ -32,7 +32,7 @@ services:
     container_name: redis
     image: redis
     volumes:
-      - redis_data:/data
+      - redis_data:/var/lib/redis
     networks:
       - default_network
 
