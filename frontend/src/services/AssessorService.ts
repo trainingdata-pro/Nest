@@ -96,6 +96,6 @@ export default class AssessorService{
     static returnFromFreeResources = (assessorId:number| string | undefined, data:any) => $api.patch(`/api/assessors/${assessorId}/free_resource/`, data).then(res => res.data)
     static exportProjectAssessors = (type: string, projectId: number | string) => $api.get(`/api/export/assessors/?type=${type}&project=${projectId}`).then(res => res.data)
     static exportBlackList = (type: string, items:string) => $api.get(`/api/export/blacklist/?type=${type}&items=${items}`).then(res => res.data)
-    static checkAssessor = (page: number, name: string) => $api.get<CheckAssessorResponse>(`/api/assessors/check/?name=${name}&page=${page}&page_size=10`).then(res => res.data)
+    static checkAssessor = (page: number, name: string, pageLimit: number = 10) => $api.get<CheckAssessorResponse>(`/api/assessors/check/?name=${name}&page=${page}&page_size=${pageLimit}`).then(res => res.data)
     static takeFromOwnDesires = (firedId: string | number, data:any) => $api.patch(`/api/fired/${firedId}/back/`, data)
 }

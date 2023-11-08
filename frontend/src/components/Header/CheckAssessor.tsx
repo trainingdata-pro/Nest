@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
-import TablePagination from "../UI/TablePagination";
 import Dialog from "../UI/Dialog";
 import AssessorHistory from "../Assessors/AssessorPage/AssessorHistory/AssessorHistory";
 import {useCheckAssessorColumns} from "./columns";
-import NewTable from "../UI/NewTable";
+import Table from "../UI/Table";
 import {useCheckAssessor} from "./queries";
+import Loader from '../UI/Loader';
 
 
 const CheckAssessor = () => {
@@ -13,7 +13,7 @@ const CheckAssessor = () => {
     const [idToShow, setIdToShow] = useState(0)
     const {columns} = useCheckAssessorColumns({setIsShowHistory: setIsShowHistory, setIdToShow: setIdToShow})
 
-    const {setCurrentPage,currentPage, totalPages, totalRows, checkAssessors} = useCheckAssessor({name: name})
+    const {setCurrentPage,currentPage, totalPages, totalRows, checkAssessors, pageLimit, setPageLimit} = useCheckAssessor({name: name})
 
     return (
         <div className='w-[800px]'>
@@ -34,11 +34,11 @@ const CheckAssessor = () => {
                     </div>
                 </section>
             <div>
-                {checkAssessors.isLoading ? 'Загрузка...' :
-                    <>
-                    <NewTable data={name.length >= 3 && checkAssessors.isSuccess ? checkAssessors.data.results : []} columns={columns}/>
-                    <TablePagination totalRows={name.length >= 3 ? totalRows : 0} currentPage={currentPage} totalPages={name.length >= 3 ? totalPages : 1} setCurrentPage={setCurrentPage}/>
-                    </>
+                {checkAssessors.isFetching ? <Loader/> :
+
+                    <Table data={name.length >= 3 && checkAssessors.isSuccess ? checkAssessors.data.results : []} columns={columns} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                           setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit} pages={true}/>
+
             }
             </div>
         </div>
