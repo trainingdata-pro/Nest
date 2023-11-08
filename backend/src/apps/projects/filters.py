@@ -12,6 +12,7 @@ class ProjectFilter(SplitStringFilterMixin, filters.FilterSet):
     assessors_count = filters.NumberFilter(method='filter_assessors_count')
     assessor_id = filters.NumberFilter(method='filter_assessor_id')
     status = filters.CharFilter(method='filter_status')
+    exclude_for_assessor = filters.CharFilter(method='filter_exclude_for_assessor')
 
     class Meta:
         model = Project
@@ -42,6 +43,10 @@ class ProjectFilter(SplitStringFilterMixin, filters.FilterSet):
     def filter_status(self, queryset: QuerySet[Project], name: str, value: str) -> QuerySet[Project]:
         statuses = self.get_string_for_filtering(value)
         return queryset.filter(status__in=statuses)
+
+    def filter_exclude_for_assessor(self, queryset: QuerySet[Project], name: str, value: str) -> QuerySet[Project]:
+        assessors = self.get_id_for_filtering(value)
+        return queryset.exclude(assessors__in=assessors)
 
 
 class AllAssessorsForProjectFilter(SplitStringFilterMixin, filters.FilterSet):

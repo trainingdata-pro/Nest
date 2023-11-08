@@ -63,6 +63,13 @@ class ProjectSchema(BaseAPISchema):
                                 f'{", ".join([f"{item[0]} ({item[1]})" for item in ProjectStatuses.choices])}'
                 ),
                 openapi.Parameter(
+                    name='exclude_for_assessor',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Exclude projects where the specified assessors work.\n'
+                                'Example: host.com/?exclude_for_assessor=1,2,3'
+                ),
+                openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
