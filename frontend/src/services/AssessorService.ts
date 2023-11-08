@@ -58,7 +58,7 @@ export default class AssessorService{
     static fetchCredentials = (id: string | number | undefined) => $api.get<LoginAndPasswordResponse>(`/api/credentials/?assessor=${id}`).then((res) => res.data)
     static patchCredentials = (credId: string | number | undefined, data:any) => $api.patch(`/api/credentials/${credId}/`, data)
     static postCredentials = (data:any) => $api.post(`/api/credentials/`, data)
-    static fetchHistoryByAssessor = (assessorId: string | number | undefined, page: string | number = 1) => $api.get<IHistoryResponse>(`/api/history/?ordering=-timestamp&assessor=${assessorId}&page=${page}&page_size=10`).then(res => res.data)
+    static fetchHistoryByAssessor = (assessorId: string | number | undefined, page: string | number = 1, pageLimit:number = 10) => $api.get<IHistoryResponse>(`/api/history/?ordering=-timestamp&assessor=${assessorId}&page=${page}&page_size=${pageLimit}`).then(res => res.data)
     static fetchAssessorHistory = (id: string | number | undefined, attribute: string) => $api.get<IHistoryResponse>(`/api/history/?attribute=${attribute}&ordering=-timestamp&assessor=${id}`).then(res => res.data)
     static getBlackList = (page: string | number = 1,filter:string, sorting:string = '') => $api.get<IBlackListResponse>(`/api/blacklist/?page=${page}&name=${filter}&ordering=${sorting}&page_size=10`).then(res => res.data)
     static getBlackListAll = (filter:string) => $api.get<IBlackListResponse>(`/api/blacklist/?name=${filter}&page_size=all`).then(res => res.data)
