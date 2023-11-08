@@ -70,6 +70,13 @@ class ProjectSchema(BaseAPISchema):
                                 'Example: host.com/?exclude_for_assessor=1,2,3'
                 ),
                 openapi.Parameter(
+                    name='for_assessor',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Get projects where the specified assessors work.\n'
+                                'Example: host.com/?for_assessor=1,2,3'
+                ),
+                openapi.Parameter(
                     name='ordering',
                     type=openapi.TYPE_STRING,
                     in_=openapi.IN_QUERY,
