@@ -78,7 +78,7 @@ const Table = ({data, columns, totalRows, currentPage, totalPages, setCurrentPag
                                             key={cell.id}
                                             colSpan={1}>
                                             <div
-                                                className="flex justify-center text-center h-full items-center align-middle break-words break-all">
+                                                className="flex justify-center text-center h-full items-center align-middle break-words">
                                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                             </div>
                                         </td>
