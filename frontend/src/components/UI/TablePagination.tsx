@@ -41,7 +41,10 @@ const TablePagination = ({totalRows, currentPage, totalPages, setCurrentPage, se
                         <p>Элементов на странице:</p>
                         {setPageLimit && <select className='bg-white border border-gray rounded-md'
                             value={pageLimit}
-                            onChange={e => setPageLimit(Number(e.target.value))}
+                            onChange={e => {
+                                setPageLimit(Number(e.target.value))
+                                setCurrentPage(1)
+                            }}
                         >
 
                             {[10, 20, 30, 40, 50].map(pageSize => (
