@@ -12,7 +12,7 @@ import Export from "../Export";
 import TablePagination from "../../UI/TablePagination";
 import {useProjectAssessorsColumns} from "./columns";
 import ProjectManagement from "./ProjectManagement";
-import NewTable from "../../UI/NewTable";
+import Table from "../../UI/Table";
 import Page404 from "../../../pages/Page404";
 import Loader from "../../UI/Loader";
 import {useFetchProjectAssessors, useFetchProjectInfo} from "./queries";
@@ -32,6 +32,8 @@ const ProjectPage = () => {
             setCurrentPage,
             totalPages,
             totalRows,
+            pageLimit,
+            setPageLimit
         } = useFetchProjectAssessors({
             enabled: projectInfo.isSuccess,
             projectId: id,
@@ -131,11 +133,10 @@ const ProjectPage = () => {
                                 />
                             </div>
                         </div>
-                        <div className='flex-[84%] rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
-                            <NewTable data={projectAssessors.isSuccess ? projectAssessors.data.results : []}
-                                      columns={columns}/>
-                            <TablePagination totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
-                                             setCurrentPage={setCurrentPage}/>
+                        <div className='flex-[84%] rounded-[20px] bg-white overflow-hidden'>
+                            {projectAssessors.isFetching ? <Loader/> : <Table data={projectAssessors.isSuccess ? projectAssessors.data.results : []}
+                                   columns={columns} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                                   setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit} pages={true}/>}
                         </div>
                     </div>
 
