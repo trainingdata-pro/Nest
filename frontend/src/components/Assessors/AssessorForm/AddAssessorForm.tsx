@@ -129,7 +129,7 @@ const AddAssessorForm = ({project, setShowSidebar}: {
                     </div>
 
                     <Select
-                        options={fetchTeam.isSuccess ? fetchTeam.data.filter(manager => project?.manager.find(man => man.id.toString() === manager.value.toString()) !==undefined) : []}
+                        options={fetchTeam.isSuccess ? (project ? fetchTeam.data.filter(manager => project?.manager.find(man => man.id.toString() === manager.value.toString()) !==undefined) : fetchTeam.data) : []}
                         value={getManager()}
                         isDisabled={!store.user_data.is_teamlead}
                         placeholder="Менеджер"
