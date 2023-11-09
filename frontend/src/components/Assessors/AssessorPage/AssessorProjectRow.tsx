@@ -100,7 +100,7 @@ const AssessorProjectRow = ({project, assessorId}: {
         if (isDisabled) {
             setIsDisabled(false)
         } else {
-            if (!!getValues('workloadStatus')){
+            if (!!getValues('workloadStatus') && getValues('workloadStatus') !== workloadStatus.data?.results[0].status){
                 if (workloadStatus.isSuccess && workloadStatus.data.results.length !== 0 && !!getValues('workloadStatus')) {
                     patchWorkloadStatus.mutate({
                         id: workloadStatus.data.results[0].id,
