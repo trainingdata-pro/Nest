@@ -1,4 +1,4 @@
-from typing import Iterable, Any
+from typing import Iterable, Any, Dict
 
 from django.db.models import Count, QuerySet, Sum, Q
 from django.db.models.query import EmptyQuerySet
@@ -175,12 +175,12 @@ class GetAllAssessorsForProject(generics.ListAPIView):
         'total_working_hours'
     ]
 
-    def get_serializer_context(self):
+    def get_serializer_context(self) -> Dict:
         context = super().get_serializer_context()
         context['project_pk'] = self.kwargs.get('pk')
         return context
 
-    def list(self, request: Request, *args, **kwargs):
+    def list(self, request: Request, *args, **kwargs) -> Response:
         project_pk = kwargs.get('pk')
         self._can_view_project(project_pk)
         queryset = self.filter_queryset(self.get_queryset()).filter(projects__in=[project_pk])
@@ -220,7 +220,7 @@ class GetAllAssessorsForProject(generics.ListAPIView):
                                                      filter=Q(project_working_hours__project__pk=project_pk))))
                 .order_by('pk'))
 
-    def _can_view_project(self, pk):
+    def _can_view_project(self, pk: int) -> None:
         obj = get_object_or_404(Project, pk=pk)
         permission = permissions.ProjectPermission()
         if not permission.has_object_permission(
@@ -274,7 +274,7 @@ class ProjectWorkingHoursAPIViewSet(BaseAPIViewSet):
     filterset_class = ProjectWorkingHoursFilter
     ordering_fields = ['pk']
 
-    def create(self, request: Request, *args, **kwargs):
+    def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         project_wh = serializer.save()
@@ -329,7 +329,7 @@ class WorkLoadStatusAPIViewSet(BaseAPIViewSet):
     filterset_class = WorkLoadStatusFilter
     ordering_fields = ['pk']
 
-    def create(self, request: Request, *args, **kwargs):
+    def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         workload = serializer.save()
