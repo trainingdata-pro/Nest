@@ -7,7 +7,7 @@ import {errorNotification, successNotification} from "../../UI/Notify";
 import MiniLoader from '../../UI/MiniLoader';
 import {CheckIcon, PencilSquareIcon} from '@heroicons/react/24/outline';
 import {AxiosError} from "axios";
-import {redirect, useNavigate} from "react-router-dom";
+
 
 const Errors = {
     last_name: 'Фамилия',
@@ -46,7 +46,6 @@ const FromCell = ({name, children}: CellProps) => {
     )
 }
 const PersonalAssessorInfo = ({assessorId}: { assessorId: string | number | undefined }) => {
-    const queryClient = useQueryClient()
     const assessor = useQuery(['currentAssessorInfo'], () => AssessorService.fetchAssessor(assessorId), {
         onSuccess: data => {
             setValue("last_name", data?.last_name)
@@ -71,6 +70,7 @@ const PersonalAssessorInfo = ({assessorId}: { assessorId: string | number | unde
         },
         onSuccess: () => {
             successNotification('Информация успешно обновлена')
+            setIsDisabled(true)
         }
     })
     const {store} = useContext(Context)
@@ -85,25 +85,23 @@ const PersonalAssessorInfo = ({assessorId}: { assessorId: string | number | unde
             setIsDisabled(false)
         } else {
             let data = getValues()
-            if (data.username.length >= 5) {
-                const {manager, ...assessorData} = data
-                if (assessorData.email === '') {
-                    const newData = {...assessorData, email: null}
-                    patchAssessorInfo.mutate({id: assessorId, data: newData})
-                } else {
-                    if (assessorData.email === assessor.data?.email) {
-                        const {email, ...rest} = assessorData
-                        patchAssessorInfo.mutate({id: assessorId, data: rest})
-                    } else {
-                        patchAssessorInfo.mutate({id: assessorId, data: assessorData})
-                    }
-
-                }
-                setIsDisabled(true)
-            } else {
+            if (data.username.length < 5) {
                 errorNotification('Ник ТГ не может быть меньше 5 символов')
+                return
             }
+            const {manager, ...assessorData} = data
+            if (assessorData.email === '') {
+                const newData = {...assessorData, email: null}
+                patchAssessorInfo.mutate({id: assessorId, data: newData})
+            } else {
+                if (assessorData.email === assessor.data?.email) {
+                    const {email, ...rest} = assessorData
+                    patchAssessorInfo.mutate({id: assessorId, data: rest})
+                } else {
+                    patchAssessorInfo.mutate({id: assessorId, data: assessorData})
+                }
 
+            }
 
         }
     }
