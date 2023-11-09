@@ -3,10 +3,18 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from drf_yasg import openapi
+from drf_yasg.generators import OpenAPISchemaGenerator
 from drf_yasg.views import get_schema_view
 from rest_framework.permissions import IsAuthenticated
 
 from core.permissions import IsAnalystOrAdmin
+
+
+class BothHttpAndHttpsSchemaGenerator(OpenAPISchemaGenerator):
+    def get_schema(self, request=None, public=False):
+        schema = super().get_schema(request, public)
+        schema.schemes = ['https'] if not settings.DEBUG else ['http']
+        return schema
 
 
 schema_view = get_schema_view(
@@ -14,6 +22,7 @@ schema_view = get_schema_view(
         title='NEST API Documentation',
         default_version='v1'
     ),
+    generator_class=BothHttpAndHttpsSchemaGenerator,
     public=False,
     permission_classes=[IsAuthenticated, IsAnalystOrAdmin]
 )
