@@ -76,12 +76,12 @@ export const useFreeResourcesSorting = () => {
             enableSorting: false
         }),
         columnHelper.accessor('free_resource_weekday_hours', {
-            header: 'Кол-во рабочих часов(Будние)',
+            header: 'Кол-во рабочих часов (будние)',
             cell: info => info.renderValue(),
             enableSorting: false
         }),
         columnHelper.accessor('free_resource_day_off_hours', {
-            header: 'Кол-во рабочих часов(выходные)',
+            header: 'Кол-во рабочих часов (выходные)',
             cell: info => info.renderValue(),
             enableSorting: false
         }),
