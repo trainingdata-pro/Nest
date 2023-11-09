@@ -9,7 +9,7 @@ services:
       - static_volume:/home/assessors/backend/src/static
       - media_volume:/home/assessors/backend/src/media
       - ./backend/logging:/home/assessors/backend/logging
-       ./backend/db_merge:/home/assessors/backend/db_merge
+      - ./backend/db_merge:/home/assessors/backend/db_merge
     expose:
       - 8000
     networks:
