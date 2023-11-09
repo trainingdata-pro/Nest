@@ -16,11 +16,11 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev
 
+COPY . $APP_HOME
+
 RUN pip install poetry
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-dev
-
-COPY . $APP_HOME
 
 # set ownership and permissions
 RUN chown -R assessors:assessors $APP_HOME
