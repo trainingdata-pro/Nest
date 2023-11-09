@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from core.permissions import IsAnalystOrAdmin
 
 
-class BothHttpAndHttpsSchemaGenerator(OpenAPISchemaGenerator):
+class SchemaGenerator(OpenAPISchemaGenerator):
     def get_schema(self, request=None, public=False):
         schema = super().get_schema(request, public)
         schema.schemes = ['https'] if not settings.DEBUG else ['http']
@@ -22,7 +22,7 @@ schema_view = get_schema_view(
         title='NEST API Documentation',
         default_version='v1'
     ),
-    generator_class=BothHttpAndHttpsSchemaGenerator,
+    generator_class=SchemaGenerator,
     public=False,
     permission_classes=[IsAuthenticated, IsAnalystOrAdmin]
 )
