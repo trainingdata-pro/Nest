@@ -1,11 +1,18 @@
 import React from 'react';
 import {useQuery} from "react-query";
 import AssessorService from "../../../services/AssessorService";
+import moment from "moment-timezone";
+import {format, utcToZonedTime} from "date-fns-tz";
 
 const CurrentState = ({assessorId, vacationDate}: {
     assessorId: string | number | undefined,
     vacationDate: string | undefined | null
 }) => {
+    const getCurrentData = (value:string) => {
+        const TimeZone = moment.tz.guess()
+        const zonedDate = utcToZonedTime(new Date(value), TimeZone)
+        return format(zonedDate, 'dd-MM-yyyy',{ timeZone: TimeZone } )
+    }
     const {data} = useQuery(['assessorHistory', assessorId], () => AssessorService.fetchAssessorHistory(assessorId, 'state'), {})
     return (
         <table className='border border-black'>
@@ -19,8 +26,8 @@ const CurrentState = ({assessorId, vacationDate}: {
             <tbody>
             <tr className="text-center border-t dark:border-neutral-500">
                 <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[2px]">{data && data.results[0]?.new_value}</td>
-                <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[2px]">{data && data.results[0]?.timestamp.split('T')[0]}</td>
-                <td className="whitespace-nowrap px-[5px] py-[2px]">{vacationDate && vacationDate}</td>
+                <td className="whitespace-nowrap border-r dark:border-neutral-500 px-[5px] py-[2px]">{data && getCurrentData(data.results[0]?.timestamp)}</td>
+                <td className="whitespace-nowrap px-[5px] py-[2px]">{vacationDate && getCurrentData(vacationDate)}</td>
             </tr>
             </tbody>
         </table>

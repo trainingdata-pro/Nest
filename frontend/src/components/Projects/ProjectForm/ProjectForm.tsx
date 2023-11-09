@@ -59,9 +59,19 @@ const ProjectForm = ({projectId, closeSidebar}: {
     })
     const patchProject = usePatchProject({closeSidebar})
     const postProject = usePostProject({closeSidebar})
-
+    const getUTCDate = (value:string) => {
+        const currentDate = new Date(value)
+        const dd = String(currentDate.getUTCDate())
+        const mm = String(currentDate.getUTCMonth() + 1)
+        const yyyy = String(currentDate.getUTCFullYear())
+        // const hh = String(currentDate.getUTCHours())
+        // const m = String(currentDate.getUTCMinutes())
+        // const ss = String(currentDate.getUTCMinutes())
+        return `${yyyy}-${mm}-${dd}`
+    }
     function onSubmit() {
-        const formValue = getValues()
+        let formValue = getValues()
+        formValue ={ ...formValue, date_of_creation: getUTCDate(formValue.date_of_creation)}
         if (projectId !== 0) {
             patchProject.mutate({id: projectId, data: formValue})
         } else {

@@ -3,6 +3,8 @@ import {createColumnHelper} from "@tanstack/react-table";
 import OwnDesiresEdit from "./OwnDesiresEdit";
 import Sorting from "../FreeResorces/sorting";
 import {FiredAssessor} from "../../../models/AssessorResponse";
+import moment from "moment-timezone";
+import {format, utcToZonedTime} from "date-fns-tz";
 
 export const useOwnDesiresSorting = () => {
     const [sorting, setSorting] = React.useState({
@@ -66,12 +68,20 @@ export const useOwnDesiresSorting = () => {
         }),
         columnHelper.accessor('date', {
             header: 'Дата ухода',
-            cell: info => info.getValue(),
+            cell: info => {
+                const TimeZone = moment.tz.guess()
+                const zonedDate = utcToZonedTime(new Date(info.getValue()), TimeZone)
+                return format(zonedDate, 'dd-MM-yyyy',{ timeZone: TimeZone } )
+            },
             enableSorting: false
         }),
         columnHelper.accessor('possible_return_date', {
             header: 'Предполагаемая дата возращения',
-            cell: info => info.getValue(),
+            cell: info => {
+                const TimeZone = moment.tz.guess()
+                const zonedDate = utcToZonedTime(new Date(info.getValue()), TimeZone)
+                return format(zonedDate, 'dd-MM-yyyy',{ timeZone: TimeZone } )
+            },
             enableSorting: false
         }),
         columnHelper.accessor('id', {
