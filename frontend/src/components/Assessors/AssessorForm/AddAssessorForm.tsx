@@ -54,7 +54,10 @@ const AddAssessorForm = ({project, setShowSidebar}: {
 
 
         function submit() {
-            const data = getValues()
+            let data = getValues()
+            data = {...data, first_name:data.first_name.charAt(0).toUpperCase() + data.first_name.slice(1).toLowerCase()}
+            data = {...data, last_name:data.last_name.charAt(0).toUpperCase() + data.last_name.slice(1).toLowerCase()}
+            data = {...data, middle_name:data.middle_name.charAt(0).toUpperCase() + data.middle_name.slice(1).toLowerCase()}
             if (getValues('email')) {
                 createAssessor.mutate({data: data})
             } else {
