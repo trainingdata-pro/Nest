@@ -1,13 +1,13 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {CheckIcon, PencilSquareIcon} from "@heroicons/react/24/outline";
 import {IAssessorProjects, PatchWorkingHours, WorkingHours} from "../../../models/AssessorResponse";
 import {useForm} from "react-hook-form";
-import Select, {SingleValue} from "react-select";
+import Select from "react-select";
 import AssessorService from "../../../services/AssessorService";
 import {Context} from "../../../index";
 import {useMutation, useQuery, useQueryClient} from "react-query";
 import {errorNotification, successNotification} from "../../UI/Notify";
-import {AxiosError} from "axios/index";
+import {AxiosError} from "axios";
 
 const Errors = {
     monday: 'Понедельник',
@@ -17,6 +17,7 @@ const Errors = {
     friday: 'Пятница',
     saturday: 'Суббота',
     sunday: 'Воскресенье',
+    status: 'Статус'
 }
 type ProjectsProps = {
     workloadStatus: string,
@@ -126,18 +127,21 @@ const AssessorProjectRow = ({project, assessorId}: {
         if (isDisabled) {
             setIsDisabled(false)
         } else {
-            if (workloadStatus.isSuccess && workloadStatus.data.results.length !== 0 && !!getValues('workloadStatus')) {
-                patchWorkloadStatus.mutate({
-                    id: workloadStatus.data.results[0].id,
-                    data: {status: getValues('workloadStatus')}
-                })
-            } else {
-                postWorkloadStatus.mutate({
-                    "assessor": assessorId,
-                    "project": project.id,
-                    "status": getValues('workloadStatus')
-                })
+            if (getValues('workloadStatus')) {
+                if (workloadStatus.isSuccess && workloadStatus.data.results.length !== 0 && !!getValues('workloadStatus')) {
+                    patchWorkloadStatus.mutate({
+                        id: workloadStatus.data.results[0].id,
+                        data: {status: getValues('workloadStatus')}
+                    })
+                } else {
+                    postWorkloadStatus.mutate({
+                        "assessor": assessorId,
+                        "project": project.id,
+                        "status": getValues('workloadStatus')
+                    })
+                }
             }
+
             if (workingHours.isSuccess && workingHours.data.results.length !== 0) {
                 const data: WorkingHours = getValues('workingHours')
                 const {id, assessor, total, project, ...rest} = data
