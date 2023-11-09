@@ -85,8 +85,8 @@ const PersonalAssessorInfo = ({assessorId}: { assessorId: string | number | unde
             setIsDisabled(false)
         } else {
             let data = getValues()
-            if (data.username.length < 5) {
-                errorNotification('Ник ТГ не может быть меньше 5 символов')
+            if (!/^[A-Za-z\d_]{5,32}$/.test(data.username)) {
+                errorNotification('Ник в ТГ: Доступные символы:A-z,0-9,_ Длина: 5-32 символа')
                 return
             }
             const {manager, ...assessorData} = data
