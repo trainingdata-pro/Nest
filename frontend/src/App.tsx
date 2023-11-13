@@ -14,6 +14,7 @@ import BlackList from "./components/BlackList/BlackList";
 import FreeResourcePage from "./pages/FreeResourcePage";
 import PasswordReset from "./components/PasswordReset/PasswordReset";
 import CompletedProjectsView from "./views/CompletedProjectsView";
+import ProjectPageView from "./views/ProjectPageView";
 function App() {
     const {store} = useContext(Context)
     useMemo(()=>{
@@ -37,7 +38,7 @@ function App() {
                  <Routes>
                      <Route path={'/projects'} element={<MainPage/>}/>
                      <Route path={'/projects/completed'} element={<CompletedProjectsView/>} />
-                     <Route path={'/projects/:id/assessors'} element={<ProjectPage/>}/>
+                     <Route path={'/projects/:id'} element={<ProjectPageView/>}/>
                      <Route path={'/assessors'} element={<AssessorsPage/>}/>
                      <Route path={'/assessor/:id'} element={<AssessorPage/>}/>
                      <Route path={'/blacklist'} element={<BlackList/>} />

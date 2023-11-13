@@ -17,9 +17,10 @@ import {ProjectFormProps} from "../../../models/ProjectResponse";
 export const FormSection = ({children}: { children: React.ReactNode }) => {
     return <div className="mb-2">{children}</div>
 }
-const ProjectForm = ({projectId, closeSidebar}: {
+const ProjectForm = ({projectId, closeSidebar, isOpenModal}: {
     projectId: number | string,
     closeSidebar: Dispatch<boolean>,
+    isOpenModal: Dispatch<boolean>
 }) => {
     const {store} = useContext(Context)
     const {
@@ -57,21 +58,18 @@ const ProjectForm = ({projectId, closeSidebar}: {
         regOptions,
         setRegOptions
     })
-    const patchProject = usePatchProject({closeSidebar})
-    const postProject = usePostProject({closeSidebar})
+    const patchProject = usePatchProject({closeSidebar:isOpenModal})
+    const postProject = usePostProject({closeSidebar: isOpenModal})
     const getUTCDate = (value:string) => {
         const currentDate = new Date(value)
         const dd = String(currentDate.getUTCDate())
         const mm = String(currentDate.getUTCMonth() + 1)
         const yyyy = String(currentDate.getUTCFullYear())
-        // const hh = String(currentDate.getUTCHours())
-        // const m = String(currentDate.getUTCMinutes())
-        // const ss = String(currentDate.getUTCMinutes())
         return `${yyyy}-${mm}-${dd}`
     }
     function onSubmit() {
         let formValue = getValues()
-        formValue ={ ...formValue, date_of_creation: getUTCDate(formValue.date_of_creation)}
+        formValue = { ...formValue, date_of_creation: getUTCDate(formValue.date_of_creation)}
         if (projectId !== 0) {
             patchProject.mutate({id: projectId, data: formValue})
         } else {
@@ -82,9 +80,6 @@ const ProjectForm = ({projectId, closeSidebar}: {
     return (
         <div className="w-[30rem]">
             <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
-                <div className="flex h-2 justify-end w-full pb-[5px]">
-                    <div className="cursor-pointer text-[18px]" onClick={() => closeSidebar(false)}>x</div>
-                </div>
                 <FormSection>
                     <div className="flex justify-between">
                         <MyLabel required={true}>Название проекта: </MyLabel>
@@ -243,7 +238,10 @@ const ProjectForm = ({projectId, closeSidebar}: {
                              register={{...register('date_of_creation', {required: true})}}
                              type="date"/>
                 </FormSection>
-                <MyButton className='w-full'>{projectId === 0 ? 'Добавить' : 'Сохранить'}</MyButton>
+                <div className="flex justify-between pt-3 space-x-2">
+                <MyButton type='button' onClick={() => closeSidebar(false)}>Назад</MyButton>
+                <MyButton type='submit'>{projectId === 0 ? 'Добавить' : 'Сохранить'}</MyButton>
+                </div>
             </form>
         </div>
     );

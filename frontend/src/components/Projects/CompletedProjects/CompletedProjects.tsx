@@ -25,19 +25,19 @@ const CompletedProjects = () => {
     const [isExportProjects, setIsExportProjects] = useState(false)
 
 
-    if (completedProjects.isLoading) return <Loader/>
+    if (completedProjects.isFetching) return <Loader height={'h-[calc(100vh-80px)]'}/>
     return (
         <React.Fragment>
             <Dialog isOpen={showSidebar} setIsOpen={setShowSidebar}>
                 <ProjectForm projectId={projectId}
-                             closeSidebar={setShowSidebar}/>
+                             closeSidebar={setShowSidebar} isOpenModal={setShowSidebar}/>
             </Dialog>
             <Dialog isOpen={isExportProjects} setIsOpen={setIsExportProjects}>
                 <Export setIsExportProjects={setIsExportProjects} exportType='completedProjects'
                         project={undefined}/>
             </Dialog>
             <CompletedProjectsMenu/>
-            <div className='rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
+            <div className='rounded-[20px] bg-white'>
                 <Table data={completedProjects.isSuccess ? completedProjects.data.results : []}
                        columns={columns} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
                        setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit}
