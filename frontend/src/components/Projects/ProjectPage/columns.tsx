@@ -61,7 +61,7 @@ export const useProjectAssessorsColumns = () => {
         }),
         columnHelper.accessor('username', {
             header: () => 'Ник в ТГ',
-            cell: info => <div className={`w-full h-full flex justify-center items-center ${((info.row.original.manager.id.toString() !== store.user_id.toString()) && !store.user_data.is_teamlead) ? 'bg-red-100' : ''}`}><a className={'text-[#102ede]'} href={`https://t.me/${info.getValue()}`}>{info.getValue()}</a></div>,
+            cell: info => <div className={`w-full h-full flex justify-center items-center ${((info.row.original.manager.id.toString() !== store.user_id.toString()) && !store.user_data.is_teamlead) ? 'bg-red-100' : ''}`}><a className={'text-[#102ede]'} target='_blank' href={`https://t.me/${info.getValue()}`}>{info.getValue()}</a></div>,
             enableSorting: false,
         }),
         columnHelper.group({
