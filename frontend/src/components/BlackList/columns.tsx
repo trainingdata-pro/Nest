@@ -40,7 +40,7 @@ export const useBlacklistColumns = () => {
         }),
         columnHelper.accessor('assessor.username', {
             header: 'Ник в ТГ',
-            cell: info => <a className={'text-[#102ede]'} href={`https://t.me/${info.getValue()}`}>{info.getValue()}</a>,
+            cell: info => <a className={'text-[#102ede]'} href={`https://t.me/${info.getValue()}`} target='_blank'>{info.getValue()}</a>,
             enableSorting: false
         }),
         columnHelper.accessor('last_manager', {
