@@ -167,7 +167,7 @@ const PersonalAssessorInfo = ({assessorId}: { assessorId: string | number | unde
                                         <CheckIcon className="h-6 w-6 text-black cursor-pointer"/>) :
                                     <PencilSquareIcon className="h-6 w-6 text-gray-400"/>
                             }</button>}
-                        {isDisabled ? <a href={`https://t.me/${getValues('username')}`}>
+                        {isDisabled ? <a href={`https://t.me/${getValues('username')}`} target='_blank'>
                             <svg className="h-6 w-6 text-black mx-auto"
                                  xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"
                                  fill="none">

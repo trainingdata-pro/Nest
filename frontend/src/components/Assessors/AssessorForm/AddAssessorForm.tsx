@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {Dispatch, useContext} from 'react';
 import {useForm} from "react-hook-form";
 import {Context} from "../../../index";
 import MyLabel from "../../UI/MyLabel";
@@ -29,9 +29,10 @@ const FormSection = ({children}: { children: React.ReactNode }) => {
 }
 
 
-const AddAssessorForm = ({project, setShowSidebar}: {
+const AddAssessorForm = ({project, setShowSidebar, isOpenModal}: {
         setShowSidebar: any,
-        project: Project | undefined
+        project: Project | undefined,
+    isOpenModal: Dispatch<boolean>
     }) => {
         const {store} = useContext(Context)
         const {availableProjects} = useFetchAvailableProjects()
@@ -41,7 +42,7 @@ const AddAssessorForm = ({project, setShowSidebar}: {
                 projects: project?.id
             }
         })
-        const {createAssessor} = useCreateAssessor({setShowSidebar, getValues})
+        const {createAssessor} = useCreateAssessor({setShowSidebar:isOpenModal, getValues:getValues})
 
         const {fetchTeam, onManagerChange, getManager} = useAssessorManager({setValue})
         const {statusObject, handlerChangeStatus, handlerValueStatus} = useAssessorStatus({setValue})
@@ -216,8 +217,8 @@ const AddAssessorForm = ({project, setShowSidebar}: {
 
                 </FormSection>
                 <div className="flex justify-between pt-3 space-x-2">
-                    <MyButton onClick={() => setShowSidebar(false)}>Назад</MyButton>
-                    <MyButton>Сохранить</MyButton>
+                    <MyButton type='button' onClick={() => setShowSidebar(false)}>Назад</MyButton>
+                    <MyButton type='submit'>Сохранить</MyButton>
                 </div>
             </form>
         );
