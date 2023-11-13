@@ -35,7 +35,7 @@ const Export = ({setIsExportProjects, exportType ,project}:{
             }
             const exportData = await ProjectService.downloadFile(filename)
             fileDownload(new Blob([exportData.data]), filename)
-            successNotification('')
+            successNotification('Завершенные проекты успешно экспортированы')
         },
         onError: () => {
             errorNotification('Ошибка')
