@@ -16,6 +16,7 @@ import Loader from "../../UI/Loader";
 import {useFetchProjectAssessors, useFetchProjectInfo} from "./queries";
 import Select from "react-select";
 import {useSkillsFilter, useStatusFilter} from "./hooks";
+import Confirm from "../../UI/Confirm";
 
 
 const ProjectPage = () => {
@@ -40,7 +41,13 @@ const ProjectPage = () => {
             skillsFilter: skillsFilter.join(','),
             statusFilter: selectedStatus.join(',')
         })
+        const [isOpenConfirm, setIsOpenConfirm] = useState(false)
+        const closeDialog = () => {
+            setIsOpenConfirm(true)
+        }
+        const confirmAction = () => {
 
+        }
 
         const [addToProject, setAddToProject] = useState(false)
         const [addAssessor, setAddAssessor] = useState(false)
@@ -53,11 +60,14 @@ const ProjectPage = () => {
 
         return (
             <div>
+                <Dialog isOpen={isOpenConfirm} setIsOpen={confirmAction} topLayer={true}>
+                    <Confirm isCloseConfirm={setIsOpenConfirm} isCloseModal={setAddAssessor}/>
+                </Dialog>
                 <Dialog isOpen={addToProject} setIsOpen={setAddToProject}>
                     <AddToProject setAddToProject={setAddToProject}/>
                 </Dialog>
                 <Dialog isOpen={addAssessor} setIsOpen={setAddAssessor}>
-                    <AddAssessorForm project={projectInfo.data} setShowSidebar={setAddAssessor}/>
+                    <AddAssessorForm project={projectInfo.data} setShowSidebar={closeDialog} isOpenModal={setAddAssessor}/>
                 </Dialog>
                 <Dialog isOpen={idDeleteFromProject} setIsOpen={setIsDeleteFromProject}>
                     {id && <DeleteFromProjects projectId={id} assessorsProjects={selectedRows}
@@ -82,25 +92,25 @@ const ProjectPage = () => {
                     </div>
                     <div className='flex space-x-2'>
                         <div className='flex-[16%] flex-col space-y-2'>
-                                <Select
-                                    placeholder='Фильтр по навыкам'
-                                    options={skills.data ? skills.data : []}
-                                    isMulti
-                                    value={getValueSkills()}
-                                    isSearchable={false}
-                                    onChange={onSkillsChange}
-                                />
-                                <Select
-                                    placeholder='Фильтр по статусу'
-                                    options={statusList}
-                                    isMulti
-                                    isSearchable={false}
-                                    value={getStatusValue()}
-                                    onChange={handlerSelectChangeStatus}
-                                    />
+                            <Select
+                                placeholder='Фильтр по навыкам'
+                                options={skills.data ? skills.data : []}
+                                isMulti
+                                value={getValueSkills()}
+                                isSearchable={false}
+                                onChange={onSkillsChange}
+                            />
+                            <Select
+                                placeholder='Фильтр по статусу'
+                                options={statusList}
+                                isMulti
+                                isSearchable={false}
+                                value={getStatusValue()}
+                                onChange={handlerSelectChangeStatus}
+                            />
                         </div>
                         <div className='flex-[84%] rounded-[20px] bg-white'>
-                            {       projectAssessors.isFetching ? <Loader height={'h-[calc(100vh-150px)]'}/> :
+                            {projectAssessors.isFetching ? <Loader height={'h-[calc(100vh-150px)]'}/> :
                                 <Table data={projectAssessors.isSuccess ? projectAssessors.data.results : []}
                                        columns={columns} totalRows={totalRows} currentPage={currentPage}
                                        totalPages={totalPages}
