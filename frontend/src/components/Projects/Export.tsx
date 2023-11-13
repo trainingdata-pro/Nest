@@ -1,13 +1,12 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {observer} from "mobx-react-lite";
-import {useMutation, useQuery} from "react-query";
+import {useMutation} from "react-query";
 import ProjectService from "../../services/ProjectService";
 import {errorNotification, successNotification, warnNotification} from "../UI/Notify";
 import fileDownload from "js-file-download";
 import MyButton from "../UI/MyButton";
 import AssessorService from "../../services/AssessorService";
 
-// @ts-ignore
 const Export = ({setIsExportProjects, exportType ,project}:{
     setIsExportProjects:React.Dispatch<boolean>,
     exportType: string,
@@ -16,23 +15,27 @@ const Export = ({setIsExportProjects, exportType ,project}:{
     function timeout(delay: number) {
         return new Promise( res => setTimeout(res, delay) );
     }
+
+    const CheckStatus = async (taskId: string) => {
+        let filename = ''
+        while (true){
+            await timeout(2000)
+            const res = await ProjectService.checkStatus(taskId)
+            filename = res.filename
+            if (res.status === 'SUCCESS'){
+                break
+            } else if (res.status === 'FAILURE'){
+                errorNotification('Произошла ошибка при экспортировании проекта')
+                break
+            }
+        }
+        return filename
+    }
     const exportProjects = useMutation([],({type}: any) => ProjectService.exportProjects(type), {
         onSuccess: async data => {
             warnNotification('Загрузка началась')
             setIsExportProjects(false)
-            let hasMoreData = true;
-            let filename = ''
-            while (hasMoreData){
-                timeout(2000)
-                const res = await ProjectService.checkStatus(data.task_id)
-                filename = res.filename
-                if (res.status === 'SUCCESS'){
-                    break
-                } else if (res.status === 'FAILURE'){
-                    errorNotification('Произошла ошибка при экспортировании проекта')
-                    break
-                }
-            }
+            const filename = await CheckStatus(data.task_id)
             const exportData = await ProjectService.downloadFile(filename)
             fileDownload(new Blob([exportData.data]), filename)
             successNotification('Завершенные проекты успешно экспортированы')
@@ -45,19 +48,7 @@ const Export = ({setIsExportProjects, exportType ,project}:{
         onSuccess: async data => {
             warnNotification('Загрузка началась')
             setIsExportProjects(false)
-            let hasMoreData = true;
-            let filename = ''
-            while (hasMoreData){
-                timeout(2000)
-                const res = await ProjectService.checkStatus(data.task_id)
-                filename = res.filename
-                if (res.status === 'SUCCESS') {
-                    break
-                } else if (res.status === 'FAILURE'){
-                    errorNotification('Произошла ошибка при экспортировании')
-                    break
-                }
-            }
+            const filename = await CheckStatus(data.task_id)
             const exportData = await ProjectService.downloadFile(filename)
             fileDownload(exportData.data, filename)
             successNotification('Данные успешно экспортировались')
@@ -87,7 +78,7 @@ const Export = ({setIsExportProjects, exportType ,project}:{
         <div className='border-b border-black w-full'>
             <h1 className='px-4 py-2'>Экспорт</h1>
         </div>
-        <div className='flex flex-col space-y-2 mt-2'>
+        <div className='flex flex-col space-y-2 mt-2 min-w-[250px]'>
             <MyButton onClick={() => exportData('csv')}>CSV</MyButton>
             <MyButton onClick={() => exportData('xlsx')}>XLSX</MyButton>
         </div>
