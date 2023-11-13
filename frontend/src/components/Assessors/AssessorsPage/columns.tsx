@@ -73,7 +73,7 @@ export const useMyAssessorsSorting = () => {
         }),
         columnHelper.accessor('username', {
             header: 'Ник в ТГ',
-            cell: info => <a className={'text-[#102ede]'} href={`https://t.me/${info.getValue()}`}>{info.getValue()}</a>,
+            cell: info => <a className={'text-[#102ede]'} target='_blank' href={`https://t.me/${info.getValue()}`}>{info.getValue()}</a>,
             enableSorting: false
         }),
         columnHelper.accessor('projects', {
