@@ -1,6 +1,4 @@
 import React, {useState} from 'react';
-import Header from "../../Header/Header";
-import MyButton from "../../UI/MyButton";
 import {observer} from "mobx-react-lite";
 import Dialog from "../../UI/Dialog";
 import Export from "../Export";
@@ -9,7 +7,7 @@ import Loader from "../../UI/Loader";
 import {useCompletedProjects} from "./queries";
 import ProjectForm from "../ProjectForm/ProjectForm";
 import Table from "../../UI/Table";
-import Layout from "../../../views/Layout";
+import CompletedProjectsMenu from "./CompletedProjectsMenu";
 
 const CompletedProjects = () => {
     const [showSidebar, setShowSidebar] = useState(false)
@@ -29,27 +27,23 @@ const CompletedProjects = () => {
 
     if (completedProjects.isLoading) return <Loader/>
     return (
-            <React.Fragment>
-                <Dialog isOpen={showSidebar} setIsOpen={setShowSidebar}>
-                    <ProjectForm projectId={projectId}
-                                 closeSidebar={setShowSidebar}/>
-                </Dialog>
-                <Dialog isOpen={isExportProjects} setIsOpen={setIsExportProjects}>
-                    <Export setIsExportProjects={setIsExportProjects} exportType='completedProjects'
-                            project={undefined}/>
-                </Dialog>
-                <div className="pt-20 px-8">
-                    <div className='my-2 flex justify-end'>
-                        <MyButton onClick={() => setIsExportProjects(true)}>Экспорт</MyButton>
-                    </div>
-                    <div className='rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
-                        <Table data={completedProjects.isSuccess ? completedProjects.data.results : []}
-                               columns={columns} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
-                               setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit}
-                               pages={true}/>
-                    </div>
-                </div>
-            </React.Fragment>
+        <React.Fragment>
+            <Dialog isOpen={showSidebar} setIsOpen={setShowSidebar}>
+                <ProjectForm projectId={projectId}
+                             closeSidebar={setShowSidebar}/>
+            </Dialog>
+            <Dialog isOpen={isExportProjects} setIsOpen={setIsExportProjects}>
+                <Export setIsExportProjects={setIsExportProjects} exportType='completedProjects'
+                        project={undefined}/>
+            </Dialog>
+            <CompletedProjectsMenu/>
+            <div className='rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
+                <Table data={completedProjects.isSuccess ? completedProjects.data.results : []}
+                       columns={columns} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                       setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit}
+                       pages={true}/>
+            </div>
+        </React.Fragment>
     );
 };
 
