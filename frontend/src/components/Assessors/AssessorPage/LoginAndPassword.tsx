@@ -88,7 +88,7 @@ const TableLog = ({assessorId, assessorName = '', setIsShowLoginAndPassword}: {
                 <table className="min-w-full text-center">
                     <thead>
                     <tr className="bg-[#E7EAFF]">
-                        <th className="border-r dark:border-neutral-500 py-[3px]">Иснтрумент</th>
+                        <th className="border-r dark:border-neutral-500 py-[3px]">Инструмент</th>
                         <th className="border-r dark:border-neutral-500 py-[3px]">Логин</th>
                         <th className="border-r dark:border-neutral-500 py-[3px]">Пароль</th>
                         <th></th>
