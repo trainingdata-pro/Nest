@@ -9,6 +9,7 @@ export const useProjectsSorting =()=> {
     const [sorting, setSorting] = React.useState({
         status: 'status',
         assessors_count: '-assessors_count',
+        manager__last_name: ''
     })
     const columnHelper = createColumnHelper<Project>()
     const [projectsId, setProjectId] = useState(0)
@@ -43,7 +44,7 @@ export const useProjectsSorting =()=> {
             enableSorting: false
         }),
         columnHelper.accessor('manager', {
-            header: 'Менеджер',
+            header:() => <div className='flex'><p>Менеджер</p><Sorting sortingKey={"manager__last_name"} func={setSorting} sortingValue={sorting.manager__last_name} state={sorting}/></div>,
             cell: info => <div className='flex flex-col'>{info.getValue().map(manager => <div key={manager.id}>{`${manager.last_name} ${manager.first_name}`}</div>)}</div>,
             enableSorting: false
         }),
