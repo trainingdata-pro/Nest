@@ -11,7 +11,7 @@ import Export from "../Export";
 import {useProjectAssessorsColumns} from "./columns";
 import ProjectManagement from "./ProjectManagement";
 import Table from "../../UI/Table";
-import Page404 from "../../../pages/Page404";
+import Page404 from "../../../views/Page404";
 import Loader from "../../UI/Loader";
 import {useFetchProjectAssessors, useFetchProjectInfo} from "./queries";
 import Select from "react-select";

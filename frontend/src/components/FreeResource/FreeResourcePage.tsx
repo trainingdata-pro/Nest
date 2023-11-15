@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
 import {MagnifyingGlassIcon} from "@heroicons/react/24/solid";
-import AssessorService from "../services/AssessorService";
-import Header from "../components/Header/Header";
+import AssessorService from "../../services/AssessorService";
+import Header from "../Header/Header";
 import {useQuery} from "react-query";
-import FreeResource from "../components/FreeResource/FreeResorces/FreeResource";
-import OwnDesires from "../components/FreeResource/OwnDesires/OwnDesires";
-import MyButton from "../components/UI/MyButton";
+import FreeResource from "./FreeResorces/FreeResource";
+import OwnDesires from "./OwnDesires/OwnDesires";
+import MyButton from "../UI/MyButton";
 import Select from "react-select";
 
 const FreeResourcePage = () => {

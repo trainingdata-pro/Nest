@@ -1,7 +1,7 @@
 import React from 'react';
-import ProjectService from "../../../services/ProjectService";
 import {useQuery} from "react-query";
 import AssessorProjectRow from "./AssessorProjectRow";
+import ProjectService from "../../../../services/ProjectService";
 
 const AssessorProjects = ({assessorId}: { assessorId: string | number | undefined }) => {
     const projects = useQuery(['assessorProjects', assessorId], () => ProjectService.fetchProjectsByAssessorID(assessorId))
