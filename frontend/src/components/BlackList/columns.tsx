@@ -61,7 +61,8 @@ export const useBlacklistColumns = () => {
         columnHelper.accessor('id', {
             header: '',
             cell: info => <BlackListEdit assessor={info.row.original}/>,
-            enableSorting: false
+            enableSorting: false,
+            maxSize:50
         })]
 
     return {columns, sorting, getSortingString}
