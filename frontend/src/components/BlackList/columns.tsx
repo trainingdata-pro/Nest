@@ -3,7 +3,7 @@ import React from "react";
 import {createColumnHelper} from "@tanstack/react-table";
 import {IBlackList} from "../../models/AssessorResponse";
 import BlackListEdit from "./BlackListEdit";
-import Sorting from "../FreeResource/FreeResorces/sorting";
+import Sorting from "../../utils/sorting";
 
 
 export const useBlacklistColumns = () => {

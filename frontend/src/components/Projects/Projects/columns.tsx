@@ -2,7 +2,7 @@ import {createColumnHelper} from "@tanstack/react-table";
 import {Project} from "../../../models/ProjectResponse";
 import {useNavigate} from "react-router-dom";
 import React, {useState} from "react";
-import Sorting from "../../FreeResource/FreeResorces/sorting";
+import Sorting from "../../../utils/sorting";
 
 
 export const useProjectsSorting =()=> {

@@ -11,11 +11,12 @@ import ProjectPage from "./components/Projects/ProjectPage/ProjectPage";
 import AssessorsPage from "./components/Assessors/AssessorsPage/AssessorsPage";
 import AssessorPage from './components/Assessors/AssessorPage/AssessorPage';
 import BlackList from "./components/BlackList/BlackList";
-import FreeResourcePage from "./components/FreeResource/FreeResourcePage";
+import FreeResourcePage from "./components/FreeResource/FreeResourcesPage/FreeResourcePage";
 import PasswordReset from "./components/PasswordReset/PasswordReset";
 import CompletedProjectsView from "./views/CompletedProjectsView";
 import ProjectPageView from "./views/ProjectPageView";
 import BlackListView from "./views/BlackListView";
+import FreeResourcesView from "./views/FreeResourcesView";
 function App() {
     const {store} = useContext(Context)
     useMemo(()=>{
@@ -43,7 +44,7 @@ function App() {
                      <Route path={'/assessors'} element={<AssessorsPage/>}/>
                      <Route path={'/assessor/:id'} element={<AssessorPage/>}/>
                      <Route path={'/blacklist'} element={<BlackListView/>} />
-                     <Route path={'/free_resources'} element={<FreeResourcePage/>}/>
+                     <Route path={'/free_resources'} element={<FreeResourcesView/>}/>
                      <Route path="*" element={<Navigate to="/projects" replace/>}/>
                  </Routes>}
              </BrowserRouter>

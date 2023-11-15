@@ -1,10 +1,8 @@
 import FreeResourceEdit from "./FreeResourceEdit";
 import {createColumnHelper} from "@tanstack/react-table";
 import {FreeAssessor} from "./FreeResource";
-import {NavLink} from "react-router-dom";
-import React, {useState} from "react";
-import Sorting from "./sorting";
-import TableCheckBox from "../../UI/TableCheckBox";
+import React from "react";
+import Sorting from "../../../utils/sorting";
 
 export const useFreeResourcesSorting = () => {
     const [sorting, setSorting] = React.useState({
@@ -22,23 +20,8 @@ export const useFreeResourcesSorting = () => {
             return sorting[key]
         }).join(',')
     }
-    // const [selectedRows, setSelectedRows] = useState<number[]>([])
     const columnHelper = createColumnHelper<FreeAssessor>()
     const columns = [
-        // columnHelper.accessor('id', {
-        //     header: ({table}) => (
-        //         <div className="px-1">
-        //             <TableCheckBox selectedRows={selectedRows} setSelectedRows={setSelectedRows} table={table} value={table.getPreFilteredRowModel().rows.map(row => row.original.id)}/>
-        //         </div>
-        //     ),
-        //     cell: ({row}) => (
-        //         <div className="px-1">
-        //             <TableCheckBox selectedRows={selectedRows} setSelectedRows={setSelectedRows} table={undefined} value={row.original.id}/>
-        //         </div>
-        //     ),
-        //     enableSorting: false,
-        //     maxSize: 30
-        // }),
         columnHelper.accessor('last_name', {
             header: 'Фамилия',
             cell: info => info.getValue(),
