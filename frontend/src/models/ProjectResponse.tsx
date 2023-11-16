@@ -14,17 +14,17 @@ export interface TagResult {
 }
 
 export type ProjectFormProps = {
-    name?: string,
-    asana_id?: number | string,
-    manager?: number[]
-    speed_per_hour?: number | string,
-    price_for_assessor?: number,
-    price_for_costumer?: number,
-    unloading_value?: number,
-    unloading_regularity?: string,
-    status?: string | undefined,
-    tag?: number[] | string[],
-    date_of_creation?: string
+    name: string,
+    asana_id: number | string,
+    manager: number[]
+    speed_per_hour: number | string,
+    price_for_assessor: number,
+    price_for_costumer: number,
+    unloading_value: number,
+    unloading_regularity: string,
+    status: string,
+    tag: number[] | string[],
+    date_of_creation: string
 }
 export interface Project {
     id: number
