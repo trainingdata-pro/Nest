@@ -9,8 +9,11 @@ export const useReason = ({setIsOpenCalendar}: {
     const checkBlackList = (value: string) => {
         return reasons.data?.results.find(reason => reason.id.toString() === value.toString())?.blacklist_reason
     }
-    const [options, setOptions] = useState<any[]>([reasons.data?.results.map(reason => {return {label: reason.title, value: reason.id}})])
-    const [selectedReason, setSelectedReason] = useState<number>()
+    const reasonList = reasons.data ? reasons.data.results.map(reason => {
+            return {label: reason.title, value: reason.id}
+        }) : []
+    
+    const [selectedReason, setSelectedReason] = useState<string>('')
     const onChangeReason = (newValue: any) => {
         setSelectedReason(newValue.value)
         if (!checkBlackList(newValue.value)) {
@@ -20,8 +23,19 @@ export const useReason = ({setIsOpenCalendar}: {
         }
     }
     const getValueReason = () => {
-        return selectedReason ? options.find(reason => reason.value === selectedReason) : ''
+        return selectedReason ? reasonList.find(reason => reason.value.toString() === selectedReason.toString()) : ''
     }
 
-    return {options,selectedReason, onChangeReason, getValueReason}
+    return {reasonList,selectedReason, onChangeReason, getValueReason, checkBlackList}
+}
+
+export const useCalendar = () => {
+    const [calendarValue, setCalendarValue] = useState({
+        startDate: null,
+        endDate: null
+    });
+    const handleValueCalendarChange = (newValue: any) => {
+        setCalendarValue(newValue);
+    }
+    return {calendarValue, handleValueCalendarChange}
 }
