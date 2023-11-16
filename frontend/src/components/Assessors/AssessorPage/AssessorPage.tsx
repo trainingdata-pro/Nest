@@ -6,7 +6,7 @@ import PersonalAssessorInfo from "./PersonalAssessorInfo";
 import Dialog from "../../UI/Dialog";
 import TableLog from "./LoginAndPassword";
 import {observer} from "mobx-react-lite";
-import AssessorProjects from "./AssessorProjects";
+import AssessorProjects from "./AssessorProjects/AssessorProjects";
 import AssessorHistory from "./AssessorHistory/AssessorHistory";
 import Skills from "./Skills";
 import CurrentState from "./CurrentState";
@@ -14,7 +14,7 @@ import {useQuery} from 'react-query';
 import Management from "../../AssessorManagement/Management";
 import Loader from "../../UI/Loader";
 import {Context} from "../../../index";
-import Page404 from "../../../pages/Page404";
+import Page404 from "../../../views/Page404";
 
 const AssessorPage = () => {
     const id = useParams()["id"]

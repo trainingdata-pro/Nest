@@ -6,7 +6,7 @@ import React from "react";
 
 const SetActive = ({projectId, show}:{projectId: string | number, show:any}) => {
     const queryClient = useQueryClient()
-    const completeProject = useMutation([], () => ProjectService.patchProject(projectId, {status: 'active'}), {
+    const completeProject = useMutation([], () => ProjectService.patchProjectStatus(projectId, {status: 'active'}), {
         onSuccess: () => {
             queryClient.invalidateQueries('projects')
             queryClient.invalidateQueries('projectInfo')

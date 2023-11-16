@@ -3,7 +3,7 @@ import React, {useContext, useState} from "react";
 import {createColumnHelper, Row} from "@tanstack/react-table";
 import {NavLink} from "react-router-dom";
 import {ProjectAssessor} from "../../../models/AssessorResponse";
-import Sorting from "../../FreeResource/FreeResorces/sorting";
+import Sorting from "../../../utils/sorting";
 import {Context} from "../../../index";
 
 

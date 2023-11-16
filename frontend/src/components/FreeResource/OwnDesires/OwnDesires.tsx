@@ -1,12 +1,5 @@
-import React, {useState} from 'react';
-import {useQuery} from "react-query";
-import AssessorService from "../../../services/AssessorService";
-import {
-    getCoreRowModel,
-    useReactTable
-} from "@tanstack/react-table";
+import React from 'react';
 import Table from "../../UI/Table";
-import TablePagination from "../../UI/TablePagination";
 import {useOwnDesiresSorting} from "./columns";
 import {useFetchOwnDesires} from "./queries";
 

@@ -1,7 +1,7 @@
 import React, {InputHTMLAttributes} from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement>{
-    register: any
+    register?: any
 }
 const MyInput = ({register, className='', ...props}: InputProps ) => {
     return (

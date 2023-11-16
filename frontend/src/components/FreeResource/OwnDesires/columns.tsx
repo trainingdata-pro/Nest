@@ -1,7 +1,7 @@
 import React from "react";
 import {createColumnHelper} from "@tanstack/react-table";
 import OwnDesiresEdit from "./OwnDesiresEdit";
-import Sorting from "../FreeResorces/sorting";
+import Sorting from "../../../utils/sorting";
 import {FiredAssessor} from "../../../models/AssessorResponse";
 import moment from "moment-timezone";
 import {format, utcToZonedTime} from "date-fns-tz";

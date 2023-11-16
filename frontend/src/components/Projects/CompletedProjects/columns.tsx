@@ -3,7 +3,7 @@ import {Project} from "../../../models/ProjectResponse";
 import React, {Dispatch, useContext} from "react";
 import {Context} from "../../../index";
 import {PencilSquareIcon} from "@heroicons/react/24/solid";
-import Sorting from "../../FreeResource/FreeResorces/sorting";
+import Sorting from "../../../utils/sorting";
 import moment from "moment-timezone";
 import {format, utcToZonedTime} from "date-fns-tz";
 

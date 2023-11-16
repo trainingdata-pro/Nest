@@ -1,15 +1,15 @@
 import {observer} from 'mobx-react-lite';
-import cat from "../components/SignIn/cat7.png";
+import cat from "../SignIn/cat7.png";
 import {EnvelopeIcon, LockClosedIcon} from "@heroicons/react/24/solid";
-import Error from "../components/UI/Error";
+import Error from "../UI/Error";
 import {NavLink} from "react-router-dom";
 import {useForm} from "react-hook-form";
-import AuthService from "../services/AuthService";
-import MyInput from "../components/UI/MyInput";
+import AuthService from "../../services/AuthService";
+import MyInput from "../UI/MyInput";
 import {useMutation} from "react-query";
-import {errorNotification, successNotification} from "../components/UI/Notify";
+import {errorNotification, successNotification} from "../UI/Notify";
 import {AxiosError} from "axios";
-import MyButton from "../components/UI/MyButton";
+import MyButton from "../UI/MyButton";
 
 const Errors = {
     last_name: 'Фамилия',
