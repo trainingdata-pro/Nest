@@ -18,6 +18,6 @@ export const useReturnFromFreeResources = ({assessorId, show}: {
             show(false)
         }, onError: (error:any) => {
             const jsonError = JSON.parse(error.request.responseText)
-            errorNotification(jsonError[Object.keys(jsonError)[0]][0])}
+            errorNotification('Произошла ошибка')}
     })
 }
