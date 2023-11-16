@@ -2,21 +2,13 @@ import React, {useContext, useState} from 'react';
 import {CheckIcon, PencilSquareIcon} from "@heroicons/react/24/outline";
 import {IAssessorProjects, PatchWorkingHours, WorkingHours} from "../../../../models/AssessorResponse";
 import {useForm} from "react-hook-form";
-<<<<<<< HEAD:frontend/src/components/Assessors/AssessorPage/AssessorProjectRow.tsx
 import Select from "react-select";
-import AssessorService from "../../../services/AssessorService";
-import {Context} from "../../../index";
-import {useMutation, useQuery, useQueryClient} from "react-query";
-import {errorNotification, successNotification} from "../../UI/Notify";
-import {AxiosError} from "axios";
-=======
-import Select, {SingleValue} from "react-select";
 import AssessorService from "../../../../services/AssessorService";
 import {Context} from "../../../../index";
 import {useMutation, useQuery, useQueryClient} from "react-query";
 import {errorNotification, successNotification} from "../../../UI/Notify";
-import {AxiosError} from "axios/index";
->>>>>>> dev:frontend/src/components/Assessors/AssessorPage/AssessorProjects/AssessorProjectRow.tsx
+import {AxiosError} from "axios";
+
 
 const Errors = {
     monday: 'Понедельник',
