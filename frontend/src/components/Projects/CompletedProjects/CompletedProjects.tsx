@@ -37,12 +37,10 @@ const CompletedProjects = () => {
                         project={undefined}/>
             </Dialog>
             <CompletedProjectsMenu/>
-            <div className='rounded-[20px] bg-white'>
-                <Table data={completedProjects.isSuccess ? completedProjects.data.results : []}
-                       columns={columns} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
-                       setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit}
-                       pages={true}/>
-            </div>
+            <Table data={completedProjects.isSuccess ? completedProjects.data.results : []}
+                    columns={columns} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                    setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit}
+                    pages={true}/>
         </React.Fragment>
     );
 };
