@@ -72,7 +72,6 @@ const TableLog = ({assessorId, assessorName = '', setIsShowLoginAndPassword}: {
     assessorName: string,
     setIsShowLoginAndPassword: any
 }) => {
-    const {store} = useContext(Context)
     const {data, isLoading} = useQuery(['credentials'], () => AssessorService.fetchCredentials(assessorId), {
         keepPreviousData: true
     })
