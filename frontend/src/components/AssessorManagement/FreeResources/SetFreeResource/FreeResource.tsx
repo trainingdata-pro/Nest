@@ -13,10 +13,10 @@ const FreeResource = ({assessorId, setShowAddToFreeResource}: {
         project_mismatch: 'Не подходит текущему проекту'
     }
     const [capacity, setCapacity] = useState({
-        "free_resource_day_off_hours": '',
-        "free_resource_weekday_hours": '',
-        "reason": '',
-        "free_resource": true
+        free_resource_day_off_hours: '',
+        free_resource_weekday_hours: '',
+        reason: '',
+        free_resource: true
     })
     const {mutate} = useSetFreeResource({assessorId, setShowAddToFreeResource})
     const submit = () => {
