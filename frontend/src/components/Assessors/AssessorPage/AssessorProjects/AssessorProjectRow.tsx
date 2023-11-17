@@ -169,6 +169,7 @@ const AssessorProjectRow = ({project, assessorId}: {
             <td className={tdClassName + ' w-[266px]'}>
                 <Select
                     options={status}
+                    placeholder='Статус'
                     {...register('workloadStatus')}
                     isSearchable={false}
                     value={getStatusValue()}
