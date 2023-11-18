@@ -64,6 +64,7 @@ export interface Assessor {
     state: AssessorState
     date_of_registration: string,
     working_hours: WorkingHours[],
+    workload_status: WorkloadStatus[]
     vacation_date: string,
     free_resource_weekday_hours: string,
     free_resource_day_off_hours: string

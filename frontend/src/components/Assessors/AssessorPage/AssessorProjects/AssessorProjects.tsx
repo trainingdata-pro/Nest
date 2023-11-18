@@ -2,11 +2,34 @@ import React from 'react';
 import {useQuery} from "react-query";
 import AssessorProjectRow from "./AssessorProjectRow";
 import ProjectService from "../../../../services/ProjectService";
-
+import AssessorService from "../../../../services/AssessorService";
+import {IUser} from "../../../../models/ManagerResponse";
+import {WorkingHours, WorkloadStatus} from "../../../../models/AssessorResponse";
+export interface AssessorRowProps{
+    id: string|number,
+    name: string,
+    manager: IUser[],
+    workloadStatus: WorkloadStatus | undefined,
+    workingHours: WorkingHours | undefined
+}
 const AssessorProjects = ({assessorId}: { assessorId: string | number | undefined }) => {
-    const projects = useQuery(['assessorProjects', assessorId], () => ProjectService.fetchProjectsByAssessorID(assessorId))
-
-    if (projects.isSuccess){
+    // const projects = useQuery(['assessorProjects', assessorId], () => ProjectService.fetchProjectsByAssessorID(assessorId))
+    const projectsNew = useQuery(['assessorProjectsNew', assessorId], () => AssessorService.fetchAssessor(assessorId), {
+        select: data => {
+            let data1: AssessorRowProps[] = []
+            data?.projects.map(project =>
+                data1.push({
+                    id: project.id,
+                    name: project.name,
+                    manager: project.manager,
+                    workloadStatus: data.workload_status.find(status => status.project.id.toString() === project.id.toString()),
+                    workingHours: data.working_hours.find(wh => wh.project.id.toString() === project.id.toString())
+                })
+            )
+            return data1
+        }
+    })
+    if (projectsNew.isSuccess){
         return (
             <table className="min-w-full text-center">
                 <thead className="bg-[#E7EAFF]">
@@ -31,7 +54,7 @@ const AssessorProjects = ({assessorId}: { assessorId: string | number | undefine
                 </tr>
                 </thead>
                 <tbody className='bg-white'>
-                {projects.data.results.length !== 0 ? projects.data.results.map(project =>
+                {projectsNew.data?.length !== 0 ? projectsNew.data?.map(project =>
                     <AssessorProjectRow key={project.id} project={project} assessorId={assessorId}/>) : <tr><td colSpan={20}>Данные не найдены</td></tr>}
                 </tbody>
             </table>
