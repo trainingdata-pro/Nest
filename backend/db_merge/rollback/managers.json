@@ -1,0 +1,254 @@
+[
+  {
+    "username": "teamlead",
+    "email": "teamlead@trainingdata.pro",
+    "full_name": "Тим Лид Иванович",
+    "date_of_registration": "2023-09-14",
+    "password": "pbkdf2_sha256$320000$jHI9Fv52DPHFoKoDmeRzdO$kgN9eOlF5eXj0+AbG181iEusbENGe3G1AX7WXdLpoJI="
+  },
+  {
+    "username": "manager2",
+    "email": "manager2@trainingdata.pro",
+    "full_name": "Менеджер Второй Петрович",
+    "date_of_registration": "2023-09-14",
+    "password": "pbkdf2_sha256$320000$9pYxLnTRtVBJTHIwgaJ4wV$DrIOGkQYzcNvua/kvLZthgIX2vZVetPUcZysVV2DT7M="
+  },
+  {
+    "username": "teamlead2",
+    "email": "teamlead2@trainingdata.pro",
+    "full_name": "Второй Тимлид Сергеевич",
+    "date_of_registration": "2023-09-14",
+    "password": "pbkdf2_sha256$320000$Cgn1fbH9bkQiB6nUDdlWuV$e47OzTiyZiFOY3qcshjAwn54IW93yI2RH9Yv0Bb1038="
+  },
+  {
+    "username": "dmttr",
+    "email": "d.bandysik@trainingdata.pro",
+    "full_name": "Бандысик Дмитрий Валерьевич",
+    "date_of_registration": "2023-09-14",
+    "password": "pbkdf2_sha256$320000$cN3RtVMDpJyTP6JEVTUD7L$hTE19i49+UQ6IjgjYJoAUKJ8HqO3xhL/jaEswejXXks="
+  },
+  {
+    "username": "manager3",
+    "email": "manager3@trainingdata.pro",
+    "full_name": "Manager Second ",
+    "date_of_registration": "2023-10-26",
+    "password": "pbkdf2_sha256$320000$fnK2D5OU1DNchgaO76Bmh8$/5Z5VqrnSLPx2gJE6znTTHBmgoe+WEiNMRDiAd4ilnM="
+  },
+  {
+    "username": "A_Antushenua",
+    "email": "a.antushenua@trainingdata.pro",
+    "full_name": "Антюшеня Алексей ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$kDwUcx4IS80uycupOFsW3N$a0Ipzxozo7r/a0Mvk2cj/KURSGLXKnoxy9+GRvdJs3k="
+  },
+  {
+    "username": "A_kornilow",
+    "email": "a.kornilov@trainingdata.pro",
+    "full_name": "Корнилов Алексей ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$OaufEPicZg0CqsSYdGctMc$sIwNhE2rspGZ2Y2HbvmvMT/jWFh3336cbVIXFoE4gF0="
+  },
+  {
+    "username": "Gorodenskaia",
+    "email": "o.hvowevskaia@trainingdata.pro",
+    "full_name": "Хвощевская Олеся ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$iH6aVNb2qgNHW4MTSftdZ9$BxOnl9vepUi0XjQWvtY/n75g05NGZrDHok/4qO0rD7U="
+  },
+  {
+    "username": "Igothka777",
+    "email": "e.serakov@trainingdata.pro",
+    "full_name": "Сераков Егор ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$3sKMb2l53nGXcfvqcGS0fX$SAU/DyQ79v9IZJlHhxy5EzBbY1WD0Jb9M6ubWIfQ0PY="
+  },
+  {
+    "username": "Liana_Shafikova",
+    "email": "l.shafikova@trainingdata.pro",
+    "full_name": "Шафикова Лиана ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$pHftB1ifcJmT9WqYLVJ65C$8+OCZuy4yKorZ3czj5GIBNxFKdWzCF5hIEUKmR/FFOg="
+  },
+  {
+    "username": "Loya_Cabac",
+    "email": "o.kabak@trainingdata.pro",
+    "full_name": "Кабак Ольга ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$3jrVR8zrDj6TRnEoe1j4cH$cU9kzD+zQYJGT7+c9WTE3gk0bbBNDLfgmhzdO7qk0IY="
+  },
+  {
+    "username": "Maksikent",
+    "email": "m.tsyhanchuk@trainingdata.pro",
+    "full_name": "Цыганчук Максим ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$lSHbD5DWz1TEydaWv033e0$Ztiy1UrMPa2JNzM4QqdjNu2CTho9ujeRb/bRDowYJc0="
+  },
+  {
+    "username": "O_Volyevich",
+    "email": "o.voluevich@trainingdata.pro",
+    "full_name": "Волуевич Ольга ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$JNb6iLHrqjb5VetsshP6Eh$fSLF3cpq9mQV6eUUeRR1S7F60o7WqPCgRGjTw2g2pCI="
+  },
+  {
+    "username": "ROGENDRON",
+    "email": "a.pavlov@trainingdata.pro",
+    "full_name": "Павлов Артём ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$CrnfOA80UYaCdpCrXyam91$1svFDFBwyEGPaBIWt594pd8b7+upTln+bWfIK58mXn8="
+  },
+  {
+    "username": "SergeyRazumniy",
+    "email": "s.razumniy@trainingdata.pro",
+    "full_name": "Разумный Сергей ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$oY5Omd2KAyZ3iKW0QGwniL$Eb658L429xG+LppCD9DV0gbyeJwrG+kJ31P50nY2r2k="
+  },
+  {
+    "username": "Tseluyko95",
+    "email": "a.tseluiko@trainingdata.pro",
+    "full_name": "Целуйко Антон ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$gnqei58fPEwCAlOMXhpYV2$rhZjjqz6gejMegcFbwtbpWAbzrqMJHnD2bY+RMkTak0="
+  },
+  {
+    "username": "VAC9qwe",
+    "email": "v.kudryavtsev@trainingdata.pro",
+    "full_name": "Кудрявцев Василий ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$RXhycd52WRg7ijxvx1t5BH$UuMgT+apiYyAxYgY0KItYQNnCUUlBAztT93FypouUa8="
+  },
+  {
+    "username": "VadimB",
+    "email": "v.bolotov@trainingdata.pro",
+    "full_name": "Болотов Вадим ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$nprFcVjMPkWGz1bSlKsCCP$otXG+m4ImaRyC2E5obc7KWaFnMa7RPTlhXQaH9zAPRk="
+  },
+  {
+    "username": "WhistleBone",
+    "email": "k.meshyk@trainingdata.pro",
+    "full_name": "Мешик Кирилл ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$AT1WUPo5Amce6W1LHomaks$EPy6kuh3AeQxGjscN5iYR8KU2BTQWzvEyaEeiYoq5gg="
+  },
+  {
+    "username": "aannpll",
+    "email": "a.plugar@trainingdata.pro",
+    "full_name": "Плугарь Анастасия ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$fExaRL3DxZFUth2Phl3VM0$Q9yc3WKO7UEFS8XfEXuJU9fDbazpZL36O4K+7XvBBD8="
+  },
+  {
+    "username": "allessya25",
+    "email": "a.serakova@trainingdata.pro",
+    "full_name": "Серакова Алеся ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$jizX5Rpe13UKP8mAsH0EJ2$C0+CGV8JP+wW8+Uw3Bu/PjioXpxffxQkVv1kRXVbaKo="
+  },
+  {
+    "username": "anpirus",
+    "email": "a.pirus@trainingdata.pro",
+    "full_name": "Пирус Анна ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$m06lrpzQNHqVIzmPaG3OpH$RXpMue73jt5nRMtSAMsjzrbdT3PODZfrvmgPTimRwHE="
+  },
+  {
+    "username": "casadkaa",
+    "email": "a.ivashchenko@trainingdata.pro",
+    "full_name": "Касадка Арина ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$nE9XD8stsFpmG4IXqZR93r$CgWHys9+QPyd8uCq518HOXbN9kp+LhlAtwbI65fW8Ms="
+  },
+  {
+    "username": "dariazheltukhina",
+    "email": "d.zheltukhina@trainingdata.pro",
+    "full_name": "Желтухина Дарья ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$k1AFyCo84oI6IKkiAvzcu5$vj/WHLLHZqih+m6CGX1NbyifCTT2gHLwdEK4gbsq0+Q="
+  },
+  {
+    "username": "dmitriy_rogalskiy",
+    "email": "d.rogalskiy@trainingdata.pro",
+    "full_name": "Рогальский Дмитрий ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$qrmpHzSaAS8sGgfCWaRef1$hkE12zwClwS3RL3SjJJHGyrWjgrbl1Bhm0zGAeUmmcE="
+  },
+  {
+    "username": "fil_322",
+    "email": "e.filipchenko@trainingdata.pro",
+    "full_name": "Филипченко Евгений ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$edqzLtvSzFvRAcXPsmH8My$YB10DNvJ2KVhSASScSLTa4tWSRaNSYLQFf7WOa6/HtU="
+  },
+  {
+    "username": "i.lukashevich",
+    "email": "i.lukashevich@trainingdata.pro",
+    "full_name": "Лукашевич Ирина ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$y1FPwlZYU109pahDCC2Sf7$MoCN5ZX9+lDuuw30yjh8HB+Ocno2MpLbuMU0Mppw13k="
+  },
+  {
+    "username": "ilya_bereznev",
+    "email": "i.bereznev@trainingdata.pro",
+    "full_name": "Березнев Илья ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$un6GISHFIypuKodSEt8wIk$HqcCP9Ul37c70PfelmV97/4FLBPUxqpYgb7MwNgOaiM="
+  },
+  {
+    "username": "inna_rokotyanskaya",
+    "email": "i.rokotyanskaya@trainingdata.pro",
+    "full_name": "Рокотянская Инна ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$umObidpjhDUxUpiCDbWDs8$Xls1MobbySmyFl41eDSW0Ae0di3Swn5NHIolWuSifGA="
+  },
+  {
+    "username": "innuendooo",
+    "email": "d.frolova@trainingdata.pro",
+    "full_name": "Фролова Дарья ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$hpD0Bh5KMh5jrE3ejk6RIZ$VWp5rLCeenQznfktunYi4UGVSgrkLFdMLnYx5rYygz4="
+  },
+  {
+    "username": "ksy2229",
+    "email": "k.sikorskaya@trainingdata.pro",
+    "full_name": "Сикорская Ксения ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$FHE5mS91JUvd7MorLsMC8h$+lmW0z1QGm3/Mb1xN34wKZF+Dzg2yw367yWy5GeqvkI="
+  },
+  {
+    "username": "kzmnmsh",
+    "email": "m.kuzmina@trainingdata.pro",
+    "full_name": "Кузьмина Мария ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$9xAwxFhy4lRxr6qxQVseQN$Qg767jk1GxXQQfAChzPXrbasoOSqmwalxfHeHQ0UZc8="
+  },
+  {
+    "username": "lissalena0",
+    "email": "e.lebedeva@trainingdata.pro",
+    "full_name": "Лебедева Елена ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$9h0J2o8fb5ZWEmfrK9SLDx$J2CqS/SaJSm8tzl9fbpzHz6QheVMdW31DrjMN1tmO70="
+  },
+  {
+    "username": "luftv",
+    "email": "m.budkovets@trainingdata.pro",
+    "full_name": "Будковец Михаил ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$US0fyiyqQu0Yevj2ljbbrr$ccgvrnQ+58DtC1m32c48za76iZbU3wnbij2F1LAj3vI="
+  },
+  {
+    "username": "vikiefimova",
+    "email": "v.efimova@trainingdata.pro",
+    "full_name": "Ефимова Виктория ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$bIZhfVpaDgFkv0UjAlOHB2$hPlJw4lQdpHva1K4S+rnJBaHl9QYCwZScdHT4JBdnPc="
+  },
+  {
+    "username": "vmyanysheva",
+    "email": "v.yanysheva@trainingdata.pro",
+    "full_name": "Янышева Виктория ",
+    "date_of_registration": "2023-11-07",
+    "password": "pbkdf2_sha256$320000$xGjLRYeasxakeC3BQRnRhi$7IDpJRJGD6uFHq7jHkbZjmKanl1kXkAwLJkLduqPSFU="
+  }
+]
