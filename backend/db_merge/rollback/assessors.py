@@ -17,7 +17,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'src.config.settings.dev')
 django.setup()
 
 from apps.assessors.models import Assessor, AssessorState
-from apps.fired.models import BlackList
+from apps.fired.models import BlackList, Fired
 from apps.history.services import history
 
 
@@ -78,10 +78,33 @@ def get_blacklist(obj: Assessor):
     }
 
 
+def get_fired(obj: Assessor):
+    fr = Fired.objects.get(assessor=obj)
+    lm = history.get_last_assessor_manager(obj)
+    if lm:
+        lm = lm.strip()
+
+    lp = history.get_last_assessor_project(obj)
+    if lp:
+        lp = lp.strip()
+
+    return {
+        'date': fr.date.strftime('%Y-%m-%d'),
+        'reason': fr.reason.title,
+        'last_manager': lm,
+        'last_project': lp,
+        'possible_return_date': fr.possible_return_date
+    }
+
+
 assessors = Assessor.objects.all()
 data = []
 for assessor in tqdm(assessors):
+    if assessor.username in ('fired', 'fired2', 'vaneuss66', 'qwerty'):
+        continue
+
     blist = get_blacklist(assessor) if assessor.state == AssessorState.BLACKLIST else None
+    fired = get_fired(assessor) if assessor.state == AssessorState.FIRED else None
     data.append(
         {
             'username': assessor.username,
@@ -91,7 +114,8 @@ for assessor in tqdm(assessors):
             'projects': parse_projects(assessor),
             'state': assessor.state,
             'date_of_registration': assessor.date_of_registration.strftime('%Y-%m-%d'),
-            'blacklist': blist
+            'blacklist': blist,
+            'fired': fired
         }
     )
 
