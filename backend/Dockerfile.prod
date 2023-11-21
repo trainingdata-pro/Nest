@@ -4,11 +4,11 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # create the app user
-RUN groupadd -r assessors && useradd -r -g assessors assessors
+RUN groupadd -r nest && useradd -r -g nest nest
 
 # set the home directory
-ENV HOME=/home/assessors
-ENV APP_HOME=/home/assessors/backend
+ENV HOME=/home/nest
+ENV APP_HOME=/home/nest/backend
 RUN mkdir -p $APP_HOME
 WORKDIR $APP_HOME
 
@@ -23,10 +23,10 @@ RUN poetry config virtualenvs.create false
 RUN poetry install --no-dev
 
 # set ownership and permissions
-RUN chown -R assessors:assessors $APP_HOME
+RUN chown -R nest:nest $APP_HOME
 RUN chmod -R 777 $APP_HOME
 
 # switch to the app user
-USER assessors
+USER nest
 
 WORKDIR $APP_HOME/src

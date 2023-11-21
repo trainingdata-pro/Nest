@@ -6,10 +6,10 @@ services:
       dockerfile: Dockerfile.prod
     command: bash -c "python manage.py migrate --noinput && gunicorn config.wsgi:application -c ../gunicorn.conf.py --bind 0.0.0.0:8000"
     volumes:
-      - static_volume:/home/assessors/backend/src/static
-      - media_volume:/home/assessors/backend/src/media
-      - ./backend/logging:/home/assessors/backend/logging
-      - ./backend/db_merge:/home/assessors/backend/db_merge
+      - static_volume:/home/nest/backend/src/static
+      - media_volume:/home/nest/backend/src/media
+      - ./backend/logging:/home/nest/backend/logging
+      - ./backend/db_merge:/home/nest/backend/db_merge
     expose:
       - 8000
     networks:
@@ -49,7 +49,7 @@ services:
       - 80:80
       - 443:443
     volumes:
-       - static_volume:/home/assessors/backend/src/static
+       - static_volume:/home/nest/backend/src/static
     networks:
       - default_network
 
