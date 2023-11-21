@@ -46,6 +46,13 @@ class SkillAdmin(admin.ModelAdmin):
 
 @admin.register(AssessorCredentials)
 class AssessorCredentialsAdmin(admin.ModelAdmin):
+    search_fields = [
+        'assessor__username',
+        'assessor__last_name',
+        'assessor__first_name',
+        'assessor__middle_name'
+    ]
+    search_help_text = 'Введите username или ФИО исполнителя'
     list_display = ['pk', 'assessor', 'tool', 'login', 'password']
     list_display_links = ['assessor']
-    list_filter = ['assessor', 'tool']
+    list_filter = ['tool']

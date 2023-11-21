@@ -74,6 +74,14 @@ class BaseUserAdmin(UserAdmin):
 
 @admin.register(ManagerProfile)
 class ManagerProfileAdmin(admin.ModelAdmin):
+    search_help_text = 'Введите username, email или ФИО пользователя'
+    search_fields = [
+        'user__username',
+        'user__email',
+        'user__last_name',
+        'user__first_name',
+        'user__middle_name'
+    ]
     list_display = [
         'pk',
         'user',

@@ -29,6 +29,7 @@ class BlackListStateAdmin(admin.ModelAdmin):
         'assessor__middle_name',
         'assessor__username'
     ]
+    search_help_text = 'Введите username или ФИО исполнителя'
 
 
 @admin.register(Fired)
