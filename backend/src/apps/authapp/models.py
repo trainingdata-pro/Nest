@@ -42,3 +42,8 @@ class PasswordResetToken(models.Model):
 
     def __str__(self):
         return str(self.token)
+
+    class Meta:
+        db_table = 'password_reset_tokens'
+        verbose_name = 'токен сброса пароля'
+        verbose_name_plural = 'токены сброса пароля'

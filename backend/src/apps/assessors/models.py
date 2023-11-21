@@ -185,7 +185,7 @@ class AssessorCredentials(models.Model):
     assessor = models.ForeignKey(
         Assessor,
         on_delete=models.PROTECT,
-        verbose_name='менеджер'
+        verbose_name='исполнитель'
     )
     tool = models.CharField(
         verbose_name='инструмент',
