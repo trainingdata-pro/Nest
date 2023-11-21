@@ -12,6 +12,7 @@ from .services import history
 
 @method_decorator(name='get', decorator=history_schema.get())
 class HistoryAPIView(generics.ListAPIView):
+    """ Get a specific assessor history """
     permission_classes = (IsAuthenticated,)
     serializer_class = HistorySerializer
     filterset_class = HistoryFilter

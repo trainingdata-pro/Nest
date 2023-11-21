@@ -1,4 +1,4 @@
-from typing import Iterable, Any
+from typing import Iterable, Any, Dict
 
 from django.db.models import Count, QuerySet, Sum, Q
 from django.db.models.query import EmptyQuerySet
@@ -47,6 +47,7 @@ from . import serializers, schemas
 @method_decorator(name='destroy', decorator=schemas.project_schema.destroy())
 @method_decorator(name='clear', decorator=schemas.project_schema.clear())
 class ProjectAPIViewSet(BaseAPIViewSet):
+    """ The main view to interact with project object """
     permission_classes = {
         'retrieve': (IsAuthenticated,),
         'list': (IsAuthenticated,),
@@ -99,15 +100,8 @@ class ProjectAPIViewSet(BaseAPIViewSet):
         return Response(response.data, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request: Request, *args, **kwargs) -> Response:
-        instance = self.get_object()
-        serializer = self.get_serializer(
-            instance,
-            data=request.data,
-            partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        project = serializer.save()
-        response = serializers.ProjectSerializer(project)
+        obj = self.update_obj(request)
+        response = serializers.ProjectSerializer(obj)
         return Response(response.data, status=status.HTTP_200_OK)
 
     def destroy(self, request: Request, *args, **kwargs) -> Response:
@@ -118,6 +112,7 @@ class ProjectAPIViewSet(BaseAPIViewSet):
 
     @action(detail=True, methods=['patch'])
     def clear(self, request: Request, *args, **kwarg) -> Response:
+        """ Remove all assessors from a specific project """
         project = self.get_object()
         if project.assessors.exists():
             remove_assessors_from_project(
@@ -129,6 +124,7 @@ class ProjectAPIViewSet(BaseAPIViewSet):
 
     @staticmethod
     def _check_project(project: Project) -> Project:
+        """ Check if project has assessors """
         if project.assessors.exists():
             raise ValidationError(
                 {'detail': ['Снимите исполнителей с текущего проекта, чтобы продолжить.']}
@@ -136,6 +132,15 @@ class ProjectAPIViewSet(BaseAPIViewSet):
         return project
 
     def get_queryset(self) -> QuerySet[Project]:
+        """
+        If the user's status is Admin or Analyst,
+        returns all project objects;
+        If the user's status is Manager (not teamlead),
+        returns all project objects for current user.
+        If the user's status is Manager (teamlead),
+        returns all project objects for all managers in the
+        user's team
+        """
         user = self.request.user
         if user.is_superuser or user.status == UserStatus.ANALYST:
             return (Project.objects.all()
@@ -160,6 +165,7 @@ class ProjectAPIViewSet(BaseAPIViewSet):
 
 @method_decorator(name='get', decorator=schemas.project_schema2.get())
 class GetAllAssessorsForProject(generics.ListAPIView):
+    """ Get all assessors for a specific project """
     serializer_class = AssessorSerializer
     permission_classes = (
         IsAuthenticated,
@@ -175,12 +181,7 @@ class GetAllAssessorsForProject(generics.ListAPIView):
         'total_working_hours'
     ]
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['project_pk'] = self.kwargs.get('pk')
-        return context
-
-    def list(self, request: Request, *args, **kwargs):
+    def list(self, request: Request, *args, **kwargs) -> Response:
         project_pk = kwargs.get('pk')
         self._can_view_project(project_pk)
         queryset = self.filter_queryset(self.get_queryset()).filter(projects__in=[project_pk])
@@ -191,6 +192,11 @@ class GetAllAssessorsForProject(generics.ListAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    def get_serializer_context(self) -> Dict:
+        context = super().get_serializer_context()
+        context['project_pk'] = self.kwargs.get('pk')
+        return context
 
     def get_queryset(self) -> QuerySet[Assessor]:
         project_pk = self.kwargs.get('pk')
@@ -220,7 +226,11 @@ class GetAllAssessorsForProject(generics.ListAPIView):
                                                      filter=Q(project_working_hours__project__pk=project_pk))))
                 .order_by('pk'))
 
-    def _can_view_project(self, pk):
+    def _can_view_project(self, pk: int) -> None:
+        """
+        Check if the user can interact with a project.
+        :param pk: Unique project pk
+        """
         obj = get_object_or_404(Project, pk=pk)
         permission = permissions.ProjectPermission()
         if not permission.has_object_permission(
@@ -233,6 +243,7 @@ class GetAllAssessorsForProject(generics.ListAPIView):
 
 @method_decorator(name='get', decorator=schemas.tags_schema.get())
 class TagsApiView(generics.ListAPIView):
+    """ Get project tags"""
     queryset = ProjectTag.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = serializers.ProjectTagSerializer
@@ -244,6 +255,7 @@ class TagsApiView(generics.ListAPIView):
 @method_decorator(name='create', decorator=schemas.project_wh_schema.create())
 @method_decorator(name='partial_update', decorator=schemas.project_wh_schema.partial_update())
 class ProjectWorkingHoursAPIViewSet(BaseAPIViewSet):
+    """ The main view to interact with project working hours """
     queryset = ProjectWorkingHours.objects.filter().select_related('assessor', 'project')
     permission_classes = {
         'retrieve': (
@@ -274,7 +286,7 @@ class ProjectWorkingHoursAPIViewSet(BaseAPIViewSet):
     filterset_class = ProjectWorkingHoursFilter
     ordering_fields = ['pk']
 
-    def create(self, request: Request, *args, **kwargs):
+    def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         project_wh = serializer.save()
@@ -282,15 +294,8 @@ class ProjectWorkingHoursAPIViewSet(BaseAPIViewSet):
         return Response(response.data, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request: Request, *args, **kwargs) -> Response:
-        instance = self.get_object()
-        serializer = self.get_serializer(
-            instance,
-            data=request.data,
-            partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        project_wh = serializer.save()
-        response = serializers.ProjectWorkingHoursSerializer(project_wh)
+        obj = self.update_obj(request)
+        response = serializers.ProjectWorkingHoursSerializer(obj)
         return Response(response.data, status=status.HTTP_200_OK)
 
 
@@ -299,6 +304,7 @@ class ProjectWorkingHoursAPIViewSet(BaseAPIViewSet):
 @method_decorator(name='create', decorator=schemas.workload_schema.create())
 @method_decorator(name='partial_update', decorator=schemas.workload_schema.partial_update())
 class WorkLoadStatusAPIViewSet(BaseAPIViewSet):
+    """ The main view to interact with project workload status """
     queryset = WorkLoadStatus.objects.filter().select_related('assessor', 'project')
     permission_classes = {
         'retrieve': (
@@ -329,7 +335,7 @@ class WorkLoadStatusAPIViewSet(BaseAPIViewSet):
     filterset_class = WorkLoadStatusFilter
     ordering_fields = ['pk']
 
-    def create(self, request: Request, *args, **kwargs):
+    def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         workload = serializer.save()
@@ -337,20 +343,14 @@ class WorkLoadStatusAPIViewSet(BaseAPIViewSet):
         return Response(response.data, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request: Request, *args, **kwargs) -> Response:
-        instance = self.get_object()
-        serializer = self.get_serializer(
-            instance,
-            data=request.data,
-            partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        workload = serializer.save()
-        response = serializers.WorkLoadStatusSerializer(workload)
+        obj = self.update_obj(request)
+        response = serializers.WorkLoadStatusSerializer(obj)
         return Response(response.data, status=status.HTTP_200_OK)
 
 
 @method_decorator(name='get', decorator=schemas.export_schema.export_projects())
 class ExportProjectsAPIView(generics.GenericAPIView):
+    """ Export info about completed projects """
     queryset = EmptyQuerySet
     permission_classes = (IsAuthenticated,)
     serializer_class = ExportSerializer
@@ -363,6 +363,12 @@ class ExportProjectsAPIView(generics.GenericAPIView):
         return Response({'task_id': task.id}, status=status.HTTP_202_ACCEPTED)
 
     def _get_team(self) -> Iterable[int]:
+        """
+        If the user's status is Admin, returns all managers;
+        If the user's status is Manager (teamlead),
+        returns all managers in the user's team.
+        :return: List of manager IDs
+        """
         managers = BaseUser.objects.filter(
             status=UserStatus.MANAGER,
             manager_profile__is_teamlead=False
@@ -379,6 +385,7 @@ class ExportProjectsAPIView(generics.GenericAPIView):
 
 @method_decorator(name='get', decorator=schemas.export_schema.export_assessors())
 class ExportAssessorsForProjectAPIView(generics.GenericAPIView):
+    """ Export all assessors for a specific project """
     queryset = EmptyQuerySet
     permission_classes = (IsAuthenticated,)
     serializer_class = ExportSerializer
@@ -386,14 +393,15 @@ class ExportAssessorsForProjectAPIView(generics.GenericAPIView):
     def get(self, request: Request, *args, **kwargs) -> Response:
         export_type = request.GET.get('type', '').lower()
         ExportType.validate(export_type)
-        project_id = self._check_project(request.GET.get('project'))
-        task = make_report_assessors.delay(export_type=export_type, project_id=project_id)
+        project_pk = self._check_project_pk(request.GET.get('project'))
+        task = make_report_assessors.delay(export_type=export_type, project_id=project_pk)
         return Response({'task_id': task.id}, status=status.HTTP_202_ACCEPTED)
 
     @staticmethod
-    def _check_project(project: Any) -> int:
+    def _check_project_pk(pk: str | int | float) -> int:
+        """ Check if project pk is valid """
         try:
-            project_id = int(project)
+            project_id = int(pk)
         except (ValueError, TypeError):
             raise ValidationError(
                 {'project': ['Invalid project ID.']}

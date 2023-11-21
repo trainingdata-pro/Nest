@@ -18,6 +18,8 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'src.config.settings.dev')
 django.setup()
 
 
+from django.db.utils import IntegrityError
+
 from apps.assessors.services import assessors_service
 from apps.assessors.models import AssessorState, Assessor
 from apps.projects.models import Project
@@ -171,10 +173,14 @@ def merge_db():
             )
 
         instance_before_update2 = copy(assessor)
-        fired_service.fire(
-            assessor,
-            reason=reason
-        )
+        try:
+            fired_service.fire(
+                assessor,
+                reason=reason
+            )
+        except IntegrityError:
+            pass
+
         assessors_service.fire(assessor)
         history.updated_assessor_history(
             old_assessor=instance_before_update2,

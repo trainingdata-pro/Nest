@@ -16,6 +16,7 @@ from . import schemas, serializers
 
 @method_decorator(name='get', decorator=schemas.export_schema.status())
 class GetExportResultAPIView(generics.GenericAPIView):
+    """ Get celery task result """
     queryset = EmptyQuerySet
     permission_classes = (IsAuthenticated,)
     serializer_class = serializers.DownloadStatusSerializer
@@ -32,6 +33,7 @@ class GetExportResultAPIView(generics.GenericAPIView):
 
 @method_decorator(name='get', decorator=schemas.export_schema.download())
 class DownloadReportAPIView(generics.GenericAPIView):
+    """ Download report """
     queryset = EmptyQuerySet
     permission_classes = (IsAuthenticated,)
     serializer_class = serializers.ExportSerializer
@@ -55,5 +57,5 @@ class DownloadReportAPIView(generics.GenericAPIView):
             )
 
     @staticmethod
-    def _check_if_file_exists(path) -> bool:
+    def _check_if_file_exists(path: str) -> bool:
         return os.path.exists(path)

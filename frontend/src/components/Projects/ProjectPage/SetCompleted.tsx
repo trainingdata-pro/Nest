@@ -7,7 +7,7 @@ import {errorNotification, successNotification} from "../../UI/Notify";
 
 const SetCompleted = ({projectId, show}:{projectId: string | number, show:any}) => {
     const queryClient = useQueryClient()
-    const completeProject = useMutation([], () => ProjectService.patchProject(projectId, {status: 'completed'}), {
+    const completeProject = useMutation([], () => ProjectService.patchProjectStatus(projectId, {status: 'completed'}), {
         onSuccess: () => {
             queryClient.invalidateQueries('projects')
             queryClient.invalidateQueries('completedProjects')

@@ -11,7 +11,7 @@ interface ManagerProps {
     id: number | string,
     assessor: any,
 }
-// @ts-ignore
+
 const Management = ({id, assessor}: ManagerProps) => {
     const [open, setOpen] = useState(false);
 
@@ -37,7 +37,7 @@ const Management = ({id, assessor}: ManagerProps) => {
             </Dialog>
 
             <Dialog isOpen={isOpenFired} setIsOpen={setIsOpenFired}>
-                <Fired assessorId={id} close={setIsOpenFired}/>
+            {assessor.isSuccess && id && <Fired assessorId={id} close={setIsOpenFired}/>}
             </Dialog>
             <Dialog isOpen={unpin} setIsOpen={setUnpin}>
                 {assessor.isSuccess && id && <Unpin assessor={assessor.data} assessorId={id} close={setUnpin}/>}

@@ -157,3 +157,5 @@ frontend/node_modules/
 backend/logging
 backend/db_merge/*.json
 backend/db_merge/*.xlsx
+backend/db_merge/rollback/*.jsong
+backend/db_merge/rollback/*.xlsx

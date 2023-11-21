@@ -1,13 +1,13 @@
 import React, {useContext, useState} from 'react'
-import cat from '../components/SignIn/cat7.png'
+import cat from './cat7.png'
 import {useForm} from "react-hook-form";
-import {Context} from "../index";
+import {Context} from "../../index";
 import {NavLink} from "react-router-dom";
 import {EnvelopeIcon, LockClosedIcon} from "@heroicons/react/24/solid";
-import Error from "../components/UI/Error";
+import Error from "../UI/Error";
 import {observer} from "mobx-react-lite";
-import Dialog from "../components/UI/Dialog";
-import EmailToReset from "../components/PasswordReset/EmailToReset";
+import Dialog from "../UI/Dialog";
+import EmailToReset from "../PasswordReset/EmailToReset";
 
 
 interface ISignIn {

@@ -6,6 +6,7 @@ from .export import BlackListExport
 
 @app.task
 def make_report(export_type: str, items: Optional[str] = None) -> str:
+    """ Export blacklist data """
     exporter = BlackListExport(export_type, items=items)
     filename = exporter.export()
     return filename

@@ -28,6 +28,12 @@ def _get_new_vacation_history(assessors_list: QuerySet[Assessor]) -> List[Histor
 
 
 def check_assessors_on_vacation() -> None:
+    """
+    Get all assessors who are on vacation,
+    check their vacation date and return them
+    from vacation if vacation is over,
+    update their history
+    """
     assessors = _get_assessors_for_update()
     if assessors:
         histories = _get_new_vacation_history(assessors)

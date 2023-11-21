@@ -3,12 +3,16 @@ from django.contrib import admin
 from .models import ProjectTag, Project, ProjectWorkingHours, WorkLoadStatus
 
 
+@admin.register(ProjectTag)
 class ProjectTagAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+    search_help_text = 'Введите название тега'
     list_display = ['pk', 'name']
     list_display_links = ['name']
     ordering = ['name']
 
 
+@admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     search_fields = ['name']
     search_help_text = 'Введите название проекта'
@@ -29,7 +33,15 @@ class ProjectAdmin(admin.ModelAdmin):
         return Project.objects.all().prefetch_related('manager')
 
 
+@admin.register(ProjectWorkingHours)
 class ProjectWorkingHoursAdmin(admin.ModelAdmin):
+    search_fields = [
+        'assessor__username',
+        'assessor__first_name',
+        'assessor__last_name',
+        'assessor__middle_name',
+    ]
+    search_help_text = 'Введите username или ФИО исполнителя'
     list_display = [
         'pk',
         'assessor',
@@ -45,16 +57,18 @@ class ProjectWorkingHoursAdmin(admin.ModelAdmin):
     ]
 
 
+@admin.register(WorkLoadStatus)
 class WorkLoadStatusAdmin(admin.ModelAdmin):
+    search_fields = [
+        'assessor__username',
+        'assessor__first_name',
+        'assessor__last_name',
+        'assessor__middle_name',
+    ]
+    search_help_text = 'Введите username или ФИО исполнителя'
     list_display = [
         'pk',
         'assessor',
         'project',
         'status'
     ]
-
-
-admin.site.register(ProjectTag, ProjectTagAdmin)
-admin.site.register(Project, ProjectAdmin)
-admin.site.register(ProjectWorkingHours, ProjectWorkingHoursAdmin)
-admin.site.register(WorkLoadStatus, WorkLoadStatusAdmin)

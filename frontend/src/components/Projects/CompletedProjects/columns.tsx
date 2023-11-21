@@ -3,7 +3,9 @@ import {Project} from "../../../models/ProjectResponse";
 import React, {Dispatch, useContext} from "react";
 import {Context} from "../../../index";
 import {PencilSquareIcon} from "@heroicons/react/24/solid";
-import Sorting from "../../FreeResource/FreeResorces/sorting";
+import Sorting from "../../../utils/sorting";
+import moment from "moment-timezone";
+import {format, utcToZonedTime} from "date-fns-tz";
 
 
 export const useCompletedProjectsColumns = ({setProjectId, setShowSidebar}: {
@@ -48,12 +50,20 @@ export const useCompletedProjectsColumns = ({setProjectId, setShowSidebar}: {
         }),
         columnHelper.accessor('date_of_creation', {
             header: () => <div className='flex'><p>Дата начала</p><Sorting sortingKey={"date_of_creation"} func={setSorting} sortingValue={sorting.date_of_creation} state={sorting}/></div>,
-            cell: info => info.getValue(),
+            cell: info => {
+                const TimeZone = moment.tz.guess()
+                const zonedDate = utcToZonedTime(new Date(info.getValue()), TimeZone)
+                return format(zonedDate, 'dd-MM-yyyy',{ timeZone: TimeZone } )
+            },
             enableSorting: true
         }),
         columnHelper.accessor('date_of_completion', {
             header: () => <div className='flex'><p>Дата завершения</p><Sorting sortingKey={"date_of_completion"} func={setSorting} sortingValue={sorting.date_of_completion} state={sorting}/></div>,
-            cell: info => info.getValue(),
+            cell: info => {
+                const TimeZone = moment.tz.guess()
+                const zonedDate = utcToZonedTime(new Date(info.getValue()), TimeZone)
+                return format(zonedDate, 'dd-MM-yyyy',{ timeZone: TimeZone } )
+            },
             enableSorting: true
         }),
         columnHelper.accessor('id', {

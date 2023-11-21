@@ -1,7 +1,8 @@
-import React from 'react';
+import React, {Dispatch} from 'react';
 
-// @ts-ignore
-const ConfirmPage = ({close}) => {
+const ConfirmPage = ({close}:{
+    close:Dispatch<boolean>
+}) => {
     return (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
             <div className="animate-in fade-in fixed inset-0 z-50 bg-white backdrop-blur-sm transition-opacity"></div>

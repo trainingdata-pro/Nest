@@ -1,5 +1,5 @@
-import React, {Fragment, useRef, useState} from 'react'
-import {Dialog, Transition} from '@headlessui/react'
+import React, {useRef} from 'react'
+import {Dialog} from '@headlessui/react'
 
 function SideBar({children, isOpen, setIsOpen,topLayer}: {
     children: React.ReactNode,
@@ -8,8 +8,8 @@ function SideBar({children, isOpen, setIsOpen,topLayer}: {
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
 }) {
     const cancelButtonRef = useRef(null)
-
     return (
+        <>
             <Dialog as="div" open={isOpen} className={`relative ${topLayer ? 'z-30': 'z-10'}`} initialFocus={cancelButtonRef} onClose={setIsOpen}>
                 <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"/>
                 <div className={`fixed inset-0 ${topLayer ? 'z-40': 'z-20'} overflow-y-auto`}>
@@ -25,6 +25,7 @@ function SideBar({children, isOpen, setIsOpen,topLayer}: {
                     </div>
                 </div>
             </Dialog>
+        </>
     )
 }
 

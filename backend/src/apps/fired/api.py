@@ -22,6 +22,7 @@ from . import schemas, serializers
 @method_decorator(name='retrieve', decorator=schemas.reason_schema.retrieve())
 @method_decorator(name='list', decorator=schemas.reason_schema.list())
 class ReasonAPIViewSet(viewsets.ModelViewSet):
+    """ View to get fired reason """
     queryset = Reason.objects.all()
     serializer_class = serializers.ReasonSerializer
     permission_classes = (IsAuthenticated,)
@@ -33,6 +34,7 @@ class ReasonAPIViewSet(viewsets.ModelViewSet):
 @method_decorator(name='retrieve', decorator=schemas.fired_schema.retrieve_blacklist())
 @method_decorator(name='list', decorator=schemas.fired_schema.list_blacklist())
 class BlackListAPIViewSet(viewsets.ModelViewSet):
+    """ View to interact with blacklist """
     serializer_class = serializers.BlackListSerializer
     permission_classes = (IsAuthenticated,)
     http_method_names = ['get']
@@ -68,6 +70,7 @@ class BlackListAPIViewSet(viewsets.ModelViewSet):
 @method_decorator(name='list', decorator=schemas.fired_schema.list_fired())
 @method_decorator(name='back', decorator=schemas.fired_schema.back())
 class FiredAPIViewSet(BaseAPIViewSet):
+    """ View to interact with fired assessors """
     queryset = Fired.objects.all().select_related('assessor', 'reason').order_by('-date')
     serializer_class = {
         'retrieve': serializers.FiredSerializer,
@@ -91,16 +94,14 @@ class FiredAPIViewSet(BaseAPIViewSet):
 
     @action(detail=True, methods=['patch'])
     def back(self, request: Request, **kwargs) -> Response:
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        assessor = serializer.save()
-        response = AssessorSerializer(assessor)
+        obj = self.update_obj(request)
+        response = AssessorSerializer(obj)
         return Response(response.data, status=status.HTTP_200_OK)
 
 
 @method_decorator(name='get', decorator=schemas.export_schema.export())
 class ExportBlackListAPIView(generics.GenericAPIView):
+    """ Export blacklist data """
     queryset = EmptyQuerySet
     permission_classes = (IsAuthenticated,)
     serializer_class = ExportSerializer

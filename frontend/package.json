@@ -21,6 +21,7 @@
     "axios": "^1.4.0",
     "clsx": "^1.2.1",
     "date-fns": "^2.30.0",
+    "date-fns-tz": "^2.0.0",
     "dayjs": "^1.11.6",
     "faker": "^6.6.6",
     "heroicons": "^2.0.18",
@@ -29,6 +30,7 @@
     "mdi": "^2.2.43",
     "mobx": "^6.9.0",
     "mobx-react-lite": "^3.4.3",
+    "moment-timezone": "^0.5.43",
     "primereact": "^9.6.1",
     "react": "^18.2.0",
     "react-calendar": "^4.6.0",
@@ -52,7 +54,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "set NODE_ENV=development & react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

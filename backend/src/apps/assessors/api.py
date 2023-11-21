@@ -24,6 +24,7 @@ from . import filters, serializers, schemas
 @method_decorator(name='retrieve', decorator=schemas.skills_schema.retrieve())
 @method_decorator(name='list', decorator=schemas.skills_schema.list())
 class SkillsAPIViewSet(viewsets.ModelViewSet):
+    """ Get info about skills and info about a specific skill """
     queryset = Skill.objects.all().order_by('title')
     serializer_class = serializers.SkillSerializer
     permission_classes = (IsAuthenticated,)
@@ -43,6 +44,7 @@ class SkillsAPIViewSet(viewsets.ModelViewSet):
 @method_decorator(name='unpin', decorator=schemas.assessor_schema.unpin())
 @method_decorator(name='fire', decorator=schemas.assessor_schema.fire())
 class AssessorAPIViewSet(BaseAPIViewSet):
+    """ The main view to interact with assessor object """
     permission_classes = {
         'retrieve': (
             IsAuthenticated,
@@ -117,6 +119,15 @@ class AssessorAPIViewSet(BaseAPIViewSet):
     ]
 
     def get_queryset(self) -> QuerySet[Assessor]:
+        """
+        If the user's status is Admin or Analyst,
+        returns all assessor objects;
+        If the user's status is Manager (not teamlead),
+        returns all assessor objects for current user.
+        If the user's status is Manager (teamlead),
+        returns all assessor objects for all managers in the
+        user's team
+        """
         user = self.request.user
         if user.is_superuser or user.status == UserStatus.ANALYST:
             queryset = Assessor.objects.exclude(state__in=AssessorState.fired_states())
@@ -147,47 +158,47 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         return Response(response.data, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request: Request, **kwargs) -> Response:
-        return self._update(request, **kwargs)
+        return self.update(request, **kwargs)
 
     @action(detail=True, methods=['patch'])
     def projects(self, request: Request, **kwargs) -> Response:
-        return self._update(request, **kwargs)
+        """ Update a specific assessor projects """
+        return self.update(request, **kwargs)
 
     @action(detail=True, methods=['patch'])
     def skills(self, request: Request, **kwargs) -> Response:
-        return self._update(request, **kwargs)
+        """ Update a specific assessor skills """
+        return self.update(request, **kwargs)
 
     @action(detail=True, methods=['patch'])
     def vacation(self, request: Request, **kwargs) -> Response:
-        return self._update(request, **kwargs)
+        """ Send/return a specific assessor to/from vacation """
+        return self.update(request, **kwargs)
 
     @action(detail=True, methods=['patch'])
     def free_resource(self, request: Request, **kwargs) -> Response:
-        return self._update(request, **kwargs)
+        """ Send/return a specific assessor to/from free resources """
+        return self.update(request, **kwargs)
 
     @action(detail=True, methods=['patch'])
     def unpin(self, request: Request, **kwargs) -> Response:
-        return self._update(request, **kwargs)
+        """ Remove a specific assessor from a team """
+        return self.update(request, **kwargs)
 
     @action(detail=True, methods=['patch'])
     def fire(self, request: Request, **kwargs) -> Response:
-        return self._update(request, **kwargs)
+        """ Fire a specific assessor """
+        return self.update(request, **kwargs)
 
-    def _update(self, request: Request, **kwargs) -> Response:
-        instance = self.get_object()
-        serializer = self.get_serializer(
-            instance,
-            data=request.data,
-            partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        assessor = serializer.save()
-        response = serializers.AssessorSerializer(assessor)
+    def update(self, request: Request, **kwargs) -> Response:
+        obj = self.update_obj(request)
+        response = serializers.AssessorSerializer(obj)
         return Response(response.data, status=status.HTTP_200_OK)
 
 
 @method_decorator(name='get', decorator=schemas.check_assessor_schema.get())
 class AssessorCheckAPIView(generics.ListAPIView):
+    """ View to check if assessor exists """
     queryset = Assessor.objects.all().select_related('manager')
     serializer_class = serializers.CheckAssessorSerializer
     permission_classes = (IsAuthenticated,)
@@ -224,6 +235,7 @@ class AssessorCheckAPIView(generics.ListAPIView):
 @method_decorator(name='partial_update', decorator=schemas.credentials_schema.partial_update())
 @method_decorator(name='destroy', decorator=schemas.credentials_schema.destroy())
 class AssessorCredentialsAPIViewSet(BaseAPIViewSet):
+    """ Main view to interact with assessor credentials """
     queryset = AssessorCredentials.objects.all().select_related('assessor')
     serializer_class = {
         'retrieve': serializers.AssessorCredentialsSerializer,
@@ -249,15 +261,8 @@ class AssessorCredentialsAPIViewSet(BaseAPIViewSet):
         return Response(response.data, status=status.HTTP_201_CREATED)
 
     def partial_update(self, request: Request, *args, **kwargs) -> Response:
-        instance = self.get_object()
-        serializer = self.get_serializer(
-            instance,
-            data=request.data,
-            partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        assessor = serializer.save()
-        response = serializers.AssessorCredentialsSerializer(assessor)
+        obj = self.update_obj(request)
+        response = serializers.AssessorCredentialsSerializer(obj)
         return Response(response.data, status=status.HTTP_200_OK)
 
     def destroy(self, request: Request, *args, **kwargs) -> Response:
@@ -272,6 +277,10 @@ class AssessorCredentialsAPIViewSet(BaseAPIViewSet):
 @method_decorator(name='list', decorator=schemas.fr_schema.list())
 @method_decorator(name='partial_update', decorator=schemas.fr_schema.partial_update())
 class FreeResourcesAPIViewSet(BaseAPIViewSet):
+    """
+    View to get all free resources or take
+    a specific assessor from free resources
+    """
     permission_classes = {
         'retrieve': (IsAuthenticated, permissions.IsManager),
         'list': (IsAuthenticated, permissions.IsManager),
@@ -299,11 +308,7 @@ class FreeResourcesAPIViewSet(BaseAPIViewSet):
                 .prefetch_related('projects')
                 .order_by('last_name'))
 
-    def update(self, request: Request, *args, **kwargs) -> Response:
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        obj = serializer.save()
+    def partial_update(self, request: Request, *args, **kwargs) -> Response:
+        obj = self.update_obj(request)
         response = serializers.AssessorSerializer(obj)
         return Response(response.data)
