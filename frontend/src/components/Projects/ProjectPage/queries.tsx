@@ -9,14 +9,14 @@ export const useFetchProjectAssessors = ({enabled, projectId,sorting, sortingStr
     projectId: number | string | undefined,
     sorting:any,
     sortingString: string,
-    skillsFilter: number[],
+    skillsFilter: string,
     statusFilter: string
 }) => {
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
     const [totalRows, setTotalRows] = useState<number>(0)
     const [pageLimit, setPageLimit] = useState(10)
-    const projectAssessors = useQuery(['projectAssessors', currentPage, projectId, sorting,skillsFilter, statusFilter, pageLimit], () => AssessorService.fetchAssessors(currentPage, projectId, sortingString,skillsFilter.join(','), statusFilter, pageLimit), {
+    const projectAssessors = useQuery(['projectAssessors', currentPage, projectId, sorting,skillsFilter, statusFilter, pageLimit], () => AssessorService.fetchAssessors(currentPage, projectId, sortingString,skillsFilter, statusFilter, pageLimit), {
         enabled: enabled,
         onSuccess: data1 => {
             setTotalRows(data1.count)
@@ -34,4 +34,15 @@ export const useFetchProjectInfo = ({projectId}:{
         retry: false,
     })
     return {projectInfo}
+}
+
+
+export const useFetchSkills = () => {
+    return useQuery(['skills'], () => AssessorService.fetchSkills(), {
+        select: data => {
+            return data.results.map(tag => {
+                return {label: tag.title, value: tag.id}
+            })
+        }
+    })
 }

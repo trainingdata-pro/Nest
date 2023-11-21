@@ -1,16 +1,8 @@
-import React, {useState} from 'react';
-import {useQuery} from "react-query";
-import AssessorService from "../../../services/AssessorService";
-
-import {
-    getCoreRowModel,
-    useReactTable
-} from "@tanstack/react-table";
+import React from 'react';
 import {IFreeResources} from "../../../models/AssessorResponse";
 import Table from "../../UI/Table";
 import Loader from "../../UI/Loader";
 import {observer} from "mobx-react-lite";
-import TablePagination from "../../UI/TablePagination";
 import {useFreeResourcesSorting} from "./columns";
 import {useFetchFreeResources} from "./queries";
 

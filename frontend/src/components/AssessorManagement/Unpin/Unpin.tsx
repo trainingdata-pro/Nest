@@ -6,7 +6,7 @@ import {useUnpin} from "./queries";
 import {Assessor} from "../../../models/AssessorResponse";
 import {useAvailableManagers} from "./hooks";
 
-// @ts-ignore
+
 const Unpin = ({assessorId,assessor, close}:{
     assessorId: number | string,
     assessor: Assessor,

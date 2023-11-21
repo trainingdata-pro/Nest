@@ -34,7 +34,7 @@ const CredentialsRow = ({cred, assessorId, setIsAddCredentials}: {
         }
         return data
     }
-    const patchMutate = useMutation(['credentials', assessorId], () => AssessorService.patchCredentials(assessorId, getPatchValues(getValues())), {
+    const patchMutate = useMutation(['credentials', assessorId], () => AssessorService.patchCredentials(cred.id, getPatchValues(getValues())), {
         onSuccess: () => {
             queryClient.invalidateQueries('credentials')
             setIsDisabled(true)
@@ -72,7 +72,6 @@ const TableLog = ({assessorId, assessorName = '', setIsShowLoginAndPassword}: {
     assessorName: string,
     setIsShowLoginAndPassword: any
 }) => {
-    const {store} = useContext(Context)
     const {data, isLoading} = useQuery(['credentials'], () => AssessorService.fetchCredentials(assessorId), {
         keepPreviousData: true
     })
@@ -81,14 +80,14 @@ const TableLog = ({assessorId, assessorName = '', setIsShowLoginAndPassword}: {
     const [isAddCredentials, setIsAddCredentials] = useState(false)
 
         return (
-            <>
+            <div className='min-w-[700px]'>
                 <h1>Логины и пароли</h1>
                 <h2 className='text-[#5970F6] mb-2'>{assessorName}</h2>
                 <div className='rounded-[20px] bg-white overflow-hidden border border-black'>
                 <table className="min-w-full text-center">
                     <thead>
                     <tr className="bg-[#E7EAFF]">
-                        <th className="border-r dark:border-neutral-500 py-[3px]">Иснтрумент</th>
+                        <th className="border-r dark:border-neutral-500 py-[3px]">Инструмент</th>
                         <th className="border-r dark:border-neutral-500 py-[3px]">Логин</th>
                         <th className="border-r dark:border-neutral-500 py-[3px]">Пароль</th>
                         <th></th>
@@ -107,7 +106,7 @@ const TableLog = ({assessorId, assessorName = '', setIsShowLoginAndPassword}: {
                     <button onClick={() => setIsShowLoginAndPassword(false)} className="bg-[#5970F6] text-white rounded-md mt-2 px-4 py-2">Назад</button>
                     <button className="bg-[#5970F6] text-white rounded-md mt-2 px-4 py-2" onClick={() => setIsAddCredentials(true)}>Добавить данные</button>
                 </div>
-            </>
+            </div>
         );
 
 };

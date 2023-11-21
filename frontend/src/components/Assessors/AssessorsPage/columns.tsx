@@ -3,7 +3,7 @@ import TableCheckBox from "../../UI/TableCheckBox";
 import {createColumnHelper, Row} from "@tanstack/react-table";
 import {Assessor} from "../../../models/AssessorResponse";
 import {useNavigate} from "react-router-dom";
-import Sorting from "../../FreeResource/FreeResorces/sorting";
+import Sorting from "../../../utils/sorting";
 
 export const useMyAssessorsSorting = () => {
     const [sorting, setSorting] = React.useState({
@@ -73,7 +73,7 @@ export const useMyAssessorsSorting = () => {
         }),
         columnHelper.accessor('username', {
             header: 'Ник в ТГ',
-            cell: info => <a className={'text-[#102ede]'} href={`https://t.me/${info.getValue()}`}>{info.getValue()}</a>,
+            cell: info => <a className={'text-[#102ede]'} target='_blank' href={`https://t.me/${info.getValue()}`}>{info.getValue()}</a>,
             enableSorting: false
         }),
         columnHelper.accessor('projects', {

@@ -1,6 +1,8 @@
 import {createColumnHelper} from "@tanstack/react-table";
 import {IHistory} from "../../../../models/AssessorResponse";
 import React from "react";
+import moment from "moment-timezone";
+import {format, utcToZonedTime, zonedTimeToUtc} from "date-fns-tz";
 
 const action = {
     'created': 'Создать исполнителя',
@@ -28,7 +30,11 @@ export const useHistoryColumns = () => {
     const columns = [
         columnHelper.accessor('timestamp', {
             header: 'Время',
-            cell: info => info.getValue().split('.')[0].replace('T', ' ')
+            cell: info => {
+                const TimeZone = moment.tz.guess()
+                const zonedDate = utcToZonedTime(new Date(info.getValue()), TimeZone)
+                return format(zonedDate, 'dd-MM-yyyy HH:mm:ss',{ timeZone: TimeZone } )
+            }
         }),
         columnHelper.accessor('attribute', {
             header: 'Аттрибут',

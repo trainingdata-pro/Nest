@@ -7,7 +7,7 @@ import {errorNotification, successNotification} from "../../UI/Notify";
 import MiniLoader from '../../UI/MiniLoader';
 import {CheckIcon, PencilSquareIcon} from '@heroicons/react/24/outline';
 import {AxiosError} from "axios";
-import {redirect, useNavigate} from "react-router-dom";
+
 
 const Errors = {
     last_name: 'Фамилия',
@@ -46,7 +46,6 @@ const FromCell = ({name, children}: CellProps) => {
     )
 }
 const PersonalAssessorInfo = ({assessorId}: { assessorId: string | number | undefined }) => {
-    const queryClient = useQueryClient()
     const assessor = useQuery(['currentAssessorInfo'], () => AssessorService.fetchAssessor(assessorId), {
         onSuccess: data => {
             setValue("last_name", data?.last_name)
@@ -71,6 +70,7 @@ const PersonalAssessorInfo = ({assessorId}: { assessorId: string | number | unde
         },
         onSuccess: () => {
             successNotification('Информация успешно обновлена')
+            setIsDisabled(true)
         }
     })
     const {store} = useContext(Context)
@@ -85,25 +85,23 @@ const PersonalAssessorInfo = ({assessorId}: { assessorId: string | number | unde
             setIsDisabled(false)
         } else {
             let data = getValues()
-            if (data.username.length >= 5) {
-                const {manager, ...assessorData} = data
-                if (assessorData.email === '') {
-                    const newData = {...assessorData, email: null}
-                    patchAssessorInfo.mutate({id: assessorId, data: newData})
-                } else {
-                    if (assessorData.email === assessor.data?.email) {
-                        const {email, ...rest} = assessorData
-                        patchAssessorInfo.mutate({id: assessorId, data: rest})
-                    } else {
-                        patchAssessorInfo.mutate({id: assessorId, data: assessorData})
-                    }
-
-                }
-                setIsDisabled(true)
-            } else {
-                errorNotification('Ник ТГ не может быть меньше 5 символов')
+            if (!/^[A-Za-z\d_]{5,32}$/.test(data.username)) {
+                errorNotification('Ник в ТГ: Доступные символы:A-z,0-9,_ Длина: 5-32 символа')
+                return
             }
+            const {manager, ...assessorData} = data
+            if (assessorData.email === '') {
+                const newData = {...assessorData, email: null}
+                patchAssessorInfo.mutate({id: assessorId, data: newData})
+            } else {
+                if (assessorData.email === assessor.data?.email) {
+                    const {email, ...rest} = assessorData
+                    patchAssessorInfo.mutate({id: assessorId, data: rest})
+                } else {
+                    patchAssessorInfo.mutate({id: assessorId, data: assessorData})
+                }
 
+            }
 
         }
     }
@@ -169,7 +167,7 @@ const PersonalAssessorInfo = ({assessorId}: { assessorId: string | number | unde
                                         <CheckIcon className="h-6 w-6 text-black cursor-pointer"/>) :
                                     <PencilSquareIcon className="h-6 w-6 text-gray-400"/>
                             }</button>}
-                        {isDisabled ? <a href={`https://t.me/${getValues('username')}`}>
+                        {isDisabled ? <a href={`https://t.me/${getValues('username')}`} target='_blank'>
                             <svg className="h-6 w-6 text-black mx-auto"
                                  xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"
                                  fill="none">

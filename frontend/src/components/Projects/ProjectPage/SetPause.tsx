@@ -11,7 +11,7 @@ const SetPause = ({show, projectId}: {
 }) => {
     const queryClient = useQueryClient()
     const [value, setValue] = useState<boolean>()
-    const pauseProject = useMutation([], () => ProjectService.patchProject(projectId, {status: 'pause'}), {
+    const pauseProject = useMutation([], () => ProjectService.patchProjectStatus(projectId, {status: 'pause'}), {
         onSuccess: () => {
             queryClient.invalidateQueries('projectAssessors')
             queryClient.invalidateQueries('projectInfo')

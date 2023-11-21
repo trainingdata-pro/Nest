@@ -1,5 +1,17 @@
 import {IManager, IUser} from "./ManagerResponse";
 
+export interface ProjectResponse {
+    count: number,
+    next: string | null,
+    results: Project[]
+}
+export interface Tag {
+    id: number,
+    name: string,
+}
+export interface TagResult {
+    results: Tag[]
+}
 
 export type ProjectFormProps = {
     name: string,
@@ -10,7 +22,7 @@ export type ProjectFormProps = {
     price_for_costumer: number,
     unloading_value: number,
     unloading_regularity: string,
-    status: string | undefined,
+    status: string,
     tag: number[] | string[],
     date_of_creation: string
 }
@@ -30,8 +42,5 @@ export interface Project {
     date_of_creation: string,
     date_of_completion: string,
 }
-interface Tag {
-    id: number,
-    name: string
-}
+
 type Status = "pause" | "active" | "completed"

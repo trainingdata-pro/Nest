@@ -3,7 +3,7 @@ import React from "react";
 import {createColumnHelper} from "@tanstack/react-table";
 import {IBlackList} from "../../models/AssessorResponse";
 import BlackListEdit from "./BlackListEdit";
-import Sorting from "../FreeResource/FreeResorces/sorting";
+import Sorting from "../../utils/sorting";
 
 
 export const useBlacklistColumns = () => {
@@ -40,7 +40,7 @@ export const useBlacklistColumns = () => {
         }),
         columnHelper.accessor('assessor.username', {
             header: 'Ник в ТГ',
-            cell: info => <a className={'text-[#102ede]'} href={`https://t.me/${info.getValue()}`}>{info.getValue()}</a>,
+            cell: info => <a className={'text-[#102ede]'} href={`https://t.me/${info.getValue()}`} target='_blank'>{info.getValue()}</a>,
             enableSorting: false
         }),
         columnHelper.accessor('last_manager', {
@@ -61,7 +61,8 @@ export const useBlacklistColumns = () => {
         columnHelper.accessor('id', {
             header: '',
             cell: info => <BlackListEdit assessor={info.row.original}/>,
-            enableSorting: false
+            enableSorting: false,
+            maxSize:50
         })]
 
     return {columns, sorting, getSortingString}

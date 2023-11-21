@@ -77,6 +77,7 @@ export const useFetchProject = ({projectId, setValue, setSelectedManagers, setCu
 }) => {
     return useQuery(['currentProject', projectId], ({queryKey}) => ProjectService.fetchProject(queryKey[1]), {
         enabled: projectId !== 0,
+        refetchOnWindowFocus:false,
         onSuccess: (data) => {
             setValue('name', data.name)
             setValue('manager', data.manager.map(manager => manager.id))

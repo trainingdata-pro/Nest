@@ -1,10 +1,8 @@
 import FreeResourceEdit from "./FreeResourceEdit";
 import {createColumnHelper} from "@tanstack/react-table";
 import {FreeAssessor} from "./FreeResource";
-import {NavLink} from "react-router-dom";
-import React, {useState} from "react";
-import Sorting from "./sorting";
-import TableCheckBox from "../../UI/TableCheckBox";
+import React from "react";
+import Sorting from "../../../utils/sorting";
 
 export const useFreeResourcesSorting = () => {
     const [sorting, setSorting] = React.useState({
@@ -22,23 +20,8 @@ export const useFreeResourcesSorting = () => {
             return sorting[key]
         }).join(',')
     }
-    // const [selectedRows, setSelectedRows] = useState<number[]>([])
     const columnHelper = createColumnHelper<FreeAssessor>()
     const columns = [
-        // columnHelper.accessor('id', {
-        //     header: ({table}) => (
-        //         <div className="px-1">
-        //             <TableCheckBox selectedRows={selectedRows} setSelectedRows={setSelectedRows} table={table} value={table.getPreFilteredRowModel().rows.map(row => row.original.id)}/>
-        //         </div>
-        //     ),
-        //     cell: ({row}) => (
-        //         <div className="px-1">
-        //             <TableCheckBox selectedRows={selectedRows} setSelectedRows={setSelectedRows} table={undefined} value={row.original.id}/>
-        //         </div>
-        //     ),
-        //     enableSorting: false,
-        //     maxSize: 30
-        // }),
         columnHelper.accessor('last_name', {
             header: 'Фамилия',
             cell: info => info.getValue(),
@@ -56,7 +39,7 @@ export const useFreeResourcesSorting = () => {
         }),
         columnHelper.accessor('username', {
             header: () => 'Ник в ТГ',
-            cell: info => <a className={'text-[#102ede]'} href={`https://t.me/${info.getValue()}`}>{info.getValue()}</a>,
+            cell: info => <a className={'text-[#102ede]'} target='_blank' href={`https://t.me/${info.getValue()}`}>{info.getValue()}</a>,
             enableSorting: false
         }),
         columnHelper.accessor('manager', {
@@ -76,12 +59,12 @@ export const useFreeResourcesSorting = () => {
             enableSorting: false
         }),
         columnHelper.accessor('free_resource_weekday_hours', {
-            header: 'Кол-во рабочих часов(Будние)',
+            header: 'Кол-во рабочих часов (будние)',
             cell: info => info.renderValue(),
             enableSorting: false
         }),
         columnHelper.accessor('free_resource_day_off_hours', {
-            header: 'Кол-во рабочих часов(выходные)',
+            header: 'Кол-во рабочих часов (выходные)',
             cell: info => info.renderValue(),
             enableSorting: false
         }),

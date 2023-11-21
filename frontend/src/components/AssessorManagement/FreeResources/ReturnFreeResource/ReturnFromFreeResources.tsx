@@ -4,9 +4,7 @@ import {useReturnFromFreeResources} from "./queries";
 
 const ReturnFromFreeResources = ({assessorId, show}:{assessorId:string|number, show:any}) => {
     const {mutate} = useReturnFromFreeResources({assessorId, show})
-    const submit = () => {
-        mutate()
-    }
+    
     return (
         <div className='px-4'>
             <div className='border-b border-black w-full'>
@@ -17,7 +15,7 @@ const ReturnFromFreeResources = ({assessorId, show}:{assessorId:string|number, s
             </div>
             <div className='flex justify-between space-x-2'>
                 <MyButton className='min-w-[120px]' onClick={() => show(false)}>Назад</MyButton>
-                <MyButton className='min-w-[120px]' onClick={submit}>Применить</MyButton>
+                <MyButton className='min-w-[120px]' onClick={() => mutate()}>Применить</MyButton>
             </div>
         </div>
     );

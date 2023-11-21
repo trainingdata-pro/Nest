@@ -1,4 +1,3 @@
-import {AxiosResponse} from "axios";
 import $api from "../http";
 import {
     Assessor,
@@ -13,8 +12,8 @@ import {
     WorkloadStatusResponse
 } from "../models/AssessorResponse";
 import {Project} from "../models/ProjectResponse";
-import {Manager} from "./ManagerService";
 import {IUser} from "../models/ManagerResponse";
+import {AddToFreeResourceProps} from "../components/AssessorManagement/FreeResources/SetFreeResource/queries";
 
 export type ILoginAndPassword = {
     id: number,
@@ -78,15 +77,10 @@ export default class AssessorService{
     static createWorkingHours(data: any ){
         return $api.post(`/api/working_hours/`, data)
     }
-    static addToFreeResource = (assessorId:number| string | undefined, data:any) => $api.patch(`/api/assessors/${assessorId}/free_resource/`, {
-        free_resource: data.free_resource,
-        reason: data.reason,
-        free_resource_weekday_hours: data.free_resource_weekday_hours,
-        free_resource_day_off_hours: data.free_resource_day_off_hours
-    }).then((res) => res.data)
+    static addToFreeResource = (assessorId:number| string | undefined, data: AddToFreeResourceProps) => $api.patch(`/api/assessors/${assessorId}/free_resource/`, data).then((res) => res.data)
     static fetchFreeResource = (page = 1, ordering: string, nameFilter:string,skillsFilter:string, pageLimit: number = 10) => $api.get<IFreeResourcesResponse>(`/api/free_resources/?page=${page}&page_size=${pageLimit}&ordering=${ordering}&name=${nameFilter}&skills=${skillsFilter}`).then(res => res.data)
     static patchVacation = (assessorId: string | number |undefined, data: any) => $api.patch(`/api/assessors/${assessorId}/vacation/`, data).then(res => res.data)
-    static fetchReasons = () => $api.get<IReasonResponse>('/api/reasons/').then(res => res.data)
+    static fetchReasons = () => $api.get<IReasonResponse>('/api/reasons/?page_size=all').then(res => res.data)
     static addAssessorToFired = (id: string| number| undefined, data: any) => $api.patch(`/api/assessors/${id}/fire/`, data).then(res => res.data)
     static fetchFired = (page = 1,ordering: string, nameFilter:string,skillsFilter:string, pageLimit: number = 10) => $api.get<IFiredResponse>(`/api/fired/?page=${page}&page_size=${pageLimit}&ordering=${ordering}&name=${nameFilter}&skills=${skillsFilter}`).then(res => res.data)
     static takeFromFreeResource = (assessorId: string | number, data: any) => $api.patch(`/api/free_resources/${assessorId}/`, data).then(res => res.data)

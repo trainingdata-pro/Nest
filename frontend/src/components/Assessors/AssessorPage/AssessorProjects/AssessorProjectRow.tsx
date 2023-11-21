@@ -1,14 +1,25 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {CheckIcon, PencilSquareIcon} from "@heroicons/react/24/outline";
-import {IAssessorProjects, PatchWorkingHours, WorkingHours} from "../../../models/AssessorResponse";
+import {IAssessorProjects, PatchWorkingHours, WorkingHours} from "../../../../models/AssessorResponse";
 import {useForm} from "react-hook-form";
-import Select, {SingleValue} from "react-select";
-import AssessorService from "../../../services/AssessorService";
-import {Context} from "../../../index";
+import Select from "react-select";
+import AssessorService from "../../../../services/AssessorService";
+import {Context} from "../../../../index";
 import {useMutation, useQuery, useQueryClient} from "react-query";
-import {Project} from "../../../models/ProjectResponse";
-import {successNotification} from "../../UI/Notify";
+import {errorNotification, successNotification} from "../../../UI/Notify";
+import {AxiosError} from "axios";
 
+
+const Errors = {
+    monday: 'Понедельник',
+    tuesday: 'Вторник',
+    wednesday: 'Среда',
+    thursday: 'Честверг',
+    friday: 'Пятница',
+    saturday: 'Суббота',
+    sunday: 'Воскресенье',
+    status: 'Статус'
+}
 type ProjectsProps = {
     workloadStatus: string,
     workingHours: WorkingHours
@@ -56,6 +67,13 @@ const AssessorProjectRow = ({project, assessorId}: {
         onSuccess: () => {
             queryClient.invalidateQueries('workloadStatus')
             successNotification('Статус загрузки обновлен')
+        },
+        onError: (error: AxiosError) => {
+            const errors = error.response?.data ? error.response?.data : {}
+            const keys = Object.keys(errors)
+            // @ts-ignore
+            const notify = <div>{keys.map(key => <p key={key}>{`${Errors[key]}: ${errors[key][0]}`}</p>)}</div>
+            errorNotification(notify)
         }
     })
     const patchWorkloadStatus = useMutation(['workloadStatus', project.id, assessorId], ({id, data}: {
@@ -65,12 +83,27 @@ const AssessorProjectRow = ({project, assessorId}: {
         onSuccess: () => {
             queryClient.invalidateQueries('workloadStatus')
             successNotification('Статус загрузки обновлен')
+        },
+        onError: (error: AxiosError) => {
+            const errors = error.response?.data ? error.response?.data : {}
+            const keys = Object.keys(errors)
+            // @ts-ignore
+            const notify = <div>{keys.map(key => <p key={key}>{`${Errors[key]}: ${errors[key][0]}`}</p>)}</div>
+            errorNotification(notify)
         }
     })
     const postWorkingHours = useMutation(['workingHours'], (data: WorkingHours) => AssessorService.createWorkingHours(data), {
         onSuccess: () => {
             queryClient.invalidateQueries('workingHours')
             successNotification('Рабочие часы обновлены')
+        },
+        onError: (error: AxiosError) => {
+            const errors = error.response?.data ? error.response?.data : {}
+            const keys = Object.keys(errors)
+            // @ts-ignore
+            const notify = <div>{keys.map(key => <p key={key}>{`${Errors[key]}: ${errors[key][0]}`}</p>)}</div>
+            errorNotification(notify)
+            setIsDisabled(true)
         }
     })
     const patchWorkingHours = useMutation(['workingHours'], ({id, data}: {
@@ -80,6 +113,14 @@ const AssessorProjectRow = ({project, assessorId}: {
         onSuccess: () => {
             queryClient.invalidateQueries('workingHours')
             successNotification('Рабочие часы обновлены')
+            setIsDisabled(true)
+        },
+        onError: (error: AxiosError) => {
+            const errors = error.response?.data ? error.response?.data : {}
+            const keys = Object.keys(errors)
+            // @ts-ignore
+            const notify = <div>{keys.map(key => <p key={key}>{`${Errors[key]}: ${errors[key][0]}`}</p>)}</div>
+            errorNotification(notify)
         }
     })
 
@@ -87,31 +128,35 @@ const AssessorProjectRow = ({project, assessorId}: {
         if (isDisabled) {
             setIsDisabled(false)
         } else {
-            if (workloadStatus.isSuccess && workloadStatus.data.results.length !== 0 && !!getValues('workloadStatus')) {
-                patchWorkloadStatus.mutate({
-                    id: workloadStatus.data.results[0].id,
-                    data: {status: getValues('workloadStatus')}
-                })
-            } else {
-                postWorkloadStatus.mutate({
-                    "assessor": assessorId,
-                    "project": project.id,
-                    "status": getValues('workloadStatus')
-                })
+            if (getValues('workloadStatus')) {
+                if (workloadStatus.isSuccess && workloadStatus.data.results.length !== 0 && !!getValues('workloadStatus')) {
+                    patchWorkloadStatus.mutate({
+                        id: workloadStatus.data.results[0].id,
+                        data: {status: getValues('workloadStatus')}
+                    })
+                } else {
+                    postWorkloadStatus.mutate({
+                        "assessor": assessorId,
+                        "project": project.id,
+                        "status": getValues('workloadStatus')
+                    })
+                }
             }
+
             if (workingHours.isSuccess && workingHours.data.results.length !== 0) {
                 const data: WorkingHours = getValues('workingHours')
                 const {id, assessor, total, project, ...rest} = data
 
                 patchWorkingHours.mutate({id: id, data: rest})
             } else {
+
                 let wHours: any = getValues('workingHours')
                 wHours = {...wHours, project: project.id}
                 wHours = {...wHours, assessor: assessorId}
                 postWorkingHours.mutate({...wHours})
 
             }
-            setIsDisabled(true)
+
         }
     }
 
@@ -124,6 +169,7 @@ const AssessorProjectRow = ({project, assessorId}: {
             <td className={tdClassName + ' w-[266px]'}>
                 <Select
                     options={status}
+                    placeholder='Статус'
                     {...register('workloadStatus')}
                     isSearchable={false}
                     value={getStatusValue()}
