@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from .models import BaseUser, ManagerProfile
 
 
+@admin.register(BaseUser)
 class BaseUserAdmin(UserAdmin):
     model = BaseUser
     add_form = UserCreationForm
@@ -71,7 +72,16 @@ class BaseUserAdmin(UserAdmin):
     ]
 
 
+@admin.register(ManagerProfile)
 class ManagerProfileAdmin(admin.ModelAdmin):
+    search_help_text = 'Введите username, email или ФИО пользователя'
+    search_fields = [
+        'user__username',
+        'user__email',
+        'user__last_name',
+        'user__first_name',
+        'user__middle_name'
+    ]
     list_display = [
         'pk',
         'user',
@@ -83,5 +93,3 @@ class ManagerProfileAdmin(admin.ModelAdmin):
 
 
 admin.site.unregister(Group)
-admin.site.register(BaseUser, BaseUserAdmin)
-admin.site.register(ManagerProfile, ManagerProfileAdmin)

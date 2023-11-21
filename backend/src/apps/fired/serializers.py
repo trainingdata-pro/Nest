@@ -88,14 +88,19 @@ class FireAssessorSerializer(GetUserMixin, serializers.Serializer):
                 assessor=assessor,
                 reason=reason
             )
+            to_blacklist = True
         else:
             fired_service.fire(
                 assessor=assessor,
                 reason=reason,
                 possible_return_date=possible_return_date
             )
+            to_blacklist = False
 
-        assessors_service.fire(assessor)
+        assessors_service.fire(
+            instance=assessor,
+            to_blacklist=to_blacklist
+        )
         history.updated_assessor_history(
             old_assessor=self.instance_before_update,
             new_assessor=assessor,

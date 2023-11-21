@@ -6,6 +6,7 @@ from drf_yasg.utils import swagger_auto_schema
 
 @dataclass
 class BaseAPISchema:
+    """ Base API schema class """
     tags: List
 
     def __post_init__(self):

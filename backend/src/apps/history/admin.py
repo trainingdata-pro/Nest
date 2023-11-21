@@ -3,6 +3,7 @@ from django.contrib import admin
 from .models import History
 
 
+@admin.register(History)
 class HistoryAdmin(admin.ModelAdmin):
     search_help_text = 'Введите ФИО или username исполнителя'
     search_fields = [
@@ -26,6 +27,3 @@ class HistoryAdmin(admin.ModelAdmin):
     list_filter = ['action', 'user']
     readonly_fields = ['timestamp']
     date_hierarchy = 'timestamp'
-
-
-admin.site.register(History, HistoryAdmin)

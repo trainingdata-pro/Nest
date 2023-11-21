@@ -92,17 +92,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'postgres'),
-        'USER': os.getenv('POSTGRES_USER', 'postgres'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
-        'HOST': os.getenv('POSTGRES_HOST', 'postgres'),
-        'PORT': os.getenv('POSTGRES_PORT', 5432),
-    }
-}
-
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -207,8 +196,19 @@ SWAGGER_SETTINGS = {
 }
 
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379')
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'master_name': os.environ.get('MASTER_NAME'),
+    'visibility_timeout': 3600
+}
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379')
+CELERY_RESULT_BACKEND_TRANSPORT_OPTIONS = {
+    'master_name': os.environ.get('MASTER_NAME'),
+    'visibility_timeout': 3600
+}
 CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
 
 logging_dir = 'logging'
 logging_dir_path = os.path.join(BASE_DIR.parent, logging_dir)

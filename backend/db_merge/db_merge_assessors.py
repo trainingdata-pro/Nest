@@ -19,7 +19,7 @@ from apps.assessors.models import AssessorState, FreeResourceHours
 from apps.projects.models import Project, ProjectStatuses
 from apps.projects.services import project_service
 from apps.fired.models import Reason
-from apps.fired.services import blacklist_service
+from apps.fired.services import blacklist_service, fired_service
 from apps.users.models import BaseUser
 from apps.history.services import history
 
@@ -141,6 +141,7 @@ try:
 
         else:
             bl_reason = Reason.objects.filter(blacklist_reason=True).first()
+            f_reason = Reason.objects.get(blacklist_reason=False, title__iexact='нет времени')
             m_username = assessor_data['last_manager'] if blacklist else None
             try:
                 manager = BaseUser.objects.get(username=m_username) if m_username else None
@@ -160,29 +161,43 @@ try:
                 assessor=assessor,
                 user='-'
             )
+
+            instance_before_update = copy(assessor)
             if is_free_resource:
-                instance_before_update = copy(assessor)
-                assessor = assessors_service.unpin(assessor)
-                history.updated_assessor_history(
-                    old_assessor=instance_before_update,
-                    new_assessor=assessor,
-                    user='-',
-                    reason=None
+                fired_service.fire(
+                    assessor=assessor,
+                    reason=f_reason
                 )
+                state_reason = f_reason.title
+                unpin_reason = None
+                to_blacklist = False
             elif blacklist:
-                instance_before_update = copy(assessor)
                 blacklist_service.blacklist(
                     assessor=assessor,
                     reason=bl_reason
                 )
-                assessors_service.fire(assessor)
-                history.updated_assessor_history(
-                    old_assessor=instance_before_update,
-                    new_assessor=assessor,
-                    user='-',
-                    unpin_reason=bl_reason.title,
-                    use_none_action_for_state=True
+                unpin_reason = bl_reason.title
+                state_reason = None
+                to_blacklist = True
+            else:
+                print(f'Мертвая душа: [{username}]')
+                fired_service.fire(
+                    assessor=assessor,
+                    reason=f_reason
                 )
+                state_reason = f_reason.title
+                unpin_reason = None
+                to_blacklist = False
+
+            assessors_service.fire(assessor, to_blacklist=to_blacklist)
+            history.updated_assessor_history(
+                old_assessor=instance_before_update,
+                new_assessor=assessor,
+                user='-',
+                state_reason=state_reason,
+                unpin_reason=unpin_reason,
+                use_none_action_for_state=True
+            )
 except Exception as ex:
     print(ex)
 
