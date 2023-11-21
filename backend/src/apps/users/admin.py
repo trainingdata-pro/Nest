@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from .models import BaseUser, ManagerProfile
 
 
+@admin.register(BaseUser)
 class BaseUserAdmin(UserAdmin):
     model = BaseUser
     add_form = UserCreationForm
@@ -71,6 +72,7 @@ class BaseUserAdmin(UserAdmin):
     ]
 
 
+@admin.register(ManagerProfile)
 class ManagerProfileAdmin(admin.ModelAdmin):
     list_display = [
         'pk',
@@ -83,5 +85,3 @@ class ManagerProfileAdmin(admin.ModelAdmin):
 
 
 admin.site.unregister(Group)
-admin.site.register(BaseUser, BaseUserAdmin)
-admin.site.register(ManagerProfile, ManagerProfileAdmin)

@@ -17,6 +17,7 @@ def allowed_types() -> List[str]:
 class ExportType:
     @classmethod
     def validate(cls, export_type: str) -> None:
+        """ Validate export type """
         if export_type.lower() not in allowed_types():
             raise ValidationError({'type': ['Invalid export type.']})
 
@@ -25,6 +26,7 @@ class CSVWriter(BaseWriterService):
     FORMAT = CSV_TYPE
 
     def write(self, data: List[List[Any]], filename: str) -> str:
+        """ Write data to a file """
         path_to_save = self.get_path_to_save(filename)
         with open(path_to_save, 'w') as file:
             writer = csv.writer(file)
@@ -36,6 +38,7 @@ class ExcelWriter(BaseWriterService):
     FORMAT = EXCEL_TYPE
 
     def write(self, data: List[List[Any]], filename: str) -> str:
+        """ Write data to a file """
         path_to_save = self.get_path_to_save(filename)
         df = pandas.DataFrame(data[1:], columns=data[0])
         df.to_excel(path_to_save, index=False)

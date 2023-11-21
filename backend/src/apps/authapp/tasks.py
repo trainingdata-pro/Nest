@@ -10,6 +10,7 @@ from .models import PasswordResetToken
 
 @app.task
 def send_confirmation_code(email: str, code: str) -> None:
+    """ Send user confirmation code """
     subject = 'Активация аккаунта'
     message = f'Для активации аккаунта, пожалуйста, перейдите по следующий ссылке:\n' \
               f'{settings.MAIN_HOST}/signup/confirmation/{code}'
@@ -23,6 +24,7 @@ def send_confirmation_code(email: str, code: str) -> None:
 
 @app.task
 def reset_password(email: str, token: UUID) -> None:
+    """ Send reset password link """
     subject = 'Сброс пароля'
     message = 'Для сброса пароля, пожалуйста, перейдите по следующей ссылке:\n' \
               f'{settings.MAIN_HOST}/password/reset/{token}'
@@ -36,5 +38,6 @@ def reset_password(email: str, token: UUID) -> None:
 
 @app.task
 def remove_old_tokens() -> None:
+    """ Check and remove all old reset password tokens """
     date = django.utils.timezone.now() - django.utils.timezone.timedelta(days=7)
     PasswordResetToken.objects.filter(expiration_time__lt=date).delete()

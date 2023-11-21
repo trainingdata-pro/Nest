@@ -17,6 +17,10 @@ class ProjectExport(BaseExportService):
     file_prefix = 'projects'
 
     def export(self, team: List[int]) -> str:
+        """
+        Export data.
+        Returns path to the data file
+        """
         writer = self.get_writer()
         values = self.get_values(team)
         data = self.parse(values)
@@ -25,18 +29,24 @@ class ProjectExport(BaseExportService):
         return path_to_file
 
     def get_values(self, team: List[int]) -> QuerySet[Project]:
+        """
+        Returns all completed projects for a specific team.
+        :param team: List of manager IDs
+        """
         return self.model.objects.filter(
             status=ProjectStatuses.COMPLETED,
             manager__in=team
         ).prefetch_related('manager', 'tag')
 
     def get_headers(self) -> List[str]:
+        """ Returns a list of report headers """
         headers = super().get_headers()
         headers.insert(3, 'менеджеры')
         headers.insert(10, 'тег')
         return headers
 
     def parse(self, queryset: QuerySet[Project]) -> List[List[Any]]:
+        """ Parse objects and collect data for the report """
         data = [self.get_headers()]
         for project in queryset:
             managers_str = self.m2m_to_str(
@@ -75,6 +85,10 @@ class AssessorsForProjectExport(BaseExportService):
     file_prefix = 'assessors'
 
     def export(self, project_id: int) -> str:
+        """
+        Export data.
+        Returns path to the data file
+        """
         writer = self.get_writer()
         values = self.get_values(project_id)
         data = self.parse(values)
@@ -83,6 +97,10 @@ class AssessorsForProjectExport(BaseExportService):
         return path_to_file
 
     def get_values(self, project_id: int) -> QuerySet[Assessor]:
+        """
+        Returns all assessor objects
+        for a specific project
+        """
         project = Project.objects.filter(id=project_id)
         if project.exists():
             return (self.model.objects
@@ -92,12 +110,14 @@ class AssessorsForProjectExport(BaseExportService):
         return Assessor.objects.none()
 
     def get_headers(self) -> List[str]:
+        """ Returns a list of report headers """
         headers = super().get_headers()
         headers.insert(8, 'навыки')
         headers.insert(14, 'доп. менеджеры')
         return headers
 
     def parse(self, queryset: QuerySet[Assessor]) -> List[List[Any]]:
+        """ Parse objects and collect data for the report """
         data = [self.get_headers()]
         for assessor in queryset:
             skills_str = self.m2m_to_str(
@@ -130,4 +150,5 @@ class AssessorsForProjectExport(BaseExportService):
 
     @staticmethod
     def second_managers_to_str(values: List[str]) -> str:
+        """ Convert list of strings to ";" separated string"""
         return '; '.join(values)

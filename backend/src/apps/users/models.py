@@ -97,7 +97,10 @@ class BaseUser(AbstractUser):
 
     @property
     def full_name(self) -> str:
-        return f'{self.last_name} {self.first_name} {self.middle_name}'
+        name = f'{self.last_name} {self.first_name}'
+        if self.middle_name:
+            name += f' {self.middle_name}'
+        return name
 
     @property
     def manager_profile(self) -> Union['ManagerProfile', None]:

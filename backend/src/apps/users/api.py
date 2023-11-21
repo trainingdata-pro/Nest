@@ -18,6 +18,7 @@ from . import serializers, schemas
 @method_decorator(name='create', decorator=schemas.user_schema.create())
 @method_decorator(name='partial_update', decorator=schemas.user_schema.partial_update())
 class UserAPIViewSet(BaseAPIViewSet):
+    """ The main view to interact with user object """
     queryset = get_user_model().objects.all()
     permission_classes = {
         'create': (AllowAny,),
@@ -43,12 +44,9 @@ class UserAPIViewSet(BaseAPIViewSet):
         response = serializers.UserSerializer(user)
         return Response(response.data, status=status.HTTP_201_CREATED)
 
-    def update(self, request: Request, *args, **kwargs) -> Response:
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        response = serializers.UserSerializer(user)
+    def partial_update(self, request: Request, *args, **kwargs) -> Response:
+        obj = self.update_obj(request)
+        response = serializers.UserSerializer(obj)
         return Response(response.data, status=status.HTTP_200_OK)
 
 
@@ -56,6 +54,7 @@ class UserAPIViewSet(BaseAPIViewSet):
 @method_decorator(name='list', decorator=schemas.manager_profile_schema.list())
 @method_decorator(name='partial_update', decorator=schemas.manager_profile_schema.partial_update())
 class ManagerAPIViewSet(BaseAPIViewSet):
+    """ The main view to interact with manager profile object """
     queryset = ManagerProfile.objects.all().select_related('user')
     serializer_class = {
         'retrieve': serializers.ManagerProfileSerializer,
@@ -75,10 +74,7 @@ class ManagerAPIViewSet(BaseAPIViewSet):
     filterset_class = ManagerProfileFilter
     ordering_fields = ['pk']
 
-    def update(self, request: Request, *args, **kwargs) -> Response:
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        response = serializers.ManagerProfileSerializer(user)
+    def partial_update(self, request: Request, *args, **kwargs) -> Response:
+        obj = self.update_obj(request)
+        response = serializers.ManagerProfileSerializer(obj)
         return Response(response.data, status=status.HTTP_200_OK)

@@ -19,6 +19,7 @@ DEFAULT_ERROR_MESSAGES = {
 
 
 def _update_user_payload(user) -> Dict:
+    """ Update token payload """
     payload = {
         'email': user.email,
         'username': user.username,
@@ -41,6 +42,11 @@ def _update_user_payload(user) -> Dict:
 
 
 def get_updated_payload(user=None, refresh_token: RefreshToken = None) -> Dict:
+    """
+    Returns a payload with up-to-date information about the user,
+    because the token stores user data in string form and does not
+    track changes to changes in user attributes
+    """
     if user is not None:
         payload = _update_user_payload(user)
     else:
@@ -68,6 +74,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     default_error_messages = DEFAULT_ERROR_MESSAGES
 
     def check_is_active(self, attrs: Dict) -> None:
+        """ Check if current user is active """
         email = attrs.get(self.username_field)
         user_model = get_user_model()
         user = user_model.objects.filter(email=email, is_active=False).first()

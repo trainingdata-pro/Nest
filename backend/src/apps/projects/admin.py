@@ -3,12 +3,14 @@ from django.contrib import admin
 from .models import ProjectTag, Project, ProjectWorkingHours, WorkLoadStatus
 
 
+@admin.register(ProjectTag)
 class ProjectTagAdmin(admin.ModelAdmin):
     list_display = ['pk', 'name']
     list_display_links = ['name']
     ordering = ['name']
 
 
+@admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     search_fields = ['name']
     search_help_text = 'Введите название проекта'
@@ -29,6 +31,7 @@ class ProjectAdmin(admin.ModelAdmin):
         return Project.objects.all().prefetch_related('manager')
 
 
+@admin.register(ProjectWorkingHours)
 class ProjectWorkingHoursAdmin(admin.ModelAdmin):
     list_display = [
         'pk',
@@ -45,6 +48,7 @@ class ProjectWorkingHoursAdmin(admin.ModelAdmin):
     ]
 
 
+@admin.register(WorkLoadStatus)
 class WorkLoadStatusAdmin(admin.ModelAdmin):
     list_display = [
         'pk',
@@ -52,9 +56,3 @@ class WorkLoadStatusAdmin(admin.ModelAdmin):
         'project',
         'status'
     ]
-
-
-admin.site.register(ProjectTag, ProjectTagAdmin)
-admin.site.register(Project, ProjectAdmin)
-admin.site.register(ProjectWorkingHours, ProjectWorkingHoursAdmin)
-admin.site.register(WorkLoadStatus, WorkLoadStatusAdmin)

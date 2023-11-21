@@ -17,6 +17,10 @@ def remove_project_related_objects(
         model: Project,
         pk_set: Set,
         **kwargs) -> None:
+    """
+    Remove project working hours and workload status objects
+    when an assessor is removed from a project
+    """
     if action == 'post_remove':
         if not reverse:
             instance.project_working_hours.filter(project_id__in=pk_set).delete()

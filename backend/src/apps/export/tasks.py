@@ -9,6 +9,7 @@ from core.utils import current_date
 
 @app.task
 def remove_old_files():
+    """ Check and remove old reports """
     today = current_date()
     for file in os.listdir(settings.MEDIA_ROOT):
         path_to_file = os.path.join(settings.MEDIA_ROOT, file)
