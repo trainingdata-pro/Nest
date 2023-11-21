@@ -1,7 +1,7 @@
 import axios from "axios";
 import Cookies from "universal-cookie";
 
-export const API_URL = process.env.NODE_ENV !== 'development' ? 'https://assessors-test.trainingdata.solutions' : 'http://localhost:8000'
+export const API_URL = process.env.NODE_ENV !== 'development' ? 'https://nest.trainingdata.solutions' : 'http://localhost:8000'
 
 const $api = axios.create({
     withCredentials: true,
