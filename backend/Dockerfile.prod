@@ -23,8 +23,12 @@ RUN poetry config virtualenvs.create false
 RUN poetry install --no-dev
 
 # set ownership and permissions
-RUN chown -R nest:nest $APP_HOME
-RUN chmod -R 777 $APP_HOME
+RUN chown -hR nest:nest $APP_HOME
+RUN chmod -R 770 $APP_HOME
+RUN mkdir /home/nest/.postgresql
+
+COPY yandex.ca.crt /home/nest/.postgresql/root.crt
+
 
 # switch to the app user
 USER nest
