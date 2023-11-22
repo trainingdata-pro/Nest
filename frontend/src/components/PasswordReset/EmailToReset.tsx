@@ -13,7 +13,7 @@ const EmailToReset = ({setIsOpen}:{
     const onSubmit = async () => {
         setIsLoading(true)
             AuthService.sendResetEmail(getValues('email')).then(() => {
-                successNotification('Ссылка отправлена не почту')
+                successNotification('Ссылка отправлена на почту')
                 setIsOpen(false)
             }).catch(()=> {
                 errorNotification('Произошла ошибка. Обратитесь к администратору')
