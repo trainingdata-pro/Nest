@@ -15,6 +15,5 @@ COPY ./pyproject.toml ./poetry.lock ./
 
 RUN poetry install
 
-COPY ./src ./src
-COPY ./db_merge ./db_merge
+COPY . .
 WORKDIR /backend/src
