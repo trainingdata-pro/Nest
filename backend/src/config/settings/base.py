@@ -209,7 +209,6 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
-
 logging_dir = 'logging'
 logging_dir_path = os.path.join(BASE_DIR.parent, logging_dir)
 
