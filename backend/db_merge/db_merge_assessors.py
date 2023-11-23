@@ -83,6 +83,7 @@ try:
 
                     project_obj = Project.objects.filter(name=pr_name)
                     if not project_obj.exists():
+                        print(f'NEW PROJECT: {pr_name}')
                         pr = project_service.create_project(
                             asana_id='default',
                             name=pr_name,
