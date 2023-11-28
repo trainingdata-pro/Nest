@@ -1,15 +1,12 @@
-import json
 import os
 import sys
-
-from tqdm import tqdm
 
 sys.path.append('../')
 sys.path.append('../src')
 
 import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'src.config.settings.dev')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'src.config.settings.prod')
 
 django.setup()
 
