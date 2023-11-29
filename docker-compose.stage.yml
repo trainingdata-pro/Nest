@@ -39,7 +39,9 @@ services:
 
   celery:
     container_name: celery-nest-stage
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
     env_file:
       - ./backend/.env
     environment:
@@ -54,7 +56,9 @@ services:
 
   celery-beat:
     container_name: celery-beat-nest-stage
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
     env_file:
       - ./backend/.env
     environment:
