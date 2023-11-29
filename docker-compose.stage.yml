@@ -3,7 +3,7 @@ services:
     container_name: backend-nest-stage
     build:
       context: ./backend
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.stage
     environment:
       - APP_CONFIG=stage
     command: bash -c "python manage.py migrate --noinput && gunicorn config.wsgi:application -c ../gunicorn.conf.py --bind 0.0.0.0:8000"
@@ -41,7 +41,7 @@ services:
     container_name: celery-nest-stage
     build:
       context: ./backend
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.stage
     env_file:
       - ./backend/.env
     environment:
@@ -58,7 +58,7 @@ services:
     container_name: celery-beat-nest-stage
     build:
       context: ./backend
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.stage
     env_file:
       - ./backend/.env
     environment:
