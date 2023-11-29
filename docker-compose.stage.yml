@@ -82,5 +82,12 @@ services:
     networks:
       - default_network
 
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+    command: certbot certonly --webroot --webroot-path /var/www/certbot/ -d assessors-test.trainingdata.solutions -m d.bandysik@trainingdta.pro -n --agree-tos
+
 networks:
   default_network:
