@@ -25,8 +25,8 @@ services:
       - ./backend/.env
     command: bash -c "celery -A config.celery worker --loglevel=info --logfile=../logging/celery.log"
     volumes:
-      - ./media:/backend/src/media
-      - ./backend/logging:/backend/logging
+      - ./media:/home/nest/backend/src/media
+      - ./backend/logging:/home/nest/backend/logging
     networks:
       - default_network
 
@@ -39,8 +39,8 @@ services:
       - ./backend/.env
     command: bash -c "celery -A config.celery beat --loglevel=info --logfile=../logging/celery-beat.log"
     volumes:
-      - ./media:/backend/src/media
-      - ./backend/logging:/backend/logging
+      - ./media:/home/nest/backend/src/media
+      - ./backend/logging:/home/nest/backend/logging
     networks:
       - default_network
 
