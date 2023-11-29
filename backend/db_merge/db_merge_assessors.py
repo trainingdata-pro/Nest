@@ -142,7 +142,7 @@ try:
 
         else:
             bl_reason = Reason.objects.filter(blacklist_reason=True).first()
-            f_reason = Reason.objects.get(blacklist_reason=False, title__iexact='нет времени')
+            f_reason = Reason.objects.get(blacklist_reason=False, title__iexact='Нет времени')
             m_username = assessor_data['last_manager'] if blacklist else None
             try:
                 manager = BaseUser.objects.get(username=m_username) if m_username else None

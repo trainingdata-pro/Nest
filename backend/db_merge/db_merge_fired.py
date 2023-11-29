@@ -107,7 +107,7 @@ def collect_data():
 
 
 def merge_db():
-    reason = Reason.objects.get(title__iexact='нет времени')
+    reason = Reason.objects.get(title__iexact='Нет времени')
 
     with open('fired.json') as file:
         data = json.load(file)

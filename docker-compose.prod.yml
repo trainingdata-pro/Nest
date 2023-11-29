@@ -52,6 +52,7 @@ services:
       - 80:80
       - 443:443
     volumes:
+#      - ./frontend/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certbot/conf:/etc/nginx/cert
       - ./static:/home/nest/backend/src/static
     networks:
@@ -64,6 +65,7 @@ services:
     volumes:
       - ./certbot/www/:/var/www/certbot/:rw
       - ./certbot/conf/:/etc/letsencrypt/:rw
+    command: certbot certonly --webroot --webroot-path /var/www/certbot/ -d nest.trainingdata.solutions -m s.savastyanov@trainingdta.pro -n --agree-tos
 
 networks:
   default_network:
