@@ -78,7 +78,8 @@ services:
       - 80:80
       - 443:443
     volumes:
-       - ./static:/home/nest/backend/src/static
+      - ./certbot/conf:/etc/nginx/cert
+      - ./static:/home/nest/backend/src/static
     networks:
       - default_network
 
