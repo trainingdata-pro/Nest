@@ -1,9 +1,11 @@
 services:
   backend:
-    container_name: backend
+    container_name: backend-nest-stage
     build:
       context: ./backend
       dockerfile: Dockerfile.prod
+    environment:
+      - APP_CONFIG=prod
     command: bash -c "python manage.py migrate --noinput && gunicorn config.wsgi:application -c ../gunicorn.conf.py --bind 0.0.0.0:8000"
     volumes:
       - static_volume:/home/assessors/backend/src/static
@@ -19,7 +21,7 @@ services:
       - celery
 
   postgres:
-    container_name: postgres
+    container_name: postgres-nest-stage
     image: postgres:14-alpine3.18
     env_file:
       - ./backend/.env
@@ -29,7 +31,7 @@ services:
       - default_network
 
   redis:
-    container_name: redis
+    container_name: redis-nest-stage
     image: redis
     volumes:
       - redis_data:/var/lib/redis
@@ -37,34 +39,38 @@ services:
       - default_network
 
   celery:
-    container_name: celery
+    container_name: celery-nest-stage
     build: ./backend
     env_file:
       - ./backend/.env
+    environment:
+      - APP_CONFIG=prod
     command: bash -c "celery -A config.celery worker --loglevel=info --logfile=../logging/celery.log"
     volumes:
-      - media_volume:/backend/src/media
-      - ./backend/logging:/backend/logging
+      - media_volume:/home/assessors/backend/src/media
+      - ./backend/logging:/home/assessors/backend/logging
     depends_on:
       - redis
     networks:
       - default_network
 
   celery-beat:
-    container_name: celery-beat
+    container_name: celery-beat-nest-stage
     build: ./backend
     env_file:
       - ./backend/.env
+    environment:
+      - APP_CONFIG=prod
     command: bash -c "celery -A config.celery beat --loglevel=info --logfile=../logging/celery-beat.log"
     volumes:
-      - ./backend/logging:/backend/logging
+      - ./backend/logging:/home/assessors/backend/logging
     depends_on:
       - redis
     networks:
       - default_network
 
   frontend:
-    container_name: frontend
+    container_name: frontend-nest-stage
     build:
       context: ./frontend
       dockerfile: Dockerfile

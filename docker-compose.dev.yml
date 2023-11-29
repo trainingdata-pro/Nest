@@ -1,6 +1,6 @@
 services:
-  api:
-    container_name: api
+  backend:
+    container_name: backend-nest-dev
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -8,6 +8,8 @@ services:
       - "8000:8000"
     env_file:
       - './backend/.env'
+    environment:
+      - APP_CONFIG=dev
     command: bash -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend/src:/backend/src
@@ -21,7 +23,7 @@ services:
       - celery
 
   postgres:
-    container_name: postgres
+    container_name: postgres-nest-dev
     image: postgres:14-alpine3.18
     env_file:
       - './backend/.env'
@@ -33,7 +35,7 @@ services:
       - dev_network
 
   redis:
-    container_name: redis
+    container_name: redis-nest-dev
     image: redis
     volumes:
       - ./storage/redis-data:/var/lib/redis
@@ -41,11 +43,13 @@ services:
       - dev_network
 
   celery:
-    container_name: celery
+    container_name: celery-nest-dev
     build: ./backend
     env_file:
       - './backend/.env'
-    command: bash -c "celery -A config.celery worker --loglevel=info --logfile=../logging/celery.log"
+    environment:
+      - APP_CONFIG=dev
+    command: bash -c "celery -A config.celery worker --loglevel=info"
     depends_on:
       - redis
     volumes:
@@ -55,11 +59,13 @@ services:
       - dev_network
 
   celery-beat:
-    container_name: celery-beat
+    container_name: celery-beat-nest-dev
     build: ./backend
     env_file:
       - './backend/.env'
-    command: bash -c "celery -A config.celery beat --loglevel=info --logfile=../logging/celery-beat.log"
+    environment:
+      - APP_CONFIG=dev
+    command: bash -c "celery -A config.celery beat --loglevel=info"
     volumes:
       - ./backend/logging:/backend/logging
     networks:

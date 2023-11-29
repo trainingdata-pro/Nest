@@ -5,6 +5,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.prod
+    environment:
+      - APP_CONFIG=prod
     command: bash -c "python manage.py migrate --noinput && gunicorn config.wsgi:application -c ../gunicorn.conf.py --bind 0.0.0.0:8000"
     volumes:
       - ./static:/home/nest/backend/src/static
@@ -20,9 +22,10 @@ services:
     container_name: celery
     restart: always
     image: nest-backend:latest
-#    build: ./backend
     env_file:
       - ./backend/.env
+    environment:
+      - APP_CONFIG=prod
     command: bash -c "celery -A config.celery worker --loglevel=info --logfile=../logging/celery.log"
     volumes:
       - ./media:/home/nest/backend/src/media
@@ -33,10 +36,11 @@ services:
   celery-beat:
     container_name: celery-beat
     restart: always
-#    build: ./backend
     image: nest-backend:latest
     env_file:
       - ./backend/.env
+    environment:
+      - APP_CONFIG=prod
     command: bash -c "celery -A config.celery beat --loglevel=info --logfile=../logging/celery-beat.log"
     volumes:
       - ./media:/home/nest/backend/src/media

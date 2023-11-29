@@ -3,7 +3,8 @@ import os
 from celery import Celery
 from celery.schedules import crontab
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.prod')
+config = os.environ.get('APP_CONFIG', 'dev')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', f'config.settings.{config}')
 
 app = Celery('app', broker_cnnection_retry_on_startup=True)
 app.config_from_object('django.conf:settings', namespace='CELERY')
