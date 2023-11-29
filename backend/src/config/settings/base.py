@@ -195,12 +195,12 @@ SWAGGER_SETTINGS = {
     'OPERATIONS_SORTER': 'alpha'
 }
 
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379')
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379')
 CELERY_BROKER_TRANSPORT_OPTIONS = {
     'master_name': os.environ.get('MASTER_NAME'),
     'visibility_timeout': 3600
 }
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6379')
 CELERY_RESULT_BACKEND_TRANSPORT_OPTIONS = {
     'master_name': os.environ.get('MASTER_NAME'),
     'visibility_timeout': 3600
@@ -208,6 +208,7 @@ CELERY_RESULT_BACKEND_TRANSPORT_OPTIONS = {
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+# CELERY_REDIRECT_STDOUTS_LEVEL = os.environ.get('CELERY_LOG_LEVEL', 'WARNING')
 
 
 LOGGING = {
@@ -223,7 +224,7 @@ LOGGING = {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
             'formatter': 'standard'
-        },
+        }
     },
     'root': {
         'level': 'INFO',
@@ -232,6 +233,10 @@ LOGGING = {
     'loggers': {
         'django': {
             'level': 'INFO'
+        },
+        'celery': {
+            'handlers': ['console'],
+            'level': os.environ.get('CELERY_LOG_LEVEL'.upper(), 'INFO'),
         }
     }
 }

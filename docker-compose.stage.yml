@@ -44,7 +44,7 @@ services:
       - ./backend/.env
     environment:
       - APP_CONFIG=prod
-    command: bash -c "celery -A config.celery worker --loglevel=info"
+    command: bash -c "celery -A config.celery worker"
     volumes:
       - ./media:/home/nest/backend/src/media
     depends_on:
@@ -59,7 +59,7 @@ services:
       - ./backend/.env
     environment:
       - APP_CONFIG=prod
-    command: bash -c "celery -A config.celery beat --loglevel=info"
+    command: bash -c "celery -A config.celery beat"
     depends_on:
       - redis
     networks:

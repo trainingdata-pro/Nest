@@ -48,7 +48,7 @@ services:
       - './backend/.env'
     environment:
       - APP_CONFIG=dev
-    command: bash -c "celery -A config.celery worker --loglevel=info"
+    command: bash -c "celery -A config.celery worker"
     depends_on:
       - redis
     volumes:
@@ -63,7 +63,7 @@ services:
       - './backend/.env'
     environment:
       - APP_CONFIG=dev
-    command: bash -c "celery -A config.celery beat --loglevel=info"
+    command: bash -c "celery -A config.celery beat"
     networks:
       - dev_network
     depends_on:
