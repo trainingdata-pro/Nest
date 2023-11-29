@@ -14,7 +14,7 @@ app.conf.beat_schedule = {
         'task': 'apps.assessors.tasks.update_assessor_status',
         'schedule': crontab(hour='00', minute='00')
     },
-    'update_google_sheets_task': {
+    'update_sheets_task': {
         'task': 'apps.assessors.tasks.update_google_sheets_task',
         'schedule': crontab(hour='03', minute='00')
     },
