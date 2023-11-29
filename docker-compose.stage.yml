@@ -5,7 +5,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile.prod
     environment:
-      - APP_CONFIG=prod
+      - APP_CONFIG=stage
     command: bash -c "python manage.py migrate --noinput && gunicorn config.wsgi:application -c ../gunicorn.conf.py --bind 0.0.0.0:8000"
     volumes:
       - ./static:/home/nest/backend/src/static
@@ -43,7 +43,7 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      - APP_CONFIG=prod
+      - APP_CONFIG=stage
     command: bash -c "celery -A config.celery worker"
     volumes:
       - ./media:/home/nest/backend/src/media
@@ -58,7 +58,7 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      - APP_CONFIG=prod
+      - APP_CONFIG=stage
     command: bash -c "celery -A config.celery beat"
     depends_on:
       - redis
