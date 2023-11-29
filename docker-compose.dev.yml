@@ -14,7 +14,6 @@ services:
     volumes:
       - ./backend/src:/backend/src
       - ./backend/src/media:/backend/src/media
-      - ./backend/logging:/backend/logging
       - ./backend/db_merge:/backend/db_merge
     networks:
       - dev_network
@@ -54,7 +53,6 @@ services:
       - redis
     volumes:
       - ./backend/src/media:/backend/src/media
-      - ./backend/logging:/backend/logging
     networks:
       - dev_network
 
@@ -66,8 +64,6 @@ services:
     environment:
       - APP_CONFIG=dev
     command: bash -c "celery -A config.celery beat --loglevel=info"
-    volumes:
-      - ./backend/logging:/backend/logging
     networks:
       - dev_network
     depends_on:

@@ -8,10 +8,9 @@ services:
       - APP_CONFIG=prod
     command: bash -c "python manage.py migrate --noinput && gunicorn config.wsgi:application -c ../gunicorn.conf.py --bind 0.0.0.0:8000"
     volumes:
-      - static_volume:/home/assessors/backend/src/static
-      - media_volume:/home/assessors/backend/src/media
-      - ./backend/logging:/home/assessors/backend/logging
-      - ./backend/db_merge:/home/assessors/backend/db_merge
+      - ./static:/home/nest/backend/src/static
+      - ./media:/home/nest/backend/src/media
+      - ./backend/db_merge:/home/nest/backend/db_merge
     expose:
       - 8000
     networks:
@@ -26,7 +25,7 @@ services:
     env_file:
       - ./backend/.env
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - ./storage/postgres-data:/var/lib/postgresql/data
     networks:
       - default_network
 
@@ -34,7 +33,7 @@ services:
     container_name: redis-nest-stage
     image: redis
     volumes:
-      - redis_data:/var/lib/redis
+      - ./storage/redis_data:/var/lib/redis
     networks:
       - default_network
 
@@ -45,10 +44,9 @@ services:
       - ./backend/.env
     environment:
       - APP_CONFIG=prod
-    command: bash -c "celery -A config.celery worker --loglevel=info --logfile=../logging/celery.log"
+    command: bash -c "celery -A config.celery worker --loglevel=info"
     volumes:
-      - media_volume:/home/assessors/backend/src/media
-      - ./backend/logging:/home/assessors/backend/logging
+      - ./media:/home/nest/backend/src/media
     depends_on:
       - redis
     networks:
@@ -61,9 +59,7 @@ services:
       - ./backend/.env
     environment:
       - APP_CONFIG=prod
-    command: bash -c "celery -A config.celery beat --loglevel=info --logfile=../logging/celery-beat.log"
-    volumes:
-      - ./backend/logging:/home/assessors/backend/logging
+    command: bash -c "celery -A config.celery beat --loglevel=info"
     depends_on:
       - redis
     networks:
@@ -78,15 +74,9 @@ services:
       - 80:80
       - 443:443
     volumes:
-       - static_volume:/home/assessors/backend/src/static
+       - ./static:/home/nest/backend/src/static
     networks:
       - default_network
-
-volumes:
-  static_volume:
-  redis_data:
-  postgres-data:
-  media_volume:
 
 networks:
   default_network:

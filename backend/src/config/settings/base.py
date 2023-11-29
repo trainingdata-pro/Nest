@@ -209,11 +209,6 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
-logging_dir = 'logging'
-logging_dir_path = os.path.join(BASE_DIR.parent, logging_dir)
-
-if not os.path.exists(logging_dir_path):
-    os.makedirs(logging_dir_path)
 
 LOGGING = {
     'version': 1,
@@ -224,12 +219,6 @@ LOGGING = {
         }
     },
     'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': f'{os.path.join(logging_dir_path, "backend.log")}',
-            'formatter': 'standard'
-        },
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
@@ -238,7 +227,7 @@ LOGGING = {
     },
     'root': {
         'level': 'INFO',
-        'handlers': ['file', 'console']
+        'handlers': ['console']
     },
     'loggers': {
         'django': {
