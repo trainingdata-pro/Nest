@@ -60,7 +60,7 @@ const AssessorProjects = ({assessorId}: { assessorId: string | number | undefine
             </table>
         );
     } else {
-        return <div>ffff</div>
+        return <div></div>
     }
 
 };

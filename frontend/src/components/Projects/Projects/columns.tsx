@@ -12,7 +12,7 @@ export const useProjectsSorting =()=> {
         manager__last_name: ''
     })
     const columnHelper = createColumnHelper<Project>()
-    const [projectsId, setProjectId] = useState(0)
+    const [projectId, setProjectId] = useState(0)
     const [showSidebar, setShowSidebar] = useState(false)
     const statusObject = {
         "active": "Активный",
@@ -61,5 +61,5 @@ export const useProjectsSorting =()=> {
         })
     ]
 
-    return {getSortingString,projectsId, sorting, setShowSidebar, setProjectId, columns, showSidebar}
+    return {getSortingString,projectId, sorting, setShowSidebar, setProjectId, columns, showSidebar}
 }

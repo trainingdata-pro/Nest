@@ -4,16 +4,9 @@ import AssessorService from "../../../../services/AssessorService";
 import {errorNotification, successNotification} from "../../../UI/Notify";
 import {AxiosError} from "axios";
 import React, {Dispatch} from "react";
-const Errors = {
-    monday: 'Понедельник',
-    tuesday: 'Вторник',
-    wednesday: 'Среда',
-    thursday: 'Честверг',
-    friday: 'Пятница',
-    saturday: 'Суббота',
-    sunday: 'Воскресенье',
-    status: 'Статус'
-}
+import {ASSESSOR_PROJECTS_ERRORS} from "../../../../assets/consts";
+import {notifyError} from "../../../../utils/errorResponseNotification";
+
 
 export const usePatchWorkingHours = ({setIsDisabled}: {
     setIsDisabled: Dispatch<boolean>
@@ -30,13 +23,8 @@ export const usePatchWorkingHours = ({setIsDisabled}: {
             successNotification('Рабочие часы обновлены')
             setIsDisabled(true)
         },
-        onError: (error: AxiosError) => {
-            const errors = error.response?.data ? error.response?.data : {}
-            const keys = Object.keys(errors)
-            // @ts-ignore
-            const notify = <div>{keys.map(key => <p key={key}>{`${Errors[key]}: ${errors[key][0]}`}</p>)}</div>
-            errorNotification(notify)
-        }
+        onError: (error: AxiosError<typeof ASSESSOR_PROJECTS_ERRORS>) => notifyError(error)
+        
     })
 }
 
