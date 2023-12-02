@@ -443,7 +443,7 @@ class AssessorFreeResourceSerializer(GetUserMixin, serializers.ModelSerializer):
             old_assessor=self.instance_before_update,
             new_assessor=assessor,
             user=self.get_user().full_name,
-            reason=reason
+            state_reason=reason
         )
         return assessor
 
