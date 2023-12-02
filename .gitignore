@@ -160,3 +160,4 @@ backend/db_merge/*.xlsx
 backend/db_merge/rollback/*.jsong
 backend/db_merge/rollback/*.xlsx
 backend/config.json
+backend/scripts
