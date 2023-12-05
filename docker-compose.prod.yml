@@ -11,7 +11,6 @@ services:
     volumes:
       - ./static:/home/nest/backend/src/static
       - ./media:/home/nest/backend/src/media
-      - ./backend/logging:/home/nest/backend/logging
       - ./backend/db_merge:/home/nest/backend/db_merge
     networks:
       - default_network
@@ -26,10 +25,9 @@ services:
       - ./backend/.env
     environment:
       - APP_CONFIG=prod
-    command: bash -c "celery -A config.celery worker --loglevel=info --logfile=../logging/celery.log"
+    command: bash -c "celery -A config.celery worker"
     volumes:
       - ./media:/home/nest/backend/src/media
-      - ./backend/logging:/home/nest/backend/logging
     networks:
       - default_network
 
@@ -41,10 +39,9 @@ services:
       - ./backend/.env
     environment:
       - APP_CONFIG=prod
-    command: bash -c "celery -A config.celery beat --loglevel=info --logfile=../logging/celery-beat.log"
+    command: bash -c "celery -A config.celery beat"
     volumes:
       - ./media:/home/nest/backend/src/media
-      - ./backend/logging:/home/nest/backend/logging
     networks:
       - default_network
 
