@@ -75,6 +75,7 @@ services:
 
   frontend:
     container_name: frontend-nest-stage
+    restart: always
     build:
       context: ./frontend
       dockerfile: Dockerfile.stage
