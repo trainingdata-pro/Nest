@@ -1,6 +1,7 @@
 services:
   backend:
     container_name: backend-nest-stage
+    restart: always
     build:
       context: ./backend
       dockerfile: Dockerfile.stage
@@ -11,8 +12,6 @@ services:
       - ./static:/home/nest/backend/src/static
       - ./media:/home/nest/backend/src/media
       - ./backend/db_merge:/home/nest/backend/db_merge
-    expose:
-      - 8000
     networks:
       - default_network
     depends_on:
@@ -21,6 +20,7 @@ services:
 
   postgres:
     container_name: postgres-nest-stage
+    restart: always
     image: postgres:14-alpine3.18
     env_file:
       - ./backend/.env
@@ -39,6 +39,7 @@ services:
 
   celery:
     container_name: celery-nest-stage
+    restart: always
     build:
       context: ./backend
       dockerfile: Dockerfile.stage
@@ -56,6 +57,7 @@ services:
 
   celery-beat:
     container_name: celery-beat-nest-stage
+    restart: always
     build:
       context: ./backend
       dockerfile: Dockerfile.stage
@@ -64,6 +66,8 @@ services:
     environment:
       - APP_CONFIG=stage
     command: bash -c "celery -A config.celery beat"
+    volumes:
+      - ./media:/home/nest/backend/src/media
     depends_on:
       - redis
     networks:
@@ -73,7 +77,7 @@ services:
     container_name: frontend-nest-stage
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.stage
     ports:
       - 80:80
       - 443:443
@@ -88,7 +92,7 @@ services:
     volumes:
       - ./certbot/www/:/var/www/certbot/:rw
       - ./certbot/conf/:/etc/letsencrypt/:rw
-    command: certbot certonly --webroot --webroot-path /var/www/certbot/ -d assessors-test.trainingdata.solutions -m d.bandysik@trainingdta.pro -n --agree-tos
+    command: certonly --webroot --webroot-path /var/www/certbot/ -d assessors-test.trainingdata.solutions -m d.bandysik@trainingdta.pro -n --agree-tos
 
 networks:
   default_network:
