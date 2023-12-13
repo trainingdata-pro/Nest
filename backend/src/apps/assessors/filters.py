@@ -1,7 +1,7 @@
 from django.db.models import QuerySet, Q, Count
 from django_filters import rest_framework as filters
 
-from core.mixins import SplitStringFilterMixin, FilterByFullNameMixin
+from core.mixins import SplitStringFilterMixin
 from core.users import UserStatus
 from apps.users.models import BaseUser
 from .models import Assessor, Skill, AssessorCredentials
@@ -15,9 +15,8 @@ class SkillsFilter(filters.FilterSet):
         fields = ['title']
 
 
-class AssessorFilter(SplitStringFilterMixin, FilterByFullNameMixin, filters.FilterSet):
-    username = filters.CharFilter(lookup_expr='icontains')
-    full_name = filters.CharFilter(method='filter_full_name')
+class AssessorFilter(SplitStringFilterMixin, filters.FilterSet):
+    name = filters.CharFilter(method='filter_name')
     manager = filters.CharFilter(method='filter_managers')
     projects = filters.CharFilter(method='filter_projects')
     skills = filters.CharFilter(method='filter_skills')
@@ -27,8 +26,7 @@ class AssessorFilter(SplitStringFilterMixin, FilterByFullNameMixin, filters.Filt
     class Meta:
         model = Assessor
         fields = [
-            'username',
-            'full_name',
+            'name',
             'manager',
             'projects',
             'skills',
@@ -74,6 +72,17 @@ class AssessorFilter(SplitStringFilterMixin, FilterByFullNameMixin, filters.Filt
                 return queryset.filter(manager=user)
             else:
                 return queryset.filter(second_manager__in=[user])
+
+    def filter_name(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
+        values = value.split(' ')
+        q_objects = Q()
+        for item in values:
+            q_objects |= (Q(username__icontains=item)
+                          | Q(last_name__icontains=item)
+                          | Q(first_name__icontains=item)
+                          | Q(middle_name__icontains=item))
+
+        return queryset.filter(q_objects)
 
 
 class AssessorCredentialsFilter(filters.FilterSet):
