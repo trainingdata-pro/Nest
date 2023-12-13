@@ -1,7 +1,19 @@
 import axios from "axios";
 import Cookies from "universal-cookie";
 
-export const API_URL = process.env.NODE_ENV !== 'development' ? 'https://nest.trainingdata.solutions' : 'http://localhost:8000'
+const getConfig = () => {
+    const conf = process.env.APP_CONFIG
+    if(!conf || conf === 'dev'){
+        return 'http://localhost:8000'
+    } else if (conf === 'prod') {
+        return 'https://nest.trainingdata.solutions'
+    } else if (conf === 'stage') {
+        return 'https://assessors-test.trainingdata.solutions'
+    } else {
+        return 'http://localhost:8000'
+    }
+}
+export const API_URL = getConfig()
 
 const $api = axios.create({
     withCredentials: true,
