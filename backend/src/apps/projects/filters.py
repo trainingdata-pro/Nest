@@ -2,7 +2,7 @@ from django.db.models import Count, QuerySet, Q
 from django_filters import rest_framework as filters
 
 from apps.assessors.models import Assessor
-from core.mixins import SplitStringFilterMixin
+from core.mixins import SplitStringFilterMixin,FilterByNameMixin
 from .models import Project, ProjectWorkingHours, WorkLoadStatus
 
 
@@ -56,13 +56,15 @@ class ProjectFilter(SplitStringFilterMixin, filters.FilterSet):
         return queryset.filter(assessors__in=assessors)
 
 
-class AllAssessorsForProjectFilter(SplitStringFilterMixin, filters.FilterSet):
+class AllAssessorsForProjectFilter(SplitStringFilterMixin, FilterByNameMixin, filters.FilterSet):
+    name = filters.CharFilter(method='filter_name')
     skills = filters.CharFilter(method='filter_skills')
     workload_status = filters.CharFilter(method='filter_workload_status')
 
     class Meta:
         model = Assessor
         fields = [
+            'name',
             'skills',
             'workload_status'
         ]

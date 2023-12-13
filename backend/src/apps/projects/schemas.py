@@ -161,6 +161,12 @@ class AssessorsForProjectSchema(BaseAPISchema):
                     description='Unique project ID.'
                 ),
                 openapi.Parameter(
+                    name='name',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Case-independent filtering by assessor username or full name.'
+                ),
+                openapi.Parameter(
                     name='skills',
                     in_=openapi.IN_QUERY,
                     type=openapi.TYPE_STRING,
