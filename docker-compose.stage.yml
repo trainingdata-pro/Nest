@@ -79,6 +79,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile.stage
+      args:
+        REACT_APP_API_URL: 'https://assessors-test.trainingdata.solutions'
     ports:
       - 80:80
       - 443:443
