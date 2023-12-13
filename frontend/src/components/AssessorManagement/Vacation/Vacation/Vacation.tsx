@@ -1,29 +1,34 @@
 import React, {useState} from 'react';
-import Datepicker from "react-tailwindcss-datepicker"
+import Datepicker, {DateValueType} from "react-tailwindcss-datepicker"
 import {errorNotification} from "../../../UI/Notify";
 import MyButton from "../../../UI/MyButton";
 import {useSetVacation} from "./queries";
+import Dialog from '../../../UI/Dialog';
+import {Props} from "../../Management";
 
-const Vacation = ({assessorId, close}: {
-    assessorId: string | number | undefined
-    close: any
-}) => {
-    const [value, setValue] = useState({
+
+const Vacation = ({assessorId,setIsOpenDropDown, ...props}: Props) => {
+    const [isOpen, setIsOpen] = useState(false)
+
+    const [value, setValue] = useState<DateValueType>({
         startDate: null,
         endDate: null
     });
-    const {mutate} = useSetVacation({assessorId, close})
-    const handleValueChange = (newValue: any) => {
-        setValue(newValue);
+    const handleClick = () => {
+        setIsOpenDropDown(false)
+        setIsOpen(true)
     }
+    const {mutate} = useSetVacation({assessorId, close: setIsOpen})
     const submit = () => {
-        if (value.endDate) {
+        if (value?.endDate) {
             mutate(value.endDate)
         } else {
             errorNotification('Выберите дату')
         }
     }
     return (
+        <>
+            <Dialog isOpen={isOpen} setIsOpen={setIsOpen} topLayer={true}>
         <div className='px-4'>
             <div className='border-b border-black w-full '>
                 <h1 className='px-4'>Отправить в отпуск</h1>
@@ -38,14 +43,19 @@ const Vacation = ({assessorId, close}: {
                     asSingle={true}
                     readOnly={true}
                     value={value}
-                    onChange={handleValueChange}
+                    onChange={(value) => setValue(value)}
                 />
             </div>
             <div className='flex justify-between space-x-2'>
-                <MyButton className='min-w-[120px]' onClick={() => close(false)}>Назад</MyButton>
+                <MyButton className='min-w-[120px]' onClick={() => setIsOpen(false)}>Назад</MyButton>
                 <MyButton className='min-w-[120px]' onClick={submit}>Применить</MyButton>
             </div>
         </div>
+            </Dialog>
+            <div onClick={() => handleClick()} {...props}>
+                Отправить в отпуск
+            </div>
+        </>
     );
 };
 

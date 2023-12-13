@@ -21,7 +21,8 @@ const Export = ({setIsExportBlackList, filter}: {
             let hasMoreData = true;
             let filename = ''
             while (hasMoreData) {
-                timeout(2000)
+                console.log(1)
+
                 const res = await ProjectService.checkStatus(data.task_id)
                 filename = res.filename
                 if (res.status === 'SUCCESS') {
@@ -30,7 +31,7 @@ const Export = ({setIsExportBlackList, filter}: {
                     errorNotification('Произошла ошибка при экспортировании')
                     break
                 }
-
+                timeout(2000)
             }
             const exportData = await ProjectService.downloadFile(filename)
             fileDownload(new Blob([exportData.data]), filename)

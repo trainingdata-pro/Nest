@@ -11,9 +11,9 @@ export const useUnpin = ({close}: {
 }) => {
     const queryClient = useQueryClient()
     const navigate = useNavigate()
-    return useMutation(['assessors'], ({assessorId,data}: any) => AssessorService.unpinAssessor(assessorId, data),{
+    return useMutation('assessors', ({assessorId,data}: any) => AssessorService.unpinAssessor(assessorId, data),{
         onSuccess: () => {
-            queryClient.invalidateQueries(['assessors'])
+            queryClient.invalidateQueries('assessors')
             successNotification('Ассессор успешно откреплен')
             close(false)
             navigate(-1)

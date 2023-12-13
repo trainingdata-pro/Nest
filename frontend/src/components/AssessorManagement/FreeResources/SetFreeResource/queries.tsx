@@ -14,11 +14,11 @@ interface Props {
 }
 export const useSetFreeResource = ({assessorId, setShowAddToFreeResource}:{assessorId:string|number, setShowAddToFreeResource:any}) => {
     const queryClient = useQueryClient()
-    return useMutation(['currentAssessor', assessorId], ({assessorId, data}: Props) => AssessorService.addToFreeResource(assessorId, data),{
+    return useMutation('currentAssessor', ({assessorId, data}: Props) => AssessorService.addToFreeResource(assessorId, data),{
         onSuccess: () => {
-            queryClient.invalidateQueries(['currentAssessor', assessorId])
-            queryClient.invalidateQueries(['assessorHistory', assessorId])
-            successNotification('Ассесор успешно добавлен в свободные ресурсы')
+            queryClient.invalidateQueries('currentAssessor')
+            queryClient.invalidateQueries('assessorHistory')
+            successNotification('Асессор успешно добавлен в свободные ресурсы')
             setShowAddToFreeResource(false)
         },
         onError: (error:any) => {
