@@ -6,6 +6,7 @@ import Table from "../UI/Table";
 import {useCheckAssessor} from "./queries";
 import Loader from '../UI/Loader';
 import MyInput from "../UI/MyInput";
+import {useDebounce} from "../../hooks/debounce";
 
 
 const CheckAssessor = () => {
@@ -13,8 +14,8 @@ const CheckAssessor = () => {
     const [isShowHistory, setIsShowHistory] = useState(false)
     const [idToShow, setIdToShow] = useState(0)
     const {columns} = useCheckAssessorColumns({setIsShowHistory: setIsShowHistory, setIdToShow: setIdToShow})
-
-    const {setCurrentPage,currentPage, totalPages, totalRows, checkAssessors, pageLimit, setPageLimit} = useCheckAssessor({name: name})
+    const debounce = useDebounce(name)
+    const {setCurrentPage,currentPage, totalPages, totalRows, checkAssessors, pageLimit, setPageLimit} = useCheckAssessor({name: debounce})
 
     return (
         <div className='w-[800px]'>

@@ -13,7 +13,7 @@ const CurrentState = ({assessorId, vacationDate}: {
         const zonedDate = utcToZonedTime(new Date(value), TimeZone)
         return format(zonedDate, 'dd-MM-yyyy',{ timeZone: TimeZone } )
     }
-    const {data} = useQuery(['assessorHistory', assessorId], () => AssessorService.fetchAssessorHistory(assessorId, 'state'), {})
+    const {data} = useQuery('assessorHistory', () => AssessorService.fetchAssessorHistory(assessorId, 'state'), {})
     return (
         <table className='border border-black'>
             <thead>

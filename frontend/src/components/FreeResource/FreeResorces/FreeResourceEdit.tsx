@@ -27,7 +27,7 @@ const FreeResourceEdit = ({assessor}: {
     const getPermissions = () => {
         if (store.user_data.is_teamlead) {
             if (store.team.find(manager => manager.user.id.toString() === assessor.manager?.id.toString()) !== undefined) {
-                return <button onClick={() => setIsShowReturnFromFreeResources(true)}>Забрать из СР</button>
+                return <ReturnFromFreeResources assessorId={assessor.id}/>
             }
         } else {
             if (assessor.manager?.id.toString() !== store.user_id.toString()) {
@@ -35,13 +35,12 @@ const FreeResourceEdit = ({assessor}: {
                     return <button onClick={() => addAssessorToManager.mutate()}>Забрать в команду</button>
                 } return <button onClick={() => setShowRentAssessor(true)}>Арендовать</button>
             } else {
-                return <button onClick={() => setIsShowReturnFromFreeResources(true)}>Забрать из СР</button>
+                return <ReturnFromFreeResources assessorId={assessor.id}/>
             }
         }
     }
     const [isShowHistory, setIsShowHistory] = useState(false)
     const [showRentAssessor, setShowRentAssessor] = useState(false)
-    const [isShowReturnFromFreeResources, setIsShowReturnFromFreeResources] = useState(false)
     return (
         <>
             <Dialog isOpen={isShowHistory} setIsOpen={setIsShowHistory}>
@@ -49,9 +48,6 @@ const FreeResourceEdit = ({assessor}: {
             </Dialog>
             <Dialog isOpen={showRentAssessor} setIsOpen={setShowRentAssessor}>
                 <RentAssessor assessorId={assessor.id} show={setShowRentAssessor}/>
-            </Dialog>
-            <Dialog isOpen={isShowReturnFromFreeResources} setIsOpen={setIsShowReturnFromFreeResources}>
-                <ReturnFromFreeResources assessorId={assessor.id} show={setIsShowReturnFromFreeResources}/>
             </Dialog>
             <div className='flex flex-col'>
                 <button onClick={() => setIsShowHistory(true)}>История</button>

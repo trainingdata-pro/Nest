@@ -1,16 +1,16 @@
-import React, {useContext, useMemo, useRef, useState} from 'react';
-import {Context} from "../../index";
+import React, {useContext, useRef, useState} from 'react';
+import {Context} from "../../../index";
 import {observer} from "mobx-react-lite";
 import {useForm} from "react-hook-form";
-import ManagerService from "../../services/ManagerService";
-import MyLabel from "../UI/MyLabel";
-import MyInput from "../UI/MyInput";
+import ManagerService from "../../../services/ManagerService";
+import MyLabel from "../../UI/MyLabel";
+import MyInput from "../../UI/MyInput";
 import Select from "react-select";
 import {useMutation, useQuery, useQueryClient} from "react-query";
-import {errorNotification, successNotification} from "../UI/Notify";
-import Error from "../UI/Error";
-import {Dialog} from "@headlessui/react";
-import MyButton from '../UI/MyButton';
+import {errorNotification, successNotification} from "../../UI/Notify";
+import Error from "../../UI/Error";
+import MyButton from '../../UI/MyButton';
+import Dialog from "../../UI/Dialog";
 
 
 interface FormProps {
@@ -39,7 +39,7 @@ const Profile = () => {
         setValue,
         handleSubmit
     } = useForm<FormProps>()
-    const fetchTeamLeads = useQuery(
+    useQuery(
         ['TeamLeads'],
         () => ManagerService.fetchTeamLeads(),
         {
@@ -115,7 +115,7 @@ const Profile = () => {
         }
 
     }
-    const cancelButtonRef = useRef(null)
+
     return (
         <>
             <li>
@@ -124,21 +124,8 @@ const Profile = () => {
                     onClick={() => store.setIsOpenProfile(true)}>Профиль
                 </button>
             </li>
-            <Dialog
-                as="div"
-                open={store.isOpenProfile}
-                className="relative z-10"
-                initialFocus={cancelButtonRef}
-                onClose={() => close()
-            }>
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"/>
-                <div className="fixed inset-0 z-20 overflow-y-auto">
-                    <div className="flex min-h-full justify-center p-4 text-center items-start">
-                        <Dialog.Panel
-                            className="relative rounded-lg bg-white text-left shadow-xl transition-all max-w-[70%]">
-                            <div className="bg-white px-4 pb-4">
-                                <div className="text-center" ref={cancelButtonRef}>
-                                    <form className="space-y-3 w-[500px]" onSubmit={handleSubmit(onSubmit)}>
+            <Dialog isOpen={store.isOpenProfile} setIsOpen={() => store.setIsOpenProfile}>
+            <form className="space-y-3 w-[500px]" onSubmit={handleSubmit(onSubmit)}>
                                         <div className="flex h-2 justify-end w-full">
                                             <div className="cursor-pointer text-[18px]" onClick={() => close()}>x</div>
                                         </div>
@@ -240,12 +227,7 @@ const Profile = () => {
                                         </FormSection>
                                         <MyButton className='w-full'>Сохранить</MyButton>
                                     </form>
-                                </div>
-                            </div>
-                        </Dialog.Panel>
-                    </div>
 
-                </div>
             </Dialog>
         </>
 

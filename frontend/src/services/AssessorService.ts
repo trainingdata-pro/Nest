@@ -59,7 +59,6 @@ export default class AssessorService{
     static fetchAssessorHistory = (id: string | number | undefined, attribute: string) => $api.get<IHistoryResponse>(`/api/history/?attribute=${attribute}&ordering=-timestamp&assessor=${id}`).then(res => res.data)
     static getBlackList = (page: string | number = 1,filter:string, sorting:string = '', pageLimit: number = 10) => $api.get<IBlackListResponse>(`/api/blacklist/?page=${page}&name=${filter}&ordering=${sorting}&page_size=${pageLimit}`).then(res => res.data)
     static getBlackListAll = (filter:string) => $api.get<IBlackListResponse>(`/api/blacklist/?name=${filter}&page_size=all`).then(res => res.data)
-
     static fetchWorkloadStatus = (assessorID: string | number | undefined, projectId: string | number| undefined = undefined) => $api.get<WorkloadStatusResponse>(`/api/workload_status/?assessor=${assessorID}&project=${projectId}`).then(res => res.data)
     static fetchWorkingHours = (assessorID: string | number | undefined, projectId: string | number| undefined = undefined) => $api.get<WorkingHoursResponse>(`/api/working_hours/?assessor=${assessorID}&project=${projectId}`).then(res => res.data)
     static fetchSkills = () => $api.get<SkillResponse>('/api/skills/').then(res => res.data)

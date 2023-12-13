@@ -16,22 +16,22 @@ import {Context} from "../../../index";
 import Page404 from "../../../views/Page404";
 import MyButton from "../../UI/MyButton";
 
-interface UserParams {
-    id: string
-}
-
 const AssessorPage = () => {
     const {id} = useParams()
-    const assessor = useQuery(['currentAssessor', id], () => AssessorService.fetchAssessor(id), {
+    const assessor = useQuery('currentAssessor', () => AssessorService.fetchAssessor(id), {
         retry: false,
     })
     const {store} = useContext(Context)
     const [isShowLoginAndPassword, setIsShowLoginAndPassword] = useState(false)
     const [isShowHistory, setIsShowHistory] = useState(false)
     const isEnabledManagement = () => {
-        if (((assessor.data?.manager.id === store.user_id) || store.user_data.is_teamlead) && id) return (
-            <Management assessor={assessor} id={id}/>
-        )
+        if (((assessor.data?.manager.id === store.user_id) || store.user_data.is_teamlead) && id) {
+            if(assessor.isSuccess){
+                return (
+                    <Management assessor={assessor.data}/>
+                )
+            }
+        }
     }
     if (assessor.isLoading) return <Loader/>
     if (assessor.isError) return <Page404/>

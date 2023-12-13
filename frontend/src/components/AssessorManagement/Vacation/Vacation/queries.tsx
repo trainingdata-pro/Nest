@@ -10,10 +10,10 @@ export const useSetVacation = ({assessorId, close}: {
 }) => {
     const queryClient = useQueryClient()
 
-    return useMutation(['currentAssessor', assessorId], (value: any) => AssessorService.patchVacation(assessorId, {vacation: true, vacation_date: value}), {
+    return useMutation('currentAssessor', (value: any) => AssessorService.patchVacation(assessorId, {vacation: true, vacation_date: value}), {
         onSuccess: () => {
             queryClient.invalidateQueries('assessorHistory')
-            queryClient.invalidateQueries(['currentAssessor', assessorId])
+            queryClient.invalidateQueries('currentAssessor')
             successNotification('Ассессор отправлен в отпуск')
             close(false)
         },

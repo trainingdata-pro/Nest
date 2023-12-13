@@ -26,5 +26,9 @@ export const ASSESSOR_PROJECTS_ERRORS = {
     sunday: 'Воскресенье',
     status: 'Статус'
 }
-
+export const FREE_RESOURCE_REASONS  = {
+    free_time: 'Есть свободное время',
+    project_reduction: 'Сокращение проекта',
+    project_mismatch: 'Не подходит текущему проекту'
+}
 export type T = AxiosError<typeof ASSESSOR_INFO_ERRORS> | AxiosError<typeof ASSESSOR_PROJECTS_ERRORS>
