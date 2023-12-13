@@ -54,6 +54,8 @@ services:
     ports:
       - 80:80
       - 443:443
+    environment:
+      - APP_CONFIG=prod
     volumes:
 #      - ./frontend/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certbot/conf:/etc/nginx/cert
