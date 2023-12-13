@@ -129,7 +129,7 @@ const ProjectForm = ({projectId, closeSidebar, isOpenModal}: {
                              register={{
                                  ...register('speed_per_hour', {
                                      pattern: {
-                                         value: /^([0-9]*)$/,
+                                         value: /^([0-9]*)[.]?([0-9]+)$/,
                                          message: 'Указано неверное значение'
                                      }
                                  })
