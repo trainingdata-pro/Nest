@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "universal-cookie";
 
 const getConfig = () => {
-    const conf = process.env.APP_CONFIG
+    const conf = process.env.REACT_APP_CONFIG
     if (conf === 'prod') {
         return 'https://nest.trainingdata.solutions'
     } else if (conf === 'stage') {
