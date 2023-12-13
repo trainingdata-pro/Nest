@@ -1,5 +1,6 @@
 from typing import List, Any
 
+from django.db.models import QuerySet, Q
 from rest_framework import viewsets
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.request import Request
@@ -80,3 +81,16 @@ class SplitStringFilterMixin:
     def get_string_for_filtering(string: str) -> List[str]:
         """ Convert comma separated string to a list of values """
         return [val.strip() for val in string.split(',')]
+
+
+class FilterByNameMixin:
+    def filter_name(self, queryset: QuerySet[Any], name: str, value: str) -> QuerySet[Any]:
+        values = value.split(' ')
+        q_objects = Q()
+        for item in values:
+            q_objects |= (Q(username__icontains=item)
+                          | Q(last_name__icontains=item)
+                          | Q(first_name__icontains=item)
+                          | Q(middle_name__icontains=item))
+
+        return queryset.filter(q_objects)
