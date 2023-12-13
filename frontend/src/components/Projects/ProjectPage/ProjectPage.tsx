@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import {useParams} from "react-router-dom";
 import Dialog from "../../UI/Dialog";
 import AddAssessorForm from "../../Assessors/AssessorForm/AddAssessorForm";
-import Header from '../../Header/Header';
 import ProjectMenu from "./ProjectMenu";
 import DeleteFromProjects from "../../AssessorManagement/DeleteFromProjects/DeleteFromProjects";
 import AddToProject from "./AddToProject";
@@ -17,6 +16,9 @@ import {useFetchProjectAssessors, useFetchProjectInfo} from "./queries";
 import Select from "react-select";
 import {useSkillsFilter, useStatusFilter} from "./hooks";
 import Confirm from "../../UI/Confirm";
+import MyInput from "../../UI/MyInput";
+import {MagnifyingGlassIcon} from "@heroicons/react/24/solid";
+import {useDebounce} from "../../../hooks/debounce";
 
 
 const ProjectPage = () => {
@@ -25,7 +27,8 @@ const ProjectPage = () => {
         const {projectInfo} = useFetchProjectInfo({projectId: id})
         const {skills, onSkillsChange, getValueSkills, skillsFilter} = useSkillsFilter()
         const {statusList, selectedStatus, handlerSelectChangeStatus, getStatusValue} = useStatusFilter()
-        const {
+    const [globalFilter, setGlobalFilter] = React.useState('')
+    const {
             projectAssessors,
             currentPage,
             setCurrentPage,
@@ -39,7 +42,8 @@ const ProjectPage = () => {
             sorting: sorting,
             sortingString: getSortingString(),
             skillsFilter: skillsFilter.join(','),
-            statusFilter: selectedStatus.join(',')
+            statusFilter: selectedStatus.join(','),
+            name: useDebounce(globalFilter)
         })
         const [isOpenConfirm, setIsOpenConfirm] = useState(false)
         const closeDialog = () => {
@@ -108,6 +112,12 @@ const ProjectPage = () => {
                                 value={getStatusValue()}
                                 onChange={handlerSelectChangeStatus}
                             />
+                            <div className="relative max-w-[210px]">
+                                <MyInput className='border border-gray-400 pl-[8px] py-[6px] pr-[30px]'
+                                         placeholder='Поиск по ФИО/Ник в ТГ' value={globalFilter}
+                                         onChange={(event) => setGlobalFilter(event.target.value)}/>
+                                <MagnifyingGlassIcon className="h-6 w-6 text-black absolute top-[5px] right-[5px]"/>
+                            </div>
                         </div>
                         <div className='flex-[84%] rounded-[20px] bg-white'>
                             {projectAssessors.isFetching ? <Loader height={'h-[calc(100vh-150px)]'}/> :

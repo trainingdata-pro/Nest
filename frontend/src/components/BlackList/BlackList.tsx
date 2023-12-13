@@ -8,6 +8,7 @@ import Table from "../UI/Table";
 import {useFetchBlacklist} from "./queries";
 import {useBlacklistColumns} from "./columns";
 import MyInput from "../UI/MyInput";
+import {useDebounce} from "../../hooks/debounce";
 
 const BlackList = () => {
     const [globalFilter, setGlobalFilter] = React.useState('')
@@ -22,7 +23,7 @@ const BlackList = () => {
         totalRows,
         pageLimit,
         setPageLimit
-    } = useFetchBlacklist({globalFilter: globalFilter, sorting: sorting, sortingString: getSortingString()})
+    } = useFetchBlacklist({globalFilter: useDebounce(globalFilter), sorting: sorting, sortingString: getSortingString()})
 
     return (
         <>

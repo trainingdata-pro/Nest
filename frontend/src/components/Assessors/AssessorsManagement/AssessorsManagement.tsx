@@ -36,7 +36,7 @@ const AssessorsManagement = ({type, availablePopup, selectedRows, setSelectedRow
             </Dialog>
             <div>
                 <div onMouseLeave={() => setOpen(false)} className="relative">
-                    <MyButton onMouseOver={() => setOpen(true)}>Управление</MyButton>
+                    <MyButton className='w-[157px] mt-[4px]' onMouseOver={() => setOpen(true)}>Управление</MyButton>
                     <ul
                         className={`absolute border border-black right-0 bg-white w-full items-center z-10 ${
                             open ? "block" : "hidden"

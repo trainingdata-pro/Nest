@@ -30,16 +30,17 @@ export const useFilterSKills = () => {
 }
 
 
-export const useFetchRentAssessors = ({sorting, sortingString, skillsFilter}: {
+export const useFetchRentAssessors = ({sorting, sortingString, skillsFilter, name}: {
     sorting: any,
     sortingString: string,
-    skillsFilter: number[]
+    skillsFilter: number[],
+    name: string
 }) => {
     const [pageLimit, setPageLimit] = useState(10)
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
     const [totalRows, setTotalRows] = useState<number>(0)
-    const rentAssessors = useQuery(['rentAssessors', currentPage, sorting, skillsFilter,pageLimit], () => AssessorService.fetchRentAssessors(currentPage, sortingString, skillsFilter.join(','), pageLimit),{
+    const rentAssessors = useQuery(['rentAssessors', currentPage, sorting, skillsFilter,pageLimit, name], () => AssessorService.fetchRentAssessors(currentPage, sortingString, skillsFilter.join(','), pageLimit, name),{
         keepPreviousData: true,
         onSuccess: data => {
             setTotalRows(data.count)
