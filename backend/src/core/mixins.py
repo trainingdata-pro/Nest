@@ -83,13 +83,13 @@ class SplitStringFilterMixin:
         return [val.strip() for val in string.split(',')]
 
 
-class FilterByFullNameMixin:
-    def filter_full_name(self, queryset: QuerySet[Any], name: str, value: str) -> QuerySet[Any]:
-        """ Filter queryset by full name """
+class FilterByNameMixin:
+    def filter_name(self, queryset: QuerySet[Any], name: str, value: str) -> QuerySet[Any]:
         values = value.split(' ')
         q_objects = Q()
         for item in values:
-            q_objects |= (Q(last_name__icontains=item)
+            q_objects |= (Q(username__icontains=item)
+                          | Q(last_name__icontains=item)
                           | Q(first_name__icontains=item)
                           | Q(middle_name__icontains=item))
 
