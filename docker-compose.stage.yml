@@ -79,13 +79,11 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile.stage
-      args:
-        REACT_APP_API_URL: 'https://assessors-test.trainingdata.solutions'
     ports:
       - 80:80
       - 443:443
     environment:
-      - APP_CONFIG=stage
+      - REACT_APP_CONFIG=stage
     volumes:
       - ./certbot/conf:/etc/nginx/cert
       - ./static:/home/nest/backend/src/static

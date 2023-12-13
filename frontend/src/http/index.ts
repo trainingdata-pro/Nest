@@ -2,11 +2,14 @@ import axios from "axios";
 import Cookies from "universal-cookie";
 
 const getConfig = () => {
-    const conf = process.env.REACT_APP_API_URL
-    if(!conf || conf === 'dev'){
+    const conf = process.env.APP_CONFIG
+    if (conf === 'prod') {
+        return 'https://nest.trainingdata.solutions'
+    } else if (conf === 'stage') {
+        return 'https://assessors-test.trainingdata.solutions'
+    } else {
         return 'http://localhost:8000'
     }
-    return conf
 }
 export const API_URL = getConfig()
 
