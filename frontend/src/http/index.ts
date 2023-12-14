@@ -11,7 +11,7 @@ const getConfig = () => {
         return 'http://localhost:8000'
     }
 }
-export const API_URL = getConfig()
+export const API_URL = 'https://assessors-test.trainingdata.solutions'
 
 const $api = axios.create({
     withCredentials: true,
