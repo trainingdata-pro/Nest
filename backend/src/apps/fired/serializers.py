@@ -114,8 +114,14 @@ class FireAssessorSerializer(GetUserMixin, serializers.Serializer):
 class FiredSerializer(serializers.ModelSerializer):
     assessor = SimpleAssessorSerializer(read_only=True)
     reason = ReasonSerializer(read_only=True)
-    last_manager = serializers.SerializerMethodField(method_name='get_last_manager', read_only=True)
-    last_project = serializers.SerializerMethodField(method_name='get_last_project', read_only=True)
+    last_manager = serializers.SerializerMethodField(
+        method_name='get_last_manager',
+        read_only=True
+    )
+    last_project = serializers.SerializerMethodField(
+        method_name='get_last_project',
+        read_only=True
+    )
 
     class Meta:
         model = Fired
@@ -128,21 +134,10 @@ class FiredSerializer(serializers.ModelSerializer):
         return history.get_last_assessor_project(obj.assessor.pk)
 
 
-class BlackListSerializer(serializers.ModelSerializer):
-    assessor = SimpleAssessorSerializer(read_only=True)
-    reason = ReasonSerializer(read_only=True)
-    last_manager = serializers.SerializerMethodField(method_name='get_last_manager', read_only=True)
-    last_project = serializers.SerializerMethodField(method_name='get_last_project', read_only=True)
-
+class BlackListSerializer(FiredSerializer):
     class Meta:
         model = BlackList
         fields = '__all__'
-
-    def get_last_manager(self, obj: BlackList) -> Union[str, None]:
-        return history.get_last_assessor_manager(obj.assessor.pk)
-
-    def get_last_project(self, obj: BlackList) -> Union[str, None]:
-        return history.get_last_assessor_project(obj.assessor.pk)
 
 
 class BackToTeamSerializer(GetUserMixin, serializers.Serializer):
