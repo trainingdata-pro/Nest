@@ -1,4 +1,4 @@
-from typing import Iterable, Any, Dict
+from typing import Iterable, Dict
 
 from django.db.models import Count, QuerySet, Sum, Q
 from django.db.models.query import EmptyQuerySet

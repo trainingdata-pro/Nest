@@ -1,4 +1,4 @@
-from .base import *
+from .base import *  # noqa
 
 
 DEBUG = True
@@ -18,7 +18,7 @@ DATABASES = {
     }
 }
 
-SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'] = timedelta(days=1)
+SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'] = timedelta(days=1)  # noqa
 
 CORS_ALLOWED_ORIGINS = [MAIN_HOST]
 CORS_ALLOW_CREDENTIALS = True

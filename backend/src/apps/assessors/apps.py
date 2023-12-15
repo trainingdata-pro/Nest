@@ -8,4 +8,4 @@ class AssessorsConfig(AppConfig):
     verbose_name_plural = 'исполнители'
 
     def ready(self):
-        import apps.assessors.signals
+        import apps.assessors.signals  # noqa
