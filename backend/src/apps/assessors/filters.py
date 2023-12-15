@@ -20,7 +20,7 @@ class AssessorFilter(SplitStringFilterMixin, FilterByNameMixin, filters.FilterSe
     manager = filters.CharFilter(method='filter_managers')
     projects = filters.CharFilter(method='filter_projects')
     skills = filters.CharFilter(method='filter_skills')
-    state = filters.CharFilter(lookup_expr='iexact')
+    state = filters.CharFilter(method='filter_state')
     second_manager = filters.CharFilter(method='filter_second_manager')
     exclude_rented = filters.BooleanFilter(method='filter_rented')
 
@@ -74,6 +74,10 @@ class AssessorFilter(SplitStringFilterMixin, FilterByNameMixin, filters.FilterSe
                 return queryset.filter(manager=user)
             else:
                 return queryset.filter(second_manager__in=[user])
+
+    def filter_state(self, queryset: QuerySet[Assessor], name: str, value: str) -> QuerySet[Assessor]:
+        states = self.get_string_for_filtering(value)
+        return queryset.filter(state__in=states)
 
 
 class AssessorCredentialsFilter(filters.FilterSet):

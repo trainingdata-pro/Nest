@@ -105,7 +105,8 @@ class AssessorSchema(BaseAPISchema):
                     type=openapi.TYPE_STRING,
                     description='Filtering by state.\n'
                                 'Available states:\n'
-                                f'{", ".join([f"{item[0]} ({item[1]})" for item in AssessorState.choices])}'
+                                f'{", ".join([f"{item[0]} ({item[1]})" for item in AssessorState.choices])}.\n'
+                                'Example: host.com/?state=available,busy.'
                 ),
                 openapi.Parameter(
                     name='second_manager',
