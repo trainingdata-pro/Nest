@@ -38,6 +38,7 @@ class SkillsAPIViewSet(viewsets.ModelViewSet):
 @method_decorator(name='create', decorator=schemas.assessor_schema.create())
 @method_decorator(name='partial_update', decorator=schemas.assessor_schema.partial_update())
 @method_decorator(name='projects', decorator=schemas.assessor_schema.projects())
+@method_decorator(name='projects_multiple', decorator=schemas.assessor_schema.projects_multiple())
 @method_decorator(name='skills', decorator=schemas.assessor_schema.skills())
 @method_decorator(name='vacation', decorator=schemas.assessor_schema.vacation())
 @method_decorator(name='free_resource', decorator=schemas.assessor_schema.free_resource())
@@ -67,6 +68,10 @@ class AssessorAPIViewSet(BaseAPIViewSet):
             IsAuthenticated,
             permissions.IsManager,
             permissions.AssessorPermissionExtended
+        ),
+        'projects_multiple': (
+            IsAuthenticated,
+            permissions.IsManager,
         ),
         'skills': (
             IsAuthenticated,
@@ -100,6 +105,7 @@ class AssessorAPIViewSet(BaseAPIViewSet):
         'create': serializers.CreateUpdateAssessorSerializer,
         'partial_update': serializers.CreateUpdateAssessorSerializer,
         'projects': serializers.AssessorProjectsSerializer,
+        'projects_multiple': serializers.AssessorProjectsMultipleSerializer,
         'skills': serializers.AssessorSkillsSerializer,
         'vacation': serializers.AssessorVacationSerializer,
         'free_resource': serializers.AssessorFreeResourceSerializer,
@@ -164,6 +170,13 @@ class AssessorAPIViewSet(BaseAPIViewSet):
     def projects(self, request: Request, **kwargs) -> Response:
         """ Update a specific assessor projects """
         return self.update(request, **kwargs)
+
+    @action(detail=False, methods=['patch'])
+    def projects_multiple(self, request: Request, **kwargs) -> Response:
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['patch'])
     def skills(self, request: Request, **kwargs) -> Response:

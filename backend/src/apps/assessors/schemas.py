@@ -182,6 +182,14 @@ class AssessorSchema(BaseAPISchema):
             }
         )
 
+    def projects_multiple(self):
+        return self.swagger_auto_schema(
+            operation_summary='Multiple update assessor projects',
+            operation_description='Change assessors projects list.',
+            request_body=serializers.AssessorProjectsMultipleSerializer,
+            responses={**self.get_responses(204, 400, 401, 403)}
+        )
+
     def skills(self):
         return self.swagger_auto_schema(
             operation_summary='Update assessor skills',

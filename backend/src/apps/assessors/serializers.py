@@ -1,6 +1,7 @@
 from copy import copy
 from typing import Dict, Union, List
 
+from django.db import transaction
 from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -148,6 +149,55 @@ class AssessorProjectsSerializer(GetUserMixin, serializers.ModelSerializer):
         )
 
         return assessor
+
+
+class AssessorProjectsMultipleSerializer(GetUserMixin, serializers.Serializer):
+    class OneItemSerializer(serializers.Serializer):
+        assessor = serializers.PrimaryKeyRelatedField(
+            queryset=Assessor.objects.exclude(state__in=AssessorState.fired_states())
+        )
+        projects = serializers.PrimaryKeyRelatedField(
+            queryset=Project.objects.exclude(status=ProjectStatuses.COMPLETED),
+            many=True
+        )
+
+    data = OneItemSerializer(many=True)
+    reason = serializers.CharField(
+        required=False,
+        max_length=255
+    )
+
+    def validate(self, attrs: Dict) -> Dict:
+        user = self.get_user()
+        for item in attrs.get('data'):
+            check_full_assessor_permission(user, item.get('assessor'))
+        return super().validate(attrs)
+
+    def save(self, **kwargs) -> None:
+        with transaction.atomic():
+            manager = self.get_user()
+            reason = self.validated_data.get('reason')
+            for item in self.validated_data.get('data'):
+                assessor = item.get('assessor')
+                projects = item.get('projects')
+                assessor_before_update = copy(assessor)
+                projects_before_update = [pr.pk for pr in assessor.projects.all()]
+                second_managers_before_update = [man.pk for man in assessor.second_manager.all()]
+                assessor.projects.set(projects)
+                assessors_service.check_and_remove_second_managers(
+                    instance=assessor,
+                    manager=manager
+                )
+                assessors_service.check_and_update_state(assessor)
+                history.updated_assessor_history(
+                    old_assessor=assessor_before_update,
+                    new_assessor=assessor,
+                    user=manager.full_name,
+                    old_projects=projects_before_update,
+                    old_second_managers=second_managers_before_update,
+                    reason=reason
+                )
+        return None
 
 
 class AssessorSkillsSerializer(serializers.ModelSerializer):
