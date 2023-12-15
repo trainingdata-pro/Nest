@@ -85,13 +85,12 @@ class IsCurrentManager(BasePermission):
 
 
 def check_full_assessor_permission(manager: BaseUser, assessor: Assessor) -> None:
-    if not any([manager.pk == assessor.manager.pk
-                or (manager.pk == assessor.manager.manager_profile.teamlead.pk)
+    if not any([manager == assessor.manager
+                or manager == assessor.manager.manager_profile.teamlead
                 or manager in assessor.second_manager.all()
-                or manager.pk in assessor.second_manager.all().values_list('manager_profile__teamlead__pk',
-                                                                           flat=True)]):
+                or manager in assessor.second_manager.all().values_list('manager_profile__teamlead', flat=True)]):
         raise ValidationError(
-            {'assessor': ['Вы не можете выбрать данного исполнителя.']}
+            {'assessor': [f'Вы не можете выбрать данного исполнителя (id {assessor.pk}).']}
         )
 
 
