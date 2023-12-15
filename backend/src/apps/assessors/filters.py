@@ -20,6 +20,7 @@ class AssessorFilter(SplitStringFilterMixin, FilterByNameMixin, filters.FilterSe
     manager = filters.CharFilter(method='filter_managers')
     projects = filters.CharFilter(method='filter_projects')
     skills = filters.CharFilter(method='filter_skills')
+    state = filters.CharFilter(lookup_expr='iexact')
     second_manager = filters.CharFilter(method='filter_second_manager')
     exclude_rented = filters.BooleanFilter(method='filter_rented')
 
@@ -30,6 +31,7 @@ class AssessorFilter(SplitStringFilterMixin, FilterByNameMixin, filters.FilterSe
             'manager',
             'projects',
             'skills',
+            'state',
             'second_manager',
             'exclude_rented'
         ]

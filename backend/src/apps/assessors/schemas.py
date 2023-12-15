@@ -1,6 +1,7 @@
 from drf_yasg import openapi
 
 from core.schemas import BaseAPISchema
+from .models import AssessorState
 from . import serializers
 
 
@@ -97,6 +98,14 @@ class AssessorSchema(BaseAPISchema):
                     type=openapi.TYPE_STRING,
                     description='Filtering by skill ID.\n'
                                 'Example: host.com/?skills=1,2.'
+                ),
+                openapi.Parameter(
+                    name='state',
+                    in_=openapi.IN_QUERY,
+                    type=openapi.TYPE_STRING,
+                    description='Filtering by state.\n'
+                                'Available states:\n'
+                                f'{", ".join([f"{item[0]} ({item[1]})" for item in AssessorState.choices])}'
                 ),
                 openapi.Parameter(
                     name='second_manager',
