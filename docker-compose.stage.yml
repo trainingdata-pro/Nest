@@ -82,6 +82,8 @@ services:
     ports:
       - 80:80
       - 443:443
+    environment:
+      - REACT_APP_CONFIG=stage
     volumes:
       - ./certbot/conf:/etc/nginx/cert
       - ./static:/home/nest/backend/src/static

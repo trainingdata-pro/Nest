@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Assessor} from "../../../models/AssessorResponse";
 
 
@@ -6,8 +6,12 @@ export const useAvailableManagers = ({assessor}: {
     assessor: Assessor
 }) => {
     const [selectedManager, setSelectedManager] = useState<number>()
-    const [availableManagers, setAvailableManagers] = useState(assessor?.second_manager.map((manager:any) => {
-        return {label: `${manager.last_name} ${manager.first_name}`, value: manager.id}}))
+    const [availableManagers, setAvailableManagers] = useState<{ label: string; value: any; }[]>()
+    useEffect(() => {
+        setAvailableManagers([...assessor?.second_manager.map((manager:any) => {
+            return {label: `${manager.last_name} ${manager.first_name}`, value: manager.id}})])
+    }, [assessor]);
+
     const onChangeManager = (newValue: any) => {
         setSelectedManager(newValue.value)
     }

@@ -52,23 +52,27 @@ export const useMyAssessorsSorting = () => {
         columnHelper.accessor('last_name', {
             header: () => <div className='flex'><p>Фамилия</p><Sorting sortingKey={"last_name"} func={setSorting} sortingValue={sorting.last_name} state={sorting}/></div>,
             cell: info =>
-                <div className='text-center cursor-pointer'
-                     onClick={() => navigation(`/assessor/${info.row.original.id}`)}>{info.getValue()}</div>,
+                <div className='text-center cursor-pointer'>
+                    <a href={`/assessor/${info.row.original.id}`} rel="noreferrer" target='_blank'>{info.getValue()}</a>
+                </div>,
             enableSorting: false,
 
         }),
         columnHelper.accessor('first_name', {
             cell: info =>
-                <div className='text-center cursor-pointer'
-                     onClick={() => navigation(`/assessor/${info.row.original.id}`)}>{info.getValue()}</div>,
+                <div className='text-center cursor-pointer'>
+                     <a href={`/assessor/${info.row.original.id}`} rel="noreferrer" target='_blank'>{info.getValue()}</a>
+                </div>,
             header: 'Имя',
             enableSorting: false
         }),
         columnHelper.accessor('middle_name', {
             header: 'Отчество',
             cell: info =>
-                <div className='text-center cursor-pointer'
-                     onClick={() => navigation(`/assessor/${info.row.original.id}`)}>{info.getValue()}</div>,
+                <div className='text-center cursor-pointer'>
+                    <a href={`/assessor/${info.row.original.id}`} rel="noreferrer" target='_blank'>{info.getValue()}</a>
+                </div>
+            ,
             enableSorting: false
         }),
         columnHelper.accessor('username', {

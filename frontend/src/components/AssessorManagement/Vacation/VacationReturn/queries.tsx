@@ -4,16 +4,15 @@ import {errorNotification, successNotification} from "../../../UI/Notify";
 import {Dispatch} from "react";
 
 
-export const useVacationReturn = ({assessorId, setIsReturnVacation}: {
-    assessorId: number | string | undefined,
+export const useVacationReturn = ({setIsReturnVacation}: {
     setIsReturnVacation: Dispatch<boolean>
 }) => {
     const queryClient = useQueryClient()
 
-    return useMutation(['currentAssessor', assessorId], ({id, data}:any) => AssessorService.patchVacation(id, data), {
+    return useMutation('currentAssessor', ({id, data}:any) => AssessorService.patchVacation(id, data), {
         onSuccess: () => {
             queryClient.invalidateQueries('assessorHistory')
-            queryClient.invalidateQueries(['currentAssessor', assessorId])
+            queryClient.invalidateQueries('currentAssessor')
             successNotification('Ассесор возвращен из отпуска')
             setIsReturnVacation(false)
         }, onError: (error:any) => {

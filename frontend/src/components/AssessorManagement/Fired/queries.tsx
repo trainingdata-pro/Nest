@@ -9,16 +9,15 @@ export const useFetchReason = () => {
     return useQuery(['reasons'], () => AssessorService.fetchReasons())
 }
 
-export const useAddAssessorToFired = ({close, assessorId}: {
+export const useAddAssessorToFired = ({close}: {
     close: Dispatch<boolean>,
-    assessorId: string | number
 }) => {
     const queryClient = useQueryClient()
     const navigate = useNavigate()
-    const addAssessorToFired = useMutation(['currentAssessor', assessorId], ({id, data}: any) => AssessorService.addAssessorToFired(id, data),{
+    const addAssessorToFired = useMutation('currentAssessor', ({id, data}: any) => AssessorService.addAssessorToFired(id, data),{
         onSuccess: () => {
             queryClient.invalidateQueries('assessorHistory')
-            queryClient.invalidateQueries(['currentAssessor', assessorId])
+            queryClient.invalidateQueries('currentAssessor')
             successNotification('Ассесор успешно уволен')
             close(false)
             navigate(-1)

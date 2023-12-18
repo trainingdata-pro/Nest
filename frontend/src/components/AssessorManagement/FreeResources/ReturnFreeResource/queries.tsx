@@ -9,15 +9,14 @@ export const useReturnFromFreeResources = ({assessorId, show}: {
     show: Dispatch<boolean>
 }) => {
     const queryClient = useQueryClient()
-    return useMutation(['currentAssessor', assessorId], () => AssessorService.returnFromFreeResources(assessorId, {free_resource:false}),{
+    return useMutation('currentAssessor', () => AssessorService.returnFromFreeResources(assessorId, {free_resource:false}),{
         onSuccess: () => {
-            queryClient.invalidateQueries(['currentAssessor', assessorId])
-            queryClient.invalidateQueries(['assessorHistory', assessorId])
+            queryClient.invalidateQueries('currentAssessor')
+            queryClient.invalidateQueries('assessorHistory')
             queryClient.invalidateQueries('freeResources')
             successNotification('Ассессор возвращен в команду')
             show(false)
         }, onError: (error:any) => {
-            const jsonError = JSON.parse(error.request.responseText)
             errorNotification('Произошла ошибка')}
     })
 }

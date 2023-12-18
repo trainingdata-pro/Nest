@@ -6,7 +6,8 @@ FROM node:lts-slim as builder
 COPY package.json package-lock.json ./
 
 RUN npm install && mkdir /react-frontend && mv ./node_modules ./react-frontend
-
+ARG REACT_APP_API_URL
+ENV REACT_APP_API_URL $REACT_APP_API_URL
 WORKDIR /react-frontend
 
 COPY . .

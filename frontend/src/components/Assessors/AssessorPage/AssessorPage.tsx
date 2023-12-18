@@ -1,8 +1,7 @@
 import React, {useContext, useState} from 'react';
 import {useParams} from "react-router-dom";
 import AssessorService from "../../../services/AssessorService";
-import Header from "../../Header/Header";
-import PersonalAssessorInfo from "./PersonalAssessorInfo";
+import PersonalAssessorInfo from "./PersonalAssessorInfo/PersonalAssessorInfo";
 import Dialog from "../../UI/Dialog";
 import TableLog from "./LoginAndPassword";
 import {observer} from "mobx-react-lite";
@@ -17,18 +16,23 @@ import {Context} from "../../../index";
 import Page404 from "../../../views/Page404";
 import MyButton from "../../UI/MyButton";
 
-interface UserParams {
-    id: string
-}
-
 const AssessorPage = () => {
     const {id} = useParams()
-    const assessor = useQuery(['currentAssessor', id], () => AssessorService.fetchAssessor(id), {
+    const assessor = useQuery('currentAssessor', () => AssessorService.fetchAssessor(id), {
         retry: false,
     })
     const {store} = useContext(Context)
     const [isShowLoginAndPassword, setIsShowLoginAndPassword] = useState(false)
     const [isShowHistory, setIsShowHistory] = useState(false)
+    const isEnabledManagement = () => {
+        if (((assessor.data?.manager.id === store.user_id) || store.user_data.is_teamlead) && id) {
+            if(assessor.isSuccess){
+                return (
+                    <Management assessor={assessor.data}/>
+                )
+            }
+        }
+    }
     if (assessor.isLoading) return <Loader/>
     if (assessor.isError) return <Page404/>
     return (
@@ -41,8 +45,7 @@ const AssessorPage = () => {
                 <AssessorHistory assessorId={id}/>
             </Dialog>
             <div className="space-x-2 flex justify-end mb-2">
-                {((assessor.data?.manager.id === store.user_id) || store.user_data.is_teamlead) && id &&
-                    <Management assessor={assessor} id={id}/>}
+                {isEnabledManagement()}
                 <MyButton onClick={() => setIsShowHistory(true)}>История</MyButton>
                 <MyButton onClick={() => setIsShowLoginAndPassword(true)}>Логины и пароли</MyButton>
             </div>

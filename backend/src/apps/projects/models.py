@@ -46,7 +46,7 @@ class Project(models.Model):
         verbose_name='менеджеры',
         blank=True
     )
-    speed_per_hour = models.IntegerField(
+    speed_per_hour = models.FloatField(
         verbose_name='скорость в час',
         validators=[not_negative_value_validator],
         blank=True,
@@ -104,6 +104,22 @@ class Project(models.Model):
 
     def __str__(self):
         return f'{self.name} (pk {self.pk})'
+
+    def save(
+            self,
+            force_insert=False,
+            force_update=False,
+            using=None,
+            update_fields=None
+    ):
+        if self.speed_per_hour is not None:
+            self.speed_per_hour = round(self.speed_per_hour, 2)
+        return super().save(
+            force_insert=False,
+            force_update=False,
+            using=None,
+            update_fields=None
+        )
 
     @property
     def managers(self) -> str:

@@ -8,12 +8,19 @@ import MyButton from "../../UI/MyButton";
 import PersonalAssessors from "./PersonalAssessors/PersonalAssessors";
 import RentAssessors from "./RentAssessors/RentAssessors";
 import Confirm from "../../UI/Confirm";
+import MyInput from "../../UI/MyInput";
+import {MagnifyingGlassIcon} from "@heroicons/react/24/solid";
+import {useFilterSKills} from "./PersonalAssessors/queries";
+import Select from "react-select";
 
 
 const AssessorsPage = () => {
     const [showSidebar, setShowSidebar] = useState(false)
     const [assessorType, setAssessorsType] = useState('personal')
     const [isOpenConfirm, setIsOpenConfirm] = useState(false)
+    const [globalFilter, setGlobalFilter] = React.useState('')
+    const {skills, skillsFilter, onSkillsChange, getValueSkills} = useFilterSKills()
+
     const closeDialog = () => {
         setIsOpenConfirm(true)
     }
@@ -44,8 +51,28 @@ const AssessorsPage = () => {
                             <MyButton onClick={() => setShowSidebar(true)}>Создать асессора</MyButton>
                         </div>
                     </div>
-                <div>
-                        {assessorType === 'personal' ? <PersonalAssessors/> : <RentAssessors/>}
+                <div className='flex space-x-2'>
+                    <div className="relative max-w-[210px]">
+                        <MyInput className='border border-gray-400 pl-[8px] py-[6px] pr-[30px]'
+                                 placeholder='Поиск по ФИО/Ник в ТГ' value={globalFilter}
+                                 onChange={(event) => setGlobalFilter(event.target.value)}/>
+                        <MagnifyingGlassIcon className="h-6 w-6 text-black absolute top-[5px] right-[5px]"/>
+                    </div>
+                    <div className="min-w-[220px]">
+                        <Select
+                            placeholder='Фильтр по навыкам'
+                            options={skills.isSuccess ? skills.data : []}
+                            isMulti
+                            value={getValueSkills()}
+                            isSearchable={false}
+                            onChange={onSkillsChange}
+                        />
+
+                    </div>
+                </div>
+                <div className='relative mt-[10px]'>
+                        {assessorType === 'personal' ? <PersonalAssessors globalFilter={globalFilter} skillsFilter={skillsFilter}/> :
+                            <RentAssessors globalFilter={globalFilter} skillsFilter={skillsFilter}/>}
                 </div>
             </div>
         </>
