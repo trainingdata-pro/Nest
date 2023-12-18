@@ -18,7 +18,7 @@ const AssessorHistory = ({assessorId}: {
                 <h1 className='my-2 text-[18px]'>История</h1>
             </div>
             <Table data={history.isSuccess ? history.data.results : []} columns={columns} totalRows={totalRows}
-                   currentPage={currentPage} totalPages={totalPages} setCurrentPage={setCurrentPage} pages={true} pageLimit={pageLimit} setPageLimit={setPageLimit}/>
+                   currentPage={currentPage} totalPages={totalPages} setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit}/>
         </>
     );
 };

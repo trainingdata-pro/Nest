@@ -34,7 +34,7 @@ const CheckAssessor = () => {
                 {checkAssessors.isFetching ? <Loader height='h-[300px]'/> :
 
                     <Table data={name.length >= 3 && checkAssessors.isSuccess ? checkAssessors.data.results : []} columns={columns} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
-                           setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit} pages={true}/>
+                           setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit}/>
 
             }
             </div>

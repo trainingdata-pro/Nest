@@ -36,7 +36,7 @@ const FreeResource = ({globalFilter, skillsFilter}: {
         <div>
             <Table data={fetchFreeResources.isSuccess ? fetchFreeResources.data.results : []} columns={columns} totalRows={totalRows} currentPage={currentPage}
                    totalPages={totalPages}
-                   setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit} pages={true}/>
+                   setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit}/>
         </div>
     );
 };

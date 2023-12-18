@@ -28,7 +28,7 @@ const OwnDesires = ({globalFilter, skillsFilter}: {
         <>
             <Table data={fired.data ? fired.data.results : []} columns={columns} totalRows={totalRows}
                    currentPage={currentPage} totalPages={totalPages}
-                   setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit} pages={true}/>
+                   setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit}/>
         </>
     );
 };

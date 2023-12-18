@@ -19,6 +19,7 @@ import Confirm from "../../UI/Confirm";
 import MyInput from "../../UI/MyInput";
 import {MagnifyingGlassIcon} from "@heroicons/react/24/solid";
 import {useDebounce} from "../../../hooks/debounce";
+import {useFetchProjectAssessorsQuery} from "../../../services/project";
 
 
 const ProjectPage = () => {
@@ -29,22 +30,14 @@ const ProjectPage = () => {
         const {statusList, selectedStatus, handlerSelectChangeStatus, getStatusValue} = useStatusFilter()
     const [globalFilter, setGlobalFilter] = React.useState('')
     const {
-            projectAssessors,
             currentPage,
             setCurrentPage,
             totalPages,
             totalRows,
             pageLimit,
             setPageLimit
-        } = useFetchProjectAssessors({
-            enabled: projectInfo.isSuccess,
-            projectId: id,
-            sorting: sorting,
-            sortingString: getSortingString(),
-            skillsFilter: skillsFilter.join(','),
-            statusFilter: selectedStatus.join(','),
-            name: useDebounce(globalFilter)
-        })
+        } = useFetchProjectAssessors()
+        const {data, isLoading, isSuccess,isFetching} = useFetchProjectAssessorsQuery({id: Number(id), page: currentPage, page_size: pageLimit, sorting: getSortingString()})
         const [isOpenConfirm, setIsOpenConfirm] = useState(false)
         const closeDialog = () => {
             setIsOpenConfirm(true)
@@ -59,8 +52,8 @@ const ProjectPage = () => {
         const [isExportAssessors, setIsExportAssessors] = useState(false)
 
 
-        if (projectInfo.isFetching) return <Loader/>
-        if (projectInfo.isError || projectAssessors.isError) return <Page404/>
+        // if (projectInfo.isFetching) return <Loader/>
+        // if (projectInfo.isError || projectAssessors.isError) return <Page404/>
 
         return (
             <div>
@@ -112,7 +105,7 @@ const ProjectPage = () => {
                                 value={getStatusValue()}
                                 onChange={handlerSelectChangeStatus}
                             />
-                            <div className="relative max-w-[210px]">
+                            <div className="relative">
                                 <MyInput className='border border-gray-400 pl-[8px] py-[6px] pr-[30px]'
                                          placeholder='Поиск по ФИО/Ник в ТГ' value={globalFilter}
                                          onChange={(event) => setGlobalFilter(event.target.value)}/>
@@ -120,12 +113,11 @@ const ProjectPage = () => {
                             </div>
                         </div>
                         <div className='flex-[84%] rounded-[20px] bg-white'>
-                            {projectAssessors.isFetching ? <Loader height={'h-[calc(100vh-150px)]'}/> :
-                                <Table data={projectAssessors.isSuccess ? projectAssessors.data.results : []}
-                                       columns={columns} totalRows={totalRows} currentPage={currentPage}
-                                       totalPages={totalPages}
+                                <Table data={isSuccess ? data.results : []} isLoading={isFetching}
+                                       columns={columns} totalRows={data ? data.count : 0} currentPage={currentPage}
+                                       totalPages={isSuccess ? Math.ceil(data.count / pageLimit) : 0}
                                        setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit}
-                                       pages={true}/>}
+                                />
                         </div>
                     </div>
 

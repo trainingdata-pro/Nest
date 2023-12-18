@@ -24,7 +24,7 @@ const RentAssessor = ({assessorId, show}:{
     return (
         <div>
                 <h1 className='px-4 border-b border-black mb-2'>Аренда ассессора</h1>
-                <Table data={fetchProjects.isSuccess ? fetchProjects.data.results : []} columns={columns} pageLimit={pageLimit} setPageLimit={setPageLimit} pages={true} setCurrentPage={setCurrentPage} currentPage={currentPage} totalPages={totalPages} totalRows={totalRows}/>
+                <Table data={fetchProjects.isSuccess ? fetchProjects.data.results : []} columns={columns} pageLimit={pageLimit} setPageLimit={setPageLimit} setCurrentPage={setCurrentPage} currentPage={currentPage} totalPages={totalPages} totalRows={totalRows}/>
                 <div className='flex justify-between space-x-2'>
                     <MyButton onClick={() => show(false)}>Назад</MyButton>
                     <MyButton onClick={submit}>Сохранить</MyButton>

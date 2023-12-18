@@ -3,31 +3,26 @@ import {Project} from "../../../models/ProjectResponse";
 import {useNavigate} from "react-router-dom";
 import React, {useState} from "react";
 import Sorting from "../../../utils/sorting";
+import {PROJECT_STATUS} from "../../../assets/consts";
 
 
-export const useProjectsSorting =()=> {
+export const useProjectsSorting = ()=> {
     const [sorting, setSorting] = React.useState({
         status: 'status',
         assessors_count: '-assessors_count',
         manager__last_name: ''
     })
+
     const columnHelper = createColumnHelper<Project>()
     const [projectId, setProjectId] = useState(0)
     const [showSidebar, setShowSidebar] = useState(false)
-    const statusObject = {
-        "active": "Активный",
-        "pause": "На паузе",
-        "completed": "Завершенный"
-    }
-    const getSortingString = () => {
-        return Object.keys(sorting).filter(key => {
-            // @ts-ignore
-            return sorting[key] !== ''
+
+    const sortingString =  Object.keys(sorting)
+        .filter(key => {
+            return sorting[key as keyof typeof sorting] !== ''
         }).map(key => {
-            // @ts-ignore
-            return sorting[key]
+            return sorting[key as keyof typeof sorting]
         }).join(',')
-    }
     const navigation = useNavigate()
     const columns = [
         columnHelper.accessor('asana_id', {
@@ -56,10 +51,10 @@ export const useProjectsSorting =()=> {
         }),
         columnHelper.accessor('status', {
             header: () => <div className='flex'><p>Статус</p><Sorting sortingKey={"status"} func={setSorting} sortingValue={sorting.status} state={sorting}/></div>,
-            cell: ({row}) => statusObject[row.original.status],
+            cell: ({row}) => PROJECT_STATUS[row.original.status],
             enableSorting: true
         })
     ]
 
-    return {getSortingString,projectId, sorting, setShowSidebar, setProjectId, columns, showSidebar}
+    return {sortingString,projectId, sorting, setShowSidebar, setProjectId, columns, showSidebar}
 }

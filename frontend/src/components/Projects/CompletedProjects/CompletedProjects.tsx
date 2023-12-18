@@ -1,40 +1,59 @@
 import React, {useState} from 'react';
 import {observer} from "mobx-react-lite";
 import Dialog from "../../UI/Dialog";
-import Export from "../Export";
 import {useCompletedProjectsColumns} from "./columns";
-import Loader from "../../UI/Loader";
-import {useCompletedProjects} from "./queries";
 import ProjectForm from "../ProjectForm/ProjectForm";
 import Table from "../../UI/Table";
 import CompletedProjectsMenu from "./CompletedProjectsMenu";
+import {useFetchCompletedProjectsQuery} from "../../../services/project";
+import {usePagination} from "../../../hooks/usePagination";
 
 const CompletedProjects = () => {
     const [showSidebar, setShowSidebar] = useState(false)
     const [projectId, setProjectId] = useState(0)
-    const {sorting, getSortingString, columns} = useCompletedProjectsColumns({setProjectId, setShowSidebar})
+    const {
+        getSortingString,
+        columns
+    } = useCompletedProjectsColumns({
+        setProjectId,
+        setShowSidebar
+    })
+
     const {
         currentPage,
         setCurrentPage,
-        totalPages,
-        totalRows,
-        completedProjects,
         pageLimit,
         setPageLimit
-    } = useCompletedProjects({sorting, getSortingString})
+    } = usePagination('completedProjectPage')
+    const {
+        data,
+        isFetching,
+        isSuccess
+    } = useFetchCompletedProjectsQuery({
+        page: currentPage,
+        page_size: pageLimit,
+        sorting: getSortingString()
+    })
 
-    if (completedProjects.isFetching) return <Loader height={'h-[calc(100vh-80px)]'}/>
     return (
         <React.Fragment>
             <Dialog isOpen={showSidebar} setIsOpen={setShowSidebar}>
                 <ProjectForm projectId={projectId}
-                             closeSidebar={setShowSidebar} isOpenModal={setShowSidebar}/>
+                             closeSidebar={setShowSidebar}
+                             isOpenModal={setShowSidebar}
+                />
             </Dialog>
             <CompletedProjectsMenu/>
-            <Table data={completedProjects.isSuccess ? completedProjects.data.results : []}
-                    columns={columns} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
-                    setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit}
-                    pages={true}/>
+            <Table data={isSuccess ? data.results : []}
+                   isLoading={isFetching}
+                   columns={columns}
+                   totalRows={data?.count ? data.count : 0}
+                   currentPage={currentPage}
+                   totalPages={isSuccess ? Math.ceil(data.count / pageLimit) : 1}
+                   setCurrentPage={setCurrentPage}
+                   pageLimit={pageLimit}
+                   setPageLimit={setPageLimit}
+            />
         </React.Fragment>
     );
 };

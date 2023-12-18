@@ -31,7 +31,7 @@ const PersonalAssessors = ({globalFilter, skillsFilter}: {
                 />
             </div>
             <div className='rounded-[20px] bg-white overflow-hidden overflow-x-auto'>
-                <Table data={assessors.isSuccess ? assessors.data.results: []}  columns={columns} pages={true} setPageLimit={setPageLimit} pageLimit={pageLimit} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                <Table height='h-[calc(100vh-200px)]' data={assessors.isSuccess ? assessors.data.results: []}  columns={columns} setPageLimit={setPageLimit} pageLimit={pageLimit} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
                        setCurrentPage={setCurrentPage}/>
             </div>
         </>

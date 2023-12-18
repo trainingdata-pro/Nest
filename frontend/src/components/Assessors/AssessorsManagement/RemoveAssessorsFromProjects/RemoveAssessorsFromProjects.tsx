@@ -12,6 +12,7 @@ import {useRemoveAssessorsColumns} from "./columns";
 import {Assessor} from "../../../../models/AssessorResponse";
 import {useFetchProjects} from "../ChangeProjects/queries";
 import {useFetchProjectsToDelete} from "./queries";
+import {REMOVE_FROM_PROJECTS_REASONS} from "../../../../assets/consts";
 
 const RemoveAssessorsFromProjects = ({assessorsRow, setAssessorsRow, show}: {
     assessorsRow: Row<Assessor>[],
@@ -47,27 +48,18 @@ const RemoveAssessorsFromProjects = ({assessorsRow, setAssessorsRow, show}: {
             })
         }
     }
-    const reasons = [
-        {
-            id: 'reason1',
-            value: 'Не смог работать со спецификой проекта',
-            name: 'reason',
-            label: 'Не смог работать со спецификой проекта'
-        },
-        {id: 'reason2', value: 'Не сработались', name: 'reason', label: 'Не сработались'},
-        {id: 'reason3', value: 'Не понадобился', name: 'reason', label: 'Не понадобился'},
-        {id: 'reason4', value: 'Усиление другого проекта', name: 'reason', label: 'Усиление другого проекта'}]
+
     return (
         <div>
             <div className='w-full'>
                 <h1 className='px-4 border-b border-black mb-2'>Удалить с проекта</h1>
                 <div className='pb-4'>
-                    {reasons.map(reason => <Reason key={reason.id} label={reason.label}
+                    {REMOVE_FROM_PROJECTS_REASONS.map(reason => <Reason key={reason.id} label={reason.label}
                                                    setSelectedReason={setSelectedReason} name={reason.name}
                                                    value={reason.value} id={reason.id}/>)}
                 </div>
                 <div>
-                    <Table data={projects.isSuccess ? projects.data.results: [] }  columns={columns} pages={true} setPageLimit={setPageLimit} pageLimit={pageLimit} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                    <Table height='h-[calc(100vh-300px)]' data={projects.isSuccess ? projects.data.results: [] }  columns={columns} setPageLimit={setPageLimit} pageLimit={pageLimit} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
                            setCurrentPage={setCurrentPage}/>
                 </div>
                 <div className='flex justify-between space-x-2'>

@@ -7,6 +7,37 @@ export const COUNTRIES: string[] = [
     "Другое"
 ]
 
+export const PROJECT_STATUS = {
+    "active": "Активный",
+    "pause": "На паузе",
+    "completed": "Завершенный"
+}
+export const REMOVE_FROM_PROJECTS_REASONS = [
+    {
+        id: 'reason1',
+        value: 'Не смог работать со спецификой проекта',
+        name: 'reason',
+        label: 'Не смог работать со спецификой проекта'
+    },
+    {
+        id: 'reason2',
+        value: 'Не сработались',
+        name: 'reason',
+        label: 'Не сработались'
+    },
+    {
+        id: 'reason3',
+        value: 'Не понадобился',
+        name: 'reason',
+        label: 'Не понадобился'
+    },
+    {
+        id: 'reason4',
+        value: 'Усиление другого проекта',
+        name: 'reason',
+        label: 'Усиление другого проекта'
+    }
+]
 export const ASSESSOR_INFO_ERRORS = {
     last_name: 'Фамилия',
     first_name: 'Имя',

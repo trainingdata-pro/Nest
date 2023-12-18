@@ -9,7 +9,7 @@ const TablePagination = ({totalRows, currentPage, totalPages, setCurrentPage, se
     pageLimit: number
 }) => {
     return (
-        <div className="px-2 py-2">
+        <div className="px-2 py-2 bg-white">
             <div className="flex items-center justify-between space-x-2">
                 <div className="text-sm text-muted-foreground text-gray-400">
                     Всего строк: {totalRows}

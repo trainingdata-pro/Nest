@@ -10,8 +10,10 @@ import Error from "../../UI/Error";
 import CreatableSelect from "react-select/creatable";
 import MyButton from "../../UI/MyButton";
 import {useRegularity, useStatus, useTags, useTeam} from "./hooks";
-import {useFetchProject, usePatchProject, usePostProject} from "./queries";
+import {getError, useFetchProject, usePatchProject, usePostProject} from "./queries";
 import {ProjectFormProps} from "../../../models/ProjectResponse";
+import {useCreateProjectMutation} from "../../../services/project";
+import {errorNotification, successNotification} from "../../UI/Notify";
 
 
 export const FormSection = ({children}: { children: React.ReactNode }) => {
@@ -67,16 +69,16 @@ const ProjectForm = ({projectId, closeSidebar, isOpenModal}: {
         const yyyy = String(currentDate.getUTCFullYear())
         return `${yyyy}-${mm}-${dd}`
     }
-    function onSubmit() {
+    const [createProject, result] = useCreateProjectMutation()
+    const onSubmit = () => {
         let formValue = getValues()
         formValue = { ...formValue, date_of_creation: getUTCDate(formValue.date_of_creation)}
         if (projectId !== 0) {
             patchProject.mutate({id: projectId, data: formValue})
         } else {
-            postProject.mutate(formValue)
+            createProject({data: formValue})
         }
     }
-
     return (
         <div className="w-[30rem]">
             <form className="w-full" onSubmit={handleSubmit(onSubmit)}>

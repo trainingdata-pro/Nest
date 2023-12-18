@@ -5,7 +5,7 @@ const Loader = ({height}: {
     height?: string
 }) => {
     return (
-        <div className={`flex justify-center my-auto ${height ? height : 'h-screen'}  items-center`}>
+        <div className={`absolute top-0 flex justify-center h-full w-full items-center`}>
             <Spinner className="h-16 w-16 text-gray-900/50" />
         </div>
     );

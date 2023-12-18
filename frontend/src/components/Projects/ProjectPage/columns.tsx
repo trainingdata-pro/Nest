@@ -37,7 +37,7 @@ export const useProjectAssessorsColumns = () => {
                 </div>
             ),
             enableSorting: false,
-            maxSize: 30
+            maxSize: 40
         }),
         columnHelper.group({
             header: 'ФИО',
@@ -70,49 +70,51 @@ export const useProjectAssessorsColumns = () => {
                 columnHelper.accessor('working_hours', {
                     id: 'monday',
                     header: () => 'ПН',
-                    cell: info => <div className={`w-full h-full flex justify-center items-center ${((info.row.original.manager.id.toString() !== store.user_id.toString()) && !store.user_data.is_teamlead) ? 'bg-red-100' : ''}`}>{info.row.original.working_hours.length !== 0 ? info.row.original.working_hours[0]?.monday : 0}</div>,
-                    enableSorting: false
+                    cell: info => <div className={`w-full h-full m-0 flex justify-center items-center ${((info.row.original.manager.id.toString() !== store.user_id.toString()) && !store.user_data.is_teamlead) ? 'bg-red-100' : ''}`}>{info.row.original.working_hours.length !== 0 ? info.row.original.working_hours[0]?.monday : 0}</div>,
+                    enableSorting: false,
+                    size: 40
                 }),
                 columnHelper.accessor('working_hours', {
                     id: 'tuesday',
                     header: () => 'ВТ',
                     enableSorting: false,
                     cell: info => <div className={`w-full h-full flex justify-center items-center ${((info.row.original.manager.id.toString() !== store.user_id.toString()) && !store.user_data.is_teamlead) ? 'bg-red-100' : ''}`}>{info.row.original.working_hours.length !== 0 ? info.row.original.working_hours[0]?.tuesday : 0}</div>,
-
+                    size: 40
                 }),
                 columnHelper.accessor('working_hours', {
                     id: 'wednesday',
                     header: () => 'СР',
                     cell: info => <div className={`w-full h-full flex justify-center items-center ${((info.row.original.manager.id.toString() !== store.user_id.toString()) && !store.user_data.is_teamlead) ? 'bg-red-100' : ''}`}>{info.row.original.working_hours.length !== 0 ? info.row.original.working_hours[0]?.wednesday : 0}</div>,
-
+                    size: 40,
                     enableSorting: false
                 }),
                 columnHelper.accessor('working_hours', {
                     id: 'thursday',
                     header: () => 'ЧТ',
                     cell: info => <div className={`w-full h-full flex justify-center items-center ${((info.row.original.manager.id.toString() !== store.user_id.toString()) && !store.user_data.is_teamlead) ? 'bg-red-100' : ''}`}>{info.row.original.working_hours.length !== 0 ? info.row.original.working_hours[0]?.thursday : 0}</div>,
-
+                    size: 40,
                     enableSorting: false
                 }),
                 columnHelper.accessor('working_hours', {
                     id: 'friday',
                     header: () => 'ПТ',
                     cell: info => <div className={`w-full h-full flex justify-center items-center ${((info.row.original.manager.id.toString() !== store.user_id.toString()) && !store.user_data.is_teamlead) ? 'bg-red-100' : ''}`}>{info.row.original.working_hours.length !== 0 ? info.row.original.working_hours[0]?.friday : 0}</div>,
-
+                    size: 40,
                     enableSorting: false
                 }),
                 columnHelper.accessor('working_hours', {
                     id: 'saturday',
                     header: () => 'СБ',
                     cell: info => <div className={`w-full h-full flex justify-center items-center ${((info.row.original.manager.id.toString() !== store.user_id.toString()) && !store.user_data.is_teamlead) ? 'bg-red-100' : ''}`}>{info.row.original.working_hours.length !== 0 ? info.row.original.working_hours[0]?.saturday : 0}</div>,
-
+                    size: 40,
                     enableSorting: false
                 }),
                 columnHelper.accessor('working_hours', {
                     id: 'sunday',
                     header: () => 'ВС',
                     cell: info => <div className={`w-full h-full flex justify-center items-center ${((info.row.original.manager.id.toString() !== store.user_id.toString()) && !store.user_data.is_teamlead) ? 'bg-red-100' : ''}`}>{info.row.original.working_hours.length !== 0 ? info.row.original.working_hours[0]?.sunday : 0}</div>,
-                    enableSorting: false
+                    enableSorting: false,
+                    size: 40,
                 }),
             ],
         }),
@@ -120,7 +122,7 @@ export const useProjectAssessorsColumns = () => {
             id: 'total',
             header: () => <div className='flex'><p>Всего</p><Sorting sortingKey={"total_working_hours"} func={setSorting} sortingValue={sorting.total_working_hours} state={sorting}/></div>,
     cell: info => <div className={`w-full h-full flex justify-center items-center ${((info.row.original.manager.id.toString() !== store.user_id.toString()) && !store.user_data.is_teamlead) ? 'bg-red-100' : ''}`}>{info.row.original.working_hours.length !== 0 ? info.row.original.working_hours[0]?.total : 0}</div>,
-
+            size: 40,
             enableSorting: false
         }),
         columnHelper.accessor('workload_status', {

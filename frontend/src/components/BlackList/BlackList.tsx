@@ -44,7 +44,7 @@ const BlackList = () => {
                 <Table data={blacklist.isSuccess ? blacklist.data.results : []} columns={columns}
                        totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
                        setCurrentPage={setCurrentPage} pageLimit={pageLimit} setPageLimit={setPageLimit}
-                       pages={true}/>}
+                       />}
         </>
     );
 };

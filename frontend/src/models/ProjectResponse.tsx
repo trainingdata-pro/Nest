@@ -1,5 +1,13 @@
 import {IManager, IUser} from "./ManagerResponse";
 
+export interface ServerResponse<T> {
+    count: number
+    next: any
+    previous: any
+    page: number
+    page_size: number
+    results: T[]
+}
 export interface ProjectResponse {
     count: number,
     next: string | null,

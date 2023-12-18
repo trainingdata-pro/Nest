@@ -3,31 +3,33 @@ import Icon from "@mdi/react";
 import {mdiSort, mdiSortAscending, mdiSortDescending} from "@mdi/js";
 import React, {Dispatch} from "react";
 import TablePagination from "./TablePagination";
+import Loader from "./Loader";
 
 
-const Table = ({data, columns, totalRows, currentPage, totalPages, setCurrentPage, pages, setPageLimit, pageLimit}: {
+const Table = ({data, isLoading, columns, totalRows, currentPage, setCurrentPage, setPageLimit, pageLimit, height = 'h-[calc(100vh-150px)]'}: {
     data: any[],
+    isLoading? : boolean
     columns: any[],
     totalRows: number,
     currentPage: number,
-    totalPages: number,
+    totalPages?: number,
     setCurrentPage: Dispatch<number>,
-    pages: boolean,
     setPageLimit: Dispatch<number>,
-    pageLimit: number
+    pageLimit: number,
+    height?: string
 }) => {
-
     const table = useReactTable({
         data: data ? data : [],
         columns,
         getCoreRowModel: getCoreRowModel(),
         enableSorting: false
     })
+
     return (
-        <div className="w-full">
-            <div className="rounded-t-[20px] bg-white overflow-hidden">
-                <table className="w-full h-full">
-                    <thead>
+        <div className="w-full relative border-collapse border-spacing-0">
+            <div className={`rounded-t-[20px] bg-white overflow-y-auto ${height}`}>
+                <table className="w-full h-fit mb-[50px]">
+                    <thead className='sticky top-0' id={'thead'}>
                     {table.getHeaderGroups().map(headerGroup => (
                         <tr key={headerGroup.id}
                             className="transition-colors data-[state=selected]:bg-muted bg-[#E7EAFF]">
@@ -38,7 +40,7 @@ const Table = ({data, columns, totalRows, currentPage, totalPages, setCurrentPag
                                             header.getSize(),
                                     }}
                                         colSpan={header.colSpan}
-                                        className="items-center py-2 text-[#64748b] text-sm border-r border-r-gray-300 last:border-none">
+                                        className="items-center h-full bg-[#E7EAFF] py-2 text-[#64748b] text-sm border-r border-r-gray-300 last:border-none">
                                         {header.isPlaceholder ? null : (
                                             <div{...{
                                                 className: header.column.getCanSort() ? 'flex justify-center items-center align-middle cursor-pointer select-none' : 'flex justify-center',
@@ -66,15 +68,16 @@ const Table = ({data, columns, totalRows, currentPage, totalPages, setCurrentPag
                         </tr>
                     ))}
                     </thead>
-                    <tbody className='h-full'>
+                    {isLoading ? <tbody><tr><td colSpan={30}><Loader/></td></tr></tbody>:
+                    <tbody className='h-full w-full'>
                     {table.getRowModel().rows.length !== 0 ?
                         (table.getRowModel().rows.map(row => (
                             <tr key={row.id}
-                                className={row.getIsSelected() ? "border-b transition-colors bg-gray-300" :
-                                    "border-b transition-colors hover:bg-gray-100"}>
+                                className={row.getIsSelected() ? "border-b h-full transition-colors bg-gray-300" :
+                                    "border-b transition-colors h-full hover:bg-gray-100"}>
                                 {row.getVisibleCells().map(cell => {
                                     return (
-                                        <td className='border-r border-r-gray-300 h-full align-middle last:border-none'
+                                        <td className='border-r p-0 m-0 border-r-gray-300 h-full align-middle last:border-none'
                                             key={cell.id}
                                             colSpan={1}>
                                             <div
@@ -94,10 +97,14 @@ const Table = ({data, columns, totalRows, currentPage, totalPages, setCurrentPag
                             </td>
                         </tr>)
                     }
-                    </tbody>
+                    </tbody>}
+
                 </table>
-                {pages && <TablePagination setPageLimit={setPageLimit} pageLimit={pageLimit} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
-                                                           setCurrentPage={setCurrentPage}/>}
+                <div className='absolute bottom-[-1px] w-[calc(100%-19px)]' id='pagination'>
+                    <TablePagination setPageLimit={setPageLimit} pageLimit={pageLimit} totalRows={totalRows}
+                                               currentPage={currentPage} totalPages={Math.ceil(totalRows / pageLimit)}
+                                               setCurrentPage={setCurrentPage}/>
+                </div>
 
             </div>
         </div>

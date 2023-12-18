@@ -55,16 +55,22 @@ export const usePostProject = ({closeSidebar} : {
             successNotification('Проект успешно создан')
             closeSidebar(false)
         },
-        onError: (error: AxiosError) => {
+        onError: (error: AxiosError, error_list: any) => {
             const errors = error.response?.data ? error.response?.data : {}
             const keys = Object.keys(errors)
             // @ts-ignore
-            const notify = <div>{keys.map(key => <p key={key}>{`${Errors[key]}: ${errors[key][0]}`}</p>)}</div>
+            const notify = <div>{keys.map(key => <p key={key}>{`${error_list[key]}: ${errors[key][0]}`}</p>)}</div>
             errorNotification(notify)
         }
     });
 }
-
+export const getError = (error: any) => {
+    const errors = error.response?.data ? error.response?.data : {}
+    const keys = Object.keys(errors)
+    // @ts-ignore
+    const notify = <div>{keys.map(key => <p key={key}>{`${error_list[key]}: ${errors[key][0]}`}</p>)}</div>
+    errorNotification(notify)
+}
 export const useFetchProject = ({projectId, setValue, setSelectedManagers, setCurrentTags, setRegularity, setCurrentStatus, regOptions, setRegOptions}: {
     projectId: number | string,
     setValue: any,

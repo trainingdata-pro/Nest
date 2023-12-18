@@ -22,11 +22,11 @@ function SideBar({children, isOpen, setIsOpen,topLayer}: {
             <Dialog as="div" open={isOpen} className={cnDialog} initialFocus={cancelButtonRef} onClose={setIsOpen}>
                 <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"/>
                 <div className={cnLayer}>
-                    <div className="flex min-h-full justify-center p-4 text-center items-start">
+                    <div className="flex justify-center text-center pt-2">
                         <Dialog.Panel
                             className="relative rounded-lg bg-white text-left shadow-xl transition-all max-w-[70%]">
-                            <div className="bg-white px-4 pb-4">
-                                <div className="text-center" ref={cancelButtonRef}>
+                            <div className="bg-white px-4 ">
+                                <div className="text-center px-4 py-4 max-h-[calc(100vh-20px)] overflow-y-auto overflow-x-hidden" ref={cancelButtonRef}>
                                     {children}
                                 </div>
                             </div>

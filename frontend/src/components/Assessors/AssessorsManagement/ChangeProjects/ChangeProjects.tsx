@@ -116,7 +116,7 @@ const ChangeProjects = ({assessorsRow, show, setAssessorsRow}:{
                 <div className='bg-white pb-4'>
                     {reasons.map(reason => <Reason key={reason.id} label={reason.label} setSelectedReason={setSelectedReason} name={reason.name} value={reason.value} id={reason.id}/>)}
                 </div>
-                <Table data={projects.isSuccess ? projects.data.results : []}  columns={columns} pages={true} setPageLimit={setPageLimit} pageLimit={pageLimit} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
+                <Table height='h-[calc(100vh-300px)]' data={projects.isSuccess ? projects.data.results : []}  columns={columns} setPageLimit={setPageLimit} pageLimit={pageLimit} totalRows={totalRows} currentPage={currentPage} totalPages={totalPages}
                        setCurrentPage={setCurrentPage}/>
                 <div className='flex justify-between space-x-2'>
                     <MyButton onClick={() => show(false)}>Назад</MyButton>
