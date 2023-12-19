@@ -15,19 +15,19 @@ services:
     networks:
       - default_network
     depends_on:
-      - postgres
+#      - postgres
       - celery
 
-  postgres:
-    container_name: postgres-nest-stage
-    restart: always
-    image: postgres:14-alpine3.18
-    env_file:
-      - ./backend/.env
-    volumes:
-      - ./storage/postgres-data:/var/lib/postgresql/data
-    networks:
-      - default_network
+#  postgres:
+#    container_name: postgres-nest-stage
+#    restart: always
+#    image: postgres:14-alpine3.18
+#    env_file:
+#      - ./backend/.env
+#    volumes:
+#      - ./storage/postgres-data:/var/lib/postgresql/data
+#    networks:
+#      - default_network
 
   redis:
     container_name: redis-nest-stage
